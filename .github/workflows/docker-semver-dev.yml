@@ -1,0 +1,84 @@
+name: DEV - Build and Upload to Dockerhub
+
+on:
+  release:
+    types:
+      - created
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    if: endsWith(github.ref, '-dev')
+    steps:
+      - name: Has "DEV"-Tag
+        run: echo "Version has the DEV-Tag"
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Docker Login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      #- name: Set up environment for Advanced Tables
+      #  env:
+      #    ADVANCED_TABLES_USERNAME: ${{ secrets.ADVANCED_TABLES_USERNAME }}
+      #    ADVANCED_TABLES_PASSWORD: ${{ secrets.ADVANCED_TABLES_PASSWORD }}
+      #  run: |
+      #    echo "ADVANCED_TABLES_USERNAME=${ADVANCED_TABLES_USERNAME}" >> .env
+      #    echo "COMPOSER_AUTH_PASSWORD=**************" >> .env
+      ######################################################
+      # Setting up final build tags
+      ######################################################
+      - name: Prepare Tags
+        id: prep
+        run: |
+          IMAGE=${{ secrets.DOCKERHUB_PREFIX }}/${GITHUB_REPOSITORY#*/}-dev
+          echo ::set-output name=image::${IMAGE}
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.prep.outputs.image }}
+          flavor: |
+            latest=auto
+          tags: |
+            type=edge,enable=true,branch=main
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
+      ######################################################
+      # Setup Cache and BuildX
+      ######################################################
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3.2.0
+        with:
+          driver-opts: network=host
+      ######################################################
+      # Build!
+      ######################################################
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v6
+        with:
+          cache-from: "type=gha"
+          cache-to: "type=gha,mode=max"
+          builder: ${{ steps.buildx.outputs.name }}
+          file: ./Dockerfile
+          target: production
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Build and push local
+        id: docker_build_local
+        uses: docker/build-push-action@v6
+        if: ${{ github.ref_name == 'main' }}
+        with:
+          cache-from: "type=gha"
+          cache-to: "type=gha,mode=max"
+          builder: ${{ steps.buildx.outputs.name }}
+          file: ./Dockerfile
+          target: local
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.prep.outputs.image }}:local
