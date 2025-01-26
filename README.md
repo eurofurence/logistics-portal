@@ -4,7 +4,15 @@
 
 # Logistics Portal
 
-A Telegram bot for the critter system for receiving shift informations faster and for easier planning and managament.
+The Logistics portal is a platform that provides tools for different sections of the convention organization with the main focus on logistics.
+
+
+
+## Features/Tools
+
+- Material order
+- Inventory and Storage management (WIP)
+-  Management of invoices and their archiving
 
 
 ## Contributing
