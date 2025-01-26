@@ -9,16 +9,9 @@ A Telegram bot for the critter system for receiving shift informations faster an
 
 ## Contributing
 
-Contributions are always welcome!
-
 See `CONTRIBUTING.md` for ways to get started.
 
 Please adhere to this project's `code of conduct`.
-
-
-## Documentation
-
-[Documentation](https://linktodocumentation)
 
 
 ## License
