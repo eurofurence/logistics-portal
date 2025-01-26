@@ -5,7 +5,7 @@
 
 /**
  * A helper file for Laravel, to provide autocomplete information to your IDE
- * Generated for Laravel 11.37.0.
+ * Generated for Laravel 11.40.0.
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
@@ -4783,9 +4783,9 @@ namespace Illuminate\Support\Facades {
          *
          * @template TCacheValue
          * @param string $key
-         * @param \Illuminate\Cache\array{  0: \DateTimeInterface|\DateInterval|int, 1: \DateTimeInterface|\DateInterval|int }  $ttl
+         * @param array{ 0: \DateTimeInterface|\DateInterval|int, 1: \DateTimeInterface|\DateInterval|int } $ttl
          * @param (callable(): TCacheValue) $callback
-         * @param \Illuminate\Cache\array{  seconds?: int, owner?: string }|null  $lock
+         * @param array{ seconds?: int, owner?: string }|null $lock
          * @return TCacheValue 
          * @static 
          */
@@ -4866,6 +4866,18 @@ namespace Illuminate\Support\Facades {
         {
             /** @var \Illuminate\Cache\Repository $instance */
             return $instance->tags($names);
+        }
+
+        /**
+         * Get the name of the cache store.
+         *
+         * @return string|null 
+         * @static 
+         */
+        public static function getName()
+        {
+            /** @var \Illuminate\Cache\Repository $instance */
+            return $instance->getName();
         }
 
         /**
@@ -14363,7 +14375,7 @@ namespace Illuminate\Support\Facades {
          * 
          *
          * @internal 
-         * @param \Symfony\Component\HttpFoundation\callable():  SessionInterface $factory
+         * @param callable():  SessionInterface $factory
          * @static 
          */
         public static function setSessionFactory($factory)
@@ -15833,6 +15845,19 @@ namespace Illuminate\Support\Facades {
         {
             /** @var \Illuminate\Http\Request $instance */
             return $instance->enums($key, $enumClass);
+        }
+
+        /**
+         * Retrieve data from the instance as an array.
+         *
+         * @param array|string|null $key
+         * @return array 
+         * @static 
+         */
+        public static function array($key = null)
+        {
+            /** @var \Illuminate\Http\Request $instance */
+            return $instance->array($key);
         }
 
         /**
@@ -22161,7 +22186,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Set the prefetching strategy.
          *
-         * @param \Illuminate\Foundation\'waterfall'|\Illuminate\Foundation\'aggressive'|null $strategy
+         * @param 'waterfall'|'aggressive'|null $strategy
          * @param array $config
          * @return \Illuminate\Foundation\Vite 
          * @static 
@@ -22299,6 +22324,175 @@ namespace Illuminate\Support\Facades {
         public static function flushMacros()
         {
             \Illuminate\Foundation\Vite::flushMacros();
+        }
+
+            }
+    }
+
+namespace Althinect\FilamentSpatieRolesPermissions {
+    /**
+     * 
+     *
+     */
+    class FilamentSpatieRolesPermissionsFacade {
+        /**
+         * Run a Closure when the facade has been resolved.
+         *
+         * @param \Closure $callback
+         * @return void 
+         * @static 
+         */
+        public static function resolved($callback)
+        {
+            //Method inherited from \Illuminate\Support\Facades\Facade 
+            \Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade::resolved($callback);
+        }
+
+        /**
+         * Convert the facade into a Mockery spy.
+         *
+         * @return \Mockery\MockInterface 
+         * @static 
+         */
+        public static function spy()
+        {
+            //Method inherited from \Illuminate\Support\Facades\Facade 
+            return \Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade::spy();
+        }
+
+        /**
+         * Initiate a partial mock on the facade.
+         *
+         * @return \Mockery\MockInterface 
+         * @static 
+         */
+        public static function partialMock()
+        {
+            //Method inherited from \Illuminate\Support\Facades\Facade 
+            return \Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade::partialMock();
+        }
+
+        /**
+         * Initiate a mock expectation on the facade.
+         *
+         * @return \Mockery\Expectation 
+         * @static 
+         */
+        public static function shouldReceive()
+        {
+            //Method inherited from \Illuminate\Support\Facades\Facade 
+            return \Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade::shouldReceive();
+        }
+
+        /**
+         * Initiate a mock expectation on the facade.
+         *
+         * @return \Mockery\Expectation 
+         * @static 
+         */
+        public static function expects()
+        {
+            //Method inherited from \Illuminate\Support\Facades\Facade 
+            return \Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade::expects();
+        }
+
+        /**
+         * Hotswap the underlying instance behind the facade.
+         *
+         * @param mixed $instance
+         * @return void 
+         * @static 
+         */
+        public static function swap($instance)
+        {
+            //Method inherited from \Illuminate\Support\Facades\Facade 
+            \Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade::swap($instance);
+        }
+
+        /**
+         * Determines whether a "fake" has been set as the facade instance.
+         *
+         * @return bool 
+         * @static 
+         */
+        public static function isFake()
+        {
+            //Method inherited from \Illuminate\Support\Facades\Facade 
+            return \Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade::isFake();
+        }
+
+        /**
+         * Get the root object behind the facade.
+         *
+         * @return mixed 
+         * @static 
+         */
+        public static function getFacadeRoot()
+        {
+            //Method inherited from \Illuminate\Support\Facades\Facade 
+            return \Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade::getFacadeRoot();
+        }
+
+        /**
+         * Clear a resolved facade instance.
+         *
+         * @param string $name
+         * @return void 
+         * @static 
+         */
+        public static function clearResolvedInstance($name)
+        {
+            //Method inherited from \Illuminate\Support\Facades\Facade 
+            \Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade::clearResolvedInstance($name);
+        }
+
+        /**
+         * Clear all of the resolved instances.
+         *
+         * @return void 
+         * @static 
+         */
+        public static function clearResolvedInstances()
+        {
+            //Method inherited from \Illuminate\Support\Facades\Facade 
+            \Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade::clearResolvedInstances();
+        }
+
+        /**
+         * Get the application default aliases.
+         *
+         * @return \Illuminate\Support\Collection 
+         * @static 
+         */
+        public static function defaultAliases()
+        {
+            //Method inherited from \Illuminate\Support\Facades\Facade 
+            return \Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade::defaultAliases();
+        }
+
+        /**
+         * Get the application instance behind the facade.
+         *
+         * @return \Illuminate\Contracts\Foundation\Application|null 
+         * @static 
+         */
+        public static function getFacadeApplication()
+        {
+            //Method inherited from \Illuminate\Support\Facades\Facade 
+            return \Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade::getFacadeApplication();
+        }
+
+        /**
+         * Set the application instance.
+         *
+         * @param \Illuminate\Contracts\Foundation\Application|null $app
+         * @return void 
+         * @static 
+         */
+        public static function setFacadeApplication($app)
+        {
+            //Method inherited from \Illuminate\Support\Facades\Facade 
+            \Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade::setFacadeApplication($app);
         }
 
             }
@@ -22967,7 +23161,7 @@ namespace DutchCodingCompany\FilamentSocialite\Facades {
          * 
          *
          * @deprecated This function will be removed in the next major version. Use `setSocialiteUserModelClass()` on the plugin options instead, and implement the `FilamentSocialiteUser` contract on your class.
-         * @param \DutchCodingCompany\FilamentSocialite\?\Closure(string $provider, \Laravel\Socialite\Contracts\User $oauthUser, \Illuminate\Contracts\Auth\Authenticatable $user):  \DutchCodingCompany\FilamentSocialite\Models\Contracts\FilamentSocialiteUser $callback
+         * @param ?\Closure(string $provider, \Laravel\Socialite\Contracts\User $oauthUser, \Illuminate\Contracts\Auth\Authenticatable $user):  \DutchCodingCompany\FilamentSocialite\Models\Contracts\FilamentSocialiteUser $callback
          * @return \DutchCodingCompany\FilamentSocialite\FilamentSocialite 
          * @static 
          */
@@ -28055,12 +28249,39 @@ namespace Livewire\Features\SupportTesting {
          *
          * @see \Filament\Tables\Testing\TestsFilters::assertTableFilterExists()
          * @param string $name
+         * @param \Closure|null $checkFilterUsing
          * @return static 
          * @static 
          */
-        public static function assertTableFilterExists($name)
+        public static function assertTableFilterExists($name, $checkFilterUsing = null)
         {
-            return \Livewire\Features\SupportTesting\Testable::assertTableFilterExists($name);
+            return \Livewire\Features\SupportTesting\Testable::assertTableFilterExists($name, $checkFilterUsing);
+        }
+
+        /**
+         * 
+         *
+         * @see \Filament\Tables\Testing\TestsFilters::assertTableFilterVisible()
+         * @param string $name
+         * @return static 
+         * @static 
+         */
+        public static function assertTableFilterVisible($name)
+        {
+            return \Livewire\Features\SupportTesting\Testable::assertTableFilterVisible($name);
+        }
+
+        /**
+         * 
+         *
+         * @see \Filament\Tables\Testing\TestsFilters::assertTableFilterHidden()
+         * @param string $name
+         * @return static 
+         * @static 
+         */
+        public static function assertTableFilterHidden($name)
+        {
+            return \Livewire\Features\SupportTesting\Testable::assertTableFilterHidden($name);
         }
 
         /**
@@ -28728,6 +28949,23 @@ namespace  {
         }
 
         /**
+         * Create a record matching the attributes, or increment the existing record.
+         *
+         * @param array $attributes
+         * @param string $column
+         * @param int|float $default
+         * @param int|float $step
+         * @param array $extra
+         * @return TModel 
+         * @static 
+         */
+        public static function incrementOrCreate($attributes, $column = 'count', $default = 1, $step = 1, $extra = [])
+        {
+            /** @var \Illuminate\Database\Eloquent\Builder $instance */
+            return $instance->incrementOrCreate($attributes, $column, $default, $step, $extra);
+        }
+
+        /**
          * Execute the query and get the first result or throw an exception.
          *
          * @param array|string $columns
@@ -29099,6 +29337,22 @@ namespace  {
         }
 
         /**
+         * Specify attributes that should be added to any new models created by this builder.
+         * 
+         * The given key / value pairs will also be added as where conditions to the query.
+         *
+         * @param \Illuminate\Contracts\Database\Query\Expression|array|string $attributes
+         * @param mixed $value
+         * @return \Illuminate\Database\Eloquent\Builder<static> 
+         * @static 
+         */
+        public static function withAttributes($attributes, $value = null)
+        {
+            /** @var \Illuminate\Database\Eloquent\Builder $instance */
+            return $instance->withAttributes($attributes, $value);
+        }
+
+        /**
          * Apply query-time casts to the model instance.
          *
          * @param array $casts
@@ -29304,7 +29558,7 @@ namespace  {
          * Chunk the results of the query.
          *
          * @param int $count
-         * @param \Illuminate\Database\Eloquent\callable(\Illuminate\Support\Collection<int, TValue>, int):  mixed  $callback
+         * @param callable(\Illuminate\Support\Collection<int, TValue>, int):  mixed  $callback
          * @return bool 
          * @static 
          */
@@ -29318,7 +29572,7 @@ namespace  {
          * Run a map over each item while chunking.
          *
          * @template TReturn
-         * @param \Illuminate\Database\Eloquent\callable(TValue):  TReturn  $callback
+         * @param callable(TValue):  TReturn  $callback
          * @param int $count
          * @return \Illuminate\Support\Collection<int, TReturn> 
          * @static 
@@ -29332,7 +29586,7 @@ namespace  {
         /**
          * Execute a callback over each item while chunking.
          *
-         * @param \Illuminate\Database\Eloquent\callable(TValue, int):  mixed  $callback
+         * @param callable(TValue, int):  mixed  $callback
          * @param int $count
          * @return bool 
          * @throws \RuntimeException
@@ -29348,7 +29602,7 @@ namespace  {
          * Chunk the results of a query by comparing IDs.
          *
          * @param int $count
-         * @param \Illuminate\Database\Eloquent\callable(\Illuminate\Support\Collection<int, TValue>, int):  mixed  $callback
+         * @param callable(\Illuminate\Support\Collection<int, TValue>, int):  mixed  $callback
          * @param string|null $column
          * @param string|null $alias
          * @return bool 
@@ -29364,7 +29618,7 @@ namespace  {
          * Chunk the results of a query by comparing IDs in descending order.
          *
          * @param int $count
-         * @param \Illuminate\Database\Eloquent\callable(\Illuminate\Support\Collection<int, TValue>, int):  mixed  $callback
+         * @param callable(\Illuminate\Support\Collection<int, TValue>, int):  mixed  $callback
          * @param string|null $column
          * @param string|null $alias
          * @return bool 
@@ -29380,7 +29634,7 @@ namespace  {
          * Chunk the results of a query by comparing IDs in a given order.
          *
          * @param int $count
-         * @param \Illuminate\Database\Eloquent\callable(\Illuminate\Support\Collection<int, TValue>, int):  mixed  $callback
+         * @param callable(\Illuminate\Support\Collection<int, TValue>, int):  mixed  $callback
          * @param string|null $column
          * @param string|null $alias
          * @param bool $descending
@@ -29397,7 +29651,7 @@ namespace  {
         /**
          * Execute a callback over each item while chunking by ID.
          *
-         * @param \Illuminate\Database\Eloquent\callable(TValue, int):  mixed  $callback
+         * @param callable(TValue, int):  mixed  $callback
          * @param int $count
          * @param string|null $column
          * @param string|null $alias
@@ -29487,7 +29741,7 @@ namespace  {
         /**
          * Pass the query to a given callback.
          *
-         * @param \Illuminate\Database\Eloquent\callable($this):  mixed  $callback
+         * @param callable($this):  mixed  $callback
          * @return \Illuminate\Database\Eloquent\Builder<static> 
          * @static 
          */
@@ -29934,7 +30188,7 @@ namespace  {
          * Add a morph-to relationship condition to the query.
          *
          * @param \Illuminate\Database\Eloquent\Relations\MorphTo<*, *>|string $relation
-         * @param \Illuminate\Database\Eloquent\Model|string|null $model
+         * @param \Illuminate\Database\Eloquent\Model|iterable<int, \Illuminate\Database\Eloquent\Model>|string|null $model
          * @return \Illuminate\Database\Eloquent\Builder<static> 
          * @static 
          */
@@ -29948,7 +30202,7 @@ namespace  {
          * Add a not morph-to relationship condition to the query.
          *
          * @param \Illuminate\Database\Eloquent\Relations\MorphTo<*, *>|string $relation
-         * @param \Illuminate\Database\Eloquent\Model|string $model
+         * @param \Illuminate\Database\Eloquent\Model|iterable<int, \Illuminate\Database\Eloquent\Model>|string $model
          * @return \Illuminate\Database\Eloquent\Builder<static> 
          * @static 
          */
@@ -29962,7 +30216,7 @@ namespace  {
          * Add a morph-to relationship condition to the query with an "or where" clause.
          *
          * @param \Illuminate\Database\Eloquent\Relations\MorphTo<*, *>|string $relation
-         * @param \Illuminate\Database\Eloquent\Model|string|null $model
+         * @param \Illuminate\Database\Eloquent\Model|iterable<int, \Illuminate\Database\Eloquent\Model>|string|null $model
          * @return \Illuminate\Database\Eloquent\Builder<static> 
          * @static 
          */
@@ -29976,7 +30230,7 @@ namespace  {
          * Add a not morph-to relationship condition to the query with an "or where" clause.
          *
          * @param \Illuminate\Database\Eloquent\Relations\MorphTo<*, *>|string $relation
-         * @param \Illuminate\Database\Eloquent\Model|string $model
+         * @param \Illuminate\Database\Eloquent\Model|iterable<int, \Illuminate\Database\Eloquent\Model>|string $model
          * @return \Illuminate\Database\Eloquent\Builder<static> 
          * @static 
          */
@@ -33256,6 +33510,7 @@ namespace  {
     class Validator extends \Illuminate\Support\Facades\Validator {}
     class View extends \Illuminate\Support\Facades\View {}
     class Vite extends \Illuminate\Support\Facades\Vite {}
+    class FilamentSpatieRolesPermissions extends \Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade {}
     class EloquentSerialize extends \AnourValar\EloquentSerialize\Facades\EloquentSerializeFacade {}
     class PanelSwitch extends \BezhanSalleh\PanelSwitch\Facades\PanelSwitch {}
     class FilamentSocialite extends \DutchCodingCompany\FilamentSocialite\Facades\FilamentSocialite {}
