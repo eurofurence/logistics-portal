@@ -5097,7 +5097,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function lock($name, $seconds = 0, $owner = null)
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
+            /** @var \Illuminate\Cache\RedisStore $instance */
             return $instance->lock($name, $seconds, $owner);
         }
 
@@ -5111,21 +5111,8 @@ namespace Illuminate\Support\Facades {
          */
         public static function restoreLock($name, $owner)
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
+            /** @var \Illuminate\Cache\RedisStore $instance */
             return $instance->restoreLock($name, $owner);
-        }
-
-        /**
-         * Remove an item from the cache if it is expired.
-         *
-         * @param string $key
-         * @return bool 
-         * @static 
-         */
-        public static function forgetIfExpired($key)
-        {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
-            return $instance->forgetIfExpired($key);
         }
 
         /**
@@ -5136,33 +5123,82 @@ namespace Illuminate\Support\Facades {
          */
         public static function flush()
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
+            /** @var \Illuminate\Cache\RedisStore $instance */
             return $instance->flush();
         }
 
         /**
-         * Get the underlying database connection.
+         * Remove all expired tag set entries.
          *
-         * @return \Illuminate\Database\MySqlConnection 
+         * @return void 
          * @static 
          */
-        public static function getConnection()
+        public static function flushStaleTags()
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
-            return $instance->getConnection();
+            /** @var \Illuminate\Cache\RedisStore $instance */
+            $instance->flushStaleTags();
+        }
+
+        /**
+         * Get the Redis connection instance.
+         *
+         * @return \Illuminate\Redis\Connections\Connection 
+         * @static 
+         */
+        public static function connection()
+        {
+            /** @var \Illuminate\Cache\RedisStore $instance */
+            return $instance->connection();
+        }
+
+        /**
+         * Get the Redis connection instance that should be used to manage locks.
+         *
+         * @return \Illuminate\Redis\Connections\Connection 
+         * @static 
+         */
+        public static function lockConnection()
+        {
+            /** @var \Illuminate\Cache\RedisStore $instance */
+            return $instance->lockConnection();
+        }
+
+        /**
+         * Specify the name of the connection that should be used to store data.
+         *
+         * @param string $connection
+         * @return void 
+         * @static 
+         */
+        public static function setConnection($connection)
+        {
+            /** @var \Illuminate\Cache\RedisStore $instance */
+            $instance->setConnection($connection);
         }
 
         /**
          * Specify the name of the connection that should be used to manage locks.
          *
-         * @param \Illuminate\Database\ConnectionInterface $connection
-         * @return \Illuminate\Cache\DatabaseStore 
+         * @param string $connection
+         * @return \Illuminate\Cache\RedisStore 
          * @static 
          */
         public static function setLockConnection($connection)
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
+            /** @var \Illuminate\Cache\RedisStore $instance */
             return $instance->setLockConnection($connection);
+        }
+
+        /**
+         * Get the Redis database instance.
+         *
+         * @return \Illuminate\Contracts\Redis\Factory 
+         * @static 
+         */
+        public static function getRedis()
+        {
+            /** @var \Illuminate\Cache\RedisStore $instance */
+            return $instance->getRedis();
         }
 
         /**
@@ -5173,7 +5209,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function getPrefix()
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
+            /** @var \Illuminate\Cache\RedisStore $instance */
             return $instance->getPrefix();
         }
 
@@ -5186,7 +5222,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function setPrefix($prefix)
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
+            /** @var \Illuminate\Cache\RedisStore $instance */
             $instance->setPrefix($prefix);
         }
 
@@ -12819,47 +12855,58 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
-         * Release a reserved job back onto the queue after (n) seconds.
+         * Get the number of queue jobs that are ready to process.
          *
-         * @param string $queue
-         * @param \Illuminate\Queue\Jobs\DatabaseJobRecord $job
-         * @param int $delay
-         * @return mixed 
+         * @param string|null $queue
+         * @return int 
          * @static 
          */
-        public static function release($queue, $job, $delay)
+        public static function readyNow($queue = null)
         {
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
-            return $instance->release($queue, $job, $delay);
+            /** @var \Laravel\Horizon\RedisQueue $instance */
+            return $instance->readyNow($queue);
+        }
+
+        /**
+         * Migrate the delayed jobs that are ready to the regular queue.
+         *
+         * @param string $from
+         * @param string $to
+         * @return void 
+         * @static 
+         */
+        public static function migrateExpiredJobs($from, $to)
+        {
+            /** @var \Laravel\Horizon\RedisQueue $instance */
+            $instance->migrateExpiredJobs($from, $to);
         }
 
         /**
          * Delete a reserved job from the queue.
          *
          * @param string $queue
-         * @param string $id
+         * @param \Illuminate\Queue\Jobs\RedisJob $job
          * @return void 
-         * @throws \Throwable
          * @static 
          */
-        public static function deleteReserved($queue, $id)
+        public static function deleteReserved($queue, $job)
         {
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
-            $instance->deleteReserved($queue, $id);
+            /** @var \Laravel\Horizon\RedisQueue $instance */
+            $instance->deleteReserved($queue, $job);
         }
 
         /**
          * Delete a reserved job from the reserved queue and release it.
          *
          * @param string $queue
-         * @param \Illuminate\Queue\Jobs\DatabaseJob $job
+         * @param \Illuminate\Queue\Jobs\RedisJob $job
          * @param int $delay
          * @return void 
          * @static 
          */
         public static function deleteAndRelease($queue, $job, $delay)
         {
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
+            /** @var \Laravel\Horizon\RedisQueue $instance */
             $instance->deleteAndRelease($queue, $job, $delay);
         }
 
@@ -12872,7 +12919,8 @@ namespace Illuminate\Support\Facades {
          */
         public static function clear($queue)
         {
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
+            //Method inherited from \Illuminate\Queue\RedisQueue 
+            /** @var \Laravel\Horizon\RedisQueue $instance */
             return $instance->clear($queue);
         }
 
@@ -12885,20 +12933,35 @@ namespace Illuminate\Support\Facades {
          */
         public static function getQueue($queue)
         {
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
+            //Method inherited from \Illuminate\Queue\RedisQueue 
+            /** @var \Laravel\Horizon\RedisQueue $instance */
             return $instance->getQueue($queue);
         }
 
         /**
-         * Get the underlying database instance.
+         * Get the connection for the queue.
          *
-         * @return \Illuminate\Database\Connection 
+         * @return \Illuminate\Redis\Connections\Connection 
          * @static 
          */
-        public static function getDatabase()
+        public static function getConnection()
         {
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
-            return $instance->getDatabase();
+            //Method inherited from \Illuminate\Queue\RedisQueue 
+            /** @var \Laravel\Horizon\RedisQueue $instance */
+            return $instance->getConnection();
+        }
+
+        /**
+         * Get the underlying Redis instance.
+         *
+         * @return \Illuminate\Contracts\Redis\Factory 
+         * @static 
+         */
+        public static function getRedis()
+        {
+            //Method inherited from \Illuminate\Queue\RedisQueue 
+            /** @var \Laravel\Horizon\RedisQueue $instance */
+            return $instance->getRedis();
         }
 
         /**
@@ -12911,7 +12974,7 @@ namespace Illuminate\Support\Facades {
         public static function getJobTries($job)
         {
             //Method inherited from \Illuminate\Queue\Queue 
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
+            /** @var \Laravel\Horizon\RedisQueue $instance */
             return $instance->getJobTries($job);
         }
 
@@ -12925,7 +12988,7 @@ namespace Illuminate\Support\Facades {
         public static function getJobBackoff($job)
         {
             //Method inherited from \Illuminate\Queue\Queue 
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
+            /** @var \Laravel\Horizon\RedisQueue $instance */
             return $instance->getJobBackoff($job);
         }
 
@@ -12939,7 +13002,7 @@ namespace Illuminate\Support\Facades {
         public static function getJobExpiration($job)
         {
             //Method inherited from \Illuminate\Queue\Queue 
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
+            /** @var \Laravel\Horizon\RedisQueue $instance */
             return $instance->getJobExpiration($job);
         }
 
@@ -12953,7 +13016,7 @@ namespace Illuminate\Support\Facades {
         public static function createPayloadUsing($callback)
         {
             //Method inherited from \Illuminate\Queue\Queue 
-            \Illuminate\Queue\DatabaseQueue::createPayloadUsing($callback);
+            \Laravel\Horizon\RedisQueue::createPayloadUsing($callback);
         }
 
         /**
@@ -12965,7 +13028,7 @@ namespace Illuminate\Support\Facades {
         public static function getContainer()
         {
             //Method inherited from \Illuminate\Queue\Queue 
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
+            /** @var \Laravel\Horizon\RedisQueue $instance */
             return $instance->getContainer();
         }
 
@@ -12979,7 +13042,7 @@ namespace Illuminate\Support\Facades {
         public static function setContainer($container)
         {
             //Method inherited from \Illuminate\Queue\Queue 
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
+            /** @var \Laravel\Horizon\RedisQueue $instance */
             $instance->setContainer($container);
         }
 
