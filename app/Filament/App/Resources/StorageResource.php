@@ -2,7 +2,6 @@
 
 namespace App\Filament\App\Resources;
 
-use Filament\Forms;
 use Filament\Tables;
 use App\Models\Storage;
 use Filament\Forms\Form;
@@ -13,11 +12,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\App\Resources\StorageResource\Pages;
-use App\Filament\App\Resources\StorageResource\RelationManagers;
 use Filament\Forms\Components\Section;
 use Parfaitementweb\FilamentCountryField\Forms\Components\Country;
 
@@ -76,37 +72,37 @@ class StorageResource extends Resource
         return $form
             ->schema([
                 Section::make()
-                ->schema([
-                    TextInput::make('name')
-                    ->required()
-                    ->unique(ignoreRecord: true)
-                    ->maxLength(64)
-                    ->label(__('general.name')),
-                Textarea::make('contact_details')
-                    ->nullable()
-                    ->maxLength(10000)
-                    ->label(__('general.contact_details')),
-                Country::make('country')
-                    ->required()
-                    ->label(__('general.country')),
-                TextInput::make('street')
-                    ->required()
-                    ->maxLength(128)
-                    ->label(__('general.street')),
-                TextInput::make('city')
-                    ->required()
-                    ->maxLength(128)
-                    ->label(__('general.city')),
-                TextInput::make('post_code')
-                    ->required()
-                    ->maxLength(64)
-                    ->label(__('general.post_code')),
-                Textarea::make('comment')
-                    ->nullable()
-                    ->maxLength(10000)
-                    ->label(__('general.comment'))
-                ])
-                ->columns(2)
+                    ->schema([
+                        TextInput::make('name')
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->maxLength(64)
+                            ->label(__('general.name')),
+                        Textarea::make('contact_details')
+                            ->nullable()
+                            ->maxLength(10000)
+                            ->label(__('general.contact_details')),
+                        Country::make('country')
+                            ->required()
+                            ->label(__('general.country')),
+                        TextInput::make('street')
+                            ->required()
+                            ->maxLength(128)
+                            ->label(__('general.street')),
+                        TextInput::make('city')
+                            ->required()
+                            ->maxLength(128)
+                            ->label(__('general.city')),
+                        TextInput::make('post_code')
+                            ->required()
+                            ->maxLength(64)
+                            ->label(__('general.post_code')),
+                        Textarea::make('comment')
+                            ->nullable()
+                            ->maxLength(10000)
+                            ->label(__('general.comment'))
+                    ])
+                    ->columns(2)
             ]);
     }
 
@@ -142,7 +138,7 @@ class StorageResource extends Resource
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make()
-                    ->visible(fn (Storage $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
+                    ->visible(fn(Storage $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -150,7 +146,10 @@ class StorageResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(Gate::check('bulkDelete', Storage::class)),
+                    Tables\Actions\RestoreBulkAction::make()
+                        ->visible(Gate::check('bulkRestore', Storage::class)),
                 ]),
             ]);
     }

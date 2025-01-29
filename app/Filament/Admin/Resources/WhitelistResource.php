@@ -9,6 +9,7 @@ use App\Models\Whitelist;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
@@ -81,7 +82,10 @@ class WhitelistResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(Gate::check('bulkDelete', Whitelist::class)),
+                    Tables\Actions\RestoreBulkAction::make()
+                        ->visible(Gate::check('bulkRestore', Whitelist::class)),
                 ]),
             ]);
     }

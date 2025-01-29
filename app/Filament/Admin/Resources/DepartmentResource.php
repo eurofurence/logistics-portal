@@ -2,20 +2,18 @@
 
 namespace App\Filament\Admin\Resources;
 
-use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\Department;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
-use Guava\FilamentIconPicker\Forms\IconPicker;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Admin\Resources\DepartmentResource\Pages;
-use App\Filament\Admin\Resources\DepartmentResource\RelationManagers;
 
 class DepartmentResource extends Resource
 {
@@ -96,8 +94,10 @@ class DepartmentResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(Gate::check('bulkDelete', Department::class)),
+                    Tables\Actions\RestoreBulkAction::make()
+                        ->visible(Gate::check('bulkRestore', Department::class)),
                 ]),
             ]);
     }

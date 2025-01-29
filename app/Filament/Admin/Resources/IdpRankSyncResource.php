@@ -2,24 +2,21 @@
 
 namespace App\Filament\Admin\Resources;
 
-use Filament\Forms;
 use App\Models\Role;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\IdpRankSync;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TrashedFilter;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Archilex\ToggleIconColumn\Columns\ToggleIconColumn;
 use App\Filament\Admin\Resources\IdpRankSyncResource\Pages;
-use App\Filament\Admin\Resources\IdpRankSyncResource\RelationManagers;
 
 class IdpRankSyncResource extends Resource
 {
@@ -105,7 +102,10 @@ class IdpRankSyncResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(Gate::check('bulkDelete', IdpRankSync::class)),
+                    Tables\Actions\RestoreBulkAction::make()
+                        ->visible(Gate::check('bulkRestore', IdpRankSync::class)),
                 ]),
             ]);
     }

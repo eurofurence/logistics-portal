@@ -73,14 +73,16 @@ class RestoreBackup extends Command
             return Command::SUCCESS;
         }
 
-        #TODO: Restore the backup
+        // Restore the backup by uploading extracted files to S3
+        $this->restoreBackupToS3($extractTo);
 
         $localDisk->deleteDirectory('/backup-restore-temp/');
         $this->info("Temporary files were deleted");
+        $this->info("Finished");
         return Command::SUCCESS;
     }
 
-    function extractEncryptedArchive($archivePath, $extractTo, $password) :int
+    function extractEncryptedArchive($archivePath, $extractTo, $password): int
     {
         $zip = new ZipArchive();
 
@@ -113,5 +115,45 @@ class RestoreBackup extends Command
         }
 
         return Command::FAILURE;
+    }
+
+    function restoreBackupToS3($extractTo)
+    {
+        $s3Disk = Storage::disk('s3');
+
+        // Delete all files in the S3 bucket
+        $this->info('Clearing the S3 bucket...');
+        foreach ($s3Disk->allDirectories('/') as $directory) {
+            $s3Disk->deleteDirectory($directory);
+        }
+
+        foreach ($s3Disk->files('/') as $file) {
+            $s3Disk->delete($file);
+        }
+
+        // Upload extracted files to S3
+        $this->info('Uploading extracted files to S3...');
+        $this->uploadFilesToS3($extractTo, '/', $s3Disk);
+    }
+
+    function uploadFilesToS3($sourcePath, $destinationPrefix, $s3Disk)
+    {
+        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($sourcePath));
+
+        foreach ($files as $name => $file) {
+            if (!$file->isDir()) {
+                $filePath = $file->getRealPath();
+
+                $relativePath = ltrim(substr($filePath, strlen($sourcePath)), '\\/');
+
+                // Remove "storage/app/backup-s3/" if present
+                $relativePath = str_replace('storage/app/backup-s3/', '', $relativePath);
+
+                $s3Path = rtrim($destinationPrefix, '/') . '/' . $relativePath;
+
+                $this->info("Uploading file: $relativePath");
+                $s3Disk->put($s3Path, file_get_contents($filePath));
+            }
+        }
     }
 }

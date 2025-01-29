@@ -11,7 +11,6 @@ use Filament\Forms\Form;
 use App\Models\Department;
 use App\Models\OrderEvent;
 use Filament\Tables\Table;
-use Illuminate\Support\Str;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
@@ -495,8 +494,6 @@ class BillResource extends Resource
                         ->visible(fn(Bill $record): bool => Gate::allows('bulkDelete', $record)),
                     Tables\Actions\RestoreBulkAction::make()
                         ->visible(fn(Bill $record): bool => Gate::allows('bulkRestore', $record)),
-                    Tables\Actions\ForceDeleteBulkAction::make()
-                        ->visible(fn(Bill $record): bool => Gate::allows('bulkForceDelete', $record)),
                 ]),
             ])
             ->groups([

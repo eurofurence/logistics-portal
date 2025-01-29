@@ -16,7 +16,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Support\Htmlable;
 use App\Filament\App\Resources\OrderCategoryResource\Pages;
 
@@ -72,20 +71,7 @@ class OrderCategoryResource extends Resource
                             ->maxLength(1000)
                             ->label(__('general.description')),
 
-                    ]),
-                Section::make(__('general.departments') . ' (Not active)')
-                    ->schema([
-                        Select::make('departments')
-                            ->multiple()
-                            ->searchable()
-                            ->relationship('departments', 'name')
-                            ->options(Department::all()->pluck('name', 'id'))
-                            ->nullable()
-                            ->exists('departments', 'id')
-                            ->label('')
                     ])
-                    ->description(__('general.leave_empty_for_no_limit'))
-                    ->disabled(true),
             ]);
     }
 
@@ -124,9 +110,9 @@ class OrderCategoryResource extends Resource
                     Tables\Actions\DeleteBulkAction::make()
                         ->visible(fn (OrderCategory $record): bool => Gate::allows('bulk-delete', $record)),
                     Tables\Actions\RestoreBulkAction::make()
-                        ->visible(fn (OrderCategory $record): bool => Gate::allows('bulk-force-delete-OrderCategory', $record)),
+                        ->visible(fn (OrderCategory $record): bool => Gate::allows('bulk-restore-OrderCategory', $record)),
                     Tables\Actions\ForceDeleteBulkAction::make()
-                        ->visible(fn (OrderCategory $record): bool => Gate::allows('bulk-restore-OrderCategory', $record))
+                        ->visible(fn (OrderCategory $record): bool => Gate::allows('bulk-force-delete-OrderCategory', $record))
                 ]),
             ]);
     }

@@ -148,9 +148,10 @@ class OrderEventResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make()
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(Gate::check('bulkDelete', OrderEvent::class)),
+                    Tables\Actions\RestoreBulkAction::make()
+                        ->visible(Gate::check('bulkRestore', OrderEvent::class)),
                 ]),
             ]);
     }

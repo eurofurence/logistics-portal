@@ -15,7 +15,7 @@ class BackupWithS3 extends Command
      *
      * @var string
      */
-    protected $signature = 'backup:with-s3';
+    protected $signature = 'backup:with-s3 {--only-download : Only download and extract the backup}';
 
     /**
      * The console command description.
@@ -30,6 +30,12 @@ class BackupWithS3 extends Command
     public function handle()
     {
         $this->info('Start the backup and add S3 files with folder structure...');
+
+        $onlyDownload = $this->option('only-download');
+
+        if ($onlyDownload) {
+            $this->info('Only downloading...');
+        }
 
         File::deleteDirectory(storage_path('app/backup-s3'));
 
@@ -54,17 +60,19 @@ class BackupWithS3 extends Command
             $this->info('S3 files were downloaded locally and the folder structure was retained');
         }
 
-        // 2. Load the backup configuration as a Config object
-        $backupConfig = Config::fromArray(config('backup'));
+        if (!$onlyDownload) {
+            // 2. Load the backup configuration as a Config object
+            $backupConfig = Config::fromArray(config('backup'));
 
-        // 3. Create a backup with a spatie
-        $this->info('Create the backup with local S3 files...');
-        $backupJob = BackupJobFactory::createFromConfig($backupConfig);
-        $backupJob->run();
+            // 3. Create a backup with a spatie
+            $this->info('Create the backup with local S3 files...');
+            $backupJob = BackupJobFactory::createFromConfig($backupConfig);
+            $backupJob->run();
 
-        // 4. Delete temporary local S3 files
-        File::deleteDirectory(storage_path('app/backup-s3'));
+            // 4. Delete temporary local S3 files
+            File::deleteDirectory(storage_path('app/backup-s3'));
+        }
 
-        $this->info('Backup completed');
+        $this->info('Completed');
     }
 }
