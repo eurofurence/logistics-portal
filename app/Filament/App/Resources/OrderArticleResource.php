@@ -537,9 +537,12 @@ class OrderArticleResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(Gate::check('bulkDelete', OrderArticle::class)),
+                    Tables\Actions\RestoreBulkAction::make()
+                        ->visible(Gate::check('bulkRestore', OrderArticle::class)),
+                    Tables\Actions\ForceDeleteBulkAction::make()
+                        ->visible(Gate::check('bulkForceDelete', OrderArticle::class)),
                     BulkAction::make('bulk_calc_gross_price')
                         ->label(__('general.recalculate_gross_price'))
                         ->icon('heroicon-o-arrow-path-rounded-square')

@@ -5,9 +5,6 @@ namespace App\Policies;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\OrderEvent;
-use Illuminate\Http\Request;
-use Illuminate\Auth\Access\Response;
-
 class OrderPolicy
 {
     /**

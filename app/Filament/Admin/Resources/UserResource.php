@@ -2,7 +2,6 @@
 
 namespace App\Filament\Admin\Resources;
 
-use Filament\Forms;
 use App\Models\Role;
 use App\Models\User;
 use Filament\Tables;
@@ -19,7 +18,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Resources\Concerns\Translatable;
@@ -198,8 +196,10 @@ class UserResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->visible(Gate::check('bulkDelete', User::class)),
+                    Tables\Actions\RestoreBulkAction::make()
+                        ->visible(Gate::check('bulkRestore', User::class)),
                 ]),
             ]);
     }

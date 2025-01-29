@@ -1196,8 +1196,6 @@ class OrderResource extends Resource
                         ->visible(fn(Order $record): bool => Gate::allows('bulkDelete', $record)),
                     Tables\Actions\RestoreBulkAction::make()
                         ->visible(fn(Order $record): bool => Gate::allows('bulkRestore', $record)),
-                    Tables\Actions\ForceDeleteBulkAction::make()
-                        ->visible(fn(Order $record): bool => Gate::allows('bulkForceDelete', $record)),
                     BulkAction::make('set_status')
                         ->label(__('general.set_status'))
                         ->action(function (Collection $records, array $data): void {

@@ -319,8 +319,11 @@ class OrderRequestResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->confirmButtonText(__('general.delete_confirmation'))
+                        ->visible(Gate::check('bulkDelete', OrderRequest::class)),
+                    Tables\Actions\RestoreBulkAction::make()
+                        ->visible(Gate::check('bulkRestore', OrderRequest::class)),
                 ]),
             ])
             ->groups([
