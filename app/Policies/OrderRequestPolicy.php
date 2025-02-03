@@ -5,7 +5,6 @@ namespace App\Policies;
 use App\Models\User;
 use App\Models\OrderEvent;
 use App\Models\OrderRequest;
-use Illuminate\Auth\Access\Response;
 
 class OrderRequestPolicy
 {
@@ -107,7 +106,7 @@ class OrderRequestPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, OrderRequest $orderrequest): bool
+    public function forceDelete(User $user): bool
     {
         return $user->checkPermissionTo('force-delete-OrderRequest');
     }
@@ -115,36 +114,24 @@ class OrderRequestPolicy
     /**
      * Determine whether the user can permanently delete the model. (Many models at once)
      */
-    public function bulkForceDelete(User $user, OrderRequest $orderrequest): bool
+    public function bulkForceDelete(User $user): bool
     {
-        if (!$user->checkPermissionTo('bulk-force-delete-OrderRequest')) {
-            return false;
-        }
-
-        return $user->departments->contains('id', $orderrequest->department_id) || $user->checkPermissionTo('access-all-departments');
+        return $user->checkPermissionTo('bulk-force-delete-OrderRequest');
     }
 
     /**
      * Determine whether the user can delete the model. (Many models at once)
      */
-    public function bulkDelete(User $user, OrderRequest $orderrequest): bool
+    public function bulkDelete(User $user): bool
     {
-        if (!$user->checkPermissionTo('bulk-delete-OrderRequest')) {
-            return false;
-        }
-
-        return $user->departments->contains('id', $orderrequest->department_id) || $user->checkPermissionTo('access-all-departments');
+        return $user->checkPermissionTo('bulk-delete-OrderRequest');
     }
 
     /**
      * Determine whether the user can restore the model. (Many models at once)
      */
-    public function bulkRestore(User $user, OrderRequest $orderrequest): bool
+    public function bulkRestore(User $user): bool
     {
-        if (!$user->checkPermissionTo('bulk-restore-OrderRequest')) {
-            return false;
-        }
-
-        return $user->departments->contains('id', $orderrequest->department_id) || $user->checkPermissionTo('access-all-departments');
+        return $user->checkPermissionTo('bulk-restore-OrderRequest');
     }
 }
