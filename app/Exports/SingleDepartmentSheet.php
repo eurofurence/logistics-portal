@@ -17,6 +17,7 @@ use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
+use PhpOffice\PhpSpreadsheet\Worksheet\HeaderFooter;
 use PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing;
 
 class SingleDepartmentSheet implements FromCollection, WithTitle, ShouldAutoSize, WithStyles, WithHeadings, WithEvents, WithCustomStartCell, WithDrawings, WithColumnWidths
@@ -50,50 +51,7 @@ class SingleDepartmentSheet implements FromCollection, WithTitle, ShouldAutoSize
 
     public function styles(Worksheet $sheet)
     {
-        $styles = [
-            'A1'    => [
-                'borders' => [
-                    'bottom' => [
-                        'borderStyle' => Border::BORDER_NONE,
-                    ],
-                    'top' => [
-                        'borderStyle' => Border::BORDER_NONE,
-                    ],
-                    'left' => [
-                        'borderStyle' => Border::BORDER_NONE,
-                    ],
-                    'right' => [
-                        'borderStyle' => Border::BORDER_NONE,
-                    ]
-                ]
-            ],
-            'B1'    => [
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_LEFT,
-                    'vertical' => Alignment::VERTICAL_CENTER,
-                    'wrapText' => true,
-                ],
-                'font' => [
-                    'bold' => true,
-                    'size' => 26
-                ],
-                'borders' => [
-                    'bottom' => [
-                        'borderStyle' => Border::BORDER_NONE,
-                    ],
-                    'top' => [
-                        'borderStyle' => Border::BORDER_NONE,
-                    ],
-                    'left' => [
-                        'borderStyle' => Border::BORDER_NONE,
-                    ],
-                    'right' => [
-                        'borderStyle' => Border::BORDER_NONE,
-                    ]
-                ]
-            ],
-        ];
-
+        $styles = [];
         $columns = [];
 
         // Dynamic columns based on the number of headings
@@ -122,6 +80,32 @@ class SingleDepartmentSheet implements FromCollection, WithTitle, ShouldAutoSize
                         'color' => ['argb' => '000000'], // Schwarze Umrandung
                     ],
                 ],
+            ];
+
+            $styles["{$column}1"] = [
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_LEFT,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                    'wrapText' => true,
+                ],
+                'font' => [
+                    'bold' => true,
+                    'size' => 26
+                ],
+                'borders' => [
+                    'bottom' => [
+                        'borderStyle' => Border::BORDER_NONE,
+                    ],
+                    'top' => [
+                        'borderStyle' => Border::BORDER_NONE,
+                    ],
+                    'left' => [
+                        'borderStyle' => Border::BORDER_NONE,
+                    ],
+                    'right' => [
+                        'borderStyle' => Border::BORDER_NONE,
+                    ]
+                ]
             ];
         }
 
@@ -172,6 +156,10 @@ class SingleDepartmentSheet implements FromCollection, WithTitle, ShouldAutoSize
                 //Page numbers
                 $event->sheet->getHeaderFooter()->setOddFooter('&L&B' . __('general.page') . ' &P ' . __('general.of') . ' &N');
                 $event->sheet->getHeaderFooter()->setEvenFooter('&L&B' . __('general.page') . ' &P ' . __('general.of') . ' &N');
+
+                // Set font size and color for header and footer
+                $event->sheet->getHeaderFooter()->setOddHeader('&C&H' . HeaderFooter::IMAGE_FOOTER_CENTER . '&G&12&KFF0000');
+                $event->sheet->getHeaderFooter()->setOddFooter('&L&B' . $event->sheet->getTitle() . '&RPage &P of &N&12&KFF0000');
             },
         ];
     }
