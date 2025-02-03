@@ -28,7 +28,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Contracts\Support\Htmlable;
-use Filament\Infolists\Components\IconEntry;
 use Filament\Infolists\Components\TextEntry;
 use App\Filament\App\Resources\OrderRequestResource\Pages;
 
@@ -320,7 +319,6 @@ class OrderRequestResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->confirmButtonText(__('general.delete_confirmation'))
                         ->visible(Gate::check('bulkDelete', OrderRequest::class)),
                     Tables\Actions\RestoreBulkAction::make()
                         ->visible(Gate::check('bulkRestore', OrderRequest::class)),

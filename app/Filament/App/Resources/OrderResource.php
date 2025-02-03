@@ -927,7 +927,7 @@ class OrderResource extends Resource
                         Tables\Actions\RestoreAction::make(),
                         Tables\Actions\ForceDeleteAction::make(),
                         Tables\Actions\ViewAction::make(),
-                    ])->dropdown(true),
+                    ])->dropdown(false),
                     ActionGroup::make([
                         TableAction::make('set_status')
                             ->label(__('general.set_status'))

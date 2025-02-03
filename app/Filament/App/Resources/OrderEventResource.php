@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources;
 
+use Carbon\Carbon;
 use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\OrderEvent;
@@ -18,6 +19,7 @@ use Illuminate\Contracts\Support\Htmlable;
 use Filament\Forms\Components\DateTimePicker;
 use Archilex\ToggleIconColumn\Columns\ToggleIconColumn;
 use App\Filament\App\Resources\OrderEventResource\Pages;
+
 class OrderEventResource extends Resource
 {
     protected static ?string $model = OrderEvent::class;
@@ -128,11 +130,22 @@ class OrderEventResource extends Resource
                     ->searchable()
                     ->toggleable(true)
                     ->default(__('general.not_set'))
-                    ->label(__('general.order_deadline')),
+                    ->label(__('general.order_deadline'))
+                    ->formatStateUsing(function ($state) {
+                        if (!$state || $state === __('general.not_set')) {
+                            return __('general.not_set');
+                        }
+
+                        try {
+                            return Carbon::parse($state)->setTimezone('Europe/Berlin')->format('d.m.Y H:i');
+                        } catch (\Exception $e) {
+                            return __('general.not_set');
+                        }
+                    }),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make()
-                    ->visible(fn (OrderEvent $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
+                    ->visible(fn(OrderEvent $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
                 Tables\Filters\SelectFilter::make('locked')
                     ->options([
                         '0' => __('general.unlocked'),
