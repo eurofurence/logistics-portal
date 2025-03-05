@@ -12,7 +12,7 @@ The Logistics portal is a platform that provides tools for different sections of
 
 - Material order
 - Inventory and Storage management (WIP)
--  Management of invoices and their archiving
+-  Management of invoices and their archiving (WIP)
 
 
 ## Contributing
