@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
+use App\Settings\ThemeSettings;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\UserIsLocked;
@@ -49,7 +50,7 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('favicon.ico'))
             //->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([
-                'primary' => Color::Emerald,
+                'primary' => app(ThemeSettings::class)->primary_color,
             ])
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\\Filament\\Admin\\Pages')

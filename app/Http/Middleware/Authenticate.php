@@ -12,6 +12,6 @@ class Authenticate extends Middleware
      */
     protected function redirectTo(Request $request): ?string
     {
-        return 'https://identity.eurofurence.org/';
+        return 'app/login';
     }
 }

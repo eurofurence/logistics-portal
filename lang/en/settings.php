@@ -2,5 +2,7 @@
 
 return [
     'activate_whitelist' => 'Activate whitelist',
-    'login' => 'Login'
+    'login' => 'Login',
+    'theme' => 'Theme',
+    'primary_color' => 'Primary color',
 ];

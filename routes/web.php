@@ -1,11 +1,7 @@
 <?php
 
-use Inertia\Inertia;
-use App\Models\OrderRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\Artisan;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +16,10 @@ use Illuminate\Support\Facades\Artisan;
 
 Route::redirect('/', 'https://identity.eurofurence.org/')->middleware('guest')->name('start');
 
-Route::redirect('/app/login', 'https://identity.eurofurence.org/')->name('login');
+if (config('auth.auth_ui') == false) {
+    Route::redirect('/app/login', config('auth.auth_direct_url'))->name('login');
+    Route::redirect('/app/register', config('auth.auth_direct_url'))->name('register');
+}
 
 Route::prefix('/auth')->name('auth.')->group(function () {
     Route::get('/callback', [\App\Http\Controllers\AuthController::class,'loginCallback'])->middleware('guest')->name('login.callback');

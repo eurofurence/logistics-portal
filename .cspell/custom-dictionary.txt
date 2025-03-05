@@ -1,5 +1,6 @@
 # Custom Dictionary Words
 Abbrechen
+adminpanel
 adress
 Adresse
 Aktion
@@ -8,8 +9,10 @@ Alles
 Anzahl
 anzeigen
 Artikel
+Aussehen
 auswählen
 Auswählen
+Awcodes
 Bearbeiten
 bearbeitet
 Benutzer
@@ -22,13 +25,16 @@ Bild
 Bist
 Brutto
 BRUTTO
+Charrafi
 dass
 Einstellungen
 Eintrag
 Einträge
 Entsperren
 Erstellt
+eurofurence
 existiert
+Farbe
 fehlgeschlagen
 festgelegt
 Freigeschaltet
@@ -39,6 +45,7 @@ Gelöscht
 gespeichert
 Gespeichert
 Gesperrt
+heroicon
 hinzufügen
 Hinzufügen
 hinzugefügt
@@ -60,12 +67,18 @@ Netto
 NETTO
 nicht
 Nicht
+Njxqlus
 Offene
 Preis
+Primäre
 Produkt
+pxlrbt
+Saade
 scannen
 Scannen
+Shuvro
 sicher
+Spatie
 Speichern
 Sperren
 Stadt

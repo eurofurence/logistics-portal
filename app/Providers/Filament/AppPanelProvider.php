@@ -2,10 +2,10 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
+use App\Settings\ThemeSettings;
 use App\Filament\Pages\Dashboard;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\Auth;
@@ -50,7 +50,7 @@ class AppPanelProvider extends PanelProvider
             ->id('app')
             ->path('app')
             ->colors([
-                'primary' => Color::Emerald,
+                'primary' => app(ThemeSettings::class)->primary_color,
             ])
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
@@ -117,17 +117,6 @@ class AppPanelProvider extends PanelProvider
                         default => Color::Blue,
                     }),
                 SpotlightPlugin::make(),
-                /*
-                BannerPlugin::make()
-                    ->persistsBannersInDatabase()
-                    ->title('Banner manager')
-                    ->subheading('Edit the banners of the current panel')
-                    ->navigationIcon('heroicon-o-megaphone')
-                    ->navigationLabel('Banners')
-                    ->navigationGroup('Settings')
-                    ->navigationSort(1)
-                    ->bannerManagerAccessPermission('manage-banners'),
-                */
                 FilamentLaravelLogPlugin::make()
                     ->authorize(false),
                 GlobalSearchModalPlugin::make(),
@@ -147,6 +136,11 @@ class AppPanelProvider extends PanelProvider
                     ->icon('heroicon-o-chevron-double-left')
                     ->sort(0),
             ])
+            ->login()
+            //->passwordReset()
+            //->emailVerification()
+            //->registration()
+            //->profile()
             ->bootUsing(function () {
                 PanelSwitch::configureUsing(function (PanelSwitch $panelSwitch) {
                     $panelSwitch

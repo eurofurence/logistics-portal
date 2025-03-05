@@ -112,4 +112,18 @@ return [
 
     'password_timeout' => 10800,
 
+    /*
+    |--------------------------------------------------------------------------
+    | AUTH_UI
+    |--------------------------------------------------------------------------
+    |
+    |  WIP
+    |
+    |
+    */
+
+    'auth_ui' => env('AUTH_UI', false),
+
+    'auth_direct_url' => env('AUTH_DIRECT_URL', 'https://identity.eurofurence.org/'),
+
 ];

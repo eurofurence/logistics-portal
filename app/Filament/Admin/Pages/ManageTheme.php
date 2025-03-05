@@ -3,16 +3,16 @@
 namespace App\Filament\Admin\Pages;
 
 use Filament\Forms\Form;
-use App\Settings\LoginSettings;
+use App\Settings\ThemeSettings;
 use Filament\Pages\SettingsPage;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\ColorPicker;
 
-class ManageLogin extends SettingsPage
+class ManageTheme extends SettingsPage
 {
-    protected static ?string $navigationIcon = 'heroicon-o-user';
+    protected static ?string $navigationIcon = 'heroicon-o-paint-brush';
 
-    protected static string $settings = LoginSettings::class;
+    protected static string $settings = ThemeSettings::class;
 
     public static function getNavigationGroup(): ?string
     {
@@ -21,12 +21,12 @@ class ManageLogin extends SettingsPage
 
     public function getTitle(): string
     {
-        return __('settings.login');
+        return __('settings.theme');
     }
 
     public static function getNavigationLabel(): string
     {
-        return __('settings.login');
+        return __('settings.theme');
     }
 
     public function form(Form $form): Form
@@ -34,8 +34,9 @@ class ManageLogin extends SettingsPage
         return $form
             ->schema([
                 Section::make([
-                    Toggle::make('whitelist_active')
-                        ->label(__('settings.activate_whitelist'))
+                    ColorPicker::make('primary_color')
+                        ->rgb()
+                        ->label(__('settings.primary_color'))
                 ])
             ]);
     }
