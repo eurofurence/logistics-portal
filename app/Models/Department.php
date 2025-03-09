@@ -38,11 +38,6 @@ class Department extends Model
         });
     }
 
-    public function catalogs(): BelongsToMany
-    {
-        return $this->belongsToMany(OrderCategory::class, 'department_catalog', 'department_id', 'catalog_id');
-    }
-
     public function orders(): hasMany
     {
         return $this->hasMany(Order::class, 'department_id');
