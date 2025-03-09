@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('department_user', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('department_id')->unsigned()->oncascade();
+            $table->unsignedBigInteger('department_id')->unsigned();
             $table->unsignedBigInteger('user_id')->unsigned();
 
             // ForeignKey for department_id
