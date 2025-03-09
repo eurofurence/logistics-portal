@@ -11,12 +11,10 @@ use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class User extends Authenticatable implements FilamentUser, HasAvatar
 {
@@ -97,14 +95,18 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     {
         return $this->avatar;
     }
+
+    /**
+     * The departments function establishes a many-to-many relationship between users and departments in PHP.
+     *
+     * @return BelongsToMany A BelongsToMany relationship between the current model and the Department model is being
+     * returned. The relationship is defined using the `belongsToMany` method, specifying the related model
+     * `Department::class`, the pivot table name `'department_user'`, the foreign key `'user_id'`, and the related key
+     * `'department_id'`.
+     */
     public function departments(): BelongsToMany
     {
         return $this->belongsToMany(Department::class, 'department_user', 'user_id', 'department_id');
-    }
-
-    public function catalogs(): HasManyThrough
-    {
-        return $this->hasManyThrough(OrderCategory::class, Department::class);
     }
 
     protected static function boot()
@@ -134,8 +136,54 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         });
     }
 
+    /**
+     * The `roles` function defines a many-to-many relationship between the current model and the `Role` model using
+     * polymorphic relations.
+     *
+     * @return MorphToMany The `roles()` function is returning a MorphToMany relationship. It is defining a many-to-many
+     * polymorphic relationship between the current model and the `Role` model. The relationship is defined using the
+     * `morphToMany` method with the following parameters:
+     */
     public function roles(): MorphToMany
     {
         return $this->morphToMany(Role::class, 'model', 'model_has_roles', 'model_id', 'role_id');
+    }
+
+    /**
+     * The function `hasDepartmentRole` checks if a user has a specific role in a department.
+     *
+     * @param int user_id The `user_id` parameter is an integer that represents the unique identifier of a user in the
+     * system. It is used to identify a specific user for whom we want to check if they have a certain role within a
+     * department.
+     * @param int department_id The `department_id` parameter in the `hasDepartmentRole` function represents the unique
+     * identifier of the department for which you want to check if a user has a specific role. This parameter is used to
+     * filter the DepartmentMember records based on the specified department.
+     * @param int role_id The `role_id` parameter in the `hasDepartmentRole` function represents the specific role that you
+     * want to check if a user has within a department.
+     *
+     * @return bool The `hasDepartmentRole` function is returning a boolean value (`true` or `false`). It checks if there
+     * is a record in the `DepartmentMember` table where the `user_id`, `department_id`, and `role_id` match the provided
+     * values. If such a record exists, the function returns `true`, indicating that the user has the specified role in the
+     * department. Otherwise, it
+     */
+    public function hasDepartmentRole(int $user_id, int $department_id, int $role_id): bool
+    {
+        return DepartmentMember::where('user_id', $user_id)
+            ->where('department_id', $department_id)
+            ->where('role_id', $role_id)
+            ->exists();
+    }
+
+    /**
+     * Get all departments where the user has a specific role.
+     *
+     * @param int $roleId
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function departmentsWithRole(int $roleId)
+    {
+        return $this->belongsToMany(Department::class, 'department_user', 'user_id', 'department_id')
+            ->wherePivot('role_id', $roleId)
+            ->get();
     }
 }
