@@ -137,9 +137,10 @@ class AppPanelProvider extends PanelProvider
                     ->sort(0),
             ])
             ->login()
-            //->passwordReset()
-            //->emailVerification()
+            ->passwordReset()
+            ->emailVerification()
             //->registration()
+            #8 Add profile function #TODO
             //->profile()
             ->bootUsing(function () {
                 PanelSwitch::configureUsing(function (PanelSwitch $panelSwitch) {

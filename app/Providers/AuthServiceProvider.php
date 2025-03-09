@@ -25,7 +25,6 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         SpatiePermission::class => PermissionPolicy::class,
-        //RouteStatistic::class => RouteStatisticPolicy::class,
         MonitoredScheduledTask::class => MonitoredScheduledTaskPolicy::class,
         MonitoredScheduledTaskLogItem::class => ScheduledTaskLogItemPolicy::class,
     ];

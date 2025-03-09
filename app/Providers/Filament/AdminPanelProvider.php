@@ -62,6 +62,10 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
             ])
+            ->login()
+            ->passwordReset()
+            ->emailVerification()
+            //->registration()
             ->unsavedChangesAlerts()
             ->sidebarCollapsibleOnDesktop()
             ->middleware([

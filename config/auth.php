@@ -117,12 +117,22 @@ return [
     | AUTH_UI
     |--------------------------------------------------------------------------
     |
-    |  WIP
+    |  Enables/disables the default login/registration functions
     |
     |
     */
 
     'auth_ui' => env('AUTH_UI', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | AUTH_DIRECT_URL
+    |--------------------------------------------------------------------------
+    |
+    |  The url the user should be redirected to when AUTH_UI is false and the
+    |  user tries to access the auth urls
+    |
+    */
 
     'auth_direct_url' => env('AUTH_DIRECT_URL', 'https://identity.eurofurence.org/'),
 
