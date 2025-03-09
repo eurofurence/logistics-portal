@@ -62,7 +62,7 @@ return [
      */
     'should_display_relation_managers' => [
         'permissions' => true,
-        'users' => true,
+        'users' => false,
         'roles' => true,
     ],
 

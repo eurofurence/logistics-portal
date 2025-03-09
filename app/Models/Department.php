@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Department extends Model
 {
@@ -15,12 +14,11 @@ class Department extends Model
 
     public function members(): HasMany
     {
-        return $this->hasMany(User::class, 'department_members');
+        return $this->hasMany(DepartmentMember::class);
     }
 
     protected $fillable = [
         'name',
-        'icon',
         'idp_group_id'
     ];
 

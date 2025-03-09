@@ -141,8 +141,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
      * polymorphic relations.
      *
      * @return MorphToMany The `roles()` function is returning a MorphToMany relationship. It is defining a many-to-many
-     * polymorphic relationship between the current model and the `Role` model. The relationship is defined using the
-     * `morphToMany` method with the following parameters:
+     * polymorphic relationship between the current model and the `Role` model.
      */
     public function roles(): MorphToMany
     {
@@ -164,7 +163,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
      * @return bool The `hasDepartmentRole` function is returning a boolean value (`true` or `false`). It checks if there
      * is a record in the `DepartmentMember` table where the `user_id`, `department_id`, and `role_id` match the provided
      * values. If such a record exists, the function returns `true`, indicating that the user has the specified role in the
-     * department. Otherwise, it
+     * department.
      */
     public function hasDepartmentRole(int $user_id, int $department_id, int $role_id): bool
     {
