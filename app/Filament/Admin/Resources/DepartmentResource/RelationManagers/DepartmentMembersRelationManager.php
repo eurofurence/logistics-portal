@@ -55,6 +55,7 @@ class DepartmentMembersRelationManager extends RelationManager
                         0 => __('general.member'),
                         1 => __('general.requestor'),
                         2 => __('general.purchaser'),
+                        #TODO: Director Role
                     ])
                     ->selectablePlaceholder(false)
             ])
@@ -64,6 +65,7 @@ class DepartmentMembersRelationManager extends RelationManager
                         __('general.member'),
                         __('general.requestor'),
                         __('general.purchaser'),
+                        #TODO: Director Role
                     ])
                     ->selectablePlaceholder(false)
                     ->multiple()
@@ -88,6 +90,7 @@ class DepartmentMembersRelationManager extends RelationManager
                                 0 => __('general.member'),
                                 1 => __('general.requestor'),
                                 2 => __('general.purchaser'),
+                                #TODO: Director Role
                             ])
                             ->label(__('general.role'))
                             ->default('0')
