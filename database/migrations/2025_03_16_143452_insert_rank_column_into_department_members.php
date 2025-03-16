@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        Schema::table('department_user', function (Blueprint $table) {
+            $table->unsignedSmallInteger('role')->after('user_id')->default(0);
+        });
     }
 
     /**
