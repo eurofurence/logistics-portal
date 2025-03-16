@@ -357,4 +357,5 @@ return array(
     'inventory_items' => 'Inventar-Artikel',
     'details' => 'Einzelheiten',
     'unique_name' => 'Einzigartiger Name',
+    'members' => 'Mitglieder',
 );

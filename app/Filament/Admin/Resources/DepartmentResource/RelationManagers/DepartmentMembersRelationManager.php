@@ -9,6 +9,7 @@ use Filament\Tables\Table;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Tables\Actions\AttachAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\BulkActionGroup;
@@ -18,6 +19,11 @@ use Filament\Resources\RelationManagers\RelationManager;
 class DepartmentMembersRelationManager extends RelationManager
 {
     protected static string $relationship = 'members';
+
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
+        return __('general.members');
+    }
 
     public function form(Form $form): Form
     {
@@ -34,7 +40,9 @@ class DepartmentMembersRelationManager extends RelationManager
         return $table
             ->recordTitleAttribute('user.name')
             ->columns([
-                TextColumn::make('user.name')->searchable(),
+                TextColumn::make('user.name')
+                    ->searchable()
+                    ->sortable(),
             ])
             ->filters([
                 //

@@ -358,4 +358,5 @@ return array(
     'inventory_items' => 'Inventory articles',
     'details' => 'Details',
     'unique_name' => 'Unique name',
+    'members' => 'Members',
 );
