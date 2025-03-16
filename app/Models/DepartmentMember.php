@@ -17,7 +17,7 @@ class DepartmentMember extends Model
      */
     protected $table = 'department_user';
 
-    protected $fillable = ['department_id', 'user_id', 'role_id'];
+    protected $fillable = ['department_id', 'user_id', 'role'];
 
     /**
      * Get the department that the member belongs to.
@@ -33,13 +33,5 @@ class DepartmentMember extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
-    }
-
-    /**
-     * Get the role that the user has in the department.
-     */
-    public function role(): BelongsTo
-    {
-        return $this->belongsTo(Role::class, 'role_id');
     }
 }

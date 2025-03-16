@@ -358,4 +358,8 @@ return array(
     'details' => 'Einzelheiten',
     'unique_name' => 'Einzigartiger Name',
     'members' => 'Mitglieder',
+    'member' => 'Mitglied',
+    'add_member' => 'Mitglied hinzufügen',
+    'requestor' => 'Antragsteller',
+    'purchaser' => 'Einkäufer',
 );

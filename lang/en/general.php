@@ -359,4 +359,8 @@ return array(
     'details' => 'Details',
     'unique_name' => 'Unique name',
     'members' => 'Members',
+    'member' => 'Member',
+    'add_member' => 'Add member',
+    'requestor' => 'Requestor',
+    'purchaser' => 'Purchaser',
 );

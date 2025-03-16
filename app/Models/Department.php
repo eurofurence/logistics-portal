@@ -12,6 +12,13 @@ class Department extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * Returns current department members
+     *
+     * @return HasMany The `members()` function is returning a relationship of type `HasMany` for the `DepartmentMember`
+     * model. This indicates that the `Department` model has a one-to-many relationship with the `DepartmentMember` model,
+     * where a department can have multiple members.
+     */
     public function members(): HasMany
     {
         return $this->hasMany(DepartmentMember::class);
@@ -36,6 +43,11 @@ class Department extends Model
         });
     }
 
+    /**
+     * The orders function returns a collection of orders associated with a specific department.
+     *
+     * @return hasMany
+     */
     public function orders(): hasMany
     {
         return $this->hasMany(Order::class, 'department_id');
