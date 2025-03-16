@@ -1,6 +1,7 @@
 <?php
 
 use App\Settings\LoginSettings;
+use App\Settings\ThemeSettings;
 
 return [
 
@@ -10,6 +11,7 @@ return [
      */
     'settings' => [
         LoginSettings::class,
+        ThemeSettings::class
     ],
 
     /*

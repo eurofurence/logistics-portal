@@ -18,7 +18,15 @@ class CheckWhitelist
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (app(LoginSettings::class)->whitelist_active) {
+        try {
+            // Try to retrieve the whitelist_active property
+            $whitelistActive = app(LoginSettings::class)->whitelist_active;
+        } catch (\Exception $e) {
+            // Set default value if an error occurs
+            $whitelistActive = true;
+        }
+
+        if ($whitelistActive) {
             if (Auth::check()) {
                 $existsInWhitelist = Whitelist::where('email', Auth::user()->email)->exists();
 

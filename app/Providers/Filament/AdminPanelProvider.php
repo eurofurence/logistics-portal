@@ -43,6 +43,13 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        try {
+            $primaryColor = app(ThemeSettings::class)->primary_color;
+        } catch (\Exception $e) {
+            // Set an alternative value if an error occurs
+            $primaryColor = '#007bff'; // Example: Standard blue color
+        }
+
         return $panel
             ->default()
             ->id('admin')
@@ -50,7 +57,7 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('favicon.ico'))
             //->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([
-                'primary' => app(ThemeSettings::class)->primary_color,
+                'primary' => $primaryColor,
             ])
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\\Filament\\Admin\\Pages')
