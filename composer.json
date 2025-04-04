@@ -51,6 +51,7 @@
         "shuvroroy/filament-spatie-laravel-health": "^2.1",
         "spatie/cpu-load-health-check": "^1.0",
         "spatie/laravel-backup": "^9.2",
+        "spatie/laravel-enum": "*",
         "spatie/laravel-permission": "^6.4",
         "spatie/laravel-schedule-monitor": "^3.6",
         "spatie/laravel-settings": "^3.4",

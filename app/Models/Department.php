@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\DepartmentRoleEnum;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -51,5 +52,10 @@ class Department extends Model
     public function orders(): hasMany
     {
         return $this->hasMany(Order::class, 'department_id');
+    }
+
+    public static function checkForRole(User $user, int $department_id, DepartmentRoleEnum $role): bool
+    {
+        return DepartmentMember::where('department_id', $department_id)->where('user_id', $user->id)->where('role', $role->value)->exists();
     }
 }

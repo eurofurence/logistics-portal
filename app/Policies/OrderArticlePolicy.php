@@ -88,8 +88,22 @@ class OrderArticlePolicy
         return $user->checkPermissionTo('bulk-restore-OrderArticle');
     }
 
+    /**
+     * Determines if a user can place an order for a given article.
+     *
+     * This function checks several conditions to decide if the user is allowed to place an order:
+     * 1. There must be at least one unlocked order event that either has no deadline or has a deadline in the future.
+     * 2. The order article must not be locked and must not be over its deadline.
+     * 3. The user must belong to at least one department or have permission to access all departments.
+     * 4. The user must have the permission to place orders.
+     *
+     * @param User $user The user attempting to place the order.
+     * @param OrderArticle $orderarticle The article being ordered.
+     * @return bool Returns true if the user can place the order, false otherwise.
+     */
     public function order(User $user, OrderArticle $orderarticle): bool
     {
+        // Count the number of unlocked order events that are either without a deadline or have a future deadline.
         $event_counter = OrderEvent::where('locked', false)
             ->where(function ($query) {
                 $query->whereNull('order_deadline')
@@ -97,20 +111,20 @@ class OrderArticlePolicy
             })
             ->count();
 
+        // Count the number of departments the user belongs to.
         $department_counter = $user->departments()->count();
 
-        $over_deadline = true;
+        // Determine if the order article is over its deadline.
+        $over_deadline = !empty($orderarticle->deadline) && now()->gte($orderarticle->deadline);
 
-        if (empty($orderarticle->deadline)) {
-            $over_deadline = false;
-        } else {
-            if (now()->lt($orderarticle->deadline)) {
-                $over_deadline = false;
-            }
-        }
-
-        return (((($event_counter > 0) && !$orderarticle->locked && !$over_deadline) || $user->can('can-always-order')) && (($department_counter > 0) || $user->can('access-all-departments')))  &&  $user->can('can-place-order');
+        // Check if the user can place the order based on the conditions.
+        return (
+            (($event_counter > 0) && !$orderarticle->locked && !$over_deadline) || $user->can('can-always-order')
+        ) && (
+            ($department_counter > 0) || $user->can('access-all-departments')
+        ) && $user->can('can-place-order');
     }
+
 
     /**
      * Determine whether the user can change the deadline of the model. (Many models at once)

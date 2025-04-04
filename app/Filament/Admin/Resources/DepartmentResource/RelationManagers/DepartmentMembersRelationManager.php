@@ -2,10 +2,13 @@
 
 namespace App\Filament\Admin\Resources\DepartmentResource\RelationManagers;
 
-use App\Models\User;;
+use App\Models\User;
+
 use Filament\Forms\Form;
 use App\Models\Department;
 use Filament\Tables\Table;
+use App\Enums\DepartmentRoleEnum;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
@@ -36,6 +39,7 @@ class DepartmentMembersRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
+        dd(Department::checkForRole(Auth::user(), 1, DepartmentRoleEnum::MEMBER()));
         $unfiltered_users = User::all()->pluck('name', 'id')->toArray(); // Beispiel-Array mit Benutzer-IDs
         $users_to_remove = [0 => 'System'];
 
@@ -52,10 +56,10 @@ class DepartmentMembersRelationManager extends RelationManager
                     ->sortable(),
                 SelectColumn::make('role')
                     ->options([
-                        0 => __('general.member'),
-                        1 => __('general.requestor'),
-                        2 => __('general.purchaser'),
-                        3 => __('general.director')
+                        DepartmentRoleEnum::MEMBER()->value => __('general.member'),
+                        DepartmentRoleEnum::REQUESTOR()->value => __('general.requestor'),
+                        DepartmentRoleEnum::PURCHASER()->value => __('general.purchaser'),
+                        DepartmentRoleEnum::DIRECTOR()->value => __('general.director')
                     ])
                     ->selectablePlaceholder(false)
             ])
@@ -87,10 +91,10 @@ class DepartmentMembersRelationManager extends RelationManager
                             ->required(),
                         Select::make('role')
                             ->options([
-                                0 => __('general.member'),
-                                1 => __('general.requestor'),
-                                2 => __('general.purchaser'),
-                                3 => __('general.director')
+                                DepartmentRoleEnum::MEMBER()->value => __('general.member'),
+                                DepartmentRoleEnum::REQUESTOR()->value => __('general.requestor'),
+                                DepartmentRoleEnum::PURCHASER()->value => __('general.purchaser'),
+                                DepartmentRoleEnum::DIRECTOR()->value => __('general.director')
                             ])
                             ->label(__('general.role'))
                             ->default('0')

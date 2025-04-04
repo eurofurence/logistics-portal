@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('department_id')->unsigned();
             $table->unsignedBigInteger('user_id')->unsigned();
-            $table->unsignedBigInteger('role_id')->unsigned()->nullable();
 
             // ForeignKey for department_id
             $table->foreign('department_id')
@@ -28,12 +27,6 @@ return new class extends Migration
                 ->references('id')
                 ->on('users')
                 ->onDelete('cascade'); // Deletes entries in department_user when the associated user is deleted
-
-            // ForeignKey for roles_id
-            $table->foreign('role_id')
-                ->references('id')
-                ->on('roles')
-                ->onDelete('cascade'); // Deletes entries in department_user when the associated role is deleted
         });
     }
 
@@ -45,7 +38,6 @@ return new class extends Migration
         Schema::table('department_user', function (Blueprint $table) {
             $table->dropForeign(['department_id']);
             $table->dropForeign(['user_id']);
-            $table->dropForeign(['role_id']);
         });
 
         Schema::dropIfExists('department_members');

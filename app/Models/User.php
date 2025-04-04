@@ -81,10 +81,6 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
                 return $this->isSuperAdmin() || $this->checkPermissionTo('access-adminpanel');
                 break;
 
-            case 'knowledge-base':
-                return Auth::user()->can('can-use-knowledge-base');
-                break;
-
             default:
                 return false;
                 break;
