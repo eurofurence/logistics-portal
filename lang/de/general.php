@@ -362,4 +362,5 @@ return array(
     'add_member' => 'Mitglied hinzufügen',
     'requestor' => 'Antragsteller',
     'purchaser' => 'Einkäufer',
+    'director' => 'Direktor',
 );

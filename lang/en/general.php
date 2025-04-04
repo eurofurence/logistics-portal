@@ -363,4 +363,5 @@ return array(
     'add_member' => 'Add member',
     'requestor' => 'Requestor',
     'purchaser' => 'Purchaser',
+    'director' => 'Director',
 );
