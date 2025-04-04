@@ -8,7 +8,6 @@ use Filament\Forms\Form;
 use App\Models\Department;
 use Filament\Tables\Table;
 use App\Enums\DepartmentRoleEnum;
-use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
