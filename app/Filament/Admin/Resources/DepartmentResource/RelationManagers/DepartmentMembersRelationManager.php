@@ -39,7 +39,6 @@ class DepartmentMembersRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        dd(Department::checkForRole(Auth::user(), 1, DepartmentRoleEnum::MEMBER()));
         $unfiltered_users = User::all()->pluck('name', 'id')->toArray(); // Beispiel-Array mit Benutzer-IDs
         $users_to_remove = [0 => 'System'];
 
