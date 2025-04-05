@@ -2,16 +2,12 @@
 
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
-
 use App\Models\User;
 use App\Policies\PermissionPolicy;
 use Illuminate\Support\Facades\Gate;
-//use App\Policies\RouteStatisticPolicy;
 use App\Policies\ScheduledTaskLogItemPolicy;
 use App\Policies\MonitoredScheduledTaskPolicy;
 use Spatie\ScheduleMonitor\Models\MonitoredScheduledTask;
-//use Bilfeldt\LaravelRouteStatistics\Models\RouteStatistic;
 use Spatie\Permission\Models\Permission as SpatiePermission;
 use Spatie\ScheduleMonitor\Models\MonitoredScheduledTaskLogItem;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;

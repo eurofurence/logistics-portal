@@ -3,8 +3,11 @@
 namespace App\Policies;
 
 use App\Models\User;
+use App\Models\Department;
 use App\Models\OrderEvent;
 use App\Models\OrderRequest;
+use App\Enums\DepartmentRoleEnum;
+use Illuminate\Support\Facades\Auth;
 
 class OrderRequestPolicy
 {
@@ -13,7 +16,7 @@ class OrderRequestPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->checkPermissionTo('view-any-OrderRequest');
+        return $user->checkPermissionTo('view-any-OrderRequest') || $user->hasDepartmentRoles($user->id, null, [DepartmentRoleEnum::REQUESTOR(), DepartmentRoleEnum::PURCHASER(), DepartmentRoleEnum::DIRECTOR()]);
     }
 
     /**

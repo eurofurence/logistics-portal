@@ -3,9 +3,11 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
 use Filament\Panel;
+use InvalidArgumentException;
+use App\Enums\DepartmentRoleEnum;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Traits\HasRoles;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Notifications\Notifiable;
@@ -145,40 +147,77 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     }
 
     /**
-     * The function `hasDepartmentRole` checks if a user has a specific role in a department.
+     * Checks if a user has a specific role in a given department.
      *
-     * @param int user_id The `user_id` parameter is an integer that represents the unique identifier of a user in the
-     * system. It is used to identify a specific user for whom we want to check if they have a certain role within a
-     * department.
-     * @param int department_id The `department_id` parameter in the `hasDepartmentRole` function represents the unique
-     * identifier of the department for which you want to check if a user has a specific role. This parameter is used to
-     * filter the DepartmentMember records based on the specified department.
-     * @param int role_id The `role_id` parameter in the `hasDepartmentRole` function represents the specific role that you
-     * want to check if a user has within a department.
+     * @param int $user_id The ID of the user to check.
+     * @param int|null $department_id The ID of the department to check. If null, checks all departments.
+     * @param DepartmentRoleEnum $role The role to check for.
      *
-     * @return bool The `hasDepartmentRole` function is returning a boolean value (`true` or `false`). It checks if there
-     * is a record in the `DepartmentMember` table where the `user_id`, `department_id`, and `role_id` match the provided
-     * values. If such a record exists, the function returns `true`, indicating that the user has the specified role in the
-     * department.
+     * @return bool Returns true if the user has the specified role in the department, false otherwise.
      */
-    public function hasDepartmentRole(int $user_id, int $department_id, int $role_id): bool
+    public function hasDepartmentRole(int $user_id, ?int $department_id, DepartmentRoleEnum $role): bool
     {
-        return DepartmentMember::where('user_id', $user_id)
-            ->where('department_id', $department_id)
-            ->where('role_id', $role_id)
-            ->exists();
+        $query = DepartmentMember::where('user_id', $user_id)
+            ->where('role', $role->value);
+
+        if ($department_id !== null) {
+            $query->where('department_id', $department_id);
+        }
+
+        return $query->exists();
     }
 
     /**
-     * Get all departments where the user has a specific role.
+     * Checks if a user has any of the specified roles in a given department or any department.
      *
-     * @param int $roleId
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @param int $user_id The ID of the user to check.
+     * @param int|null $department_id The ID of the department to check. If null, checks all departments.
+     * @param array $roles The roles to check for.
+     *
+     * @return bool Returns true if the user has any of the specified roles in the department, false otherwise.
+     *
+     * @throws InvalidArgumentException If any role in the array is not an instance of DepartmentRoleEnum.
      */
-    public function departmentsWithRole(int $roleId)
+    public function hasDepartmentRoles(int $user_id, ?int $department_id, array $roles): bool
+    {
+        // Check whether all elements in the array are instances of DepartmentRoleEnum
+        foreach ($roles as $role) {
+            if (!$role instanceof DepartmentRoleEnum) {
+                throw new InvalidArgumentException('All roles must be instances of ' . get_class(DepartmentRoleEnum::NONE()));
+            }
+        }
+
+        // Check whether the user has one of the roles in the array for the specified department or all departments
+        foreach ($roles as $role) {
+            $query = DepartmentMember::where('user_id', $user_id)
+                ->where('role', $role->value);
+
+            if ($department_id !== null) {
+                $query->where('department_id', $department_id);
+            }
+
+            if ($query->exists()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Retrieves departments associated with the user having a specific role.
+     *
+     * This function retrieves departments where the user has a specific role, based on the provided DepartmentRoleEnum.
+     * It uses a many-to-many relationship defined in the User model to fetch the relevant departments.
+     *
+     * @param DepartmentRoleEnum $role The role to check for.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection A collection of Department models where the user has the specified role.
+     */
+    public function departmentsWithRole(DepartmentRoleEnum $role)
     {
         return $this->belongsToMany(Department::class, 'department_user', 'user_id', 'department_id')
-            ->wherePivot('role_id', $roleId)
+            ->wherePivot('role_id', $role->value)
             ->get();
     }
 }
