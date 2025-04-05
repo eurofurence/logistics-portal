@@ -67,14 +67,14 @@ class TableOrderAction
                     ->required()
                     ->exists('departments', 'id')
                     ->options(function (): array {
-                        $options = Auth::user()->can('access-all-departments')
+                        $options = Auth::user()->can('can-choose-all-departments')
                             ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
                             : Auth::user()->departments()->withoutTrashed()->pluck('name', 'department_id')->toArray();
 
                         return $options;
                     })
                     ->default(function () {
-                        $options = Auth::user()->can('access-all-departments')
+                        $options = Auth::user()->can('can-choose-all-departments')
                             ? Department::withoutTrashed()->pluck('id')->toArray()
                             : Auth::user()->departments()->withoutTrashed()->pluck('department_id')->toArray();
 

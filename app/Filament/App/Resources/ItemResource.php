@@ -135,14 +135,14 @@ class ItemResource extends Resource
                                                     ->required()
                                                     ->exists('departments', 'id')
                                                     ->options(function (): array {
-                                                        $options = Auth::user()->can('access-all-departments')
+                                                        $options = Auth::user()->can('can-choose-all-departments')
                                                             ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
                                                             : Auth::user()->departments()->withoutTrashed()->pluck('name', 'department')->toArray();
 
                                                         return $options;
                                                     })
                                                     ->default(function () {
-                                                        $options = Auth::user()->can('access-all-departments')
+                                                        $options = Auth::user()->can('can-choose-all-departments')
                                                             ? Department::withoutTrashed()->pluck('id')->toArray()
                                                             : Auth::user()->departments()->withoutTrashed()->pluck('department')->toArray();
 
@@ -381,7 +381,7 @@ class ItemResource extends Resource
                     ->multiple()
                     ->label(__('general.department'))
                     ->options(function (): array {
-                        if (Auth::user()->can('access-all-departments') || Auth::user()->can('can-see-all-departments')) {
+                        if (Auth::user()->can('can-choose-all-departments') || Auth::user()->can('can-see-all-departments')) {
                             return Department::all()->pluck('name', 'id')->toArray();
                         } else {
                             return Auth::user()->departments()->pluck('name', 'department_id')->toArray();

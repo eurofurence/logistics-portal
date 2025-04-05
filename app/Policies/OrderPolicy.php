@@ -29,7 +29,7 @@ class OrderPolicy
         // Check whether the user is allowed to view the order
         $canViewOrder = ($user->departments->contains('id', $order->department_id) ||
             $user->checkPermissionTo('can-see-all-departments') ||
-            $user->checkPermissionTo('access-all-departments'));
+            $user->checkPermissionTo('can-choose-all-departments'));
 
         $orderNotLockedOrPermission = ($order->status != 'locked') ||
             $user->checkPermissionTo('can-always-see-order');
@@ -58,7 +58,7 @@ class OrderPolicy
 
         // Checking the conditions for creating a purchase order
         if (($event_counter > 0 || $user->checkPermissionTo('can-always-order')) &&
-            ($department_counter > 0 || $user->checkPermissionTo('access-all-departments'))
+            ($department_counter > 0 || $user->checkPermissionTo('can-choose-all-departments'))
         ) {
             $result = true;
         }
@@ -92,7 +92,7 @@ class OrderPolicy
 
         // Check whether the user belongs to the department of the order or has access to all departments
         $canAccessDepartment = $user->departments->contains('id', $order->department_id) ||
-            $user->checkPermissionTo('access-all-departments');
+            $user->checkPermissionTo('can-choose-all-departments');
 
         return $canAccessDepartment && $result;
     }
@@ -112,7 +112,7 @@ class OrderPolicy
             $result = true;
         }
 
-        return ($user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('access-all-departments')) && $result;
+        return ($user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('can-choose-all-departments')) && $result;
     }
 
     /**
@@ -130,7 +130,7 @@ class OrderPolicy
             $result = true;
         }
 
-        return $user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('access-all-departments') && $result;
+        return $user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('can-choose-all-departments') && $result;
     }
 
     /**
@@ -142,7 +142,7 @@ class OrderPolicy
             return false;
         }
 
-        return $user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('access-all-departments');
+        return $user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('can-choose-all-departments');
     }
 
     /**
@@ -154,7 +154,7 @@ class OrderPolicy
             return false;
         }
 
-        return $user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('access-all-departments');
+        return $user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('can-choose-all-departments');
     }
 
     /**
@@ -166,7 +166,7 @@ class OrderPolicy
             return false;
         }
 
-        return $user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('access-all-departments');
+        return $user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('can-choose-all-departments');
     }
 
     /**
@@ -178,6 +178,6 @@ class OrderPolicy
             return false;
         }
 
-        return $user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('access-all-departments');
+        return $user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('can-choose-all-departments');
     }
 }

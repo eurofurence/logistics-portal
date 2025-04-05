@@ -121,7 +121,7 @@ class OrderArticlePolicy
         return (
             (($event_counter > 0) && !$orderarticle->locked && !$over_deadline) || $user->can('can-always-order')
         ) && (
-            ($department_counter > 0) || $user->can('access-all-departments')
+            ($department_counter > 0) || $user->can('can-choose-all-departments')
         ) && $user->can('can-place-order');
     }
 

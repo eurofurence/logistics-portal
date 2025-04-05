@@ -26,7 +26,7 @@ class BillPolicy
             return false;
         }
 
-        return (($user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-see-all-departments'))  || $user->checkPermissionTo('access-all-departments'));
+        return (($user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-see-all-departments'))  || $user->checkPermissionTo('can-choose-all-departments'));
     }
 
     /**
@@ -38,7 +38,7 @@ class BillPolicy
         $department_counter = $user->departments()->count();
         $event_counter = OrderEvent::all(['id'])->count();
 
-        if (($event_counter > 0) && (($department_counter > 0) || $user->checkPermissionTo('access-all-departments'))) {
+        if (($event_counter > 0) && (($department_counter > 0) || $user->checkPermissionTo('can-choose-all-departments'))) {
             $result = true;
         }
 
@@ -60,7 +60,7 @@ class BillPolicy
             $result = true;
         }
 
-        return ($user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('access-all-departments')) && $result;
+        return ($user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments')) && $result;
     }
 
     /**
@@ -78,7 +78,7 @@ class BillPolicy
             $result = true;
         }
 
-        return ($user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('access-all-departments')) && $result;
+        return ($user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments')) && $result;
     }
 
     /**
@@ -100,7 +100,7 @@ class BillPolicy
             return false;
         }
 
-        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('access-all-departments') && $result;
+        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments') && $result;
     }
 
     /**
@@ -122,7 +122,7 @@ class BillPolicy
             return false;
         }
 
-        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('access-all-departments') && $result;
+        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments') && $result;
     }
 
     /**
@@ -142,7 +142,7 @@ class BillPolicy
             return false;
         }
 
-        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('access-all-departments');
+        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments');
     }
 
     /**
@@ -159,7 +159,7 @@ class BillPolicy
             return false;
         }
 
-        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('access-all-departments');
+        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments');
     }
 
     /**
@@ -171,7 +171,7 @@ class BillPolicy
             return false;
         }
 
-        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('access-all-departments');
+        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments');
     }
 
     /**
@@ -183,6 +183,6 @@ class BillPolicy
             return false;
         }
 
-        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('access-all-departments');
+        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments');
     }
 }

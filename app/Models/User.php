@@ -157,6 +157,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
      */
     public function hasDepartmentRole(int $user_id, ?int $department_id, DepartmentRoleEnum $role): bool
     {
+        dd($this->id);
         $query = DepartmentMember::where('user_id', $user_id)
             ->where('role', $role->value);
 

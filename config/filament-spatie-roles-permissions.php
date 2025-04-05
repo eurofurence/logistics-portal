@@ -193,7 +193,7 @@ return [
          * Define excluded_models
          */
         'excluded_models' => [
-            //
+            \App\Models\OrderRequest::class,
         ],
 
         'excluded_policy_models' => [
@@ -214,7 +214,7 @@ return [
             'can-always-edit-orders',
             'can-always-delete-orders',
             'can-always-see-orders',
-            'access-all-departments',
+            'can-choose-all-departments',
             'can-change-order-status',
             'instant-delivery-notification',
             'can-see-all-departments',
@@ -224,7 +224,6 @@ return [
             'can-always-create-orderRequests',
             'can-always-restore-orders',
             'can-always-restore-orderRequests',
-            'manage-banners',
             'can-view-order-delivery-address',
             'can-use-special-order-export',
             'can-use-special-order-functions',
@@ -243,6 +242,10 @@ return [
             'can-bulk-sync-order-articles',
             'can-manage-order-relationships',
             'can-bulk-change-order-article-deadlines',
+            'can-edit-all-orderRequests',
+            'can-create-orderRequests-for-other-departments',
+            'can-delete-orderRequests-for-other-departments',
+            'can-see-all-orderRequests',
         ],
 
         'user_model' => \App\Models\User::class,
