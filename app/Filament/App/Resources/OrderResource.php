@@ -1287,8 +1287,8 @@ class OrderResource extends Resource
             ->defaultGroup('department.name')
             ->deferLoading()
             ->searchDebounce('750ms')
-            ->persistSortInSession()
-            ->persistFiltersInSession();
+            ->persistSortInSession();
+            //->persistFiltersInSession();
     }
 
     public static function getRelations(): array

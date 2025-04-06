@@ -245,7 +245,13 @@ return [
             'can-edit-all-orderRequests',
             'can-create-orderRequests-for-other-departments',
             'can-delete-orderRequests-for-other-departments',
+            'can-restore-orderRequests',
             'can-see-all-orderRequests',
+            'can-force-delete-OrderRequest',
+            'can-bulk-force-delete-OrderRequest',
+            'can-bulk-delete-OrderRequest',
+            'can-bulk-restore-OrderRequest',
+            
         ],
 
         'user_model' => \App\Models\User::class,

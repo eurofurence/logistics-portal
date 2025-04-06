@@ -3,11 +3,9 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Department;
 use App\Models\OrderEvent;
 use App\Models\OrderRequest;
 use App\Enums\DepartmentRoleEnum;
-use Illuminate\Support\Facades\Auth;
 
 class OrderRequestPolicy
 {
@@ -73,20 +71,20 @@ class OrderRequestPolicy
      * @param User $user The user making the request.
      * @return bool True if the user can create an order request, false otherwise.
      *
-     * The function checks the following conditions:
-     * 1. If there are open order events that are not locked and have no deadline or a deadline in the future,
-     *    or if the user has the 'can-always-create-orderRequests' permission, the function returns true.
-     * 2. If the user belongs to at least one department or has the 'can-choose-all-departments' permission and
-     *    the 'can-create-orderRequests-for-other-departments' permission, the function returns true.
-     * 3. In all other cases, the function returns false.
+     * This function checks if the user is allowed to create order requests based on the following conditions:
+     * 1. The user has the 'can-always-create-orderRequests' permission.
+     * 2. There is at least one open order event that is not locked and either has no deadline or a deadline in the future.
+     * 3. The user belongs to at least one department or has permissions to choose all departments and create order requests for other departments.
+     *
+     * If all these conditions are met, the function returns true, indicating that the user can create an order request. Otherwise, it returns false.
      */
     public function create(User $user): bool
     {
         // Initialize the result to false
         $result = false;
 
-        // Count the number of departments the user belongs to
-        $department_counter = $user->departments()->count();
+        // Count the number of departments the user belongs to and has the required roles
+        $department_counter = $user->departmentsWithRoles([DepartmentRoleEnum::REQUESTOR(), DepartmentRoleEnum::DIRECTOR()])->count();
 
         // Count the number of open order events that are not locked and either have no deadline or a deadline in the future
         $event_counter = OrderEvent::where('locked', false)
@@ -193,30 +191,19 @@ class OrderRequestPolicy
     }
 
 
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, OrderRequest $orderrequest): bool
+    public function restore(User $user): bool
     {
-        $result = false;
-
-        if (!$user->checkPermissionTo('restore-OrderRequest')) {
-            return false;
-        }
-
-        if ($orderrequest->status == 0 || $user->checkPermissionTo('can-always-restore-orderRequests')) {
-            $result = true;
-        }
-
-        return $user->departments->contains('id', $orderrequest->department_id) || $user->checkPermissionTo('can-choose-all-departments') && $result;
+        // Return true if the user has the required role/permission and the result is true
+        return $user->checkPermissionTo('can-restore-orderRequests') || $user->hasDepartmentRoles($user->id, null, [DepartmentRoleEnum::REQUESTOR(), DepartmentRoleEnum::DIRECTOR()]);
     }
+
 
     /**
      * Determine whether the user can permanently delete the model.
      */
     public function forceDelete(User $user): bool
     {
-        return $user->checkPermissionTo('force-delete-OrderRequest');
+        return $user->checkPermissionTo('can-force-delete-OrderRequest');
     }
 
     /**
@@ -224,7 +211,7 @@ class OrderRequestPolicy
      */
     public function bulkForceDelete(User $user): bool
     {
-        return $user->checkPermissionTo('bulk-force-delete-OrderRequest');
+        return $user->checkPermissionTo('can-bulk-force-delete-OrderRequest');
     }
 
     /**
@@ -232,7 +219,7 @@ class OrderRequestPolicy
      */
     public function bulkDelete(User $user): bool
     {
-        return $user->checkPermissionTo('bulk-delete-OrderRequest');
+        return $user->checkPermissionTo('can-bulk-delete-OrderRequest');
     }
 
     /**
@@ -240,6 +227,6 @@ class OrderRequestPolicy
      */
     public function bulkRestore(User $user): bool
     {
-        return $user->checkPermissionTo('bulk-restore-OrderRequest');
+        return $user->checkPermissionTo('can-bulk-restore-OrderRequest');
     }
 }

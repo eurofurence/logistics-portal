@@ -218,7 +218,37 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function departmentsWithRole(DepartmentRoleEnum $role)
     {
         return $this->belongsToMany(Department::class, 'department_user', 'user_id', 'department_id')
-            ->wherePivot('role_id', $role->value)
+            ->wherePivot('role', $role->value)
+            ->get();
+    }
+
+    /**
+     * Retrieves departments associated with the user having any of the specified roles.
+     *
+     * This function retrieves departments where the user has any of the roles provided in the array.
+     * It uses a many-to-many relationship defined in the User model to fetch the relevant departments.
+     *
+     * @param array $roles An array of DepartmentRoleEnum roles to check for.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection A collection of Department models where the user has any of the specified roles.
+     */
+    public function departmentsWithRoles(array $roles)
+    {
+        // Ensure all elements in the array are instances of DepartmentRoleEnum
+        foreach ($roles as $role) {
+            if (!$role instanceof DepartmentRoleEnum) {
+                throw new InvalidArgumentException('All roles must be instances of ' . get_class(DepartmentRoleEnum::NONE()));
+            }
+        }
+
+        // Extract the role values from the DepartmentRoleEnum instances
+        $roleValues = array_map(function ($role) {
+            return $role->value;
+        }, $roles);
+
+        // Retrieve departments where the user has any of the specified roles
+        return $this->belongsToMany(Department::class, 'department_user', 'user_id', 'department_id')
+            ->whereIn('department_user.role', $roleValues)
             ->get();
     }
 }
