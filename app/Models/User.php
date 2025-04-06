@@ -145,13 +145,13 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return $this->morphToMany(Role::class, 'model', 'model_has_roles', 'model_id', 'role_id');
     }
 
-    public function hasDepartmentPermissionTo(int $department_id, string $permission): bool
+    public function hasDepartmentRoleWithPermissionTo(string $permission, ?int $department_id): bool
     {
 
     }
 
     public function getDepartmentsWithPermission(string $permission): array
     {
-        
+
     }
 }
