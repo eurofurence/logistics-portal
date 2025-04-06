@@ -291,7 +291,7 @@ class OrderRequestResource extends Resource
                     ->multiple()
                     ->label(__('general.department'))
                     ->options(function (): array {
-                        if (Auth::user()->can('can-choose-all-departments')) {
+                        if (Auth::user()->can('can-see-all-orderRequests')) {
                             return Department::all()->pluck('name', 'id')->toArray();
                         } else {
                             return Auth::user()->departments()->pluck('name', 'department_id')->toArray();
