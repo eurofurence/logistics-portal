@@ -111,7 +111,7 @@ class OrderRequestResource extends Resource
 
     public static function form(Form $form): Form
     {
-        $moderation_active = Auth::user()->can('can-moderate-order-request'); #TODO: Department rights are not considered here.
+        $moderation_active = Auth::user()->can('can-moderate-order-request');
 
         return $form
             ->schema([
