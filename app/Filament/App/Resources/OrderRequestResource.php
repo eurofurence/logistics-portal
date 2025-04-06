@@ -102,7 +102,7 @@ class OrderRequestResource extends Resource
         $query = parent::getEloquentQuery();
         $user = Auth::user();
 
-        $query->when(!$user->can('can-choose-all-departments'), function ($query) use ($user) {
+        $query->when(!$user->can('can-see-all-orderRequests'), function ($query) use ($user) {
             return $query->whereIn('department_id', $user->departments->pluck('id'));
         });
 
@@ -146,14 +146,14 @@ class OrderRequestResource extends Resource
                             ->options(function (): array {
                                 $options = Auth::user()->can('can-create-orderRequests-for-other-departments')
                                     ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
-                                    : Auth::user()->departments()->withoutTrashed()->pluck('name', 'department_id')->toArray();
+                                    : Auth::user()->departments()->withoutTrashed()->pluck('name', 'department_id')->toArray(); #TODO: Department rights
 
                                 return $options;
                             })
                             ->default(function () {
                                 $options = Auth::user()->can('can-create-orderRequests-for-other-departments')
                                     ? Department::withoutTrashed()->pluck('id')->toArray()
-                                    : Auth::user()->departments()->withoutTrashed()->pluck('department_id')->toArray();
+                                    : Auth::user()->departments()->withoutTrashed()->pluck('department_id')->toArray(); #TODO: Department rights
 
                                 return count($options) === 1 ? $options[0] : null;
                             }),
@@ -294,7 +294,7 @@ class OrderRequestResource extends Resource
                         if (Auth::user()->can('can-see-all-orderRequests')) {
                             return Department::all()->pluck('name', 'id')->toArray();
                         } else {
-                            return Auth::user()->departments()->pluck('name', 'department_id')->toArray();
+                            return Auth::user()->departments()->pluck('name', 'department_id')->toArray(); #TODO: Department rights
                         }
                     }),
                 SelectFilter::make('status')
