@@ -360,7 +360,7 @@ return array(
     'members' => 'Mitglieder',
     'member' => 'Mitglied',
     'add_member' => 'Mitglied hinzufügen',
-    'requestor' => 'Antragsteller',
-    'purchaser' => 'Einkäufer',
     'director' => 'Direktor',
+    'currently' => 'Aktuell',
+    'no_department_role' => 'Keine Abteilungs-Rolle',
 );

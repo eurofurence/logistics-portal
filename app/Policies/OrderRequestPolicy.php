@@ -5,86 +5,37 @@ namespace App\Policies;
 use App\Models\User;
 use App\Models\OrderEvent;
 use App\Models\OrderRequest;
-use App\Enums\DepartmentRoleEnum;
 
 class OrderRequestPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     *
-     * @param User $user The user making the request.
-     * @return bool True if the user has permission to view any models, false otherwise.
-     *
-     * This function checks if the user has the 'can-see-all-orderRequests' permission. If so, it returns true,
-     * indicating that the user can view all models. Otherwise, it checks if the user has any of the
-     * specified department roles (Requestor, Purchaser, Director) and returns true if they do. If the user
-     * does not meet any of these conditions, it returns false.
-     */
+
     public function viewAny(User $user): bool
     {
-        if ($user->checkPermissionTo('can-see-all-orderRequests')) {
-            return true;
-        }
-
-        return $user->hasDepartmentRoles($user->id, null, [DepartmentRoleEnum::REQUESTOR(), DepartmentRoleEnum::PURCHASER(), DepartmentRoleEnum::DIRECTOR()]);
+        return $user->checkPermissionTo('view-any-OrderRequest');
     }
 
 
-    /**
-     * Determines whether the user can view a specific order request.
-     *
-     * @param User $user The user making the request.
-     * @param OrderRequest $orderRequest The order request to be viewed.
-     * @return bool True if the user can view the order request, false otherwise.
-     *
-     * This function checks if the user has the 'can-see-all-orderRequests' permission. If so, it returns true,
-     * indicating that the user can view all models. Otherwise, it checks if the user has any of the
-     * specified department roles (Requestor, Purchaser, Director) for the department associated with the
-     * order request and returns true if they do. If the user does not meet any of these conditions, it
-     * returns false.
-     */
     public function view(User $user, OrderRequest $orderRequest): bool
     {
         if ($user->checkPermissionTo('can-see-all-orderRequests')) {
             return true;
         }
 
-        // Check if the user has any of the required roles in the department
-        $hasRequiredRole = $user->hasDepartmentRoles(
-            $user->id,
-            $orderRequest->department->id,
-            [
-                DepartmentRoleEnum::REQUESTOR(),
-                DepartmentRoleEnum::PURCHASER(),
-                DepartmentRoleEnum::DIRECTOR()
-            ]
-        );
 
-        // Return true if the user has the required role
+        $hasRequiredRole = true; #TODO
+
+
         return $hasRequiredRole;
     }
 
 
-    /**
-     * Determines whether the user can create a new order request.
-     *
-     * @param User $user The user making the request.
-     * @return bool True if the user can create an order request, false otherwise.
-     *
-     * This function checks if the user is allowed to create order requests based on the following conditions:
-     * 1. The user has the 'can-always-create-orderRequests' permission.
-     * 2. There is at least one open order event that is not locked and either has no deadline or a deadline in the future.
-     * 3. The user belongs to at least one department or has permissions to choose all departments and create order requests for other departments.
-     *
-     * If all these conditions are met, the function returns true, indicating that the user can create an order request. Otherwise, it returns false.
-     */
     public function create(User $user): bool
     {
         // Initialize the result to false
         $result = false;
 
-        // Count the number of departments the user belongs to and has the required roles
-        $department_counter = $user->departmentsWithRoles([DepartmentRoleEnum::REQUESTOR(), DepartmentRoleEnum::DIRECTOR()])->count();
+
+        $department_counter = 0; #TODO
 
         // Count the number of open order events that are not locked and either have no deadline or a deadline in the future
         $event_counter = OrderEvent::where('locked', false)
@@ -97,35 +48,18 @@ class OrderRequestPolicy
         // Check if the user is allowed to create order requests
         $canCreateOrderRequests = $event_counter > 0 || $user->checkPermissionTo('can-always-create-orderRequests');
 
-        // Check if the user has access to at least one department or has permissions to choose all departments and create order requests for other departments
-        $hasDepartmentAccess = $department_counter > 0 ||
-            ($user->checkPermissionTo('can-choose-all-departments') &&
-                $user->checkPermissionTo('can-create-orderRequests-for-other-departments'));
+        // Check if the user has access to at least one department or has permissions to create order requests for other departments
+        $hasDepartmentAccess = $department_counter > 0 || $user->checkPermissionTo('can-create-orderRequests-for-other-departments');
 
         // If both conditions are met, set the result to true
         if ($canCreateOrderRequests && $hasDepartmentAccess) {
             $result = true;
         }
 
-        // Return the result
         return $result;
     }
 
 
-    /**
-     * Determines whether the user can update a specific order request.
-     *
-     * @param User $user The user making the request.
-     * @param OrderRequest $orderRequest The order request to be updated.
-     * @return bool True if the user can update the order request, false otherwise.
-     *
-     * The function checks the following conditions:
-     * 1. If the order event associated with the order request is not locked and has a deadline in the past and the order request status is 0,
-     *    or if the user has the 'can-always-edit-orderRequests' permission, the function returns true.
-     * 2. If the user has any of the required roles (Requestor, Director) in the department associated with the order request,
-     *    or if the user has the 'can-edit-all-orderRequests' permission, the function returns true.
-     * 3. In all other cases, the function returns false.
-     */
     public function update(User $user, OrderRequest $orderRequest): bool
     {
         // Initialize the result to false
@@ -144,15 +78,7 @@ class OrderRequestPolicy
             $result = true;
         }
 
-        // Check if the user has any of the required roles in the department
-        $hasRequiredRole = $user->hasDepartmentRoles(
-            $user->id,
-            $orderRequest->department->id,
-            [
-                DepartmentRoleEnum::REQUESTOR(),
-                DepartmentRoleEnum::DIRECTOR()
-            ]
-        );
+        $hasRequiredRole = true; #TODO
 
         // Check if the user has permission to edit all order requests
         $canEditAllOrderRequests = $user->checkPermissionTo('can-edit-all-orderRequests');
@@ -180,8 +106,7 @@ class OrderRequestPolicy
             $result = true;
         }
 
-        // Check if the user belongs to the department associated with the order request and has the required role
-        $hasRole = $user->hasDepartmentRoles($user->id, null, [DepartmentRoleEnum::REQUESTOR(), DepartmentRoleEnum::DIRECTOR()]);
+        $hasRole = true; #TODO
 
         // Check if the user has permission to delete for other departments
         $canDeleteForOtherDepartments = $user->checkPermissionTo('can-delete-orderRequests-for-other-departments');
@@ -190,11 +115,10 @@ class OrderRequestPolicy
         return ($hasRole || $canDeleteForOtherDepartments) && $result;
     }
 
-
     public function restore(User $user): bool
     {
         // Return true if the user has the required role/permission and the result is true
-        return $user->checkPermissionTo('can-restore-orderRequests') || $user->hasDepartmentRoles($user->id, null, [DepartmentRoleEnum::REQUESTOR(), DepartmentRoleEnum::DIRECTOR()]);
+        return $user->checkPermissionTo('restore-OrderRequest');
     }
 
 
@@ -203,7 +127,7 @@ class OrderRequestPolicy
      */
     public function forceDelete(User $user): bool
     {
-        return $user->checkPermissionTo('can-force-delete-OrderRequest');
+        return $user->checkPermissionTo('force-delete-OrderRequest');
     }
 
     /**
@@ -211,7 +135,7 @@ class OrderRequestPolicy
      */
     public function bulkForceDelete(User $user): bool
     {
-        return $user->checkPermissionTo('can-bulk-force-delete-OrderRequest');
+        return $user->checkPermissionTo('bulk-force-delete-OrderRequest');
     }
 
     /**
@@ -219,7 +143,7 @@ class OrderRequestPolicy
      */
     public function bulkDelete(User $user): bool
     {
-        return $user->checkPermissionTo('can-bulk-delete-OrderRequest');
+        return $user->checkPermissionTo('bulk-delete-OrderRequest');
     }
 
     /**
@@ -227,6 +151,6 @@ class OrderRequestPolicy
      */
     public function bulkRestore(User $user): bool
     {
-        return $user->checkPermissionTo('can-bulk-restore-OrderRequest');
+        return $user->checkPermissionTo('bulk-restore-OrderRequest');
     }
 }

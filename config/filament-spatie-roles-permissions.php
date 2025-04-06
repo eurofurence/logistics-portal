@@ -148,13 +148,13 @@ return [
             'createPermission' => 'create',
             'updatePermission' => 'update',
             'deletePermission' => 'delete',
-            'deleteAnyPermission' => 'delete-any',
+            //'deleteAnyPermission' => 'delete-any',
             'replicatePermission' => 'replicate',
             'restorePermission' => 'restore',
-            'restoreAnyPermission' => 'restore-any',
+            //'restoreAnyPermission' => 'restore-any',
             'reorderPermission' => 'reorder',
             'forceDeletePermission' => 'force-delete',
-            'forceDeleteAnyPermission' => 'force-delete-any',
+            //'forceDeleteAnyPermission' => 'force-delete-any',
         ],
 
         /*
@@ -193,7 +193,7 @@ return [
          * Define excluded_models
          */
         'excluded_models' => [
-            \App\Models\OrderRequest::class,
+            //
         ],
 
         'excluded_policy_models' => [
@@ -245,13 +245,8 @@ return [
             'can-edit-all-orderRequests',
             'can-create-orderRequests-for-other-departments',
             'can-delete-orderRequests-for-other-departments',
-            'can-restore-orderRequests',
             'can-see-all-orderRequests',
-            'can-force-delete-OrderRequest',
-            'can-bulk-force-delete-OrderRequest',
-            'can-bulk-delete-OrderRequest',
-            'can-bulk-restore-OrderRequest',
-            
+
         ],
 
         'user_model' => \App\Models\User::class,

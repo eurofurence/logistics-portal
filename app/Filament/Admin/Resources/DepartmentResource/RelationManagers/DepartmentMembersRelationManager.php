@@ -2,12 +2,12 @@
 
 namespace App\Filament\Admin\Resources\DepartmentResource\RelationManagers;
 
-use App\Models\User;
+use App\Models\Role;
 
+use App\Models\User;
 use Filament\Forms\Form;
 use App\Models\Department;
 use Filament\Tables\Table;
-use App\Enums\DepartmentRoleEnum;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
@@ -52,23 +52,21 @@ class DepartmentMembersRelationManager extends RelationManager
                 TextColumn::make('user.name')
                     ->searchable()
                     ->sortable(),
-                SelectColumn::make('role')
-                    ->options([
-                        DepartmentRoleEnum::MEMBER()->value => __('general.member'),
-                        DepartmentRoleEnum::REQUESTOR()->value => __('general.requestor'),
-                        DepartmentRoleEnum::PURCHASER()->value => __('general.purchaser'),
-                        DepartmentRoleEnum::DIRECTOR()->value => __('general.director')
-                    ])
+                SelectColumn::make('role_id')
+                    ->options(
+                        function () {
+                            return Role::pluck('name', 'id')->toArray();
+                        }
+                    )
                     ->selectablePlaceholder(false)
             ])
             ->filters([
-                SelectFilter::make('role')
-                    ->options([
-                        __('general.member'),
-                        __('general.requestor'),
-                        __('general.purchaser'),
-                        __('general.director')
-                    ])
+                SelectFilter::make('role_id')
+                    ->options(
+                        function () {
+                            return Role::pluck('name', 'id')->toArray();
+                        }
+                    )
                     ->selectablePlaceholder(false)
                     ->multiple()
                     ->label(__('general.role')),
@@ -87,13 +85,12 @@ class DepartmentMembersRelationManager extends RelationManager
                             ->searchable()
                             ->label(__('general.user'))
                             ->required(),
-                        Select::make('role')
-                            ->options([
-                                DepartmentRoleEnum::MEMBER()->value => __('general.member'),
-                                DepartmentRoleEnum::REQUESTOR()->value => __('general.requestor'),
-                                DepartmentRoleEnum::PURCHASER()->value => __('general.purchaser'),
-                                DepartmentRoleEnum::DIRECTOR()->value => __('general.director')
-                            ])
+                        Select::make('role_id')
+                            ->options(
+                                function () {
+                                    return Role::pluck('name', 'id')->toArray();
+                                }
+                            )
                             ->label(__('general.role'))
                             ->default('0')
                             ->required()

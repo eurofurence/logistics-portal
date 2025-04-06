@@ -361,7 +361,7 @@ return array(
     'members' => 'Members',
     'member' => 'Member',
     'add_member' => 'Add member',
-    'requestor' => 'Requestor',
-    'purchaser' => 'Purchaser',
     'director' => 'Director',
+    'currently' => 'Currently',
+    'no_department_role' => 'No departmental role',
 );
