@@ -5,7 +5,7 @@
 
 /**
  * A helper file for Laravel, to provide autocomplete information to your IDE
- * Generated for Laravel 11.44.1.
+ * Generated for Laravel 12.7.2.
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
@@ -1296,11 +1296,12 @@ namespace Illuminate\Support\Facades {
         /**
          * Register a binding with the container.
          *
-         * @param string $abstract
+         * @param \Closure|string $abstract
          * @param \Closure|string|null $concrete
          * @param bool $shared
          * @return void 
          * @throws \TypeError
+         * @throws ReflectionException
          * @static 
          */
         public static function bind($abstract, $concrete = null, $shared = false)
@@ -1358,7 +1359,7 @@ namespace Illuminate\Support\Facades {
          * Add a contextual binding to the container.
          *
          * @param string $concrete
-         * @param string $abstract
+         * @param \Closure|string $abstract
          * @param \Closure|string $implementation
          * @return void 
          * @static 
@@ -1373,7 +1374,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Register a binding if it hasn't already been registered.
          *
-         * @param string $abstract
+         * @param \Closure|string $abstract
          * @param \Closure|string|null $concrete
          * @param bool $shared
          * @return void 
@@ -1389,7 +1390,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Register a shared binding in the container.
          *
-         * @param string $abstract
+         * @param \Closure|string $abstract
          * @param \Closure|string|null $concrete
          * @return void 
          * @static 
@@ -1404,7 +1405,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Register a shared binding if it hasn't already been registered.
          *
-         * @param string $abstract
+         * @param \Closure|string $abstract
          * @param \Closure|string|null $concrete
          * @return void 
          * @static 
@@ -1419,7 +1420,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Register a scoped binding in the container.
          *
-         * @param string $abstract
+         * @param \Closure|string $abstract
          * @param \Closure|string|null $concrete
          * @return void 
          * @static 
@@ -1434,7 +1435,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Register a scoped binding if it hasn't already been registered.
          *
-         * @param string $abstract
+         * @param \Closure|string $abstract
          * @param \Closure|string|null $concrete
          * @return void 
          * @static 
@@ -4500,6 +4501,7 @@ namespace Illuminate\Support\Facades {
          *
          * @param string $driver
          * @param \Closure $callback
+         * @param-closure-this $this  $callback
          * @return \Illuminate\Cache\CacheManager 
          * @static 
          */
@@ -5352,6 +5354,7 @@ namespace Illuminate\Support\Facades {
          *
          * @param string $name
          * @param \Closure $callback
+         * @param-closure-this $this  $callback
          * @return \Illuminate\Concurrency\ConcurrencyManager 
          * @static 
          */
@@ -5957,6 +5960,34 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
+         * Increment a context counter.
+         *
+         * @param string $key
+         * @param int $amount
+         * @return \Illuminate\Log\Context\Repository 
+         * @static 
+         */
+        public static function increment($key, $amount = 1)
+        {
+            /** @var \Illuminate\Log\Context\Repository $instance */
+            return $instance->increment($key, $amount);
+        }
+
+        /**
+         * Decrement a context counter.
+         *
+         * @param string $key
+         * @param int $amount
+         * @return \Illuminate\Log\Context\Repository 
+         * @static 
+         */
+        public static function decrement($key, $amount = 1)
+        {
+            /** @var \Illuminate\Log\Context\Repository $instance */
+            return $instance->decrement($key, $amount);
+        }
+
+        /**
          * Determine if the given value is in the given stack.
          *
          * @param string $key
@@ -5986,6 +6017,21 @@ namespace Illuminate\Support\Facades {
         {
             /** @var \Illuminate\Log\Context\Repository $instance */
             return $instance->hiddenStackContains($key, $value, $strict);
+        }
+
+        /**
+         * Run the callback function with the given context values and restore the original context state when complete.
+         *
+         * @param callable $callback
+         * @param array<string, mixed> $data
+         * @param array<string, mixed> $hidden
+         * @return mixed 
+         * @static 
+         */
+        public static function scope($callback, $data = [], $hidden = [])
+        {
+            /** @var \Illuminate\Log\Context\Repository $instance */
+            return $instance->scope($callback, $data, $hidden);
         }
 
         /**
@@ -6547,77 +6593,96 @@ namespace Illuminate\Support\Facades {
      *
      * @see https://carbon.nesbot.com/docs/
      * @see https://github.com/briannesbitt/Carbon/blob/master/src/Carbon/Factory.php
-     * @method static \Illuminate\Support\Carbon create($year = 0, $month = 1, $day = 1, $hour = 0, $minute = 0, $second = 0, $tz = null)
-     * @method static \Illuminate\Support\Carbon createFromDate($year = null, $month = null, $day = null, $tz = null)
-     * @method static \Illuminate\Support\Carbon|false createFromFormat($format, $time, $tz = null)
-     * @method static \Illuminate\Support\Carbon createFromTime($hour = 0, $minute = 0, $second = 0, $tz = null)
-     * @method static \Illuminate\Support\Carbon createFromTimeString($time, $tz = null)
-     * @method static \Illuminate\Support\Carbon createFromTimestamp($timestamp, $tz = null)
-     * @method static \Illuminate\Support\Carbon createFromTimestampMs($timestamp, $tz = null)
-     * @method static \Illuminate\Support\Carbon createFromTimestampUTC($timestamp)
-     * @method static \Illuminate\Support\Carbon createMidnightDate($year = null, $month = null, $day = null, $tz = null)
-     * @method static \Illuminate\Support\Carbon|false createSafe($year = null, $month = null, $day = null, $hour = null, $minute = null, $second = null, $tz = null)
+     * @method static bool canBeCreatedFromFormat(?string $date, string $format)
+     * @method static \Illuminate\Support\Carbon|null create($year = 0, $month = 1, $day = 1, $hour = 0, $minute = 0, $second = 0, $timezone = null)
+     * @method static \Illuminate\Support\Carbon createFromDate($year = null, $month = null, $day = null, $timezone = null)
+     * @method static \Illuminate\Support\Carbon|null createFromFormat($format, $time, $timezone = null)
+     * @method static \Illuminate\Support\Carbon|null createFromIsoFormat(string $format, string $time, $timezone = null, ?string $locale = 'en', ?\Symfony\Contracts\Translation\TranslatorInterface $translator = null)
+     * @method static \Illuminate\Support\Carbon|null createFromLocaleFormat(string $format, string $locale, string $time, $timezone = null)
+     * @method static \Illuminate\Support\Carbon|null createFromLocaleIsoFormat(string $format, string $locale, string $time, $timezone = null)
+     * @method static \Illuminate\Support\Carbon createFromTime($hour = 0, $minute = 0, $second = 0, $timezone = null)
+     * @method static \Illuminate\Support\Carbon createFromTimeString(string $time, \DateTimeZone|string|int|null $timezone = null)
+     * @method static \Illuminate\Support\Carbon createFromTimestamp(string|int|float $timestamp, \DateTimeZone|string|int|null $timezone = null)
+     * @method static \Illuminate\Support\Carbon createFromTimestampMs(string|int|float $timestamp, \DateTimeZone|string|int|null $timezone = null)
+     * @method static \Illuminate\Support\Carbon createFromTimestampMsUTC($timestamp)
+     * @method static \Illuminate\Support\Carbon createFromTimestampUTC(string|int|float $timestamp)
+     * @method static \Illuminate\Support\Carbon createMidnightDate($year = null, $month = null, $day = null, $timezone = null)
+     * @method static \Illuminate\Support\Carbon|null createSafe($year = null, $month = null, $day = null, $hour = null, $minute = null, $second = null, $timezone = null)
+     * @method static \Illuminate\Support\Carbon createStrict(?int $year = 0, ?int $month = 1, ?int $day = 1, ?int $hour = 0, ?int $minute = 0, ?int $second = 0, $timezone = null)
      * @method static void disableHumanDiffOption($humanDiffOption)
      * @method static void enableHumanDiffOption($humanDiffOption)
-     * @method static mixed executeWithLocale($locale, $func)
+     * @method static mixed executeWithLocale(string $locale, callable $func)
      * @method static \Illuminate\Support\Carbon fromSerialized($value)
      * @method static array getAvailableLocales()
+     * @method static array getAvailableLocalesInfo()
      * @method static array getDays()
+     * @method static ?string getFallbackLocale()
+     * @method static array getFormatsToIsoReplacements()
      * @method static int getHumanDiffOptions()
      * @method static array getIsoUnits()
-     * @method static array getLastErrors()
+     * @method static array|false getLastErrors()
      * @method static string getLocale()
      * @method static int getMidDayAt()
+     * @method static string getTimeFormatByPrecision(string $unitPrecision)
+     * @method static string|\Closure|null getTranslationMessageWith($translator, string $key, ?string $locale = null, ?string $default = null)
      * @method static \Illuminate\Support\Carbon|null getTestNow()
-     * @method static \Symfony\Component\Translation\TranslatorInterface getTranslator()
-     * @method static int getWeekEndsAt()
-     * @method static int getWeekStartsAt()
+     * @method static \Symfony\Contracts\Translation\TranslatorInterface getTranslator()
+     * @method static int getWeekEndsAt(?string $locale = null)
+     * @method static int getWeekStartsAt(?string $locale = null)
      * @method static array getWeekendDays()
-     * @method static bool hasFormat($date, $format)
+     * @method static bool hasFormat(string $date, string $format)
+     * @method static bool hasFormatWithModifiers(string $date, string $format)
      * @method static bool hasMacro($name)
-     * @method static bool hasRelativeKeywords($time)
+     * @method static bool hasRelativeKeywords(?string $time)
      * @method static bool hasTestNow()
-     * @method static \Illuminate\Support\Carbon instance($date)
+     * @method static \Illuminate\Support\Carbon instance(\DateTimeInterface $date)
      * @method static bool isImmutable()
      * @method static bool isModifiableUnit($unit)
      * @method static bool isMutable()
      * @method static bool isStrictModeEnabled()
-     * @method static bool localeHasDiffOneDayWords($locale)
-     * @method static bool localeHasDiffSyntax($locale)
-     * @method static bool localeHasDiffTwoDayWords($locale)
+     * @method static bool localeHasDiffOneDayWords(string $locale)
+     * @method static bool localeHasDiffSyntax(string $locale)
+     * @method static bool localeHasDiffTwoDayWords(string $locale)
      * @method static bool localeHasPeriodSyntax($locale)
-     * @method static bool localeHasShortUnits($locale)
-     * @method static void macro($name, $macro)
-     * @method static \Illuminate\Support\Carbon|null make($var)
-     * @method static \Illuminate\Support\Carbon maxValue()
-     * @method static \Illuminate\Support\Carbon minValue()
-     * @method static void mixin($mixin)
-     * @method static \Illuminate\Support\Carbon now($tz = null)
-     * @method static \Illuminate\Support\Carbon parse($time = null, $tz = null)
+     * @method static bool localeHasShortUnits(string $locale)
+     * @method static void macro(string $name, ?callable $macro)
+     * @method static \Illuminate\Support\Carbon|null make($var, \DateTimeZone|string|null $timezone = null)
+     * @method static void mixin(object|string $mixin)
+     * @method static \Illuminate\Support\Carbon now(\DateTimeZone|string|int|null $timezone = null)
+     * @method static \Illuminate\Support\Carbon parse(\DateTimeInterface|\Carbon\WeekDay|\Carbon\Month|string|int|float|null $time, \DateTimeZone|string|int|null $timezone = null)
+     * @method static \Illuminate\Support\Carbon parseFromLocale(string $time, ?string $locale = null, \DateTimeZone|string|int|null $timezone = null)
      * @method static string pluralUnit(string $unit)
+     * @method static \Illuminate\Support\Carbon|null rawCreateFromFormat(string $format, string $time, $timezone = null)
+     * @method static \Illuminate\Support\Carbon rawParse(\DateTimeInterface|\Carbon\WeekDay|\Carbon\Month|string|int|float|null $time, \DateTimeZone|string|int|null $timezone = null)
      * @method static void resetMonthsOverflow()
      * @method static void resetToStringFormat()
      * @method static void resetYearsOverflow()
      * @method static void serializeUsing($callback)
+     * @method static void setFallbackLocale(string $locale)
      * @method static void setHumanDiffOptions($humanDiffOptions)
-     * @method static bool setLocale($locale)
+     * @method static void setLocale(string $locale)
      * @method static void setMidDayAt($hour)
-     * @method static void setTestNow($testNow = null)
-     * @method static void setToStringFormat($format)
-     * @method static void setTranslator(\Symfony\Component\Translation\TranslatorInterface $translator)
-     * @method static void setUtf8($utf8)
+     * @method static void setTestNow(mixed $testNow = null)
+     * @method static void setTestNowAndTimezone(mixed $testNow = null, $timezone = null)
+     * @method static void setToStringFormat(string|\Closure|null $format)
+     * @method static void setTranslator(\Symfony\Contracts\Translation\TranslatorInterface $translator)
      * @method static void setWeekEndsAt($day)
      * @method static void setWeekStartsAt($day)
      * @method static void setWeekendDays($days)
      * @method static bool shouldOverflowMonths()
      * @method static bool shouldOverflowYears()
      * @method static string singularUnit(string $unit)
-     * @method static \Illuminate\Support\Carbon today($tz = null)
-     * @method static \Illuminate\Support\Carbon tomorrow($tz = null)
+     * @method static void sleep(int|float $seconds)
+     * @method static \Illuminate\Support\Carbon today(\DateTimeZone|string|int|null $timezone = null)
+     * @method static \Illuminate\Support\Carbon tomorrow(\DateTimeZone|string|int|null $timezone = null)
+     * @method static string translateTimeString(string $timeString, ?string $from = null, ?string $to = null, int $mode = \Carbon\CarbonInterface::TRANSLATE_ALL)
+     * @method static string translateWith(\Symfony\Contracts\Translation\TranslatorInterface $translator, string $key, array $parameters = [], $number = null)
      * @method static void useMonthsOverflow($monthsOverflow = true)
      * @method static void useStrictMode($strictModeEnabled = true)
      * @method static void useYearsOverflow($yearsOverflow = true)
-     * @method static \Illuminate\Support\Carbon yesterday($tz = null)
+     * @method static mixed withTestNow(mixed $testNow, callable $callback)
+     * @method static static withTimeZone(\DateTimeZone|string|int|null $timezone)
+     * @method static \Illuminate\Support\Carbon yesterday(\DateTimeZone|string|int|null $timezone = null)
      * @see \Illuminate\Support\DateFactory
      */
     class Date {
@@ -8033,32 +8098,17 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
-         * Set the table prefix and return the grammar.
-         *
-         * @template TGrammar of \Illuminate\Database\Grammar
-         * @param TGrammar $grammar
-         * @return TGrammar 
-         * @static 
-         */
-        public static function withTablePrefix($grammar)
-        {
-            //Method inherited from \Illuminate\Database\Connection 
-            /** @var \Illuminate\Database\MySqlConnection $instance */
-            return $instance->withTablePrefix($grammar);
-        }
-
-        /**
          * Execute the given callback without table prefix.
          *
          * @param \Closure $callback
-         * @return void 
+         * @return mixed 
          * @static 
          */
         public static function withoutTablePrefix($callback)
         {
             //Method inherited from \Illuminate\Database\Connection 
             /** @var \Illuminate\Database\MySqlConnection $instance */
-            $instance->withoutTablePrefix($callback);
+            return $instance->withoutTablePrefix($callback);
         }
 
         /**
@@ -9937,10 +9987,10 @@ namespace Illuminate\Support\Facades {
      * @method static \Illuminate\Http\Client\PendingRequest dd()
      * @method static \Illuminate\Http\Client\Response get(string $url, array|string|null $query = null)
      * @method static \Illuminate\Http\Client\Response head(string $url, array|string|null $query = null)
-     * @method static \Illuminate\Http\Client\Response post(string $url, array $data = [])
-     * @method static \Illuminate\Http\Client\Response patch(string $url, array $data = [])
-     * @method static \Illuminate\Http\Client\Response put(string $url, array $data = [])
-     * @method static \Illuminate\Http\Client\Response delete(string $url, array $data = [])
+     * @method static \Illuminate\Http\Client\Response post(string $url, array|\JsonSerializable|\Illuminate\Contracts\Support\Arrayable $data = [])
+     * @method static \Illuminate\Http\Client\Response patch(string $url, array|\JsonSerializable|\Illuminate\Contracts\Support\Arrayable $data = [])
+     * @method static \Illuminate\Http\Client\Response put(string $url, array|\JsonSerializable|\Illuminate\Contracts\Support\Arrayable $data = [])
+     * @method static \Illuminate\Http\Client\Response delete(string $url, array|\JsonSerializable|\Illuminate\Contracts\Support\Arrayable $data = [])
      * @method static array pool(callable $callback)
      * @method static \Illuminate\Http\Client\Response send(string $method, string $url, array $options = [])
      * @method static \GuzzleHttp\Client buildClient()
@@ -10027,6 +10077,34 @@ namespace Illuminate\Support\Facades {
         public static function response($body = null, $status = 200, $headers = [])
         {
             return \Illuminate\Http\Client\Factory::response($body, $status, $headers);
+        }
+
+        /**
+         * Create a new PSR-7 response instance for use during stubbing.
+         *
+         * @param array|string|null $body
+         * @param int $status
+         * @param array<string, mixed> $headers
+         * @return \GuzzleHttp\Psr7\Response 
+         * @static 
+         */
+        public static function psr7Response($body = null, $status = 200, $headers = [])
+        {
+            return \Illuminate\Http\Client\Factory::psr7Response($body, $status, $headers);
+        }
+
+        /**
+         * Create a new RequestException instance for use during stubbing.
+         *
+         * @param array|string|null $body
+         * @param int $status
+         * @param array<string, mixed> $headers
+         * @return \Illuminate\Http\Client\RequestException 
+         * @static 
+         */
+        public static function requestException($body = null, $status = 200, $headers = [])
+        {
+            return \Illuminate\Http\Client\Factory::requestException($body, $status, $headers);
         }
 
         /**
@@ -10129,6 +10207,18 @@ namespace Illuminate\Support\Facades {
         {
             /** @var \Illuminate\Http\Client\Factory $instance */
             return $instance->allowStrayRequests();
+        }
+
+        /**
+         * Begin recording request / response pairs.
+         *
+         * @return \Illuminate\Http\Client\Factory 
+         * @static 
+         */
+        public static function record()
+        {
+            /** @var \Illuminate\Http\Client\Factory $instance */
+            return $instance->record();
         }
 
         /**
@@ -10815,13 +10905,14 @@ namespace Illuminate\Support\Facades {
         /**
          * Flush the log context on all currently resolved channels.
          *
+         * @param string[]|null $keys
          * @return \Illuminate\Log\LogManager 
          * @static 
          */
-        public static function withoutContext()
+        public static function withoutContext($keys = null)
         {
             /** @var \Illuminate\Log\LogManager $instance */
-            return $instance->withoutContext();
+            return $instance->withoutContext($keys);
         }
 
         /**
@@ -10866,6 +10957,7 @@ namespace Illuminate\Support\Facades {
          *
          * @param string $driver
          * @param \Closure $callback
+         * @param-closure-this $this  $callback
          * @return \Illuminate\Log\LogManager 
          * @static 
          */
@@ -12693,6 +12785,20 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
+         * Get all of the jobs by listener class, passing an optional truth-test callback.
+         *
+         * @param class-string $listenerClass
+         * @param (\Closure(mixed, \Illuminate\Events\CallQueuedListener, string|null, mixed): bool)|null $callback
+         * @return \Illuminate\Support\Collection<int, \Illuminate\Events\CallQueuedListener> 
+         * @static 
+         */
+        public static function listenersPushed($listenerClass, $callback = null)
+        {
+            /** @var \Illuminate\Support\Testing\Fakes\QueueFake $instance */
+            return $instance->listenersPushed($listenerClass, $callback);
+        }
+
+        /**
          * Determine if there are any stored jobs for a given class.
          *
          * @param string $job
@@ -13549,6 +13655,7 @@ namespace Illuminate\Support\Facades {
     /**
      * 
      *
+     * @method static array|(\Illuminate\Http\UploadedFile|\Illuminate\Http\UploadedFile[]|null file(string|null $key = null, mixed $default = null)
      * @method static array validate(array $rules, ...$params)
      * @method static array validateWithBag(string $errorBag, array $rules, ...$params)
      * @method static bool hasValidSignature(bool $absolute = true)
@@ -15611,7 +15718,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Get an array of all of the files on the request.
          *
-         * @return array 
+         * @return array<int, \Illuminate\Http\UploadedFile|\Illuminate\Http\UploadedFile[]> 
          * @static 
          */
         public static function allFiles()
@@ -15638,7 +15745,7 @@ namespace Illuminate\Support\Facades {
          *
          * @param string|null $key
          * @param mixed $default
-         * @return \Illuminate\Http\UploadedFile|\Illuminate\Http\UploadedFile[]|array|null 
+         * @return ($key is null ? array<int, \Illuminate\Http\UploadedFile|\Illuminate\Http\UploadedFile[]> : \Illuminate\Http\UploadedFile|\Illuminate\Http\UploadedFile[]|null)
          * @static 
          */
         public static function file($key = null, $default = null)
@@ -16154,7 +16261,7 @@ namespace Illuminate\Support\Facades {
          *
          * @param \Closure $callback
          * @param array $headers
-         * @param string $endStreamWith
+         * @param \Illuminate\Http\StreamedEvent|string|null $endStreamWith
          * @return \Symfony\Component\HttpFoundation\StreamedResponse 
          * @static 
          */
@@ -16180,7 +16287,7 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
-         * Create a new streamed response instance.
+         * Create a new streamed JSON response instance.
          *
          * @param array $data
          * @param int $status
@@ -17735,108 +17842,6 @@ namespace Illuminate\Support\Facades {
      */
     class Schema {
         /**
-         * Create a database in the schema.
-         *
-         * @param string $name
-         * @return bool 
-         * @static 
-         */
-        public static function createDatabase($name)
-        {
-            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
-            return $instance->createDatabase($name);
-        }
-
-        /**
-         * Drop a database from the schema if the database exists.
-         *
-         * @param string $name
-         * @return bool 
-         * @static 
-         */
-        public static function dropDatabaseIfExists($name)
-        {
-            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
-            return $instance->dropDatabaseIfExists($name);
-        }
-
-        /**
-         * Determine if the given table exists.
-         *
-         * @param string $table
-         * @return bool 
-         * @static 
-         */
-        public static function hasTable($table)
-        {
-            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
-            return $instance->hasTable($table);
-        }
-
-        /**
-         * Get the tables for the database.
-         *
-         * @return array 
-         * @static 
-         */
-        public static function getTables()
-        {
-            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
-            return $instance->getTables();
-        }
-
-        /**
-         * Get the views for the database.
-         *
-         * @return array 
-         * @static 
-         */
-        public static function getViews()
-        {
-            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
-            return $instance->getViews();
-        }
-
-        /**
-         * Get the columns for a given table.
-         *
-         * @param string $table
-         * @return array 
-         * @static 
-         */
-        public static function getColumns($table)
-        {
-            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
-            return $instance->getColumns($table);
-        }
-
-        /**
-         * Get the indexes for a given table.
-         *
-         * @param string $table
-         * @return array 
-         * @static 
-         */
-        public static function getIndexes($table)
-        {
-            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
-            return $instance->getIndexes($table);
-        }
-
-        /**
-         * Get the foreign keys for a given table.
-         *
-         * @param string $table
-         * @return array 
-         * @static 
-         */
-        public static function getForeignKeys($table)
-        {
-            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
-            return $instance->getForeignKeys($table);
-        }
-
-        /**
          * Drop all tables from the database.
          *
          * @return void 
@@ -17861,6 +17866,18 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
+         * Get the names of current schemas for the connection.
+         *
+         * @return string[]|null 
+         * @static 
+         */
+        public static function getCurrentSchemaListing()
+        {
+            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+            return $instance->getCurrentSchemaListing();
+        }
+
+        /**
          * Set the default string length for migrations.
          *
          * @param int $length
@@ -17871,6 +17888,17 @@ namespace Illuminate\Support\Facades {
         {
             //Method inherited from \Illuminate\Database\Schema\Builder 
             \Illuminate\Database\Schema\MySqlBuilder::defaultStringLength($length);
+        }
+
+        /**
+         * Set the default time precision for migrations.
+         *
+         * @static 
+         */
+        public static function defaultTimePrecision($precision)
+        {
+            //Method inherited from \Illuminate\Database\Schema\Builder 
+            return \Illuminate\Database\Schema\MySqlBuilder::defaultTimePrecision($precision);
         }
 
         /**
@@ -17912,6 +17940,61 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
+         * Create a database in the schema.
+         *
+         * @param string $name
+         * @return bool 
+         * @static 
+         */
+        public static function createDatabase($name)
+        {
+            //Method inherited from \Illuminate\Database\Schema\Builder 
+            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+            return $instance->createDatabase($name);
+        }
+
+        /**
+         * Drop a database from the schema if the database exists.
+         *
+         * @param string $name
+         * @return bool 
+         * @static 
+         */
+        public static function dropDatabaseIfExists($name)
+        {
+            //Method inherited from \Illuminate\Database\Schema\Builder 
+            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+            return $instance->dropDatabaseIfExists($name);
+        }
+
+        /**
+         * Get the schemas that belong to the connection.
+         *
+         * @return array 
+         * @static 
+         */
+        public static function getSchemas()
+        {
+            //Method inherited from \Illuminate\Database\Schema\Builder 
+            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+            return $instance->getSchemas();
+        }
+
+        /**
+         * Determine if the given table exists.
+         *
+         * @param string $table
+         * @return bool 
+         * @static 
+         */
+        public static function hasTable($table)
+        {
+            //Method inherited from \Illuminate\Database\Schema\Builder 
+            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+            return $instance->hasTable($table);
+        }
+
+        /**
          * Determine if the given view exists.
          *
          * @param string $view
@@ -17926,29 +18009,60 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
-         * Get the names of the tables that belong to the database.
+         * Get the tables that belong to the connection.
          *
+         * @param string|string[]|null $schema
          * @return array 
          * @static 
          */
-        public static function getTableListing()
+        public static function getTables($schema = null)
         {
             //Method inherited from \Illuminate\Database\Schema\Builder 
             /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
-            return $instance->getTableListing();
+            return $instance->getTables($schema);
         }
 
         /**
-         * Get the user-defined types that belong to the database.
+         * Get the names of the tables that belong to the connection.
          *
+         * @param string|string[]|null $schema
+         * @param bool $schemaQualified
          * @return array 
          * @static 
          */
-        public static function getTypes()
+        public static function getTableListing($schema = null, $schemaQualified = true)
         {
             //Method inherited from \Illuminate\Database\Schema\Builder 
             /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
-            return $instance->getTypes();
+            return $instance->getTableListing($schema, $schemaQualified);
+        }
+
+        /**
+         * Get the views that belong to the connection.
+         *
+         * @param string|string[]|null $schema
+         * @return array 
+         * @static 
+         */
+        public static function getViews($schema = null)
+        {
+            //Method inherited from \Illuminate\Database\Schema\Builder 
+            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+            return $instance->getViews($schema);
+        }
+
+        /**
+         * Get the user-defined types that belong to the connection.
+         *
+         * @param string|string[]|null $schema
+         * @return array 
+         * @static 
+         */
+        public static function getTypes($schema = null)
+        {
+            //Method inherited from \Illuminate\Database\Schema\Builder 
+            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+            return $instance->getTypes($schema);
         }
 
         /**
@@ -18044,6 +18158,34 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
+         * Get the columns for a given table.
+         *
+         * @param string $table
+         * @return array 
+         * @static 
+         */
+        public static function getColumns($table)
+        {
+            //Method inherited from \Illuminate\Database\Schema\Builder 
+            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+            return $instance->getColumns($table);
+        }
+
+        /**
+         * Get the indexes for a given table.
+         *
+         * @param string $table
+         * @return array 
+         * @static 
+         */
+        public static function getIndexes($table)
+        {
+            //Method inherited from \Illuminate\Database\Schema\Builder 
+            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+            return $instance->getIndexes($table);
+        }
+
+        /**
          * Get the names of the indexes for a given table.
          *
          * @param string $table
@@ -18071,6 +18213,20 @@ namespace Illuminate\Support\Facades {
             //Method inherited from \Illuminate\Database\Schema\Builder 
             /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
             return $instance->hasIndex($table, $index, $type);
+        }
+
+        /**
+         * Get the foreign keys for a given table.
+         *
+         * @param string $table
+         * @return array 
+         * @static 
+         */
+        public static function getForeignKeys($table)
+        {
+            //Method inherited from \Illuminate\Database\Schema\Builder 
+            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+            return $instance->getForeignKeys($table);
         }
 
         /**
@@ -18216,6 +18372,34 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
+         * Get the default schema name for the connection.
+         *
+         * @return string|null 
+         * @static 
+         */
+        public static function getCurrentSchemaName()
+        {
+            //Method inherited from \Illuminate\Database\Schema\Builder 
+            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+            return $instance->getCurrentSchemaName();
+        }
+
+        /**
+         * Parse the given database object reference and extract the schema and table.
+         *
+         * @param string $reference
+         * @param string|bool|null $withDefaultSchema
+         * @return array 
+         * @static 
+         */
+        public static function parseSchemaAndTable($reference, $withDefaultSchema = null)
+        {
+            //Method inherited from \Illuminate\Database\Schema\Builder 
+            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+            return $instance->parseSchemaAndTable($reference, $withDefaultSchema);
+        }
+
+        /**
          * Get the database connection instance.
          *
          * @return \Illuminate\Database\Connection 
@@ -18226,20 +18410,6 @@ namespace Illuminate\Support\Facades {
             //Method inherited from \Illuminate\Database\Schema\Builder 
             /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
             return $instance->getConnection();
-        }
-
-        /**
-         * Set the database connection instance.
-         *
-         * @param \Illuminate\Database\Connection $connection
-         * @return \Illuminate\Database\Schema\MySqlBuilder 
-         * @static 
-         */
-        public static function setConnection($connection)
-        {
-            //Method inherited from \Illuminate\Database\Schema\Builder 
-            /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
-            return $instance->setConnection($connection);
         }
 
         /**
@@ -20400,7 +20570,7 @@ namespace Illuminate\Support\Facades {
          *
          * @param \Illuminate\Http\Request $request
          * @param bool $absolute
-         * @param array $ignoreQuery
+         * @param \Closure|array $ignoreQuery
          * @return bool 
          * @static 
          */
@@ -20414,7 +20584,7 @@ namespace Illuminate\Support\Facades {
          * Determine if the given request has a valid signature for a relative URL.
          *
          * @param \Illuminate\Http\Request $request
-         * @param array $ignoreQuery
+         * @param \Closure|array $ignoreQuery
          * @return bool 
          * @static 
          */
@@ -20429,7 +20599,7 @@ namespace Illuminate\Support\Facades {
          *
          * @param \Illuminate\Http\Request $request
          * @param bool $absolute
-         * @param array $ignoreQuery
+         * @param \Closure|array $ignoreQuery
          * @return bool 
          * @static 
          */
@@ -22399,6 +22569,18 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
+         * Flush state.
+         *
+         * @return void 
+         * @static 
+         */
+        public static function flush()
+        {
+            /** @var \Illuminate\Foundation\Vite $instance */
+            $instance->flush();
+        }
+
+        /**
          * Register a custom macro.
          *
          * @param string $name
@@ -22621,6 +22803,897 @@ namespace Althinect\FilamentSpatieRolesPermissions {
             }
     }
 
+namespace Bugsnag\BugsnagLaravel\Facades {
+    /**
+     * 
+     *
+     * @see \Bugsnag\Client
+     */
+    class Bugsnag {
+        /**
+         * Make a new client instance.
+         * 
+         * If you don't pass in a key, we'll try to read it from the env variables.
+         *
+         * @param string|null $apiKey your bugsnag api key
+         * @param string|null $notifyEndpoint your bugsnag notify endpoint
+         * @param bool $defaults if we should register our default callbacks
+         * @return static 
+         * @static 
+         */
+        public static function make($apiKey = null, $notifyEndpoint = null, $defaults = true)
+        {
+            return \Bugsnag\Client::make($apiKey, $notifyEndpoint, $defaults);
+        }
+
+        /**
+         * Make a new guzzle client instance.
+         *
+         * @param string|null $base
+         * @param array $options
+         * @return \GuzzleHttp\ClientInterface 
+         * @static 
+         */
+        public static function makeGuzzle($base = null, $options = [])
+        {
+            return \Bugsnag\Client::makeGuzzle($base, $options);
+        }
+
+        /**
+         * Get the config instance.
+         *
+         * @return \Bugsnag\Configuration 
+         * @static 
+         */
+        public static function getConfig()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getConfig();
+        }
+
+        /**
+         * Get the pipeline instance.
+         *
+         * @return \Bugsnag\Pipeline 
+         * @static 
+         */
+        public static function getPipeline()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getPipeline();
+        }
+
+        /**
+         * Regsier a new notification callback.
+         *
+         * @param callable $callback
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function registerCallback($callback)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->registerCallback($callback);
+        }
+
+        /**
+         * Regsier all our default callbacks.
+         *
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function registerDefaultCallbacks()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->registerDefaultCallbacks();
+        }
+
+        /**
+         * Register a middleware object to the pipeline.
+         *
+         * @param callable $middleware
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function registerMiddleware($middleware)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->registerMiddleware($middleware);
+        }
+
+        /**
+         * Record the given breadcrumb.
+         *
+         * @param string $name the name of the breadcrumb
+         * @param string|null $type the type of breadcrumb
+         * @param array $metaData additional information about the breadcrumb
+         * @return void 
+         * @static 
+         */
+        public static function leaveBreadcrumb($name, $type = null, $metaData = [])
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->leaveBreadcrumb($name, $type, $metaData);
+        }
+
+        /**
+         * Clear all recorded breadcrumbs.
+         *
+         * @return void 
+         * @static 
+         */
+        public static function clearBreadcrumbs()
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->clearBreadcrumbs();
+        }
+
+        /**
+         * Notify Bugsnag of a non-fatal/handled throwable.
+         *
+         * @param \Throwable $throwable the throwable to notify Bugsnag about
+         * @param callable|null $callback the customization callback
+         * @return void 
+         * @static 
+         */
+        public static function notifyException($throwable, $callback = null)
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->notifyException($throwable, $callback);
+        }
+
+        /**
+         * Notify Bugsnag of a non-fatal/handled error.
+         *
+         * @param string $name the name of the error, a short (1 word) string
+         * @param string $message the error message
+         * @param callable|null $callback the customization callback
+         * @return void 
+         * @static 
+         */
+        public static function notifyError($name, $message, $callback = null)
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->notifyError($name, $message, $callback);
+        }
+
+        /**
+         * Notify Bugsnag of the given error report.
+         * 
+         * This may simply involve queuing it for later if we're batching.
+         *
+         * @param \Bugsnag\Report $report the error report to send
+         * @param callable|null $callback the customization callback
+         * @return void 
+         * @static 
+         */
+        public static function notify($report, $callback = null)
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->notify($report, $callback);
+        }
+
+        /**
+         * Notify Bugsnag of a deployment.
+         *
+         * @param string|null $repository the repository from which you are deploying the code
+         * @param string|null $branch the source control branch from which you are deploying
+         * @param string|null $revision the source control revision you are currently deploying
+         * @return void 
+         * @deprecated Use {@see Client::build} instead.
+         * @static 
+         */
+        public static function deploy($repository = null, $branch = null, $revision = null)
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->deploy($repository, $branch, $revision);
+        }
+
+        /**
+         * Notify Bugsnag of a build.
+         *
+         * @param string|null $repository the repository from which you are deploying the code
+         * @param string|null $revision the source control revision you are currently deploying
+         * @param string|null $provider the provider of the source control for the build
+         * @param string|null $builderName the name of who or what is making the build
+         * @return void 
+         * @static 
+         */
+        public static function build($repository = null, $revision = null, $provider = null, $builderName = null)
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->build($repository, $revision, $provider, $builderName);
+        }
+
+        /**
+         * Flush any buffered reports.
+         *
+         * @return void 
+         * @static 
+         */
+        public static function flush()
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->flush();
+        }
+
+        /**
+         * Start tracking a session.
+         *
+         * @return void 
+         * @static 
+         */
+        public static function startSession()
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->startSession();
+        }
+
+        /**
+         * Returns the session tracker.
+         *
+         * @return \Bugsnag\SessionTracker 
+         * @static 
+         */
+        public static function getSessionTracker()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getSessionTracker();
+        }
+
+        /**
+         * Get the Bugsnag API Key.
+         *
+         * @return string 
+         * @static 
+         */
+        public static function getApiKey()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getApiKey();
+        }
+
+        /**
+         * Sets whether errors should be batched together and send at the end of each request.
+         *
+         * @param bool $batchSending whether to batch together errors
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setBatchSending($batchSending)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setBatchSending($batchSending);
+        }
+
+        /**
+         * Is batch sending is enabled?
+         *
+         * @return bool 
+         * @static 
+         */
+        public static function isBatchSending()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->isBatchSending();
+        }
+
+        /**
+         * Set which release stages should be allowed to notify Bugsnag.
+         * 
+         * Eg ['production', 'development'].
+         *
+         * @param string[]|null $notifyReleaseStages array of release stages to notify for
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setNotifyReleaseStages($notifyReleaseStages = null)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setNotifyReleaseStages($notifyReleaseStages);
+        }
+
+        /**
+         * Should we notify Bugsnag based on the current release stage?
+         *
+         * @return bool 
+         * @static 
+         */
+        public static function shouldNotify()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->shouldNotify();
+        }
+
+        /**
+         * Set the strings to filter out from metaData arrays before sending then.
+         * 
+         * Eg. ['password', 'credit_card'].
+         *
+         * @deprecated Use redactedKeys instead
+         * @param string[] $filters an array of metaData filters
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setFilters($filters)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setFilters($filters);
+        }
+
+        /**
+         * Get the array of metaData filters.
+         *
+         * @deprecated Use redactedKeys instead
+         * @return string[] 
+         * @static 
+         */
+        public static function getFilters()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getFilters();
+        }
+
+        /**
+         * Set the project root.
+         *
+         * @param string|null $projectRoot the project root path
+         * @return void 
+         * @static 
+         */
+        public static function setProjectRoot($projectRoot)
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->setProjectRoot($projectRoot);
+        }
+
+        /**
+         * Set the project root regex.
+         *
+         * @param string|null $projectRootRegex the project root path
+         * @return void 
+         * @static 
+         */
+        public static function setProjectRootRegex($projectRootRegex)
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->setProjectRootRegex($projectRootRegex);
+        }
+
+        /**
+         * Is the given file in the project?
+         *
+         * @param string $file
+         * @return bool 
+         * @static 
+         */
+        public static function isInProject($file)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->isInProject($file);
+        }
+
+        /**
+         * Set the strip path.
+         *
+         * @param string|null $stripPath the absolute strip path
+         * @return void 
+         * @static 
+         */
+        public static function setStripPath($stripPath)
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->setStripPath($stripPath);
+        }
+
+        /**
+         * Set the regular expression used to strip paths from stacktraces.
+         *
+         * @param string|null $stripPathRegex
+         * @return void 
+         * @static 
+         */
+        public static function setStripPathRegex($stripPathRegex)
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->setStripPathRegex($stripPathRegex);
+        }
+
+        /**
+         * Get the stripped file path.
+         *
+         * @param string $file
+         * @return string 
+         * @static 
+         */
+        public static function getStrippedFilePath($file)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getStrippedFilePath($file);
+        }
+
+        /**
+         * Set if we should we send a small snippet of the code that crashed.
+         * 
+         * This can help you diagnose even faster from within your dashboard.
+         *
+         * @param bool $sendCode whether to send code to Bugsnag
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setSendCode($sendCode)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setSendCode($sendCode);
+        }
+
+        /**
+         * Should we send a small snippet of the code that crashed?
+         *
+         * @return bool 
+         * @static 
+         */
+        public static function shouldSendCode()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->shouldSendCode();
+        }
+
+        /**
+         * Sets the notifier to report as to Bugsnag.
+         * 
+         * This should only be set by other notifier libraries.
+         *
+         * @param string[] $notifier an array of name, version, url.
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setNotifier($notifier)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setNotifier($notifier);
+        }
+
+        /**
+         * Get the notifier to report as to Bugsnag.
+         *
+         * @return string[] 
+         * @static 
+         */
+        public static function getNotifier()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getNotifier();
+        }
+
+        /**
+         * Set your app's semantic version, eg "1.2.3".
+         *
+         * @param string|null $appVersion the app's version
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setAppVersion($appVersion)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setAppVersion($appVersion);
+        }
+
+        /**
+         * Set your release stage, eg "production" or "development".
+         *
+         * @param string|null $releaseStage the app's current release stage
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setReleaseStage($releaseStage)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setReleaseStage($releaseStage);
+        }
+
+        /**
+         * Set the type of application executing the code.
+         * 
+         * This is usually used to represent if you are running plain PHP code
+         * "php", via a framework, eg "laravel", or executing through delayed
+         * worker code, eg "resque".
+         *
+         * @param string|null $type the current type
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setAppType($type)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setAppType($type);
+        }
+
+        /**
+         * Set the fallback application type.
+         * 
+         * This is should be used only by libraries to set an fallback app type.
+         *
+         * @param string|null $type the fallback type
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setFallbackType($type)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setFallbackType($type);
+        }
+
+        /**
+         * Get the application data.
+         *
+         * @return array 
+         * @static 
+         */
+        public static function getAppData()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getAppData();
+        }
+
+        /**
+         * Set the hostname.
+         *
+         * @param string|null $hostname the hostname
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setHostname($hostname)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setHostname($hostname);
+        }
+
+        /**
+         * Get the device data.
+         *
+         * @return array 
+         * @static 
+         */
+        public static function getDeviceData()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getDeviceData();
+        }
+
+        /**
+         * Set custom metadata to send to Bugsnag.
+         * 
+         * You can use this to add custom tabs of data to each error on your
+         * Bugsnag dashboard.
+         *
+         * @param array[] $metaData an array of arrays of custom data
+         * @param bool $merge should we merge the meta data
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setMetaData($metaData, $merge = true)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setMetaData($metaData, $merge);
+        }
+
+        /**
+         * Get the custom metadata to send to Bugsnag.
+         *
+         * @return array[] 
+         * @static 
+         */
+        public static function getMetaData()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getMetaData();
+        }
+
+        /**
+         * Add a single feature flag to all future reports.
+         *
+         * @param string $name
+         * @param string|null $variant
+         * @return void 
+         * @static 
+         */
+        public static function addFeatureFlag($name, $variant = null)
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->addFeatureFlag($name, $variant);
+        }
+
+        /**
+         * Add multiple feature flags to all future reports.
+         *
+         * @param \Bugsnag\FeatureFlag[] $featureFlags
+         * @phpstan-param list<FeatureFlag> $featureFlags
+         * @return void 
+         * @static 
+         */
+        public static function addFeatureFlags($featureFlags)
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->addFeatureFlags($featureFlags);
+        }
+
+        /**
+         * Remove the feature flag with the given name from all future reports.
+         *
+         * @param string $name
+         * @return void 
+         * @static 
+         */
+        public static function clearFeatureFlag($name)
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->clearFeatureFlag($name);
+        }
+
+        /**
+         * Remove all feature flags from all future reports.
+         *
+         * @return void 
+         * @static 
+         */
+        public static function clearFeatureFlags()
+        {
+            /** @var \Bugsnag\Client $instance */
+            $instance->clearFeatureFlags();
+        }
+
+        /**
+         * Set Bugsnag's error reporting level.
+         * 
+         * If this is not set, we'll use your current PHP error_reporting value
+         * from your ini file or error_reporting(...) calls.
+         *
+         * @param int|null $errorReportingLevel the error reporting level integer
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setErrorReportingLevel($errorReportingLevel)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setErrorReportingLevel($errorReportingLevel);
+        }
+
+        /**
+         * Should we ignore the given error code?
+         *
+         * @param int $code the error code
+         * @return bool 
+         * @static 
+         */
+        public static function shouldIgnoreErrorCode($code)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->shouldIgnoreErrorCode($code);
+        }
+
+        /**
+         * Set notification delivery endpoint.
+         *
+         * @param string $endpoint
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setNotifyEndpoint($endpoint)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setNotifyEndpoint($endpoint);
+        }
+
+        /**
+         * Get notification delivery endpoint.
+         *
+         * @return string 
+         * @static 
+         */
+        public static function getNotifyEndpoint()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getNotifyEndpoint();
+        }
+
+        /**
+         * Set session delivery endpoint.
+         *
+         * @param string $endpoint
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setSessionEndpoint($endpoint)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setSessionEndpoint($endpoint);
+        }
+
+        /**
+         * Get session delivery endpoint.
+         *
+         * @return string 
+         * @static 
+         */
+        public static function getSessionEndpoint()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getSessionEndpoint();
+        }
+
+        /**
+         * Set the build endpoint.
+         *
+         * @param string $endpoint the build endpoint
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setBuildEndpoint($endpoint)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setBuildEndpoint($endpoint);
+        }
+
+        /**
+         * Get the build endpoint.
+         *
+         * @return string 
+         * @static 
+         */
+        public static function getBuildEndpoint()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getBuildEndpoint();
+        }
+
+        /**
+         * Set session tracking state.
+         *
+         * @param bool $track whether to track sessions
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setAutoCaptureSessions($track)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setAutoCaptureSessions($track);
+        }
+
+        /**
+         * Whether should be auto-capturing sessions.
+         *
+         * @return bool 
+         * @static 
+         */
+        public static function shouldCaptureSessions()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->shouldCaptureSessions();
+        }
+
+        /**
+         * Get the session client.
+         *
+         * @return \GuzzleHttp\ClientInterface 
+         * @deprecated This will be removed in the next major version.
+         * @static 
+         */
+        public static function getSessionClient()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getSessionClient();
+        }
+
+        /**
+         * Set the amount to increase the memory_limit when an OOM is triggered.
+         * 
+         * This is an amount of bytes or 'null' to disable increasing the limit.
+         *
+         * @param int|null $value
+         * @return \Bugsnag\Configuration 
+         * @static 
+         */
+        public static function setMemoryLimitIncrease($value)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setMemoryLimitIncrease($value);
+        }
+
+        /**
+         * Get the amount to increase the memory_limit when an OOM is triggered.
+         * 
+         * This will return 'null' if this feature is disabled.
+         *
+         * @return int|null 
+         * @static 
+         */
+        public static function getMemoryLimitIncrease()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getMemoryLimitIncrease();
+        }
+
+        /**
+         * Set the array of classes that should not be sent to Bugsnag.
+         *
+         * @param array $discardClasses
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setDiscardClasses($discardClasses)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setDiscardClasses($discardClasses);
+        }
+
+        /**
+         * Get the array of classes that should not be sent to Bugsnag.
+         * 
+         * This can contain both fully qualified class names and regular expressions.
+         *
+         * @return array 
+         * @static 
+         */
+        public static function getDiscardClasses()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getDiscardClasses();
+        }
+
+        /**
+         * Set the array of metadata keys that should be redacted.
+         *
+         * @param string[] $redactedKeys
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setRedactedKeys($redactedKeys)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setRedactedKeys($redactedKeys);
+        }
+
+        /**
+         * Get the array of metadata keys that should be redacted.
+         *
+         * @return string[] 
+         * @static 
+         */
+        public static function getRedactedKeys()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getRedactedKeys();
+        }
+
+        /**
+         * 
+         *
+         * @param int $maxBreadcrumbs
+         * @return \Bugsnag\Client 
+         * @static 
+         */
+        public static function setMaxBreadcrumbs($maxBreadcrumbs)
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->setMaxBreadcrumbs($maxBreadcrumbs);
+        }
+
+        /**
+         * 
+         *
+         * @return int 
+         * @static 
+         */
+        public static function getMaxBreadcrumbs()
+        {
+            /** @var \Bugsnag\Client $instance */
+            return $instance->getMaxBreadcrumbs();
+        }
+
+            }
+    }
+
 namespace AnourValar\EloquentSerialize\Facades {
     /**
      * 
@@ -22630,8 +23703,9 @@ namespace AnourValar\EloquentSerialize\Facades {
         /**
          * Pack
          *
-         * @param \Illuminate\Database\Eloquent\Builder $builder
+         * @param \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation $builder
          * @return string 
+         * @throws \RuntimeException
          * @static 
          */
         public static function serialize($builder)
@@ -23135,252 +24209,6 @@ namespace BezhanSalleh\PanelSwitch\Facades {
             }
     }
 
-namespace DutchCodingCompany\FilamentSocialite\Facades {
-    /**
-     * 
-     *
-     * @mixin \DutchCodingCompany\FilamentSocialite\FilamentSocialite
-     */
-    class FilamentSocialite {
-        /**
-         * 
-         *
-         * @static 
-         */
-        public static function getPanelId()
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->getPanelId();
-        }
-
-        /**
-         * 
-         *
-         * @static 
-         */
-        public static function getPlugin()
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->getPlugin();
-        }
-
-        /**
-         * 
-         *
-         * @static 
-         */
-        public static function isProviderConfigured($provider)
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->isProviderConfigured($provider);
-        }
-
-        /**
-         * 
-         *
-         * @return array<string, mixed> 
-         * @static 
-         */
-        public static function getProviderConfig($provider)
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->getProviderConfig($provider);
-        }
-
-        /**
-         * 
-         *
-         * @return string|array<string> 
-         * @static 
-         */
-        public static function getProviderScopes($provider)
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->getProviderScopes($provider);
-        }
-
-        /**
-         * 
-         *
-         * @static 
-         */
-        public static function getProviderStateless($provider)
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->getProviderStateless($provider);
-        }
-
-        /**
-         * 
-         *
-         * @return array<string, mixed> 
-         * @static 
-         */
-        public static function getOptionalParameters($provider)
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->getOptionalParameters($provider);
-        }
-
-        /**
-         * 
-         *
-         * @return class-string<\App\Models\User> 
-         * @static 
-         */
-        public static function getUserModelClass()
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->getUserModelClass();
-        }
-
-        /**
-         * 
-         *
-         * @static 
-         */
-        public static function getUserModel()
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->getUserModel();
-        }
-
-        /**
-         * 
-         *
-         * @return \Closure(string $provider, \Laravel\Socialite\Contracts\User $oauthUser, \DutchCodingCompany\FilamentSocialite\FilamentSocialite $socialite): ?(\Illuminate\Contracts\Auth\Authenticatable)
-         * @static 
-         */
-        public static function getUserResolver()
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->getUserResolver();
-        }
-
-        /**
-         * 
-         *
-         * @return class-string<\DutchCodingCompany\FilamentSocialite\Models\Contracts\FilamentSocialiteUser> 
-         * @static 
-         */
-        public static function getSocialiteUserModelClass()
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->getSocialiteUserModelClass();
-        }
-
-        /**
-         * 
-         *
-         * @static 
-         */
-        public static function getSocialiteUserModel()
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->getSocialiteUserModel();
-        }
-
-        /**
-         * 
-         *
-         * @deprecated This function will be removed in the next major version. Use `setSocialiteUserModelClass()` on the plugin options instead, and implement the `FilamentSocialiteUser` contract on your class.
-         * @param ?\Closure(string $provider, \Laravel\Socialite\Contracts\User $oauthUser, \Illuminate\Contracts\Auth\Authenticatable $user):  \DutchCodingCompany\FilamentSocialite\Models\Contracts\FilamentSocialiteUser $callback
-         * @return \DutchCodingCompany\FilamentSocialite\FilamentSocialite 
-         * @static 
-         */
-        public static function setCreateSocialiteUserCallback($callback = null)
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->setCreateSocialiteUserCallback($callback);
-        }
-
-        /**
-         * 
-         *
-         * @param \Closure(string $provider, \Laravel\Socialite\Contracts\User $oauthUser, self $socialite):  \Illuminate\Contracts\Auth\Authenticatable $callback
-         * @static 
-         */
-        public static function setCreateUserCallback($callback = null)
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->setCreateUserCallback($callback);
-        }
-
-        /**
-         * 
-         *
-         * @param \Closure(string $provider, \Laravel\Socialite\Contracts\User $oauthUser, \DutchCodingCompany\FilamentSocialite\FilamentSocialite $socialite):  ?(\Illuminate\Contracts\Auth\Authenticatable) $callback
-         * @static 
-         */
-        public static function setUserResolver($callback = null)
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->setUserResolver($callback);
-        }
-
-        /**
-         * 
-         *
-         * @deprecated This function will be removed in the next major version. Use `setSocialiteUserModelClass()` on the plugin options instead, and implement the `FilamentSocialiteUser` contract on your class.
-         * @return \Closure(string $provider, \Laravel\Socialite\Contracts\User $oauthUser, \Illuminate\Contracts\Auth\Authenticatable $user): \DutchCodingCompany\FilamentSocialite\Models\Contracts\FilamentSocialiteUser
-         * @static 
-         */
-        public static function getCreateSocialiteUserCallback()
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->getCreateSocialiteUserCallback();
-        }
-
-        /**
-         * 
-         *
-         * @return \Closure(string $provider, \Laravel\Socialite\Contracts\User $oauthUser, self $socialite): \Illuminate\Contracts\Auth\Authenticatable
-         * @static 
-         */
-        public static function getCreateUserCallback()
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->getCreateUserCallback();
-        }
-
-        /**
-         * 
-         *
-         * @static 
-         */
-        public static function getGuard()
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->getGuard();
-        }
-
-        /**
-         * 
-         *
-         * @param \Closure(string $provider, \DutchCodingCompany\FilamentSocialite\Models\Contracts\FilamentSocialiteUser $socialiteUser):  \Illuminate\Http\RedirectResponse $callback
-         * @static 
-         */
-        public static function setLoginRedirectCallback($callback)
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->setLoginRedirectCallback($callback);
-        }
-
-        /**
-         * 
-         *
-         * @return \Closure(string $provider, \DutchCodingCompany\FilamentSocialite\Models\Contracts\FilamentSocialiteUser $socialiteUser): \Illuminate\Http\RedirectResponse
-         * @static 
-         */
-        public static function getLoginRedirectCallback()
-        {
-            /** @var \DutchCodingCompany\FilamentSocialite\FilamentSocialite $instance */
-            return $instance->getLoginRedirectCallback();
-        }
-
-            }
-    }
-
 namespace Laravel\Octane\Facades {
     /**
      * 
@@ -23854,6 +24682,17 @@ namespace Livewire {
         {
             /** @var \Livewire\LivewireManager $instance */
             return $instance->current();
+        }
+
+        /**
+         * 
+         *
+         * @static 
+         */
+        public static function findSynth($keyOrTarget, $component)
+        {
+            /** @var \Livewire\LivewireManager $instance */
+            return $instance->findSynth($keyOrTarget, $component);
         }
 
         /**
@@ -25243,6 +26082,19 @@ namespace Illuminate\Http {
             return \Illuminate\Http\Request::inertia();
         }
 
+        /**
+         * 
+         *
+         * @see \Spatie\Enum\Laravel\Http\EnumRequest::transformEnums()
+         * @param array $transformations
+         * @return void 
+         * @static 
+         */
+        public static function transformEnums($transformations)
+        {
+            \Illuminate\Http\Request::transformEnums($transformations);
+        }
+
             }
     }
 
@@ -25265,6 +26117,19 @@ namespace Illuminate\Routing {
         public static function inertia($uri, $component, $props = [])
         {
             return \Illuminate\Routing\Router::inertia($uri, $component, $props);
+        }
+
+        /**
+         * 
+         *
+         * @see \Spatie\Enum\Laravel\EnumServiceProvider::registerRouteBindingMacro()
+         * @param string $key
+         * @param string $class
+         * @static 
+         */
+        public static function enum($key, $class)
+        {
+            return \Illuminate\Routing\Router::enum($key, $class);
         }
 
             }
@@ -28926,6 +29791,58 @@ namespace  {
         }
 
         /**
+         * Insert into the database after merging the model's default attributes, setting timestamps, and casting values.
+         *
+         * @param array<int, array<string, mixed>> $values
+         * @return bool 
+         * @static 
+         */
+        public static function fillAndInsert($values)
+        {
+            /** @var \Illuminate\Database\Eloquent\Builder $instance */
+            return $instance->fillAndInsert($values);
+        }
+
+        /**
+         * Insert (ignoring errors) into the database after merging the model's default attributes, setting timestamps, and casting values.
+         *
+         * @param array<int, array<string, mixed>> $values
+         * @return int 
+         * @static 
+         */
+        public static function fillAndInsertOrIgnore($values)
+        {
+            /** @var \Illuminate\Database\Eloquent\Builder $instance */
+            return $instance->fillAndInsertOrIgnore($values);
+        }
+
+        /**
+         * Insert a record into the database and get its ID after merging the model's default attributes, setting timestamps, and casting values.
+         *
+         * @param array<string, mixed> $values
+         * @return int 
+         * @static 
+         */
+        public static function fillAndInsertGetId($values)
+        {
+            /** @var \Illuminate\Database\Eloquent\Builder $instance */
+            return $instance->fillAndInsertGetId($values);
+        }
+
+        /**
+         * Enrich the given values by merging in the model's default attributes, adding timestamps, and casting values.
+         *
+         * @param array<int, array<string, mixed>> $values
+         * @return array<int, array<string, mixed>> 
+         * @static 
+         */
+        public static function fillForInsert($values)
+        {
+            /** @var \Illuminate\Database\Eloquent\Builder $instance */
+            return $instance->fillForInsert($values);
+        }
+
+        /**
          * Create a collection of models from a raw query.
          *
          * @param string $query
@@ -29289,7 +30206,7 @@ namespace  {
          * @param string $pageName
          * @param int|null $page
          * @param \Closure|int|null $total
-         * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator 
+         * @return \Illuminate\Pagination\LengthAwarePaginator 
          * @throws \InvalidArgumentException
          * @static 
          */
@@ -29482,13 +30399,14 @@ namespace  {
          *
          * @param \Illuminate\Contracts\Database\Query\Expression|array|string $attributes
          * @param mixed $value
+         * @param bool $asConditions
          * @return \Illuminate\Database\Eloquent\Builder<static> 
          * @static 
          */
-        public static function withAttributes($attributes, $value = null)
+        public static function withAttributes($attributes, $value = null, $asConditions = true)
         {
             /** @var \Illuminate\Database\Eloquent\Builder $instance */
-            return $instance->withAttributes($attributes, $value);
+            return $instance->withAttributes($attributes, $value, $asConditions);
         }
 
         /**
@@ -29603,6 +30521,30 @@ namespace  {
         {
             /** @var \Illuminate\Database\Eloquent\Builder $instance */
             return $instance->withoutEagerLoads();
+        }
+
+        /**
+         * Get the "limit" value from the query or null if it's not set.
+         *
+         * @return mixed 
+         * @static 
+         */
+        public static function getLimit()
+        {
+            /** @var \Illuminate\Database\Eloquent\Builder $instance */
+            return $instance->getLimit();
+        }
+
+        /**
+         * Get the "offset" value from the query or null if it's not set.
+         *
+         * @return mixed 
+         * @static 
+         */
+        public static function getOffset()
+        {
+            /** @var \Illuminate\Database\Eloquent\Builder $instance */
+            return $instance->getOffset();
         }
 
         /**
@@ -29891,7 +30833,7 @@ namespace  {
         }
 
         /**
-         * Pass the query to a given callback.
+         * Pass the query to a given callback and then return it.
          *
          * @param callable($this):  mixed  $callback
          * @return \Illuminate\Database\Eloquent\Builder<static> 
@@ -29901,6 +30843,20 @@ namespace  {
         {
             /** @var \Illuminate\Database\Eloquent\Builder $instance */
             return $instance->tap($callback);
+        }
+
+        /**
+         * Pass the query to a given callback and return the result.
+         *
+         * @template TReturn
+         * @param (callable($this): TReturn) $callback
+         * @return (TReturn is null|void ? $this : TReturn)
+         * @static 
+         */
+        public static function pipe($callback)
+        {
+            /** @var \Illuminate\Database\Eloquent\Builder $instance */
+            return $instance->pipe($callback);
         }
 
         /**
@@ -30457,6 +31413,37 @@ namespace  {
         {
             /** @var \Illuminate\Database\Eloquent\Builder $instance */
             return $instance->orWhereBelongsTo($related, $relationshipName);
+        }
+
+        /**
+         * Add a "belongs to many" relationship where clause to the query.
+         *
+         * @param \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection<int, \Illuminate\Database\Eloquent\Model> $related
+         * @param string|null $relationshipName
+         * @param string $boolean
+         * @return \Illuminate\Database\Eloquent\Builder<static> 
+         * @throws \Illuminate\Database\Eloquent\RelationNotFoundException
+         * @static 
+         */
+        public static function whereAttachedTo($related, $relationshipName = null, $boolean = 'and')
+        {
+            /** @var \Illuminate\Database\Eloquent\Builder $instance */
+            return $instance->whereAttachedTo($related, $relationshipName, $boolean);
+        }
+
+        /**
+         * Add a "belongs to many" relationship with an "or where" clause to the query.
+         *
+         * @param \Illuminate\Database\Eloquent\Model $related
+         * @param string|null $relationshipName
+         * @return \Illuminate\Database\Eloquent\Builder<static> 
+         * @throws \RuntimeException
+         * @static 
+         */
+        public static function orWhereAttachedTo($related, $relationshipName = null)
+        {
+            /** @var \Illuminate\Database\Eloquent\Builder $instance */
+            return $instance->orWhereAttachedTo($related, $relationshipName);
         }
 
         /**
@@ -32577,8 +33564,8 @@ namespace  {
          * Add a "having" clause to the query.
          *
          * @param \Illuminate\Contracts\Database\Query\Expression|\Closure|string $column
-         * @param string|int|float|null $operator
-         * @param string|int|float|null $value
+         * @param \DateTimeInterface|string|int|float|null $operator
+         * @param \Illuminate\Contracts\Database\Query\Expression|\DateTimeInterface|string|int|float|null $value
          * @param string $boolean
          * @return \Illuminate\Database\Eloquent\Builder<static> 
          * @static 
@@ -32593,8 +33580,8 @@ namespace  {
          * Add an "or having" clause to the query.
          *
          * @param \Illuminate\Contracts\Database\Query\Expression|\Closure|string $column
-         * @param string|int|float|null $operator
-         * @param string|int|float|null $value
+         * @param \DateTimeInterface|string|int|float|null $operator
+         * @param \Illuminate\Contracts\Database\Query\Expression|\DateTimeInterface|string|int|float|null $value
          * @return \Illuminate\Database\Eloquent\Builder<static> 
          * @static 
          */
@@ -33765,7 +34752,6 @@ namespace  {
          * Add an "or where date" clause to determine if a "date" column is today or before to the query.
          *
          * @param array|string $columns
-         * @param string $boolean
          * @return \Illuminate\Database\Eloquent\Builder<static> 
          * @static 
          */
@@ -33779,7 +34765,6 @@ namespace  {
          * Add an "or where date" clause to determine if a "date" column is after today.
          *
          * @param array|string $columns
-         * @param string $boolean
          * @return \Illuminate\Database\Eloquent\Builder<static> 
          * @static 
          */
@@ -33793,7 +34778,6 @@ namespace  {
          * Add an "or where date" clause to determine if a "date" column is today or after to the query.
          *
          * @param array|string $columns
-         * @param string $boolean
          * @return \Illuminate\Database\Eloquent\Builder<static> 
          * @static 
          */
@@ -33900,9 +34884,9 @@ namespace  {
     class View extends \Illuminate\Support\Facades\View {}
     class Vite extends \Illuminate\Support\Facades\Vite {}
     class FilamentSpatieRolesPermissions extends \Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade {}
+    class Bugsnag extends \Bugsnag\BugsnagLaravel\Facades\Bugsnag {}
     class EloquentSerialize extends \AnourValar\EloquentSerialize\Facades\EloquentSerializeFacade {}
     class PanelSwitch extends \BezhanSalleh\PanelSwitch\Facades\PanelSwitch {}
-    class FilamentSocialite extends \DutchCodingCompany\FilamentSocialite\Facades\FilamentSocialite {}
     class Horizon extends \Laravel\Horizon\Horizon {}
     class Octane extends \Laravel\Octane\Facades\Octane {}
     class Socialite extends \Laravel\Socialite\Facades\Socialite {}
@@ -33914,6 +34898,11 @@ namespace  {
 }
 
 
+namespace Facades\Livewire\Features\SupportFileUploads {
+    /**
+     * @mixin \Livewire\Features\SupportFileUploads\GenerateSignedUploadUrl     */
+    class GenerateSignedUploadUrl extends \Livewire\Features\SupportFileUploads\GenerateSignedUploadUrl {}
+}
 
 
 

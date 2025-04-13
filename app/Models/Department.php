@@ -53,4 +53,16 @@ class Department extends Model
     {
         return $this->hasMany(Order::class, 'department_id');
     }
+
+    /**
+     * The function `roles()` returns a HasMany relationship for the Role model with the foreign key `roles_id`.
+     *
+     * @return HasMany A relationship method `roles()` is being returned, which defines a one-to-many relationship between
+     * the current model and the `Role` model. The relationship specifies that the `Role` model is related to the current
+     * model through the foreign key `roles_id`.
+     */
+    public function roles(): HasMany
+    {
+        return $this->hasMany(Role::class, 'roles_id');
+    }
 }

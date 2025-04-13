@@ -5,8 +5,8 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use Filament\Panel;
-use InvalidArgumentException;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Traits\HasRoles;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Notifications\Notifiable;
@@ -145,13 +145,44 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return $this->morphToMany(Role::class, 'model', 'model_has_roles', 'model_id', 'role_id');
     }
 
-    public function hasDepartmentRoleWithPermissionTo(string $permission, ?int $department_id): bool
+    /**
+     * Check if the user has a specific permission within a department.
+     *
+     * @param string $permission The permission to check.
+     * @param int|null $department_id The department ID to check the permission in.
+     * @return bool True if the user has the permission, false otherwise.
+     */
+    public function hasDepartmentRoleWithPermissionTo(string $permission, int $department_id): bool
     {
-
+        return DB::table('department_user')
+            ->where('user_id', $this->id)
+            ->where('department_id', $department_id)
+            ->join('model_has_roles', 'department_user.user_id', '=', 'model_has_roles.model_id')
+            ->where('model_has_roles.model_type', User::class)
+            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+            ->join('role_has_permissions', 'roles.id', '=', 'role_has_permissions.role_id')
+            ->join('permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
+            ->where('permissions.name', $permission)
+            ->exists();
     }
 
+    /**
+     * Get all departments where the user has a specific permission.
+     *
+     * @param string $permission The permission to check.
+     * @return array An array of department IDs where the user has the permission.
+     */
     public function getDepartmentsWithPermission(string $permission): array
     {
-
+        return DB::table('department_user')
+            ->where('user_id', $this->id)
+            ->join('model_has_roles', 'department_user.user_id', '=', 'model_has_roles.model_id')
+            ->where('model_has_roles.model_type', User::class)
+            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+            ->join('role_has_permissions', 'roles.id', '=', 'role_has_permissions.role_id')
+            ->join('permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
+            ->where('permissions.name', $permission)
+            ->pluck('department_user.department_id')
+            ->toArray();
     }
 }
