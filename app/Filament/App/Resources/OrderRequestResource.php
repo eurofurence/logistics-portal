@@ -401,11 +401,9 @@ class OrderRequestResource extends Resource
                         Components\Split::make([
                             Components\Group::make([
                                 TextEntry::make('addedBy.name')
-                                    ->label(__('general.added_by'))
-                                    ->suffix("   Hier Rang einfügen"),
+                                    ->label(__('general.added_by')),
                                 TextEntry::make('editedBy.name')
-                                    ->label(__('general.edited_by'))
-                                    ->suffix("   Hier Rang einfügen"),
+                                    ->label(__('general.edited_by')),
                             ]),
                             Components\Group::make([
                                 TextEntry::make('created_at')

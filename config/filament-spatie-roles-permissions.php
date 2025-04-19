@@ -223,8 +223,6 @@ return [
             'can-always-delete-orderRequests',
             'can-always-create-orderRequests',
             'can-always-restore-orders',
-            'can-always-restore-orderRequests',
-            'can-view-order-delivery-address',
             'can-use-special-order-export',
             'can-use-special-order-functions',
             'can-edit-order-files',
@@ -246,7 +244,7 @@ return [
             'can-create-orderRequests-for-other-departments',
             'can-delete-orderRequests-for-other-departments',
             'can-see-all-orderRequests',
-
+            'access-department'
         ],
 
         'user_model' => \App\Models\User::class,

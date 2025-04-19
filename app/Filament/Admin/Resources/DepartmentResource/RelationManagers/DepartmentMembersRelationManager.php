@@ -55,7 +55,9 @@ class DepartmentMembersRelationManager extends RelationManager
                 SelectColumn::make('role_id')
                     ->options(
                         function () {
-                            return Role::pluck('name', 'id')->toArray();
+                            return Role::where('name', '<>', 'Master')
+                                ->pluck('name', 'id')
+                                ->toArray();
                         }
                     )
                     ->selectablePlaceholder(false)
@@ -64,7 +66,9 @@ class DepartmentMembersRelationManager extends RelationManager
                 SelectFilter::make('role_id')
                     ->options(
                         function () {
-                            return Role::pluck('name', 'id')->toArray();
+                            return Role::where('name', '<>', 'Master')
+                                ->pluck('name', 'id')
+                                ->toArray();
                         }
                     )
                     ->selectablePlaceholder(false)
@@ -88,13 +92,15 @@ class DepartmentMembersRelationManager extends RelationManager
                         Select::make('role_id')
                             ->options(
                                 function () {
-                                    return Role::pluck('name', 'id')->toArray();
+                                    return Role::where('name', '<>', 'Master')
+                                        ->pluck('name', 'id')
+                                        ->toArray();
                                 }
                             )
                             ->label(__('general.role'))
                             ->default('0')
                             ->required()
-                            ->selectablePlaceholder(false)
+                            ->selectablePlaceholder(true)
                     ])
                     ->modalSubmitActionLabel(__('general.add'))
                     ->modalHeading(__('general.add_member'))

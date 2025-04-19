@@ -17,9 +17,6 @@ class Role extends ModelsRole
         parent::boot();
 
         static::updated(function () {
-            Notification::make()
-                ->title(__('general.new_instant_delivery'))
-                ->send();
             app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
         });
 
@@ -35,10 +32,5 @@ class Role extends ModelsRole
     public function users(): MorphToMany
     {
         return $this->morphedByMany(User::class, 'model', 'model_has_roles', 'role_id', 'model_id');
-    }
-
-    public function departmentUsers(): HasMany
-    {
-        return $this->hasMany(DepartmentMember::class, 'role_id');
     }
 }

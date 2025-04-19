@@ -145,24 +145,26 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return $this->morphToMany(Role::class, 'model', 'model_has_roles', 'model_id', 'role_id');
     }
 
+    public function departmentMemberships()
+    {
+        return $this->hasMany(DepartmentMember::class, 'user_id');
+    }
+
     /**
      * Check if the user has a specific permission within a department.
      *
      * @param string $permission The permission to check.
-     * @param int|null $department_id The department ID to check the permission in.
+     * @param int $department_id The department ID to check the permission in.
      * @return bool True if the user has the permission, false otherwise.
      */
     public function hasDepartmentRoleWithPermissionTo(string $permission, int $department_id): bool
     {
-        return DB::table('department_user')
-            ->where('user_id', $this->id)
+        return $this->departmentMemberships()
             ->where('department_id', $department_id)
-            ->join('model_has_roles', 'department_user.user_id', '=', 'model_has_roles.model_id')
-            ->where('model_has_roles.model_type', User::class)
-            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-            ->join('role_has_permissions', 'roles.id', '=', 'role_has_permissions.role_id')
-            ->join('permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
-            ->where('permissions.name', $permission)
+            ->whereHas('role.permissions', function ($query) use ($permission) {
+                $query->where('name', $permission)
+                    ->where('guard_name', 'web');
+            })
             ->exists();
     }
 
@@ -174,15 +176,48 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
      */
     public function getDepartmentsWithPermission(string $permission): array
     {
-        return DB::table('department_user')
-            ->where('user_id', $this->id)
-            ->join('model_has_roles', 'department_user.user_id', '=', 'model_has_roles.model_id')
-            ->where('model_has_roles.model_type', User::class)
-            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-            ->join('role_has_permissions', 'roles.id', '=', 'role_has_permissions.role_id')
-            ->join('permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
-            ->where('permissions.name', $permission)
-            ->pluck('department_user.department_id')
+        return $this->departmentMemberships()
+            ->whereHas('role.permissions', function ($query) use ($permission) {
+                $query->where('name', $permission)
+                    ->where('guard_name', 'web');
+            })
+            ->with('department') // Preloading the department relationship
+            ->get()
+            ->pluck('department') // Extracting the department models
+            ->unique('id') // Removing duplicates based on the department ID
+            ->keyBy('id') // Set the array key to the department ID
             ->toArray();
+    }
+
+    /**
+     * Get the number of departments where the user has a specific permission.
+     *
+     * @param string $permission The permission to check.
+     * @return int The amount of department with that permission
+     */
+    public function getDepartmentsWithPermission_Count(string $permission): int
+    {
+        return $this->departmentMemberships()
+            ->whereHas('role.permissions', function ($query) use ($permission) {
+                $query->where('name', $permission)
+                    ->where('guard_name', 'web');
+            })
+            ->count();
+    }
+
+    /**
+     * Check if the user has a specific permission in any department.
+     *
+     * @param string $permission The permission to check.
+     * @return bool True if the user has the permission in any department, false otherwise.
+     */
+    public function hasAnyDepartmentRoleWithPermissionTo(string $permission): bool
+    {
+        return $this->departmentMemberships()
+            ->whereHas('role.permissions', function ($query) use ($permission) {
+                $query->where('name', $permission)
+                    ->where('guard_name', 'web');
+            })
+            ->exists();
     }
 }

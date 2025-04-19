@@ -11,7 +11,7 @@ class OrderRequestPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->checkPermissionTo('view-any-OrderRequest');
+        return $user->checkPermissionTo('view-any-OrderRequest') || $user->hasAnyDepartmentRoleWithPermissionTo('view-any-OrderRequest');
     }
 
 
@@ -21,11 +21,9 @@ class OrderRequestPolicy
             return true;
         }
 
+        $hasRequiredPermission = $user->hasDepartmentRoleWithPermissionTo('view-OrderRequest', $orderRequest->department_id);
 
-        $hasRequiredRole = true; #TODO
-
-
-        return $hasRequiredRole;
+        return $hasRequiredPermission;
     }
 
 
@@ -34,8 +32,8 @@ class OrderRequestPolicy
         // Initialize the result to false
         $result = false;
 
-
-        $department_counter = 0; #TODO
+        // Count the amount of departments where the user can create request
+        $department_counter = $user->getDepartmentsWithPermission_Count('create-OrderRequest');
 
         // Count the number of open order events that are not locked and either have no deadline or a deadline in the future
         $event_counter = OrderEvent::where('locked', false)
@@ -73,18 +71,18 @@ class OrderRequestPolicy
         // Check if the user has permission to always edit order requests
         $hasAlwaysEditPermission = $user->checkPermissionTo('can-always-edit-orderRequests');
 
+        $hasRequiredPermission = $user->hasDepartmentRoleWithPermissionTo('update-OrderRequest', $orderRequest->department_id);
+
         // Set result to true if the order request can be updated or the user has always edit permission
         if ($canUpdateOrderRequest || $hasAlwaysEditPermission) {
             $result = true;
         }
 
-        $hasRequiredRole = true; #TODO
-
         // Check if the user has permission to edit all order requests
         $canEditAllOrderRequests = $user->checkPermissionTo('can-edit-all-orderRequests');
 
         // Return true if the user has the required role or can edit all order requests, and the result is true
-        return ($hasRequiredRole || $canEditAllOrderRequests) && $result;
+        return ($hasRequiredPermission || $canEditAllOrderRequests) && $result;
     }
 
 
@@ -106,19 +104,18 @@ class OrderRequestPolicy
             $result = true;
         }
 
-        $hasRole = true; #TODO
+        $hasRequiredPermission = $user->hasDepartmentRoleWithPermissionTo('delete-OrderRequest', $orderRequest->department_id);
 
         // Check if the user has permission to delete for other departments
         $canDeleteForOtherDepartments = $user->checkPermissionTo('can-delete-orderRequests-for-other-departments');
 
         // Return true if the user is in the department and has the role or can delete for other departments, and the result is true
-        return ($hasRole || $canDeleteForOtherDepartments) && $result;
+        return ($hasRequiredPermission || $canDeleteForOtherDepartments) && $result;
     }
 
     public function restore(User $user): bool
     {
-        // Return true if the user has the required role/permission and the result is true
-        return $user->checkPermissionTo('restore-OrderRequest');
+        return $user->hasAnyDepartmentRoleWithPermissionTo('restore-OrderRequest');
     }
 
 
@@ -143,7 +140,7 @@ class OrderRequestPolicy
      */
     public function bulkDelete(User $user): bool
     {
-        return $user->checkPermissionTo('bulk-delete-OrderRequest');
+        return $user->hasAnyDepartmentRoleWithPermissionTo('bulk-delete-OrderRequest');
     }
 
     /**
@@ -151,6 +148,6 @@ class OrderRequestPolicy
      */
     public function bulkRestore(User $user): bool
     {
-        return $user->checkPermissionTo('bulk-restore-OrderRequest');
+        return $user->hasAnyDepartmentRoleWithPermissionTo('bulk-restore-OrderRequest');
     }
 }

@@ -27,7 +27,7 @@ class Department extends Model
 
     protected $fillable = [
         'name',
-        'idp_group_id'
+        'idp_group_id',
     ];
 
     protected static function boot()
