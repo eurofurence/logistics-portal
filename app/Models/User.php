@@ -6,7 +6,6 @@ namespace App\Models;
 
 use Filament\Panel;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Traits\HasRoles;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Notifications\Notifiable;
@@ -145,6 +144,18 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return $this->morphToMany(Role::class, 'model', 'model_has_roles', 'model_id', 'role_id');
     }
 
+    /**
+     * Get all departments where the user has at least one role.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function departmentsWithRoles()
+    {
+        return $this->departments()->whereHas('roles', function ($query) {
+            $query->where('user_id', $this->id);
+        })->get();
+    }
+
     public function departmentMemberships()
     {
         return $this->hasMany(DepartmentMember::class, 'user_id');
@@ -174,7 +185,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
      * @param string $permission The permission to check.
      * @return array An array of department IDs where the user has the permission.
      */
-    public function getDepartmentsWithPermission(string $permission): array
+    public function getDepartmentsWithPermission_Array(string $permission): array
     {
         return $this->departmentMemberships()
             ->whereHas('role.permissions', function ($query) use ($permission) {

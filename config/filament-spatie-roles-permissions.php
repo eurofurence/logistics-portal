@@ -244,7 +244,6 @@ return [
             'can-create-orderRequests-for-other-departments',
             'can-delete-orderRequests-for-other-departments',
             'can-see-all-orderRequests',
-            'access-department'
         ],
 
         'user_model' => \App\Models\User::class,

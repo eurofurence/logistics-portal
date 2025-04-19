@@ -146,16 +146,17 @@ class OrderRequestResource extends Resource
                             ->options(function (): array {
                                 $options = Auth::user()->can('can-create-orderRequests-for-other-departments')
                                     ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
-                                    : Auth::user()->departments()->withoutTrashed()->pluck('name', 'department_id')->toArray(); #TODO: Department rights
+                                    : Auth::user()->departmentsWithRoles()->pluck('name', 'id')->toArray();
 
                                 return $options;
                             })
                             ->default(function () {
                                 $options = Auth::user()->can('can-create-orderRequests-for-other-departments')
-                                    ? Department::withoutTrashed()->pluck('id')->toArray()
-                                    : Auth::user()->departments()->withoutTrashed()->pluck('department_id')->toArray(); #TODO: Department rights
+                                    ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
+                                    : Auth::user()->departmentsWithRoles()->pluck('name', 'id')->toArray();
 
-                                return count($options) === 1 ? $options[0] : null;
+                                // Verwenden Sie die reset()-Funktion, um das erste Element zu erhalten
+                                return reset($options) ?: null;
                             }),
                         Select::make('order_event_id')
                             ->label(__('general.order_event'))
@@ -294,7 +295,7 @@ class OrderRequestResource extends Resource
                         if (Auth::user()->can('can-see-all-orderRequests')) {
                             return Department::all()->pluck('name', 'id')->toArray();
                         } else {
-                            return Auth::user()->departments()->pluck('name', 'department_id')->toArray(); #TODO: Department rights
+                            return Auth::user()->departmentsWithRoles()->pluck('name', 'id')->toArray();
                         }
                     }),
                 SelectFilter::make('status')
@@ -401,9 +402,11 @@ class OrderRequestResource extends Resource
                         Components\Split::make([
                             Components\Group::make([
                                 TextEntry::make('addedBy.name')
-                                    ->label(__('general.added_by')),
+                                    ->label(__('general.added_by'))
+                                    ->suffix("   Hier Rang einfügen"),
                                 TextEntry::make('editedBy.name')
-                                    ->label(__('general.edited_by')),
+                                    ->label(__('general.edited_by'))
+                                    ->suffix("   Hier Rang einfügen"),
                             ]),
                             Components\Group::make([
                                 TextEntry::make('created_at')

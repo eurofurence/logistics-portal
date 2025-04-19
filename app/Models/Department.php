@@ -55,14 +55,10 @@ class Department extends Model
     }
 
     /**
-     * The function `roles()` returns a HasMany relationship for the Role model with the foreign key `roles_id`.
-     *
-     * @return HasMany A relationship method `roles()` is being returned, which defines a one-to-many relationship between
-     * the current model and the `Role` model. The relationship specifies that the `Role` model is related to the current
-     * model through the foreign key `roles_id`.
+     * The roles that belong to the department.
      */
-    public function roles(): HasMany
+    public function roles()
     {
-        return $this->hasMany(Role::class, 'roles_id');
+        return $this->belongsToMany(Role::class, 'department_user', 'department_id', 'role_id');
     }
 }
