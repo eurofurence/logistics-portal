@@ -180,4 +180,14 @@ class OrderPolicy
 
         return $user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('can-choose-all-departments');
     }
+
+    public function declineOrder(User $user, Order $order)
+    {
+
+    }
+
+    public function approveOrder(User $user, Order $order)
+    {
+
+    }
 }

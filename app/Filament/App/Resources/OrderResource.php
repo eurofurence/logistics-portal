@@ -16,6 +16,7 @@ use App\Models\OrderArticle;
 use App\Models\OrderRequest;
 use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
+use Filament\Support\Colors\Color;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Tabs;
 use Filament\Tables\Grouping\Group;
@@ -28,6 +29,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
+use Filament\Support\Enums\ActionSize;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
@@ -924,6 +926,37 @@ class OrderResource extends Resource
             ], layout: FiltersLayout::Modal)
             ->filtersFormColumns(3)
             ->actions([
+                TableAction::make('approve')
+                    ->label('')
+                    ->action(function (Model $record, array $data): void {
+                        //$record->update(['status' => $data['status']]);
+                    })
+                    ->icon('heroicon-o-check')
+                    ->size(ActionSize::ExtraLarge)
+                    ->color(Color::Green)
+                    ->visible(function (Model $record) {
+                        if ($record->status == 'awaiting_approval') {
+                            return true;
+                        }
+
+                        return false;
+                    }),
+                TableAction::make('decline')
+                    ->label('')
+                    ->action(function (Model $record, array $data): void {
+                        //$record->update(['status' => $data['status']]);
+                    })
+                    ->icon('heroicon-o-x-mark')
+                    ->size(ActionSize::ExtraLarge)
+                    ->color(Color::Red)
+                    ->requiresConfirmation()
+                    ->visible(function (Model $record) {
+                        if ($record->status == 'awaiting_approval') {
+                            return true;
+                        }
+
+                        return false;
+                    }),
                 ActionGroup::make([
                     ActionGroup::make([
                         Tables\Actions\EditAction::make(),
@@ -1294,7 +1327,7 @@ class OrderResource extends Resource
             ->deferLoading()
             ->searchDebounce('750ms')
             ->persistSortInSession();
-            //->persistFiltersInSession();
+        //->persistFiltersInSession();
     }
 
     public static function getRelations(): array

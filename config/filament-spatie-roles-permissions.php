@@ -246,6 +246,7 @@ return [
             'can-delete-orderRequests-for-other-departments',
             'can-see-all-orderRequests',
             'can-create-Orders-for-other-departments',
+            'can-approve-or-decline-orders',
         ],
 
         'user_model' => \App\Models\User::class,
