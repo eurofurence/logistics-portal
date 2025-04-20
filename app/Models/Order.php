@@ -15,6 +15,113 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+/**
+ * 
+ *
+ * @property int $id
+ * @property string $name
+ * @property string|null $description
+ * @property string|null $delivery_provider
+ * @property string|null $delivery_by
+ * @property string|null $delivery_destination
+ * @property string|null $tracking_number
+ * @property string|null $delivery_date
+ * @property float $delivery_costs
+ * @property int $instant_delivery
+ * @property int $department_id
+ * @property int $added_by
+ * @property int $edited_by
+ * @property int $amount
+ * @property float $price_net
+ * @property float $price_gross
+ * @property float $tax_rate
+ * @property string|null $payment_method
+ * @property string $currency
+ * @property string|null $url
+ * @property string|null $contact
+ * @property string|null $tags
+ * @property int $dangerous_good
+ * @property int $big_size
+ * @property int $needs_truck
+ * @property string|null $ordered_at
+ * @property int $booked_to_inventory
+ * @property int|null $inv_id
+ * @property int $order_event_id
+ * @property string|null $comment
+ * @property string $status
+ * @property string|null $picture
+ * @property int|null $order_article_id
+ * @property string|null $article_number
+ * @property string|null $user_note
+ * @property int|null $order_request_id
+ * @property int $special_delivery
+ * @property string|null $special_flag_text
+ * @property float $returning_deposit
+ * @property float|null $discount_net
+ * @property string|null $order_number
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\User|null $addedBy
+ * @property-read \App\Models\Department|null $department
+ * @property-read OrderArticle|null $directoryArticle
+ * @property-read \App\Models\User|null $editedBy
+ * @property-read OrderEvent|null $event
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
+ * @property-read int|null $media_count
+ * @property-read \App\Models\OrderRequest|null $orderRequest
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereAddedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereArticleNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereBigSize($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereBookedToInventory($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereComment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereContact($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCurrency($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDangerousGood($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeliveryBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeliveryCosts($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeliveryDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeliveryDestination($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeliveryProvider($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDepartmentId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDiscountNet($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereEditedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereInstantDelivery($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereInvId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereNeedsTruck($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrderArticleId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrderEventId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrderNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrderRequestId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrderedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order wherePaymentMethod($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order wherePicture($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order wherePriceGross($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order wherePriceNet($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereReturningDeposit($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereSpecialDelivery($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereSpecialFlagText($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereTags($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereTaxRate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereTrackingNumber($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUserNote($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Order extends Model implements HasMedia
 {
     use HasFactory, SoftDeletes, InteractsWithMedia;

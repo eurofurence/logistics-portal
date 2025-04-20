@@ -8,6 +8,40 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
+/**
+ * 
+ *
+ * @property int $id
+ * @property string $name
+ * @property int $locked
+ * @property \Illuminate\Support\Carbon|null $order_deadline
+ * @property int $is_active
+ * @property int $added_by
+ * @property int $edited_by
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Order> $orders
+ * @property-read int|null $orders_count
+ * @method static \Database\Factories\OrderEventFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereAddedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereEditedBy($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereIsActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereLocked($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereOrderDeadline($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent withoutTrashed()
+ * @mixin \Eloquent
+ */
 class OrderEvent extends Model
 {
     use HasFactory, SoftDeletes;

@@ -155,7 +155,7 @@ class OrderRequestResource extends Resource
                                     ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
                                     : Auth::user()->departmentsWithRoles()->pluck('name', 'id')->toArray();
 
-                                // Verwenden Sie die reset()-Funktion, um das erste Element zu erhalten
+                                // Use the reset() function to get the first element
                                 return reset($options) ?: null;
                             }),
                         Select::make('order_event_id')
