@@ -13,7 +13,7 @@ class OrderArticlePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->checkPermissionTo('view-any-OrderArticle');
+        return $user->checkPermissionTo('view-any-OrderArticle') || $user->hasAnyDepartmentRoleWithPermissionTo('view-any-OrderArticle');
     }
 
     /**
@@ -21,7 +21,7 @@ class OrderArticlePolicy
      */
     public function view(User $user, OrderArticle $orderarticle): bool
     {
-        return $user->checkPermissionTo('view-OrderArticle');
+        return $user->checkPermissionTo('view-OrderArticle') || $user->hasAnyDepartmentRoleWithPermissionTo('view-OrderArticle');
     }
 
     /**
@@ -89,17 +89,17 @@ class OrderArticlePolicy
     }
 
     /**
-     * Determines if a user can place an order for a given article.
+     * Determine if the user can place an order based on specific conditions.
      *
-     * This function checks several conditions to decide if the user is allowed to place an order:
-     * 1. There must be at least one unlocked order event that either has no deadline or has a deadline in the future.
-     * 2. The order article must not be locked and must not be over its deadline.
-     * 3. The user must belong to at least one department or have permission to access all departments.
-     * 4. The user must have the permission to place orders.
+     * This method checks several conditions to determine if the user is allowed to place an order:
+     * 1. There must be at least one unlocked order event that either has no deadline or has a future deadline.
+     * 2. The order article must not be locked and must not be past its deadline.
+     * 3. The user must belong to at least one department or have the permission to choose all departments.
+     * 4. The user must have the permission to place an order or place an order with approval.
      *
      * @param User $user The user attempting to place the order.
-     * @param OrderArticle $orderarticle The article being ordered.
-     * @return bool Returns true if the user can place the order, false otherwise.
+     * @param OrderArticle $orderarticle The order article being considered.
+     * @return bool True if the user can place the order, false otherwise.
      */
     public function order(User $user, OrderArticle $orderarticle): bool
     {
@@ -122,7 +122,7 @@ class OrderArticlePolicy
             (($event_counter > 0) && !$orderarticle->locked && !$over_deadline) || $user->can('can-always-order')
         ) && (
             ($department_counter > 0) || $user->can('can-choose-all-departments')
-        ) && $user->can('can-place-order');
+        ) && $user->hasAnyDepartmentRoleWithPermissionTo('can-place-order');
     }
 
 

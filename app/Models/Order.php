@@ -16,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -242,6 +242,7 @@ class Order extends Model implements HasMedia
                     ->where('department_id', $model->department_id)
                     ->where('order_event_id', $model->order_event_id)
                     ->where('status', 'open')
+                    ->orWhere('status', 'awaiting_approval')
                     ->first();
 
                 if ($existingOrder) {
@@ -251,6 +252,11 @@ class Order extends Model implements HasMedia
                     $existingOrder->price_gross = $model->price_gross;
                     $existingOrder->comment = $existingOrder->comment . "\n" . $model->comment;
                     $existingOrder->article_number = $model->article_number;
+
+                    if (Auth::user()->hasDepartmentRoleWithPermissionTo('order-needs-approval', $model->department_id)) {
+                        $existingOrder->status = 'awaiting_approval';
+                    }
+
                     $existingOrder->save();
 
                     $model->added_to_existing = true;

@@ -34,6 +34,7 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Command whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Command whereOptions($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Command whereSynopsis($value)
+ * @mixin \Eloquent
  */
 	class Command extends \Eloquent {}
 }

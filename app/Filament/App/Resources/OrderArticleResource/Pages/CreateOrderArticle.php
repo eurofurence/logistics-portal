@@ -3,7 +3,6 @@
 namespace App\Filament\App\Resources\OrderArticleResource\Pages;
 
 use App\Filament\App\Resources\OrderArticleResource;
-use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateOrderArticle extends CreateRecord

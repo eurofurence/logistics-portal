@@ -10,6 +10,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -36,17 +37,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property bool $separated_rights
  * @property bool $separated_departments
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\DepartmentMember> $departmentMemberships
+ * @property-read Collection<int, \App\Models\DepartmentMember> $departmentMemberships
  * @property-read int|null $department_memberships_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Department> $departments
+ * @property-read Collection<int, \App\Models\Department> $departments
  * @property-read int|null $departments_count
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
+ * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read int|null $permissions_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role> $roles
+ * @property-read Collection<int, \App\Models\Role> $roles
  * @property-read int|null $roles_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
  * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
@@ -212,7 +213,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function departmentsWithRoles()
+    public function departmentsWithRoles(): Collection
     {
         return $this->departments()->whereHas('roles', function ($query) {
             $query->where('user_id', $this->id);
@@ -261,6 +262,23 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
             ->unique('id') // Removing duplicates based on the department ID
             ->keyBy('id') // Set the array key to the department ID
             ->toArray();
+    }
+
+    /**
+     * Get all departments where the user has a specific role.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getDepartmentsWithPermission(string $permission)
+    {
+        return $this->departmentMemberships()
+        ->whereHas('role.permissions', function ($query) use ($permission) {
+            $query->where('name', $permission)
+                ->where('guard_name', 'web');
+        })
+        ->with('department')
+        ->get()
+        ->pluck('department');
     }
 
     /**

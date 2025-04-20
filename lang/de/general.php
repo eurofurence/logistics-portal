@@ -363,4 +363,5 @@ return array(
     'director' => 'Direktor',
     'currently' => 'Aktuell',
     'no_department_role' => 'Keine Abteilungs-Rolle',
+    'awaiting_approval' => 'Freigabe ausstehen'
 );

@@ -233,6 +233,7 @@ return [
             'can-mark-bills-as-finished-button',
             'can-mark-bills-as-finished-button',
             'can-place-order',
+            'order-needs-approval',
             'access-backups',
             'can-always-edit-bills',
             'can-always-delete-bills',
@@ -244,6 +245,7 @@ return [
             'can-create-orderRequests-for-other-departments',
             'can-delete-orderRequests-for-other-departments',
             'can-see-all-orderRequests',
+            'can-create-Orders-for-other-departments',
         ],
 
         'user_model' => \App\Models\User::class,

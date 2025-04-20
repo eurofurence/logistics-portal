@@ -350,7 +350,8 @@ class OrderResource extends Resource
                                         'received' => __('general.received'),
                                         'rejected' => __('general.rejected'),
                                         'locked' => __('general.locked'),
-                                        'refunded' => __('general.refunded')
+                                        'refunded' => __('general.refunded'),
+                                        'awaiting_approval' => __('general.awaiting_approval')
                                     ])
                                     ->default('open'),
                             ])->visible(Auth::user()->can('can-change-order-status')),
@@ -630,6 +631,7 @@ class OrderResource extends Resource
                         'rejected' => 'danger',
                         'locked' => 'danger',
                         'refunded' => 'danger',
+                        'awaiting_approval' => 'checking',
                     })
                     ->icon(fn(string $state): string => match ($state) {
                         'on_hold' => 'heroicon-o-clock',
@@ -643,6 +645,7 @@ class OrderResource extends Resource
                         'rejected' => 'heroicon-o-x-circle',
                         'locked' => 'heroicon-o-lock-closed',
                         'refunded' => 'heroicon-o-arrow-uturn-left',
+                        'awaiting_approval' => 'heroicon-o-shield-exclamation'
                     })
                     ->formatStateUsing(function ($state) {
                         return strtoupper(str_replace('_', ' ', $state));
@@ -829,6 +832,7 @@ class OrderResource extends Resource
                         'rejected' => __('general.rejected'),
                         'locked' => __('general.locked'),
                         'refunded' => __('general.refunded'),
+                        'awaiting_approval' => __('general.awaiting_approval')
                     ]),
                 SelectFilter::make('order_request_id')
                     ->label(__('general.linked_request'))
@@ -950,6 +954,7 @@ class OrderResource extends Resource
                                         'rejected' => __('general.rejected'),
                                         'locked' => __('general.locked'),
                                         'refunded' => __('general.refunded'),
+                                        'awaiting_approval' => __('general.awaiting_approval')
                                     ])
                                     ->prefixIcon('heroicon-o-ellipsis-horizontal-circle')
                                     ->required(),
@@ -1219,6 +1224,7 @@ class OrderResource extends Resource
                                     'rejected' => __('general.rejected'),
                                     'locked' => __('general.locked'),
                                     'refunded' => __('general.refunded'),
+                                    'awaiting_approval' => __('general.awaiting_approval')
                                 ])
                                 ->prefixIcon('heroicon-o-ellipsis-horizontal-circle')
                                 ->required(),
