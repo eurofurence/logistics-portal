@@ -230,7 +230,7 @@ class Order extends Model implements HasMedia
             // Checking the authorization to change the status
             if (!empty($model->status)) {
                 if (!Auth::user()->can('can-change-order-status')) {
-                    //throw new \Exception(__('middleware.no_permission_order_status'));
+                    throw new \Exception(__('middleware.no_permission_order_status'));
                 }
             }
 
