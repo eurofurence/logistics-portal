@@ -13,7 +13,7 @@ class OrderPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->checkPermissionTo('view-any-Order');
+        return $user->checkPermissionTo('view-any-Order') || $user->hasAnyDepartmentRoleWithPermissionTo('view-any-Order');
     }
 
     /**
@@ -21,15 +21,9 @@ class OrderPolicy
      */
     public function view(User $user, Order $order): bool
     {
-        // Check whether the user has authorization to view orders
-        if (!$user->checkPermissionTo('view-Order')) {
-            return false;
-        }
-
         // Check whether the user is allowed to view the order
-        $canViewOrder = ($user->departments->contains('id', $order->department_id) ||
-            $user->checkPermissionTo('can-see-all-departments') ||
-            $user->checkPermissionTo('can-choose-all-departments'));
+        $canViewOrder = ($user->hasDepartmentRoleWithPermissionTo('view-Order', $order->department->id) ||
+            $user->checkPermissionTo('can-see-all-departments'));
 
         $orderNotLockedOrPermission = ($order->status != 'locked') ||
             $user->checkPermissionTo('can-always-see-order');
@@ -45,8 +39,8 @@ class OrderPolicy
         // Initialization of the result
         $result = false;
 
-        // Number of departments of the user
-        $department_counter = $user->departments()->count();
+        // Number of departments where the user has the permission to create orders
+        $department_counter = $user->getDepartmentsWithPermission_Count('create-Order');
 
         // Number of open order events
         $event_counter = OrderEvent::where('locked', false)
@@ -56,15 +50,15 @@ class OrderPolicy
             })
             ->count();
 
-        // Checking the conditions for creating a purchase order
+        // Checking the conditions for creating a order
         if (($event_counter > 0 || $user->checkPermissionTo('can-always-order')) &&
-            ($department_counter > 0 || $user->checkPermissionTo('can-choose-all-departments'))
+            ($department_counter > 0 || $user->checkPermissionTo('can-create-orders-for-other-departments'))
         ) {
             $result = true;
         }
 
         // Return of the final result
-        return $user->checkPermissionTo('create-Order') && $result;
+        return $result;
     }
 
 
@@ -73,26 +67,23 @@ class OrderPolicy
      */
     public function update(User $user, Order $order): bool
     {
+        // Initialize the result to false
         $result = false;
-
-        // Check whether the user has authorization to update orders
-        if (!$user->checkPermissionTo('update-Order')) {
-            return false;
-        }
 
         // Check whether the order can be processed
         if (($order->event->locked == false &&
                 $order->event->order_deadline < now() &&
                 $order->status == 'open' &&
-                $order->status != 'locked') ||
+                $order->status != 'locked') &&
+            $order->status != 'awaiting_approval' ||
             $user->checkPermissionTo('can-always-edit-orders')
         ) {
             $result = true;
         }
 
-        // Check whether the user belongs to the department of the order or has access to all departments
-        $canAccessDepartment = $user->departments->contains('id', $order->department_id) ||
-            $user->checkPermissionTo('can-choose-all-departments');
+        // Check whether the user has the needed permission inside a department or has access to all departments
+        $canAccessDepartment = $user->hasDepartmentRoleWithPermissionTo('update-Order', $order->department->id) ||
+            $user->checkPermissionTo('can-edit-all-orders');
 
         return $canAccessDepartment && $result;
     }
@@ -102,92 +93,113 @@ class OrderPolicy
      */
     public function delete(User $user, Order $order): bool
     {
+        // Initialize the result to false
         $result = false;
 
-        if (!$user->checkPermissionTo('delete-Order')) {
-            return false;
-        }
-
-        if ($order->status == 'open' || $user->checkPermissionTo('can-always-delete-orders')) {
+        // Check whether the order can be deleted
+        if ((($order->status == 'open') && ($order->status != 'awaiting_approval')) || $user->checkPermissionTo('can-always-delete-orders')) {
             $result = true;
         }
 
-        return ($user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('can-choose-all-departments')) && $result;
+        // Check whether the user has the needed permission inside a department or has access to all departments
+        $canAccessDepartment = $user->hasDepartmentRoleWithPermissionTo('delete-Order', $order->department->id) ||
+            $user->checkPermissionTo('can-delete-orders-for-other-departments');
+
+        return $canAccessDepartment && $result;
     }
+
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Order $order): bool
+    public function restore(User $user): bool
     {
-        $result = false;
-
-        if (!$user->checkPermissionTo('restore-Order')) {
-            return false;
-        }
-
-        if ($order->status == 'open' || $user->checkPermissionTo('can-always-restore-orders')) {
-            $result = true;
-        }
-
-        return $user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('can-choose-all-departments') && $result;
+        return $user->hasAnyDepartmentRoleWithPermissionTo('restore-Order');
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Order $order): bool
+    public function forceDelete(User $user): bool
     {
-        if (!$user->checkPermissionTo('force-delete-Order')) {
-            return false;
-        }
-
-        return $user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('can-choose-all-departments');
+        return $user->checkPermissionTo('force-delete-Order');
     }
 
     /**
      * Determine whether the user can permanently delete the model. (Many models at once)
      */
-    public function bulkForceDelete(User $user, Order $order): bool
+    public function bulkForceDelete(User $user): bool
     {
-        if (!$user->checkPermissionTo('bulk-force-delete-Order')) {
-            return false;
-        }
-
-        return $user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('can-choose-all-departments');
+       return $user->checkPermissionTo('bulk-force-delete-Order');
     }
 
     /**
      * Determine whether the user can delete the model. (Many models at once)
      */
-    public function bulkDelete(User $user, Order $order): bool
+    public function bulkDelete(User $user): bool
     {
-        if (!$user->checkPermissionTo('bulk-delete-Order')) {
-            return false;
-        }
-
-        return $user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('can-choose-all-departments');
+        return $user->hasAnyDepartmentRoleWithPermissionTo('bulk-delete-Order') || $user->can('bulk-delete-Order');
     }
 
     /**
      * Determine whether the user can restore the model. (Many models at once)
      */
-    public function bulkRestore(User $user, Order $order): bool
+    public function bulkRestore(User $user): bool
     {
-        if (!$user->checkPermissionTo('bulk-restore-Order')) {
-            return false;
-        }
-
-        return $user->departments->contains('id', $order->department_id) || $user->checkPermissionTo('can-choose-all-departments');
+        return $user->hasAnyDepartmentRoleWithPermissionTo('bulk-restore-Order')  || $user->can('bulk-restore-Order');
     }
 
     public function declineOrder(User $user, Order $order)
     {
+        // Initialize the result to false
+        $result = false;
 
+        // Check if the order can be declined based on its event status and status
+        $canDeclineOrder = !$order->event->locked &&
+            $order->event->order_deadline < now() &&
+            $order->status == 'awaiting_approval';
+
+        // Check if the user has permission to always decline orders
+        $hasAlwaysDeclinePermission = $user->checkPermissionTo('can-always-decline-orders');
+
+        // Set result to true if the order can be declined or the user has always decline permission
+        if ($canDeclineOrder || $hasAlwaysDeclinePermission) {
+            $result = true;
+        }
+
+        $hasRequiredPermission = $user->hasDepartmentRoleWithPermissionTo('can-decline-orders', $order->department->id);
+
+        // Check if the user has permission to decline orders for other departments
+        $canDeclineForOtherDepartments = $user->checkPermissionTo('can-decline-orders-for-other-departments');
+
+        // Return true if the user is in the department and has the role or can decline orders for other departments, and the result is true
+        return ($hasRequiredPermission || $canDeclineForOtherDepartments) && $result;
     }
 
     public function approveOrder(User $user, Order $order)
     {
+        // Initialize the result to false
+        $result = false;
 
+        // Check if the order can be approved based on its event status and status
+        $canApproveOrder = !$order->event->locked &&
+            $order->event->order_deadline < now() &&
+            $order->status == 'awaiting_approval';
+
+        // Check if the user has permission to always approve orders
+        $hasAlwaysApprovePermission = $user->checkPermissionTo('can-always-approve-orders');
+
+        // Set result to true if the order can be approved or the user has always approve permission
+        if ($canApproveOrder || $hasAlwaysApprovePermission) {
+            $result = true;
+        }
+
+        $hasRequiredPermission = $user->hasDepartmentRoleWithPermissionTo('can-approve-orders', $order->department->id);
+
+        // Check if the user has permission to approve orders for other departments
+        $canApproveForOtherDepartments = $user->checkPermissionTo('can-approve-orders-for-other-departments');
+
+        // Return true if the user is in the department and has the role or can approve orders for other departments, and the result is true
+        return ($hasRequiredPermission || $canApproveForOtherDepartments) && $result;
     }
 }

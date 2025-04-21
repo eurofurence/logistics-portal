@@ -364,5 +364,6 @@ return array(
     'director' => 'Director',
     'currently' => 'Currently',
     'no_department_role' => 'No departmental role',
-    'awaiting _approval' => 'Awaiting  approval'
+    'awaiting _approval' => 'Awaiting  approval',
+    'decline_order' => 'Decline order',
 );

@@ -140,7 +140,7 @@ class OrderRequestPolicy
      */
     public function bulkDelete(User $user): bool
     {
-        return $user->hasAnyDepartmentRoleWithPermissionTo('bulk-delete-OrderRequest');
+        return $user->hasAnyDepartmentRoleWithPermissionTo('bulk-delete-OrderRequest') || $user->can('bulk-delete-OrderRequest');
     }
 
     /**
@@ -148,6 +148,6 @@ class OrderRequestPolicy
      */
     public function bulkRestore(User $user): bool
     {
-        return $user->hasAnyDepartmentRoleWithPermissionTo('bulk-restore-OrderRequest');
+        return $user->hasAnyDepartmentRoleWithPermissionTo('bulk-restore-OrderRequest') || $user->can('bulk-restore-OrderRequest');
     }
 }

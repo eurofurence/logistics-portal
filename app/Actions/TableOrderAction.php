@@ -67,7 +67,7 @@ class TableOrderAction
                     ->required()
                     ->exists('departments', 'id')
                     ->options(function (): array {
-                        $options = Auth::user()->can('can-create-Orders-for-other-departments')
+                        $options = Auth::user()->can('can-create-orders-for-other-departments')
                             ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
                             : Auth::user()->getDepartmentsWithPermission('can-place-order')->pluck('name', 'id')->toArray();
 

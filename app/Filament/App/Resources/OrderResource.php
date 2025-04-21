@@ -936,7 +936,9 @@ class OrderResource extends Resource
                     ->color(Color::Green)
                     ->visible(function (Model $record) {
                         if ($record->status == 'awaiting_approval') {
-                            return true;
+                            if (Gate::check('approveOrder', [Auth::user(), $record])) {
+                                return true;
+                            }
                         }
 
                         return false;
@@ -950,9 +952,13 @@ class OrderResource extends Resource
                     ->size(ActionSize::ExtraLarge)
                     ->color(Color::Red)
                     ->requiresConfirmation()
+                    ->modalHeading(__('general.decline_order'))
+                    ->modalIcon('heroicon-o-exclamation-triangle')
                     ->visible(function (Model $record) {
                         if ($record->status == 'awaiting_approval') {
-                            return true;
+                            if (Gate::check('declineOrder', [Auth::user(), $record])) {
+                                return true;
+                            }
                         }
 
                         return false;
