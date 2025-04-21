@@ -103,7 +103,7 @@ class OrderRequestResource extends Resource
         $user = Auth::user();
 
         $query->when(!$user->can('can-see-all-orderRequests'), function ($query) use ($user) {
-            return $query->whereIn('department_id', $user->departments->pluck('id'));
+            return $query->whereIn('department_id', $user->getDepartmentsWithPermission('view-OrderRequest')->pluck('id'));
         });
 
         return $query;

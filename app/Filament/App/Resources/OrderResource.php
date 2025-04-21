@@ -112,6 +112,18 @@ class OrderResource extends Resource
         ];
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = Auth::user();
+
+        $query->when(!$user->can('can-see-all-orders'), function ($query) use ($user) {
+            return $query->whereIn('department_id', $user->getDepartmentsWithPermission('view-Order')->pluck('id'));
+        });
+
+        return $query;
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -137,18 +149,11 @@ class OrderResource extends Resource
                                             ->required()
                                             ->exists('departments', 'id')
                                             ->options(function (): array {
-                                                $options = Auth::user()->can('can-choose-all-departments')
+                                                $options = Auth::user()->can('can-create-orders-for-other-departments')
                                                     ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
-                                                    : Auth::user()->departments()->withoutTrashed()->pluck('name', 'department_id')->toArray();
+                                                    : Auth::user()->getDepartmentsWithPermission('view-Order')->pluck('name', 'id')->toArray();
 
                                                 return $options;
-                                            })
-                                            ->default(function () {
-                                                $options = Auth::user()->can('can-choose-all-departments')
-                                                    ? Department::withoutTrashed()->pluck('id')->toArray()
-                                                    : Auth::user()->departments()->withoutTrashed()->pluck('department_id')->toArray();
-
-                                                return count($options) === 1 ? $options[0] : null;
                                             }),
                                         Select::make('order_event_id')
                                             ->label(__('general.order_event'))
@@ -531,18 +536,6 @@ class OrderResource extends Resource
             ]);
     }
 
-    public static function getEloquentQuery(): Builder
-    {
-        $query = parent::getEloquentQuery();
-        $user = Auth::user();
-
-        $query->when(!$user->can('can-choose-all-departments') || !$user->can('can-see-all-departments'), function ($query) use ($user) {
-            return $query->whereIn('department_id', $user->departments->pluck('id'));
-        });
-
-        return $query;
-    }
-
     public static function table(Table $table): Table
     {
         $export_type_options = ['standart' => __('general.standart')];
@@ -659,13 +652,19 @@ class OrderResource extends Resource
                     ->type('number')
                     ->rules(['numeric', 'min:1', 'max:1000000'])
                     ->disabled(function ($record) {
-                        if (Auth::user()->can('can-see-all-departments') & !Auth::user()->can('can-choose-all-departments')) {
-                            if ($record->department) {
-                                $userDepartments = Auth::user()->departments->pluck('id')->toArray();
+                        if ($record->department) {
+                            if (!Auth::user()->hasDepartmentRoleWithPermissionTo('can-change-amount-order-table', $record->department->id)) {
+                                return true;
+                            }
+
+                            if (Auth::user()->can('can-see-all-orders')) {
+                                $userDepartments = Auth::user()->getDepartmentsWithPermission('can-change-amount-order-table')->pluck('id')->toArray();
                                 if (!in_array($record->department->id, $userDepartments)) {
                                     return true;
                                 }
                             }
+                        } else {
+                            return true;
                         }
 
                         if (Auth::user()->can('can-always-edit-orders')) {
@@ -813,10 +812,10 @@ class OrderResource extends Resource
                     ->multiple()
                     ->label(__('general.department'))
                     ->options(function (): array {
-                        if (Auth::user()->can('can-choose-all-departments') || Auth::user()->can('can-see-all-departments')) {
+                        if (Auth::user()->can('can-see-all-orders')) {
                             return Department::all()->pluck('name', 'id')->toArray();
                         } else {
-                            return Auth::user()->departments()->pluck('name', 'department_id')->toArray();
+                            return Auth::user()->getDepartmentsWithPermission('view-Order')->pluck('name', 'department_id')->toArray();
                         }
                     }),
                 SelectFilter::make('status')
@@ -998,7 +997,9 @@ class OrderResource extends Resource
                                     ->prefixIcon('heroicon-o-ellipsis-horizontal-circle')
                                     ->required(),
                             ])
-                            ->visible(fn() => Auth::user()->can('can-change-order-status')),
+                            ->visible(function (Model $record): bool {
+                                return Auth::user()->can('can-change-order-status') || Auth::user()->hasDepartmentRoleWithPermissionTo('can-change-order-status', $record->department->id);
+                            }),
                     ])->dropdown(false),
                     ActionGroup::make([
                         TableAction::make('user_note')
@@ -1237,9 +1238,9 @@ class OrderResource extends Resource
                     }),
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->visible(fn(Order $record): bool => Gate::allows('bulkDelete', $record)),
+                        ->visible(fn(Order $record): bool => Gate::allows('bulkDelete', [Auth::user(), $record])),
                     Tables\Actions\RestoreBulkAction::make()
-                        ->visible(fn(Order $record): bool => Gate::allows('bulkRestore', $record)),
+                        ->visible(fn(Order $record): bool => Gate::allows('bulkRestore', [Auth::user(), $record])),
                     BulkAction::make('set_status')
                         ->label(__('general.set_status'))
                         ->action(function (Collection $records, array $data): void {

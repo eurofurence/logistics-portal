@@ -21,9 +21,17 @@ class OrderPolicy
      */
     public function view(User $user, Order $order): bool
     {
+        if (empty($order->department->id)) {
+            return false;
+        }
+
+        if (empty($order->event->id)) {
+            return false;
+        }
+
         // Check whether the user is allowed to view the order
         $canViewOrder = ($user->hasDepartmentRoleWithPermissionTo('view-Order', $order->department->id) ||
-            $user->checkPermissionTo('can-see-all-departments'));
+            $user->checkPermissionTo('can-see-all-orders'));
 
         $orderNotLockedOrPermission = ($order->status != 'locked') ||
             $user->checkPermissionTo('can-always-see-order');
@@ -136,17 +144,29 @@ class OrderPolicy
     /**
      * Determine whether the user can delete the model. (Many models at once)
      */
-    public function bulkDelete(User $user): bool
+    public function bulkDelete(User $user, Order $order): bool
     {
-        return $user->hasAnyDepartmentRoleWithPermissionTo('bulk-delete-Order') || $user->can('bulk-delete-Order');
+        $result = false;
+
+        if (!empty($order->department)) {
+            $user->hasDepartmentRoleWithPermissionTo('bulk-delete-Order', $order->department->id);
+        }
+
+        return $result || $user->checkPermissionTo('bulk-delete-Order');
     }
 
     /**
      * Determine whether the user can restore the model. (Many models at once)
      */
-    public function bulkRestore(User $user): bool
+    public function bulkRestore(User $user, Order $order): bool
     {
-        return $user->hasAnyDepartmentRoleWithPermissionTo('bulk-restore-Order')  || $user->can('bulk-restore-Order');
+        $result = false;
+
+        if (!empty($order->department)) {
+            $user->hasDepartmentRoleWithPermissionTo('bulk-restore-Order', $order->department->id);
+        }
+
+        return $result || $user->checkPermissionTo('bulk-restore-Order');
     }
 
     public function declineOrder(User $user, Order $order)

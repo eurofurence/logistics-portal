@@ -17,11 +17,19 @@ class OrderRequestPolicy
 
     public function view(User $user, OrderRequest $orderRequest): bool
     {
+        if (empty($orderRequest->department->id)) {
+            return false;
+        }
+
+        if (empty($orderRequest->event->id)) {
+            return false;
+        }
+
         if ($user->checkPermissionTo('can-see-all-orderRequests')) {
             return true;
         }
 
-        $hasRequiredPermission = $user->hasDepartmentRoleWithPermissionTo('view-OrderRequest', $orderRequest->department_id);
+        $hasRequiredPermission = $user->hasDepartmentRoleWithPermissionTo('view-OrderRequest', $orderRequest->department->id);
 
         return $hasRequiredPermission;
     }

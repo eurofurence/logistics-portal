@@ -253,6 +253,12 @@ return [
             'can-decline-orders',
             'can-always-decline-orders',
             'can-edit-all-orders',
+            'can-change-amount-order-table',
+            'can-see-all-orders',
+            'bulk-restore-OrderRequest',
+            'bulk-delete-OrderRequest',
+            'bulk-restore-Order',
+            'bulk-delete-Order',
         ],
 
         'user_model' => \App\Models\User::class,
