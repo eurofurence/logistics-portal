@@ -403,10 +403,20 @@ class OrderRequestResource extends Resource
                             Components\Group::make([
                                 TextEntry::make('addedBy.name')
                                     ->label(__('general.added_by'))
-                                    ->suffix("   Hier Rang einfügen"),
+                                    ->suffix(function ($record): string|null {
+                                        $roles = $record->addedBy->getRolesInDepartment($record->department_id);
+
+                                        if (!empty($roles)) {
+                                            $roleNames = array_map(function ($role) {
+                                                return $role['name'];
+                                            }, $roles);
+                                            return ' (' . __('general.currently') . ': ' . implode(', ', $roleNames) . ')';
+                                        }
+
+                                        return null;
+                                    }),
                                 TextEntry::make('editedBy.name')
-                                    ->label(__('general.edited_by'))
-                                    ->suffix("   Hier Rang einfügen"),
+                                    ->label(__('general.edited_by')),
                             ]),
                             Components\Group::make([
                                 TextEntry::make('created_at')

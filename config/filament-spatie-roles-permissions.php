@@ -152,7 +152,7 @@ return [
             'replicatePermission' => 'replicate',
             'restorePermission' => 'restore',
             //'restoreAnyPermission' => 'restore-any',
-            'reorderPermission' => 'reorder',
+            //'reorderPermission' => 'reorder',
             'forceDeletePermission' => 'force-delete',
             //'forceDeleteAnyPermission' => 'force-delete-any',
         ],

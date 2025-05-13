@@ -926,16 +926,20 @@ class OrderResource extends Resource
             ->filtersFormColumns(3)
             ->actions([
                 TableAction::make('approve')
-                    ->label('')
-                    ->action(function (Model $record, array $data): void {
-                        //$record->update(['status' => $data['status']]);
+                    ->label(__('general.approve'))
+                    ->action(function (Model $record): void {
+                        $record->update(['status' => 'open']);
                     })
                     ->icon('heroicon-o-check')
                     ->size(ActionSize::ExtraLarge)
+                    ->requiresConfirmation()
                     ->color(Color::Green)
+                    ->modalHeading(__('general.approve_order'))
+                    ->modalIcon('heroicon-o-check')
+                    ->modalDescription(__('general.approve_order_description'))
                     ->visible(function (Model $record) {
                         if ($record->status == 'awaiting_approval') {
-                            if (Gate::check('approveOrder', [Auth::user(), $record])) {
+                            if (Gate::check('approveOrder', [$record])) {
                                 return true;
                             }
                         }
@@ -955,7 +959,7 @@ class OrderResource extends Resource
                     ->modalIcon('heroicon-o-exclamation-triangle')
                     ->visible(function (Model $record) {
                         if ($record->status == 'awaiting_approval') {
-                            if (Gate::check('declineOrder', [Auth::user(), $record])) {
+                            if (Gate::check('declineOrder', [$record])) {
                                 return true;
                             }
                         }

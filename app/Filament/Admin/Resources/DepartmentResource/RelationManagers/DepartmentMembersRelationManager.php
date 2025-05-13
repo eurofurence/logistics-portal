@@ -28,6 +28,16 @@ class DepartmentMembersRelationManager extends RelationManager
         return __('general.members');
     }
 
+    public static function getModelLabel(): string
+    {
+        return __('general.member');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('general.members');
+    }
+
     public function form(Form $form): Form
     {
         return $form

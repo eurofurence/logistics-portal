@@ -230,7 +230,9 @@ class Order extends Model implements HasMedia
             // Checking the authorization to change the status
             if (!empty($model->status)) {
                 if (!Auth::user()->can('can-change-order-status')) {
-                    throw new \Exception(__('middleware.no_permission_order_status'));
+                    if ($model->status != 'awaiting_approval' || 'open') {
+                        throw new \Exception(__('middleware.no_permission_order_status'));
+                    }
                 }
             }
 
@@ -242,7 +244,7 @@ class Order extends Model implements HasMedia
                     ->where('department_id', $model->department_id)
                     ->where('order_event_id', $model->order_event_id)
                     ->where('status', 'open')
-                    ->orWhere('status', 'awaiting_approval')
+                    //->orWhere('status', 'awaiting_approval')
                     ->first();
 
                 if ($existingOrder) {
@@ -269,14 +271,16 @@ class Order extends Model implements HasMedia
             //Cache::forget('orders');
         });
 
-
-
         static::updating(function ($model) {
             $model->edited_by = Auth::user()->id;
 
             if ($model->isDirty('status')) {
                 if (!Auth::user()->can('can-change-order-status')) {
-                    throw new \Exception(__('middleware.no_permission_order_status'));
+                    if ($model->status != 'awaiting_approval') {
+                        if ($model->status != 'open') {
+                            throw new \Exception(__('middleware.no_permission_order_status'));
+                        }
+                    }
                 }
 
                 if ($model->status == 'ordered') {

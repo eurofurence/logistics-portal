@@ -99,10 +99,11 @@ class UserResource extends Resource
                         ->label(__('general.password')),
                     TextInput::make('ex_id')
                         ->readOnly()
-                        ->label(__('general.idp_id')),
+                        ->label(__('general.external_id')),
                     TextInput::make('ex_groups')
                         ->readOnly()
-                        ->label(__('general.idp_groups')),
+                        ->label(__('general.idp_groups'))
+                        ->visible(config('app.identity_mode')),
                     TextInput::make('avatar')
                         ->readOnly()
                         ->label(__('general.profile_picture')),

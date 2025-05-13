@@ -18,7 +18,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -272,13 +272,13 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function getDepartmentsWithPermission(string $permission)
     {
         return $this->departmentMemberships()
-        ->whereHas('role.permissions', function ($query) use ($permission) {
-            $query->where('name', $permission)
-                ->where('guard_name', 'web');
-        })
-        ->with('department')
-        ->get()
-        ->pluck('department');
+            ->whereHas('role.permissions', function ($query) use ($permission) {
+                $query->where('name', $permission)
+                    ->where('guard_name', 'web');
+            })
+            ->with('department')
+            ->get()
+            ->pluck('department');
     }
 
     /**
@@ -311,5 +311,27 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
                     ->where('guard_name', 'web');
             })
             ->exists();
+    }
+
+    /**
+     * Get all roles of a specific user in a specific department.
+     *
+     * @param int $department_id The department ID to get roles from.
+     * @param int|null $user_id The optional user ID to filter roles. If null, the current user's ID is used.
+     * @return array An array of roles in the specified department for the specified user.
+     */
+    public function getRolesInDepartment(int $department_id, ?int $user_id = null): array
+    {
+        $user_id = $user_id ?? $this->id; // Use the current user's ID if no user_id is provided
+
+        return $this->departmentMemberships()
+            ->where('department_id', $department_id)
+            ->where('user_id', $user_id)
+            ->with('role') // Preloading the role relationship
+            ->get()
+            ->pluck('role') // Extracting the role models
+            ->unique('id') // Removing duplicates based on the role ID
+            ->keyBy('id') // Set the array key to the role ID
+            ->toArray();
     }
 }

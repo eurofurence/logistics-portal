@@ -366,4 +366,9 @@ return array(
     'no_department_role' => 'No departmental role',
     'awaiting _approval' => 'Awaiting  approval',
     'decline_order' => 'Decline order',
+    'external_id' => 'External ID',
+    'approve_order' => 'Approve order',
+    'approve' => 'Approve',
+    'decline' => 'Decline',
+    'approve_order_description' => 'If an OPEN order already exists, this item will be added to the OPEN order',
 );

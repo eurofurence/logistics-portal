@@ -198,4 +198,5 @@ return [
 
     'admin_mail' => env('ADMIN_MAIL', 'logistics@eurofurence.org'),
 
+    'identity_mode' => env('IDENTITY_MODE', true), // WIP
 ];

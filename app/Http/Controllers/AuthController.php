@@ -5,11 +5,9 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\Role;
 use App\Models\User;
-use Inertia\Inertia;
 use App\Models\Whitelist;
 use App\Models\Department;
 use App\Models\IdpRankSync;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
@@ -22,47 +20,10 @@ class AuthController extends Controller
         return Socialite::driver('identity')->redirect();
     }
 
-    public function getIDPGroupUser(string $group_id, ?string $rank_filter = null): array|null
-    {
-        $query = [];
-
-        if ($rank_filter != null) {
-            $query['filter[rank]'] = $rank_filter;
-        }
-
-        $response = Http::withHeaders([
-            #TODO: insert token
-            'Authorization' => 'Bearer ' . 'token',
-        ])->get('https://identity.eurofurence.org/api/v1/groups/N9OY0K8O0V2R1P7L/users');
-
-        dd($response);
-
-        if ($response->successful()) {
-            return json_decode($response->json()); // Antwort als Array
-        } else {
-            // Fehlerbehandlung
-            dd($response->status(), $response->body());
-        }
-    }
-
     public function loginCallback()
     {
         $user = Socialite::driver('identity')->user();
         $local_user = User::where('ex_id', $user['sub'])->first();
-
-        /*
-        $idp_user_groups = $user['groups'];
-        $idp_user_groups_with_ranks = array();
-
-        array_unique($idp_user_groups);
-
-        $test = array();
-        foreach ($idp_user_groups as $group) {
-            $rank_inside_group = null;
-
-            $test[] = $this->getIDPGroupUser($group, 'member');
-        }
-        */
 
         $ex_email_verified = $user['email_verified'];
 
@@ -155,15 +116,15 @@ class AuthController extends Controller
 
             if (!$auth_user->separated_departments) {
                 if ($external_groups) {
-                    // Hole alle existierenden ipd_group_id-Werte aus der departments-Tabelle
+                    // Get all existing ipd_group_id values from the departments table
                     $existing_ipd_group_ids = Department::all()->pluck('idp_group_id')->toArray();
 
-                    // Filtere die external_groups, um nur Einträge mit nicht NULL Werten zu behalten
+                    // Filter the external_groups to keep only entries with non-NULL values
                     $filtered_external_groups = array_filter($external_groups, function ($value) {
                         return !is_null($value);
                     });
 
-                    // Filtere die external_groups, um nur existierende Werte zu behalten
+                    // Filter the external_groups to keep only existing values
                     $valid_external_groups = array_filter($filtered_external_groups, function ($group_id) use ($existing_ipd_group_ids) {
                         return in_array($group_id, $existing_ipd_group_ids);
                     });

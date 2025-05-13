@@ -364,5 +364,10 @@ return array(
     'currently' => 'Aktuell',
     'no_department_role' => 'Keine Abteilungs-Rolle',
     'awaiting_approval' => 'Freigabe ausstehen',
-    'decline_order' => 'Bestellung ablehnen'
+    'decline_order' => 'Bestellung ablehnen',
+    'external_id' => 'Externe ID',
+    'approve_order' => 'Bestellung freigeben',
+    'approve' => 'Freigeben',
+    'decline' => 'Ablehnen',
+    'approve_order_description' => 'Sollte bereits eine OFFENE Bestellung bestehen wird dieser Artikel zu der OFFENEN Bestellung hinzugefügt',
 );
