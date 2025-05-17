@@ -45,7 +45,7 @@ class ListOrders extends ListRecords
                 ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'rejected'))
                 ->label(__('general.rejected')),
             'other' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('status', ['on_hold', 'checking']))
+                ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('status', ['on_hold', 'checking', 'awaiting_approval', 'refunded', 'locked', ]))
                 ->label(__('general.other')),
         ];
     }

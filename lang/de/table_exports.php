@@ -37,6 +37,10 @@ return [
         'calculate_total_net' => 'Gesammt Netto',
         'calculate_total_gross' => 'Gesamt Brutto',
         'calculate_total_returning_deposit' => 'Gesamt Pfand',
-        'show_who_added_order' => 'Besteller'
+        'show_who_added_order' => 'Besteller',
+        'show_who_approved_order' => 'Freigegeben von'
     ],
+    'approved_at' => 'Freigegeben am',
+    'approved_by' => 'Freigegeben von',
+    'order_number' => 'Bestellnummer',
 ];

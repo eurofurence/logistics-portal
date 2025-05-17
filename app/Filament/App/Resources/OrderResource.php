@@ -48,6 +48,7 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Wizard\Step;
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextInputColumn;
 use Illuminate\Database\Eloquent\Collection;
 use Filament\Forms\Components\DateTimePicker;
@@ -510,6 +511,24 @@ class OrderResource extends Resource
                                         Placeholder::make('updated_at')
                                             ->label(__('general.updated_at'))
                                             ->content(fn(Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
+                                        Placeholder::make('created_at')
+                                            ->label(__('general.approved_at'))
+                                            ->content(function (Model $record) {
+                                                if (!empty($record->approved_at)) {
+                                                    return Carbon::parse($record->approved_at)->timezone('Europe/Berlin');
+                                                }
+
+                                                return '---';
+                                            }),
+                                        Placeholder::make('updated_at')
+                                            ->label(__('general.approved_by'))
+                                            ->content(function (Model $record) {
+                                                if (!empty($record->approvedBy)) {
+                                                    return $record->approvedBy->name;
+                                                }
+
+                                                return '---';
+                                            }),
                                     ])
                                     ->hiddenOn(Pages\CreateOrder::class)
                             ]),
@@ -568,6 +587,8 @@ class OrderResource extends Resource
             'user_note' => __('general.user_note'),
             'returning_deposit' => __('general.returning_deposit') . ' (' . __('general.single') . ')',
             'article_number' => __('general.article_number'),
+            'order_number' => __('general.order_number'),
+            'approved_at' => __('general.approved_at'),
         ];
 
         if (Auth::user()->can('can-use-special-order-export')) {
@@ -928,7 +949,14 @@ class OrderResource extends Resource
                 TableAction::make('approve')
                     ->label(__('general.approve'))
                     ->action(function (Model $record): void {
-                        $record->update(['status' => 'open']);
+                        if ($record->approve() == true) {
+                            Notification::make()
+                                ->body(__('general.approved'))
+                                ->success()
+                                ->icon('heroicon-o-check')
+                                ->iconColor('success')
+                                ->send();
+                        }
                     })
                     ->icon('heroicon-o-check')
                     ->size(ActionSize::ExtraLarge)
@@ -937,19 +965,20 @@ class OrderResource extends Resource
                     ->modalHeading(__('general.approve_order'))
                     ->modalIcon('heroicon-o-check')
                     ->modalDescription(__('general.approve_order_description'))
-                    ->visible(function (Model $record) {
-                        if ($record->status == 'awaiting_approval') {
-                            if (Gate::check('approveOrder', [$record])) {
-                                return true;
-                            }
-                        }
-
-                        return false;
-                    }),
+                    ->visible(fn(Model $record): bool => $record->canBeApproved()),
                 TableAction::make('decline')
                     ->label('')
-                    ->action(function (Model $record, array $data): void {
-                        //$record->update(['status' => $data['status']]);
+                    ->action(function (Model $record): void {
+                        if ($record->decline() == true) {
+                            Notification::make()
+                                ->title(__('general.declined'))
+                                ->body(__('general.moved_to_deleted_elements'))
+                                ->success()
+                                ->icon('heroicon-o-check')
+                                ->iconColor('success')
+                                ->duration(20000)
+                                ->send();
+                        };
                     })
                     ->icon('heroicon-o-x-mark')
                     ->size(ActionSize::ExtraLarge)
@@ -957,22 +986,28 @@ class OrderResource extends Resource
                     ->requiresConfirmation()
                     ->modalHeading(__('general.decline_order'))
                     ->modalIcon('heroicon-o-exclamation-triangle')
-                    ->visible(function (Model $record) {
-                        if ($record->status == 'awaiting_approval') {
-                            if (Gate::check('declineOrder', [$record])) {
-                                return true;
-                            }
-                        }
-
-                        return false;
-                    }),
+                    ->visible(fn(Model $record): bool => $record->canBeDeclined()),
                 ActionGroup::make([
                     ActionGroup::make([
-                        Tables\Actions\EditAction::make(),
+                        Tables\Actions\EditAction::make()
+                            ->visible(function (Model $record): bool {
+                                if (!empty($record->deleted_at)) {
+                                    return false;
+                                }
+
+                                return true;
+                            }),
                         Tables\Actions\DeleteAction::make(),
                         Tables\Actions\RestoreAction::make(),
                         Tables\Actions\ForceDeleteAction::make(),
-                        Tables\Actions\ViewAction::make(),
+                        Tables\Actions\ViewAction::make()
+                            ->visible(function (Model $record): bool {
+                                if (!empty($record->deleted_at)) {
+                                    return false;
+                                }
+
+                                return true;
+                            }),
                     ])->dropdown(false),
                     ActionGroup::make([
                         TableAction::make('set_status')
@@ -1134,8 +1169,11 @@ class OrderResource extends Resource
                                     Checkbox::make('show_who_added_order')
                                         ->inline()
                                         ->label(__('general.show_who_added_order')),
+                                    Checkbox::make('show_who_approved_order')
+                                        ->inline()
+                                        ->label(__('general.show_who_approved_order')),
                                 ])
-                                    ->description(__('general.extra_folders') . ' - (' . __('general.per_row') . ')')
+                                    ->description(__('general.special_fields') . ' - (' . __('general.per_row') . ')')
                                     ->visible(function (Get $get) {
                                         return $get('export_type') == 'standart';
                                     }),
@@ -1240,7 +1278,7 @@ class OrderResource extends Resource
                             Log::error('Error: ' . $e->getMessage() . ' - Code: ' . $e->getCode() . ' - File: ' . $e->getFile() . ' - Line: ' . $e->getLine());
                         }
                     }),
-                Tables\Actions\BulkActionGroup::make([
+                BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
                         ->visible(fn(Order $record): bool => Gate::allows('bulkDelete', [Auth::user(), $record])),
                     Tables\Actions\RestoreBulkAction::make()
@@ -1313,7 +1351,81 @@ class OrderResource extends Resource
                                 ->iconColor('success')
                                 ->send();
                         })
-                        ->visible(Auth::user()->can('can-use-article-directory-special-functions'))
+                        ->visible(Auth::user()->can('can-use-article-directory-special-functions')),
+                    BulkActionGroup::make([
+                        BulkAction::make('approve_order')
+                            ->label(__('general.approve'))
+                            ->icon('heroicon-o-check')
+                            ->color(Color::Green)
+                            ->requiresConfirmation()
+                            ->modalHeading(__('general.approve_order'))
+                            ->modalIcon('heroicon-o-check')
+                            ->modalDescription(__('general.approve_order_description'))
+                            ->action(function (Collection $records) {
+                                $approved_elements_counter = 0;
+
+                                foreach ($records as $order) {
+                                    if ($order->approve()) {
+                                        $approved_elements_counter++;
+                                    }
+                                }
+
+                                if ($approved_elements_counter > 0) {
+                                    Notification::make()
+                                        ->body(__('general.approved'))
+                                        ->success()
+                                        ->icon('heroicon-o-check')
+                                        ->iconColor('success')
+                                        ->send();
+
+                                    return;
+                                }
+
+                                Notification::make()
+                                    ->body(__('general.nothing_to_approve'))
+                                    ->warning()
+                                    ->icon('heroicon-o-exclamation-triangle')
+                                    ->iconColor('warning')
+                                    ->send();
+                            }),
+                        BulkAction::make('decline_order')
+                            ->label(__('general.decline'))
+                            ->icon('heroicon-o-x-mark')
+                            ->Color(Color::Red)
+                            ->requiresConfirmation()
+                            ->modalHeading(__('general.decline_order'))
+                            ->modalIcon('heroicon-o-exclamation-triangle')
+                            ->action(function (Collection $records) {
+                                $declined_elements_counter = 0;
+
+                                foreach ($records as $order) {
+                                    if ($order->decline()) {
+                                        $declined_elements_counter++;
+                                    }
+                                }
+
+                                if ($declined_elements_counter > 0) {
+                                    Notification::make()
+                                        ->title(__('general.declined'))
+                                        ->body(__('general.moved_to_deleted_elements'))
+                                        ->success()
+                                        ->icon('heroicon-o-check')
+                                        ->iconColor('success')
+                                        ->duration(20000)
+                                        ->send();
+
+                                    return;
+                                }
+
+                                Notification::make()
+                                    ->body(__('general.nothing_to_decline'))
+                                    ->warning()
+                                    ->icon('heroicon-o-exclamation-triangle')
+                                    ->iconColor('warning')
+                                    ->send();
+                            })
+                    ])
+                        ->dropdown(false),
                 ]),
             ])
             ->checkIfRecordIsSelectableUsing(

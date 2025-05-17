@@ -7,6 +7,7 @@ use App\Models\OrderEvent;
 use App\Models\OrderArticle;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
 use Filament\Notifications\Actions\Action;
@@ -120,6 +121,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUserNote($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Order withoutTrashed()
+ * @property string|null $approved_at
+ * @property int|null $approved_by
+ * @property-read \App\Models\User|null $approvedBy
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereApprovedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereApprovedBy($value)
  * @mixin \Eloquent
  */
 class Order extends Model implements HasMedia
@@ -173,7 +179,9 @@ class Order extends Model implements HasMedia
         'special_flag_text',
         'returning_deposit',
         'discount_net',
-        'order_number'
+        'order_number',
+        'approved_at',
+        'approved_by',
     ];
 
     /**
@@ -294,15 +302,18 @@ class Order extends Model implements HasMedia
                         $model->delivery_date = Carbon::now();
                     }
                 }
+            }
 
-
-                if ($model->discount_net) {
-                    if ($model->discount_net > 0) {
-                        if ($model->discount_net > ($model->amount * $model->price_net) || $model->discount_net > config('constants.inputs.numeric.max')) {
-                            throw new \Exception(__('general.discount_limit_exceeded'));
-                        }
+            if ($model->discount_net) {
+                if ($model->discount_net > 0) {
+                    if ($model->discount_net > ($model->amount * $model->price_net) || $model->discount_net > config('constants.inputs.numeric.max')) {
+                        throw new \Exception(__('general.discount_limit_exceeded'));
                     }
                 }
+            }
+
+            if ($model->isDirty('approved_by')) {
+                $model->approved_at = Carbon::now();
             }
 
             static::sendInstantDeliveryMessage($model);
@@ -337,6 +348,11 @@ class Order extends Model implements HasMedia
         return $this->hasOne(User::class, 'id', 'edited_by');
     }
 
+    public function approvedBy(): HasOne
+    {
+        return $this->hasOne(User::class, 'id', 'approved_by');
+    }
+
     public function directoryArticle(): HasOne
     {
         return $this->hasOne(OrderArticle::class, 'id', 'order_article_id');
@@ -345,5 +361,87 @@ class Order extends Model implements HasMedia
     public function orderRequest(): HasOne
     {
         return $this->hasOne(OrderRequest::class, 'id', 'order_request_id');
+    }
+
+    /**
+     * Approves the order if it can be approved.
+     *
+     * This function checks if the order can be approved using the canBeApproved() function.
+     * If it can be approved, it updates the order's status to 'open' and sets the
+     * 'approved_by' field to the current authenticated user's ID.
+     *
+     * @return bool Returns true if the order was successfully approved, false otherwise.
+     */
+    public function approve(): bool
+    {
+        if ($this->canBeApproved()) {
+            $this->update(['status' => 'open', 'approved_by' => Auth::id()]);
+            #TODO: Should be added to an existing order
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Declines the order by deleting it if it can be declined.
+     *
+     * This function attempts to decline the order by first checking if it can be declined
+     * using the canBeDeclined() method. If the order can be declined, it is deleted from
+     * the database.
+     *
+     * @return bool Returns true if the order was successfully declined and deleted,
+     * false if the order could not be declined.
+     */
+    public function decline(): bool
+    {
+        if ($this->canBeDeclined()) {
+            $this->delete();
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * The function `canBeApproved` checks if an order with status 'awaiting_approval' can be approved based on the user's
+     * permission.
+     *
+     * @return bool The function `canBeApproved()` returns a boolean value. It returns `true` if the status of the object
+     * is 'awaiting_approval' and the current user has permission to approved the order. Otherwise, it returns `false`.
+     */
+    public function canBeApproved(): bool
+    {
+        if ($this->status == 'awaiting_approval') {
+            if (empty($this->deleted_at)) {
+                if (Gate::check('approveOrder', [$this])) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * The function `canBeDeclined` checks if an order with status 'awaiting_approval' can be declined based on the user's
+     * permission.
+     *
+     * @return bool The function `canBeDeclined()` returns a boolean value. It returns `true` if the status of the object
+     * is 'awaiting_approval' and the current user has permission to decline the order. Otherwise, it returns `false`.
+     */
+    public function canBeDeclined(): bool
+    {
+        if ($this->status == 'awaiting_approval') {
+            if (empty($this->deleted_at)) {
+                if (Gate::check('declineOrder', [$this])) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

@@ -58,7 +58,6 @@ return new class extends Migration
             $table->string('special_flag_text')->nullable();
             $table->decimal('returning_deposit')->default(0);
             $table->decimal('discount_net')->nullable();
-            $table->string('order_number')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
