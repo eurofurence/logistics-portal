@@ -511,7 +511,7 @@ class OrderResource extends Resource
                                         Placeholder::make('updated_at')
                                             ->label(__('general.updated_at'))
                                             ->content(fn(Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
-                                        Placeholder::make('created_at')
+                                        Placeholder::make('approved_at')
                                             ->label(__('general.approved_at'))
                                             ->content(function (Model $record) {
                                                 if (!empty($record->approved_at)) {
@@ -520,7 +520,7 @@ class OrderResource extends Resource
 
                                                 return '---';
                                             }),
-                                        Placeholder::make('updated_at')
+                                        Placeholder::make('approved_by')
                                             ->label(__('general.approved_by'))
                                             ->content(function (Model $record) {
                                                 if (!empty($record->approvedBy)) {
