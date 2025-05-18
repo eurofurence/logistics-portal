@@ -21,17 +21,19 @@ class ViewOrderRequest extends ViewRecord
 
     protected function getHeaderActions(): array
     {
+        #TODO: Add the option to select/link more then just one order per request
         $this->existing_order = Order::where('order_request_id', $this->record->id)->withoutTrashed()->first();
 
         return [
             Actions\DeleteAction::make()
-            ->icon('heroicon-o-trash'),
+                ->icon('heroicon-o-trash'),
             Actions\EditAction::make()
-            ->icon('heroicon-o-pencil'),
+                ->icon('heroicon-o-pencil'),
             Action::make('openLink')
                 ->label(__('general.open_linked_order'))
-                ->url(function () :string {
+                ->url(function (): string {
                     if ($this->existing_order) {
+                        #TODO: Add the option to select/link more then just one order per request
                         return route('filament.app.resources.orders.view', $this->existing_order->id);
                     }
 
@@ -66,6 +68,10 @@ class ViewOrderRequest extends ViewRecord
                         $order->url = $record->url;
                         $order->order_request_id = $record->id;
                         $order->amount = $record->quantity;
+
+                        if ($record->addedBy->hasDepartmentRoleWithPermissionTo('order-needs-approval', $record->department_id)) {
+                            $order->status = 'awaiting_approval';
+                        }
 
                         $save_result = $order->save();
 

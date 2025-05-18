@@ -247,30 +247,8 @@ class Order extends Model implements HasMedia
             //static::sendInstantDeliveryMessage($model);
 
             if (!empty($model->order_article_id)) {
-                // Check whether an entry with the same IDs already exists
-                $existingOrder = Order::where('order_article_id', $model->order_article_id)
-                    ->where('department_id', $model->department_id)
-                    ->where('order_event_id', $model->order_event_id)
-                    ->where('status', 'open')
-                    //->orWhere('status', 'awaiting_approval')
-                    ->first();
-
-                if ($existingOrder) {
-                    // If available, increase the amount, change the price and cancel the creation process
-                    $existingOrder->amount += $model->amount;
-                    $existingOrder->price_net = $model->price_net;
-                    $existingOrder->price_gross = $model->price_gross;
-                    $existingOrder->comment = $existingOrder->comment . "\n" . $model->comment;
-                    $existingOrder->article_number = $model->article_number;
-
-                    if (Auth::user()->hasDepartmentRoleWithPermissionTo('order-needs-approval', $model->department_id)) {
-                        $existingOrder->status = 'awaiting_approval';
-                    }
-
-                    $existingOrder->save();
-
-                    $model->added_to_existing = true;
-                    return false;  // This interrupts the creation process
+                if (self::addToExistingOrder($model) == true) {
+                    return false; // Return false to halt the creation process
                 }
             }
         });
@@ -328,6 +306,67 @@ class Order extends Model implements HasMedia
         });
     }
 
+    /**
+     * Adds an article to an existing order or updates the existing order if an entry with the same IDs already exists.
+     *
+     * This function checks for an existing order with the same order_article_id, department_id, and order_event_id,
+     * excluding the current model if it has an ID. If such an order is found, it updates the amount, prices, comment,
+     * and article number. It also handles the approval status based on user permissions. If $just_amount is true,
+     * only the amount is updated. If the model exists, it is locked and deleted after updating the existing order.
+     *
+     * @param object $model The model object containing the article data to be added or updated.
+     * @param bool $overwrite_approval_check Optional. If set to true, skips the approval check. Defaults to false.
+     * @param bool $just_amount Optional. If set to true, only the amount is updated. Defaults to false.
+     *
+     * @return bool Returns true if an existing order was found and updated, false otherwise.
+     */
+    public static function addToExistingOrder($model, bool $overwrite_approval_check = false, bool $just_amount = false): bool
+    {
+        // Check whether an entry with the same IDs already exists, excluding the current model if it has an ID
+        $query = Order::where('order_article_id', $model->order_article_id)
+            ->where('department_id', $model->department_id)
+            ->where('order_event_id', $model->order_event_id)
+            ->where('status', 'open');
+
+        if ($model->exists) {
+            $query->where('id', '!=', $model->id);
+        }
+
+        $existingOrder = $query->first();
+
+
+        if ($existingOrder) {
+            // If available, increase the amount, change the price and cancel the creation process
+            $existingOrder->amount += $model->amount;
+
+            if ($just_amount == false) {
+                $existingOrder->price_net = $model->price_net;
+                $existingOrder->price_gross = $model->price_gross;
+                $existingOrder->comment = $existingOrder->comment . "\n" . $model->comment;
+                $existingOrder->article_number = $model->article_number;
+            }
+
+            if ($overwrite_approval_check == false) {
+                if (Auth::user()->hasDepartmentRoleWithPermissionTo('order-needs-approval', $model->department_id)) {
+                    $existingOrder->status = 'awaiting_approval';
+                }
+            }
+
+            $existingOrder->save();
+
+            if ($model->exists) {
+                $model->status = 'locked';
+                $model->save();
+                $model->delete();
+            }
+
+            $model->added_to_existing = true;
+            return true;
+        }
+
+        return false;
+    }
+
     public function event(): HasOne
     {
         return $this->hasOne(OrderEvent::class, 'id', 'order_event_id');
@@ -377,6 +416,10 @@ class Order extends Model implements HasMedia
         if ($this->canBeApproved()) {
             $this->update(['status' => 'open', 'approved_by' => Auth::id()]);
             #TODO: Should be added to an existing order
+
+            if (!empty($this->order_article_id)) {
+                self::addToExistingOrder($this, just_amount: true);
+            }
 
             return true;
         }
