@@ -70,7 +70,7 @@ class DepartmentMembersRelationManager extends RelationManager
                                 ->toArray();
                         }
                     )
-                    ->selectablePlaceholder(false)
+                    ->selectablePlaceholder(true)
             ])
             ->filters([
                 SelectFilter::make('role_id')
