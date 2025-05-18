@@ -998,7 +998,12 @@ class OrderResource extends Resource
                                 return true;
                             }),
                         Tables\Actions\DeleteAction::make(),
-                        Tables\Actions\RestoreAction::make(),
+                        Tables\Actions\RestoreAction::make()
+                            ->visible(function (Model $record) {
+                                if ($record->status == 'locked') {
+                                    return false;
+                                }
+                            }),
                         Tables\Actions\ForceDeleteAction::make(),
                         Tables\Actions\ViewAction::make()
                             ->visible(function (Model $record): bool {
