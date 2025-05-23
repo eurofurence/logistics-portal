@@ -13,20 +13,27 @@ return new class extends Migration
     {
         Schema::create('department_user', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('department_id')->unsigned()->oncascade();
+            $table->unsignedBigInteger('department_id')->unsigned();
             $table->unsignedBigInteger('user_id')->unsigned();
+            $table->unsignedBigInteger('role_id')->unsigned()->nullable();
 
             // ForeignKey for department_id
             $table->foreign('department_id')
-            ->references('id')
-            ->on('departments')
-            ->onDelete('cascade'); // Deletes entries in rank_user when the associated rank is deleted
+                ->references('id')
+                ->on('departments')
+                ->onDelete('cascade'); // Deletes entries in department_user when the associated department is deleted
 
             // ForeignKey for user_id
             $table->foreign('user_id')
                 ->references('id')
                 ->on('users')
-                ->onDelete('cascade'); // Deletes entries in rank_user when the associated user is deleted
+                ->onDelete('cascade'); // Deletes entries in department_user when the associated user is deleted
+
+            // ForeignKey for role_id
+            $table->foreign('role_id')
+                ->references('id')
+                ->on('roles')
+                ->onDelete('cascade'); // Deletes entries in department_user when the associated department is deleted
         });
     }
 

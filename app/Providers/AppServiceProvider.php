@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use Ahtinurme\OctaneCheck;
 use Spatie\Health\Facades\Health;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\URL;
@@ -71,7 +70,6 @@ class AppServiceProvider extends ServiceProvider
             CacheCheck::new(),
             RedisCheck::new(),
             HorizonCheck::new(),
-            OctaneCheck::new(),
             DatabaseSizeCheck::new()->failWhenSizeAboveGb(errorThresholdGb: 5.0),
             PingCheck::new()->url('https://identity.eurofurence.org/')->name('Identity status'),
             CpuLoadCheck::new(),

@@ -37,6 +37,10 @@ return [
         'calculate_total_net' => 'Total Net',
         'calculate_total_gross' => 'Total Gross',
         'calculate_total_returning_deposit' => 'Total Returning Deposit',
-        'show_who_added_order' => 'Who Added Order'
+        'show_who_added_order' => 'Who Added Order',
+        'show_who_approved_order' => 'Who Approved Order'
     ],
+    'approved_at' => 'Approved at',
+    'approved_by' => 'Approved by',
+    'order_number' => 'Order number',
 ];

@@ -9,7 +9,6 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "ahtinurme/octane-health-check": "^1.1",
         "althinect/filament-spatie-roles-permissions": "^2.2",
         "archilex/filament-toggle-icon-column": "^3.1",
         "awcodes/filament-quick-create": "^3.3",
@@ -22,16 +21,16 @@
         "calebporzio/sushi": "^2.5",
         "charrafimed/global-search-modal": "^3.4",
         "doctrine/dbal": "^3.8",
-        "dutchcodingcompany/filament-socialite": "^1.2",
+        "dutchcodingcompany/filament-socialite": "^2.0",
         "filament/filament": "^3.2",
         "filament/spatie-laravel-media-library-plugin": "^3.2",
         "filament/spatie-laravel-settings-plugin": "^3.2",
         "filament/spatie-laravel-translatable-plugin": "^3.2",
         "guava/filament-icon-picker": "^2.0",
         "guzzlehttp/guzzle": "^7.2",
-        "inertiajs/inertia-laravel": "^1.0",
+        "inertiajs/inertia-laravel": "^2.0",
         "kenepa/banner": "^0.0.5",
-        "laravel/framework": "^11.0",
+        "laravel/framework": "^12.0",
         "laravel/horizon": "^5.29",
         "laravel/octane": "^2.3",
         "laravel/sanctum": "^4.0",
@@ -40,7 +39,6 @@
         "league/flysystem-aws-s3-v3": "^3.29",
         "league/flysystem-sftp-v3": "^3.0",
         "maatwebsite/excel": "^3.1",
-        "marvinosswald/filament-input-select-affix": "^0.2.0",
         "mpdf/mpdf": "^8.2",
         "mvenghaus/filament-plugin-schedule-monitor": "^3.0",
         "njxqlus/filament-lightbox": "^3.2",
@@ -50,12 +48,13 @@
         "pxlrbt/filament-environment-indicator": "^2.0",
         "pxlrbt/filament-spotlight": "^1.2",
         "ralphjsmit/laravel-filament-components": "^2.0",
-        "saade/filament-laravel-log": "^3.0",
         "shuvroroy/filament-spatie-laravel-health": "^2.1",
         "spatie/cpu-load-health-check": "^1.0",
         "spatie/laravel-backup": "^9.2",
+        "spatie/laravel-enum": "*",
         "spatie/laravel-permission": "^6.4",
         "spatie/laravel-schedule-monitor": "^3.6",
+        "spatie/laravel-settings": "^3.4",
         "spatie/security-advisories-health-check": "^1.1",
         "symfony/browser-kit": "^7.0",
         "symfony/http-client": "^7.0",
@@ -72,8 +71,8 @@
         "laravel/sail": "^1.18",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.1",
-        "pestphp/pest": "^2.0",
-        "pestphp/pest-plugin-laravel": "^2.0",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0",
         "spatie/laravel-ignition": "^2.0"
     },
     "autoload": {
@@ -124,6 +123,6 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "repositories": {
-        
+
     }
 }

@@ -16,6 +16,7 @@ use App\Models\OrderArticle;
 use App\Models\OrderRequest;
 use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
+use Filament\Support\Colors\Color;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Tabs;
 use Filament\Tables\Grouping\Group;
@@ -28,6 +29,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
+use Filament\Support\Enums\ActionSize;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
@@ -46,6 +48,7 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Wizard\Step;
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Forms\Components\CheckboxList;
+use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextInputColumn;
 use Illuminate\Database\Eloquent\Collection;
 use Filament\Forms\Components\DateTimePicker;
@@ -110,6 +113,18 @@ class OrderResource extends Resource
         ];
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = Auth::user();
+
+        $query->when(!$user->can('can-see-all-orders'), function ($query) use ($user) {
+            return $query->whereIn('department_id', $user->getDepartmentsWithPermission('view-Order')->pluck('id'));
+        });
+
+        return $query;
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -135,18 +150,11 @@ class OrderResource extends Resource
                                             ->required()
                                             ->exists('departments', 'id')
                                             ->options(function (): array {
-                                                $options = Auth::user()->can('access-all-departments')
+                                                $options = Auth::user()->can('can-create-orders-for-other-departments')
                                                     ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
-                                                    : Auth::user()->departments()->withoutTrashed()->pluck('name', 'department_id')->toArray();
+                                                    : Auth::user()->getDepartmentsWithPermission('view-Order')->pluck('name', 'id')->toArray();
 
                                                 return $options;
-                                            })
-                                            ->default(function () {
-                                                $options = Auth::user()->can('access-all-departments')
-                                                    ? Department::withoutTrashed()->pluck('id')->toArray()
-                                                    : Auth::user()->departments()->withoutTrashed()->pluck('department_id')->toArray();
-
-                                                return count($options) === 1 ? $options[0] : null;
                                             }),
                                         Select::make('order_event_id')
                                             ->label(__('general.order_event'))
@@ -350,7 +358,8 @@ class OrderResource extends Resource
                                         'received' => __('general.received'),
                                         'rejected' => __('general.rejected'),
                                         'locked' => __('general.locked'),
-                                        'refunded' => __('general.refunded')
+                                        'refunded' => __('general.refunded'),
+                                        'awaiting_approval' => __('general.awaiting_approval')
                                     ])
                                     ->default('open'),
                             ])->visible(Auth::user()->can('can-change-order-status')),
@@ -502,6 +511,24 @@ class OrderResource extends Resource
                                         Placeholder::make('updated_at')
                                             ->label(__('general.updated_at'))
                                             ->content(fn(Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
+                                        Placeholder::make('approved_at')
+                                            ->label(__('general.approved_at'))
+                                            ->content(function (Model $record) {
+                                                if (!empty($record->approved_at)) {
+                                                    return Carbon::parse($record->approved_at)->timezone('Europe/Berlin');
+                                                }
+
+                                                return '---';
+                                            }),
+                                        Placeholder::make('approved_by')
+                                            ->label(__('general.approved_by'))
+                                            ->content(function (Model $record) {
+                                                if (!empty($record->approvedBy)) {
+                                                    return $record->approvedBy->name;
+                                                }
+
+                                                return '---';
+                                            }),
                                     ])
                                     ->hiddenOn(Pages\CreateOrder::class)
                             ]),
@@ -526,18 +553,6 @@ class OrderResource extends Resource
                     ->columnSpanFull()
                     ->persistTab()
             ]);
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        $query = parent::getEloquentQuery();
-        $user = Auth::user();
-
-        $query->when(!$user->can('access-all-departments') || !$user->can('can-see-all-departments'), function ($query) use ($user) {
-            return $query->whereIn('department_id', $user->departments->pluck('id'));
-        });
-
-        return $query;
     }
 
     public static function table(Table $table): Table
@@ -572,6 +587,8 @@ class OrderResource extends Resource
             'user_note' => __('general.user_note'),
             'returning_deposit' => __('general.returning_deposit') . ' (' . __('general.single') . ')',
             'article_number' => __('general.article_number'),
+            'order_number' => __('general.order_number'),
+            'approved_at' => __('general.approved_at'),
         ];
 
         if (Auth::user()->can('can-use-special-order-export')) {
@@ -630,6 +647,7 @@ class OrderResource extends Resource
                         'rejected' => 'danger',
                         'locked' => 'danger',
                         'refunded' => 'danger',
+                        'awaiting_approval' => 'checking',
                     })
                     ->icon(fn(string $state): string => match ($state) {
                         'on_hold' => 'heroicon-o-clock',
@@ -643,6 +661,7 @@ class OrderResource extends Resource
                         'rejected' => 'heroicon-o-x-circle',
                         'locked' => 'heroicon-o-lock-closed',
                         'refunded' => 'heroicon-o-arrow-uturn-left',
+                        'awaiting_approval' => 'heroicon-o-shield-exclamation'
                     })
                     ->formatStateUsing(function ($state) {
                         return strtoupper(str_replace('_', ' ', $state));
@@ -654,13 +673,19 @@ class OrderResource extends Resource
                     ->type('number')
                     ->rules(['numeric', 'min:1', 'max:1000000'])
                     ->disabled(function ($record) {
-                        if (Auth::user()->can('can-see-all-departments') & !Auth::user()->can('access-all-departments')) {
-                            if ($record->department) {
-                                $userDepartments = Auth::user()->departments->pluck('id')->toArray();
+                        if ($record->department) {
+                            if (!Auth::user()->hasDepartmentRoleWithPermissionTo('can-change-amount-order-table', $record->department->id)) {
+                                return true;
+                            }
+
+                            if (Auth::user()->can('can-see-all-orders')) {
+                                $userDepartments = Auth::user()->getDepartmentsWithPermission('can-change-amount-order-table')->pluck('id')->toArray();
                                 if (!in_array($record->department->id, $userDepartments)) {
                                     return true;
                                 }
                             }
+                        } else {
+                            return true;
                         }
 
                         if (Auth::user()->can('can-always-edit-orders')) {
@@ -808,10 +833,10 @@ class OrderResource extends Resource
                     ->multiple()
                     ->label(__('general.department'))
                     ->options(function (): array {
-                        if (Auth::user()->can('access-all-departments') || Auth::user()->can('can-see-all-departments')) {
+                        if (Auth::user()->can('can-see-all-orders')) {
                             return Department::all()->pluck('name', 'id')->toArray();
                         } else {
-                            return Auth::user()->departments()->pluck('name', 'department_id')->toArray();
+                            return Auth::user()->getDepartmentsWithPermission('view-Order')->pluck('name', 'department_id')->toArray();
                         }
                     }),
                 SelectFilter::make('status')
@@ -829,6 +854,7 @@ class OrderResource extends Resource
                         'rejected' => __('general.rejected'),
                         'locked' => __('general.locked'),
                         'refunded' => __('general.refunded'),
+                        'awaiting_approval' => __('general.awaiting_approval')
                     ]),
                 SelectFilter::make('order_request_id')
                     ->label(__('general.linked_request'))
@@ -920,13 +946,73 @@ class OrderResource extends Resource
             ], layout: FiltersLayout::Modal)
             ->filtersFormColumns(3)
             ->actions([
+                TableAction::make('approve')
+                    ->label(__('general.approve'))
+                    ->action(function (Model $record): void {
+                        if ($record->approve() == true) {
+                            Notification::make()
+                                ->body(__('general.approved'))
+                                ->success()
+                                ->icon('heroicon-o-check')
+                                ->iconColor('success')
+                                ->send();
+                        }
+                    })
+                    ->icon('heroicon-o-check')
+                    ->size(ActionSize::ExtraLarge)
+                    ->requiresConfirmation()
+                    ->color(Color::Green)
+                    ->modalHeading(__('general.approve_order'))
+                    ->modalIcon('heroicon-o-check')
+                    ->modalDescription(__('general.approve_order_description'))
+                    ->visible(fn(Model $record): bool => $record->canBeApproved()),
+                TableAction::make('decline')
+                    ->label('')
+                    ->action(function (Model $record): void {
+                        if ($record->decline() == true) {
+                            Notification::make()
+                                ->title(__('general.declined'))
+                                ->body(__('general.moved_to_deleted_elements'))
+                                ->success()
+                                ->icon('heroicon-o-check')
+                                ->iconColor('success')
+                                ->duration(20000)
+                                ->send();
+                        };
+                    })
+                    ->icon('heroicon-o-x-mark')
+                    ->size(ActionSize::ExtraLarge)
+                    ->color(Color::Red)
+                    ->requiresConfirmation()
+                    ->modalHeading(__('general.decline_order'))
+                    ->modalIcon('heroicon-o-exclamation-triangle')
+                    ->visible(fn(Model $record): bool => $record->canBeDeclined()),
                 ActionGroup::make([
                     ActionGroup::make([
-                        Tables\Actions\EditAction::make(),
+                        Tables\Actions\EditAction::make()
+                            ->visible(function (Model $record): bool {
+                                if (!empty($record->deleted_at)) {
+                                    return false;
+                                }
+
+                                return true;
+                            }),
                         Tables\Actions\DeleteAction::make(),
-                        Tables\Actions\RestoreAction::make(),
+                        Tables\Actions\RestoreAction::make()
+                            ->visible(function (Model $record) {
+                                if ($record->status == 'locked') {
+                                    return false;
+                                }
+                            }),
                         Tables\Actions\ForceDeleteAction::make(),
-                        Tables\Actions\ViewAction::make(),
+                        Tables\Actions\ViewAction::make()
+                            ->visible(function (Model $record): bool {
+                                if (!empty($record->deleted_at)) {
+                                    return false;
+                                }
+
+                                return true;
+                            }),
                     ])->dropdown(false),
                     ActionGroup::make([
                         TableAction::make('set_status')
@@ -950,11 +1036,14 @@ class OrderResource extends Resource
                                         'rejected' => __('general.rejected'),
                                         'locked' => __('general.locked'),
                                         'refunded' => __('general.refunded'),
+                                        'awaiting_approval' => __('general.awaiting_approval')
                                     ])
                                     ->prefixIcon('heroicon-o-ellipsis-horizontal-circle')
                                     ->required(),
                             ])
-                            ->visible(fn() => Auth::user()->can('can-change-order-status')),
+                            ->visible(function (Model $record): bool {
+                                return Auth::user()->can('can-change-order-status') || Auth::user()->hasDepartmentRoleWithPermissionTo('can-change-order-status', $record->department->id);
+                            }),
                     ])->dropdown(false),
                     ActionGroup::make([
                         TableAction::make('user_note')
@@ -1085,8 +1174,11 @@ class OrderResource extends Resource
                                     Checkbox::make('show_who_added_order')
                                         ->inline()
                                         ->label(__('general.show_who_added_order')),
+                                    Checkbox::make('show_who_approved_order')
+                                        ->inline()
+                                        ->label(__('general.show_who_approved_order')),
                                 ])
-                                    ->description(__('general.extra_folders') . ' - (' . __('general.per_row') . ')')
+                                    ->description(__('general.special_fields') . ' - (' . __('general.per_row') . ')')
                                     ->visible(function (Get $get) {
                                         return $get('export_type') == 'standart';
                                     }),
@@ -1191,11 +1283,11 @@ class OrderResource extends Resource
                             Log::error('Error: ' . $e->getMessage() . ' - Code: ' . $e->getCode() . ' - File: ' . $e->getFile() . ' - Line: ' . $e->getLine());
                         }
                     }),
-                Tables\Actions\BulkActionGroup::make([
+                BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->visible(fn(Order $record): bool => Gate::allows('bulkDelete', $record)),
+                        ->visible(fn(Order $record): bool => Gate::allows('bulkDelete', [Auth::user(), $record])),
                     Tables\Actions\RestoreBulkAction::make()
-                        ->visible(fn(Order $record): bool => Gate::allows('bulkRestore', $record)),
+                        ->visible(fn(Order $record): bool => Gate::allows('bulkRestore', [Auth::user(), $record])),
                     BulkAction::make('set_status')
                         ->label(__('general.set_status'))
                         ->action(function (Collection $records, array $data): void {
@@ -1219,6 +1311,7 @@ class OrderResource extends Resource
                                     'rejected' => __('general.rejected'),
                                     'locked' => __('general.locked'),
                                     'refunded' => __('general.refunded'),
+                                    'awaiting_approval' => __('general.awaiting_approval')
                                 ])
                                 ->prefixIcon('heroicon-o-ellipsis-horizontal-circle')
                                 ->required(),
@@ -1263,7 +1356,81 @@ class OrderResource extends Resource
                                 ->iconColor('success')
                                 ->send();
                         })
-                        ->visible(Auth::user()->can('can-use-article-directory-special-functions'))
+                        ->visible(Auth::user()->can('can-use-article-directory-special-functions')),
+                    BulkActionGroup::make([
+                        BulkAction::make('approve_order')
+                            ->label(__('general.approve'))
+                            ->icon('heroicon-o-check')
+                            ->color(Color::Green)
+                            ->requiresConfirmation()
+                            ->modalHeading(__('general.approve_order'))
+                            ->modalIcon('heroicon-o-check')
+                            ->modalDescription(__('general.approve_order_description'))
+                            ->action(function (Collection $records) {
+                                $approved_elements_counter = 0;
+
+                                foreach ($records as $order) {
+                                    if ($order->approve()) {
+                                        $approved_elements_counter++;
+                                    }
+                                }
+
+                                if ($approved_elements_counter > 0) {
+                                    Notification::make()
+                                        ->body(__('general.approved'))
+                                        ->success()
+                                        ->icon('heroicon-o-check')
+                                        ->iconColor('success')
+                                        ->send();
+
+                                    return;
+                                }
+
+                                Notification::make()
+                                    ->body(__('general.nothing_to_approve'))
+                                    ->warning()
+                                    ->icon('heroicon-o-exclamation-triangle')
+                                    ->iconColor('warning')
+                                    ->send();
+                            }),
+                        BulkAction::make('decline_order')
+                            ->label(__('general.decline'))
+                            ->icon('heroicon-o-x-mark')
+                            ->Color(Color::Red)
+                            ->requiresConfirmation()
+                            ->modalHeading(__('general.decline_order'))
+                            ->modalIcon('heroicon-o-exclamation-triangle')
+                            ->action(function (Collection $records) {
+                                $declined_elements_counter = 0;
+
+                                foreach ($records as $order) {
+                                    if ($order->decline()) {
+                                        $declined_elements_counter++;
+                                    }
+                                }
+
+                                if ($declined_elements_counter > 0) {
+                                    Notification::make()
+                                        ->title(__('general.declined'))
+                                        ->body(__('general.moved_to_deleted_elements'))
+                                        ->success()
+                                        ->icon('heroicon-o-check')
+                                        ->iconColor('success')
+                                        ->duration(20000)
+                                        ->send();
+
+                                    return;
+                                }
+
+                                Notification::make()
+                                    ->body(__('general.nothing_to_decline'))
+                                    ->warning()
+                                    ->icon('heroicon-o-exclamation-triangle')
+                                    ->iconColor('warning')
+                                    ->send();
+                            })
+                    ])
+                        ->dropdown(false),
                 ]),
             ])
             ->checkIfRecordIsSelectableUsing(
@@ -1287,8 +1454,8 @@ class OrderResource extends Resource
             ->defaultGroup('department.name')
             ->deferLoading()
             ->searchDebounce('750ms')
-            ->persistSortInSession()
-            ->persistFiltersInSession();
+            ->persistSortInSession();
+        //->persistFiltersInSession();
     }
 
     public static function getRelations(): array

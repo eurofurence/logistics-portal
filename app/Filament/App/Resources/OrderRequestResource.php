@@ -102,8 +102,8 @@ class OrderRequestResource extends Resource
         $query = parent::getEloquentQuery();
         $user = Auth::user();
 
-        $query->when(!$user->can('access-all-departments'), function ($query) use ($user) {
-            return $query->whereIn('department_id', $user->departments->pluck('id'));
+        $query->when(!$user->can('can-see-all-orderRequests'), function ($query) use ($user) {
+            return $query->whereIn('department_id', $user->getDepartmentsWithPermission('view-OrderRequest')->pluck('id'));
         });
 
         return $query;
@@ -144,18 +144,19 @@ class OrderRequestResource extends Resource
                             ->required()
                             ->exists('departments', 'id')
                             ->options(function (): array {
-                                $options = Auth::user()->can('access-all-departments')
+                                $options = Auth::user()->can('can-create-orderRequests-for-other-departments')
                                     ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
-                                    : Auth::user()->departments()->withoutTrashed()->pluck('name', 'department_id')->toArray();
+                                    : Auth::user()->departmentsWithRoles()->pluck('name', 'id')->toArray();
 
                                 return $options;
                             })
                             ->default(function () {
-                                $options = Auth::user()->can('access-all-departments')
-                                    ? Department::withoutTrashed()->pluck('id')->toArray()
-                                    : Auth::user()->departments()->withoutTrashed()->pluck('department_id')->toArray();
+                                $options = Auth::user()->can('can-create-orderRequests-for-other-departments')
+                                    ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
+                                    : Auth::user()->departmentsWithRoles()->pluck('name', 'id')->toArray();
 
-                                return count($options) === 1 ? $options[0] : null;
+                                // Use the reset() function to get the first element
+                                return reset($options) ?: null;
                             }),
                         Select::make('order_event_id')
                             ->label(__('general.order_event'))
@@ -291,10 +292,10 @@ class OrderRequestResource extends Resource
                     ->multiple()
                     ->label(__('general.department'))
                     ->options(function (): array {
-                        if (Auth::user()->can('access-all-departments')) {
+                        if (Auth::user()->can('can-see-all-orderRequests')) {
                             return Department::all()->pluck('name', 'id')->toArray();
                         } else {
-                            return Auth::user()->departments()->pluck('name', 'department_id')->toArray();
+                            return Auth::user()->departmentsWithRoles()->pluck('name', 'id')->toArray();
                         }
                     }),
                 SelectFilter::make('status')
@@ -401,9 +402,21 @@ class OrderRequestResource extends Resource
                         Components\Split::make([
                             Components\Group::make([
                                 TextEntry::make('addedBy.name')
-                                    ->label(__('general.added_by')),
+                                    ->label(__('general.added_by'))
+                                    ->suffix(function ($record): string|null {
+                                        $roles = $record->addedBy->getRolesInDepartment($record->department_id);
+
+                                        if (!empty($roles)) {
+                                            $roleNames = array_map(function ($role) {
+                                                return $role['name'];
+                                            }, $roles);
+                                            return ' (' . __('general.currently') . ': ' . implode(', ', $roleNames) . ')';
+                                        }
+
+                                        return null;
+                                    }),
                                 TextEntry::make('editedBy.name')
-                                    ->label(__('general.edited_by'))
+                                    ->label(__('general.edited_by')),
                             ]),
                             Components\Group::make([
                                 TextEntry::make('created_at')

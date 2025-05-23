@@ -67,18 +67,11 @@ class TableOrderAction
                     ->required()
                     ->exists('departments', 'id')
                     ->options(function (): array {
-                        $options = Auth::user()->can('access-all-departments')
+                        $options = Auth::user()->can('can-create-orders-for-other-departments')
                             ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
-                            : Auth::user()->departments()->withoutTrashed()->pluck('name', 'department_id')->toArray();
+                            : Auth::user()->getDepartmentsWithPermission('can-place-order')->pluck('name', 'id')->toArray();
 
                         return $options;
-                    })
-                    ->default(function () {
-                        $options = Auth::user()->can('access-all-departments')
-                            ? Department::withoutTrashed()->pluck('id')->toArray()
-                            : Auth::user()->departments()->withoutTrashed()->pluck('department_id')->toArray();
-
-                        return count($options) === 1 ? $options[0] : null;
                     }),
                 Textarea::make('comment')
                     ->label(__('general.comment'))
@@ -104,6 +97,10 @@ class TableOrderAction
                     $order->price_net = $record->price_net;
                     $order->order_article_id = $record->id;
                     $order->article_number = $record->article_number;
+
+                    if (Auth::user()->hasDepartmentRoleWithPermissionTo('order-needs-approval', $order->department_id)) {
+                        $order->status = 'awaiting_approval';
+                    }
 
                     $save_result = $order->save();
 

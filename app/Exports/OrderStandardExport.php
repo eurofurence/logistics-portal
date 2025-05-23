@@ -5,7 +5,6 @@ namespace App\Exports;
 use App\Models\Department;
 use Illuminate\Support\Facades\Auth;
 use App\Exports\SingleDepartmentSheet;
-use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Style;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -13,9 +12,7 @@ use Maatwebsite\Excel\Events\BeforeExport;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Maatwebsite\Excel\Concerns\WithDefaultStyles;
-use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
-use PhpOffice\PhpSpreadsheet\Worksheet\HeaderFooter;
 
 class OrderStandardExport implements WithMultipleSheets, WithDefaultStyles, WithEvents
 {
@@ -94,6 +91,7 @@ class OrderStandardExport implements WithMultipleSheets, WithDefaultStyles, With
         $this->processOption('calculate_total_gross', $this->data);
         $this->processOption('calculate_total_returning_deposit', $this->data);
         $this->processOption('show_who_added_order', $this->data);
+        $this->processOption('show_who_approved_order', $this->data);
     }
 
 
@@ -221,6 +219,17 @@ class OrderStandardExport implements WithMultipleSheets, WithDefaultStyles, With
                             $order_model = $this->data['records']->where('id', $order_id);
 
                             $order['show_who_added_order'] = $order_model->value('addedBy.name');
+                        }
+                    }
+                    break;
+
+                case 'show_who_approved_order':
+                    foreach ($this->final_records as $department) {
+                        foreach ($department['orders'] as $order) {
+                            $order_id = $order['id'];
+                            $order_model = $this->data['records']->where('id', $order_id);
+
+                            $order['show_who_approved_order'] = $order_model->value('approvedBy.name');
                         }
                     }
                     break;

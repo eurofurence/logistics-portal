@@ -1,5 +1,8 @@
 <?php
 
+use App\Settings\LoginSettings;
+use App\Settings\ThemeSettings;
+
 return [
 
     /*
@@ -7,7 +10,8 @@ return [
      * put them (manually) here.
      */
     'settings' => [
-
+        LoginSettings::class,
+        ThemeSettings::class
     ],
 
     /*
@@ -28,7 +32,7 @@ return [
      * When no repository was set for a settings class the following repository
      * will be used for loading and saving settings.
      */
-    'default_repository' => 'redis',
+    'default_repository' => 'database',
 
     /*
      * Settings will be stored and loaded from these repositories.
@@ -63,7 +67,7 @@ return [
     'cache' => [
         'enabled' => env('SETTINGS_CACHE_ENABLED', true),
         'store' => null,
-        'prefix' => null,
+        'prefix' => "sitesettings",
         'ttl' => null,
     ],
 

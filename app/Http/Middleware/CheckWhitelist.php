@@ -2,11 +2,12 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\Whitelist;
 use Closure;
+use App\Models\Whitelist;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use App\Settings\LoginSettings;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class CheckWhitelist
 {
@@ -17,11 +18,21 @@ class CheckWhitelist
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (Auth::check()) {
-            $existsInWhitelist = Whitelist::where('email', Auth::user()->email)->exists();
+        try {
+            // Try to retrieve the whitelist_active property
+            $whitelistActive = app(LoginSettings::class)->whitelist_active;
+        } catch (\Exception $e) {
+            // Set default value if an error occurs
+            $whitelistActive = true;
+        }
 
-            if (!$existsInWhitelist) {
-                return abort(403, __('middleware.not_on_whitelist'));
+        if ($whitelistActive) {
+            if (Auth::check()) {
+                $existsInWhitelist = Whitelist::where('email', Auth::user()->email)->exists();
+
+                if (!$existsInWhitelist) {
+                    return abort(403, __('middleware.not_on_whitelist'));
+                }
             }
         }
 

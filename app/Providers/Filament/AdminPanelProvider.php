@@ -5,6 +5,7 @@ namespace App\Providers\Filament;
 use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
+use App\Settings\ThemeSettings;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\UserIsLocked;
@@ -17,6 +18,7 @@ use Illuminate\Session\Middleware\StartSession;
 use App\Filament\Admin\Pages\HealthCheckResults;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Awcodes\FilamentQuickCreate\QuickCreatePlugin;
+use DutchCodingCompany\FilamentSocialite\Provider;
 use Filament\Pages\Dashboard as FilamentDashboard;
 use App\Filament\Admin\Resources\WhitelistResource;
 use App\Filament\Admin\Resources\DepartmentResource;
@@ -25,7 +27,6 @@ use Brickx\MaintenanceSwitch\MaintenanceSwitchPlugin;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Saade\FilamentLaravelLog\FilamentLaravelLogPlugin;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use CharrafiMed\GlobalSearchModal\GlobalSearchModalPlugin;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -42,6 +43,13 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        try {
+            $primaryColor = app(ThemeSettings::class)->primary_color;
+        } catch (\Exception $e) {
+            // Set an alternative value if an error occurs
+            $primaryColor = '#007bff'; // Example: Standard blue color
+        }
+
         return $panel
             ->default()
             ->id('admin')
@@ -49,7 +57,7 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('favicon.ico'))
             //->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([
-                'primary' => Color::Emerald,
+                'primary' => $primaryColor,
             ])
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\\Filament\\Admin\\Pages')
@@ -61,6 +69,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
             ])
+            ->login()
             ->unsavedChangesAlerts()
             ->sidebarCollapsibleOnDesktop()
             ->middleware([
@@ -84,17 +93,13 @@ class AdminPanelProvider extends PanelProvider
                     ->usingPage(HealthCheckResults::class),
                 FilamentSocialitePlugin::make()
                     // (required) Add providers corresponding with providers in `config/services.php`.
-                    ->setProviders([
-                        'identity' => [
-                            'label' => 'EF Identity',
-                            // Custom icon requires an additional package, see below.
-                            'icon' => 'heroicon-o-identification',
-                            // (optional) Button color override, default: 'gray'.
-                            'color' => 'primary',
-                        ],
+                    ->providers([
+                        Provider::make('identity')
+                            ->label('EF Identity')
+                            ->icon('heroicon-o-identification')
+                            ->color(Color::Emerald)
                     ])
-                    // (optional) Enable or disable registration from OAuth.
-                    ->setRegistrationEnabled(true),
+                    ->registration(true),
                 QuickCreatePlugin::make()
                     ->includes([
                         DepartmentResource::class,
@@ -104,12 +109,12 @@ class AdminPanelProvider extends PanelProvider
                         \Althinect\FilamentSpatieRolesPermissions\Resources\RoleResource::class,
                     ]),
                 EnvironmentIndicatorPlugin::make()
-                    ->visible(fn () => match (config('app.env')) {
+                    ->visible(fn() => match (config('app.env')) {
                         'production' => false,
                         'local' => true,
                         'testing' => true,
                     })
-                    ->color(fn () => match (config('app.env')) {
+                    ->color(fn() => match (config('app.env')) {
                         'production' => null,
                         'local' => Color::Pink,
                         'testing' => Color::Orange,
@@ -117,21 +122,6 @@ class AdminPanelProvider extends PanelProvider
                     }),
                 //FilamentUserActivityPlugin::make(),
                 SpotlightPlugin::make(),
-                FilamentLaravelLogPlugin::make()
-                    ->navigationGroup('DEV')
-                    ->navigationLabel('Laravel logs')
-                    ->navigationIcon('heroicon-o-bug-ant')
-                    ->navigationSort(4)
-                    ->slug('logs')
-                    ->authorize(
-                        function () {
-                            if (Auth::check()) {
-                                return Auth::user()->isSuperAdmin();
-                            } else {
-                                return false;
-                            }
-                        }
-                    ),
                 GlobalSearchModalPlugin::make(),
                 FilamentDeveloperGatePlugin::make()
             ])

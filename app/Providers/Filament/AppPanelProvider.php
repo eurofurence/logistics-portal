@@ -2,10 +2,10 @@
 
 namespace App\Providers\Filament;
 
-use Filament\Pages;
 use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
+use App\Settings\ThemeSettings;
 use App\Filament\Pages\Dashboard;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +24,7 @@ use App\Filament\Admin\Pages\HealthCheckResults;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Filament\App\Resources\OrderEventResource;
 use Awcodes\FilamentQuickCreate\QuickCreatePlugin;
+use DutchCodingCompany\FilamentSocialite\Provider;
 use App\Filament\App\Resources\OrderArticleResource;
 use App\Filament\App\Resources\OrderRequestResource;
 use App\Filament\App\Resources\OrderCategoryResource;
@@ -46,11 +47,18 @@ class AppPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        try {
+            $primaryColor = app(ThemeSettings::class)->primary_color;
+        } catch (\Exception $e) {
+            // Set an alternative value if an error occurs
+            $primaryColor = '#007bff'; // Example: Standard blue color
+        }
+
         return $panel
             ->id('app')
             ->path('app')
             ->colors([
-                'primary' => Color::Emerald,
+                'primary' => $primaryColor,
             ])
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
@@ -77,17 +85,13 @@ class AppPanelProvider extends PanelProvider
             ->plugins([
                 FilamentSocialitePlugin::make()
                     // (required) Add providers corresponding with providers in `config/services.php`.
-                    ->setProviders([
-                        'identity' => [
-                            'label' => 'EF Identity',
-                            // Custom icon requires an additional package, see below.
-                            'icon' => 'heroicon-o-identification',
-                            // (optional) Button color override, default: 'gray'.
-                            'color' => 'primary',
-                        ],
+                    ->providers([
+                        Provider::make('identity')
+                            ->label('EF Identity')
+                            ->icon('heroicon-o-identification')
+                            ->color(Color::Emerald)
                     ])
-                    // (optional) Enable or disable registration from OAuth.
-                    ->setRegistrationEnabled(true),
+                    ->registration(true),
                 SpatieLaravelTranslatablePlugin::make()
                     ->defaultLocales(['en', 'de']),
                 FilamentProgressbarPlugin::make()->color('#29b'),
@@ -117,19 +121,6 @@ class AppPanelProvider extends PanelProvider
                         default => Color::Blue,
                     }),
                 SpotlightPlugin::make(),
-                /*
-                BannerPlugin::make()
-                    ->persistsBannersInDatabase()
-                    ->title('Banner manager')
-                    ->subheading('Edit the banners of the current panel')
-                    ->navigationIcon('heroicon-o-megaphone')
-                    ->navigationLabel('Banners')
-                    ->navigationGroup('Settings')
-                    ->navigationSort(1)
-                    ->bannerManagerAccessPermission('manage-banners'),
-                */
-                FilamentLaravelLogPlugin::make()
-                    ->authorize(false),
                 GlobalSearchModalPlugin::make(),
                 FilamentDeveloperGatePlugin::make()
             ])
@@ -147,6 +138,12 @@ class AppPanelProvider extends PanelProvider
                     ->icon('heroicon-o-chevron-double-left')
                     ->sort(0),
             ])
+            ->login()
+            ->passwordReset()
+            ->emailVerification()
+            //->registration()
+            #8 Add profile function #TODO
+            //->profile()
             ->bootUsing(function () {
                 PanelSwitch::configureUsing(function (PanelSwitch $panelSwitch) {
                     $panelSwitch

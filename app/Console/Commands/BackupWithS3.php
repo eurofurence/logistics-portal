@@ -29,50 +29,55 @@ class BackupWithS3 extends Command
      */
     public function handle()
     {
-        $this->info('Start the backup and add S3 files with folder structure...');
+        try {
+            $this->info('Start the backup and add S3 files with folder structure...');
 
-        $onlyDownload = $this->option('only-download');
+            $onlyDownload = $this->option('only-download');
 
-        if ($onlyDownload) {
-            $this->info('Only downloading...');
-        }
-
-        File::deleteDirectory(storage_path('app/backup-s3'));
-
-        // 1. Download the files from S3
-        $s3Files = Storage::disk('s3')->allFiles(''); // Get all files including path
-        if (empty($s3Files)) {
-            $this->info('No files found on S3');
-        } else {
-            $localBackupPath = storage_path('app/backup-s3'); // Temporary storage location
-            File::ensureDirectoryExists($localBackupPath);
-
-            foreach ($s3Files as $file) {
-                $this->info("Download file {$file} from S3...");
-                $contents = Storage::disk('s3')->get($file);
-
-                // Retain the folder structure
-                $localFilePath = "{$localBackupPath}/{$file}";
-                File::ensureDirectoryExists(dirname($localFilePath)); // Create the directories
-                File::put($localFilePath, $contents);
+            if ($onlyDownload) {
+                $this->info('Only downloading...');
             }
 
-            $this->info('S3 files were downloaded locally and the folder structure was retained');
-        }
-
-        if (!$onlyDownload) {
-            // 2. Load the backup configuration as a Config object
-            $backupConfig = Config::fromArray(config('backup'));
-
-            // 3. Create a backup with a spatie
-            $this->info('Create the backup with local S3 files...');
-            $backupJob = BackupJobFactory::createFromConfig($backupConfig);
-            $backupJob->run();
-
-            // 4. Delete temporary local S3 files
             File::deleteDirectory(storage_path('app/backup-s3'));
-        }
 
-        $this->info('Completed');
+            // 1. Download the files from S3
+            $s3Files = Storage::disk('s3')->allFiles(''); // Get all files including path
+            if (empty($s3Files)) {
+                $this->info('No files found on S3');
+            } else {
+                $localBackupPath = storage_path('app/backup-s3'); // Temporary storage location
+                File::ensureDirectoryExists($localBackupPath);
+
+                foreach ($s3Files as $file) {
+                    $this->info("Download file {$file} from S3...");
+                    $contents = Storage::disk('s3')->get($file);
+
+                    // Retain the folder structure
+                    $localFilePath = "{$localBackupPath}/{$file}";
+                    File::ensureDirectoryExists(dirname($localFilePath)); // Create the directories
+                    File::put($localFilePath, $contents);
+                    $this->info("File {$file} downloaded successfully.");
+                }
+
+                $this->info('S3 files were downloaded locally and the folder structure was retained');
+            }
+
+            if (!$onlyDownload) {
+                // 2. Load the backup configuration as a Config object
+                $backupConfig = Config::fromArray(config('backup'));
+
+                // 3. Create a backup with a spatie
+                $this->info('Create the backup with local S3 files...');
+                $backupJob = BackupJobFactory::createFromConfig($backupConfig);
+                $backupJob->run();
+
+                // 4. Delete temporary local S3 files
+                File::deleteDirectory(storage_path('app/backup-s3'));
+            }
+
+            $this->info('Completed');
+        } catch (\Throwable $th) {
+            $this->error('Error: ' . $th->getMessage());
+        }
     }
 }

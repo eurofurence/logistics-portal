@@ -14,6 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Admin\Resources\DepartmentResource\Pages;
+use App\Filament\Admin\Resources\DepartmentResource\RelationManagers\DepartmentMembersRelationManager;
 
 class DepartmentResource extends Resource
 {
@@ -81,7 +82,8 @@ class DepartmentResource extends Resource
                 TextColumn::make('idp_group_id')
                     ->searchable()
                     ->toggleable()
-                    ->label(__('general.idp_group')),
+                    ->label(__('general.idp_group'))
+                    ->visible(config('app.identity_mode')),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -105,7 +107,7 @@ class DepartmentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            DepartmentMembersRelationManager::class
         ];
     }
 
