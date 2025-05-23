@@ -5,7 +5,7 @@
 
 /**
  * A helper file for Laravel, to provide autocomplete information to your IDE
- * Generated for Laravel 12.14.1.
+ * Generated for Laravel 12.15.0.
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
@@ -16104,13 +16104,14 @@ namespace Illuminate\Support\Facades {
          * @template TEnum of \BackedEnum
          * @param string $key
          * @param class-string<TEnum> $enumClass
+         * @param TEnum|null $default
          * @return TEnum|null 
          * @static 
          */
-        public static function enum($key, $enumClass)
+        public static function enum($key, $enumClass, $default = null)
         {
             /** @var \Illuminate\Http\Request $instance */
-            return $instance->enum($key, $enumClass);
+            return $instance->enum($key, $enumClass, $default);
         }
 
         /**
