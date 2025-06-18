@@ -39,7 +39,7 @@ class SocialiteIdentityProvider extends AbstractProvider
         if (isset($this->issuet)) {
             return $this;
         }
-        
+
         // Get from services.identity.openid_configuration url and cache it
         $config = Cache::remember('identity_config', now()->addDay(), function () {
             return Http::get(config('services.identity.openid_configuration'))->throw()->json();

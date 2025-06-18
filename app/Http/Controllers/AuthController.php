@@ -9,7 +9,6 @@ use App\Models\Whitelist;
 use App\Models\Department;
 use App\Models\IdpRankSync;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Laravel\Socialite\Facades\Socialite;
 

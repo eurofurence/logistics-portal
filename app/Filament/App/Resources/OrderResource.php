@@ -673,27 +673,35 @@ class OrderResource extends Resource
                     ->type('number')
                     ->rules(['numeric', 'min:1', 'max:1000000'])
                     ->disabled(function ($record) {
+                        if (Auth::user()->isSuperAdmin()) {
+                            return false;
+                        }
+
                         if ($record->department) {
                             if (!Auth::user()->hasDepartmentRoleWithPermissionTo('can-change-amount-order-table', $record->department->id)) {
-                                return true;
+                                if (!Auth::user()->can('can-change-amount-order-table-all')) {
+                                    return true;
+                                }
                             }
 
                             if (Auth::user()->can('can-see-all-orders')) {
                                 $userDepartments = Auth::user()->getDepartmentsWithPermission('can-change-amount-order-table')->pluck('id')->toArray();
                                 if (!in_array($record->department->id, $userDepartments)) {
-                                    return true;
+                                    if (!Auth::user()->can('can-change-amount-order-table-all')) {
+                                        return true;
+                                    }
                                 }
                             }
                         } else {
                             return true;
                         }
 
-                        if (Auth::user()->can('can-always-edit-orders')) {
-                            return false;
-                        }
-
                         if ($record->status == 'open' && !$record->event->locked) {
                             return false;
+                        } else {
+                            if (Auth::user()->can('can-always-edit-orders')) {
+                                return false;
+                            }
                         }
 
                         return true;

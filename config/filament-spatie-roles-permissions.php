@@ -254,6 +254,7 @@ return [
             'can-always-decline-orders',
             'can-edit-all-orders',
             'can-change-amount-order-table',
+            'can-change-amount-order-table-all',
             'can-see-all-orders',
             'bulk-restore-OrderRequest',
             'bulk-delete-OrderRequest',
