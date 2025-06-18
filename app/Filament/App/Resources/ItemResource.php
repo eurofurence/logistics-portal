@@ -7,43 +7,32 @@ use Filament\Forms;
 use App\Models\Item;
 use Filament\Tables;
 use App\Models\Storage;
-use Filament\Forms\Get;
 use App\Models\BaseUnit;
 use Filament\Forms\Form;
 use App\Models\Department;
 use Filament\Tables\Table;
-use App\Exports\StandartExport;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Tabs;
 use Filament\Tables\Grouping\Group;
-use Illuminate\Support\Facades\Log;
-use Filament\Forms\Components\Radio;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Maatwebsite\Excel\Facades\Excel;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Wizard\Step;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Contracts\Support\Htmlable;
-use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DateTimePicker;
 use App\Filament\App\Resources\ItemResource\Pages;
-use Filament\Tables\Actions\Action as TableAction;
 use Archilex\ToggleIconColumn\Columns\ToggleIconColumn;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
@@ -304,7 +293,7 @@ class ItemResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $export_type_options = ['standart' => __('general.standart')];
+        $export_type_options = ['standard' => __('general.standard')];
 
         return $table
             ->columns([

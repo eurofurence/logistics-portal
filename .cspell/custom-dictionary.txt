@@ -105,7 +105,7 @@ Speichern
 Sperren
 Stadt
 Stadtname
-standart
+standard
 Straße
 Suche
 toggleable

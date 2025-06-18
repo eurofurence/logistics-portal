@@ -557,7 +557,7 @@ class OrderResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $export_type_options = ['standart' => __('general.standart')];
+        $export_type_options = ['standard' => __('general.standard')];
 
         static::$export_column_options = [
             'id' => __('general.id'),
@@ -1097,7 +1097,7 @@ class OrderResource extends Resource
                                     Radio::make('export_type')
                                         ->options($export_type_options)
                                         ->descriptions([
-                                            'standart' => __('general.export_filetype_standart_description'),
+                                            'standard' => __('general.export_filetype_standard_description'),
                                             'metro_list' => __('general.metro_list_description'),
                                         ])
                                         ->required()
@@ -1133,19 +1133,19 @@ class OrderResource extends Resource
                                         ->disableOptionWhen(fn(string $value): bool => in_array($value, ['id', 'name'])),
                                 ])
                                     ->visible(function (Get $get) {
-                                        return $get('export_type') == 'standart';
+                                        return $get('export_type') == 'standard';
                                     })
                                     ->description(__('general.select_columns')),
                                 Section::make([
                                     Placeholder::make(__('general.no_options_available'))
                                 ])
                                     ->visible(function (Get $get) {
-                                        return $get('export_type') != 'standart';
+                                        return $get('export_type') != 'standard';
                                     })
                             ]),
                         Step::make(__('general.options'))
                             ->schema([
-                                #Option for standart export
+                                #Option for standard export
                                 Section::make([
                                     FileUpload::make('image')
                                         ->label('')
@@ -1165,10 +1165,10 @@ class OrderResource extends Resource
                                 ])
                                     ->description(__('general.picture') . ' - ' . __('general.export_picture_option_description'))
                                     ->visible(function (Get $get) {
-                                        return $get('export_type') == 'standart';
+                                        return $get('export_type') == 'standard';
                                     }),
 
-                                #Options for standart export
+                                #Options for standard export
                                 Section::make([
                                     Checkbox::make('calculate_total_net')
                                         ->inline()
@@ -1188,10 +1188,10 @@ class OrderResource extends Resource
                                 ])
                                     ->description(__('general.special_fields') . ' - (' . __('general.per_row') . ')')
                                     ->visible(function (Get $get) {
-                                        return $get('export_type') == 'standart';
+                                        return $get('export_type') == 'standard';
                                     }),
 
-                                #Option for standart export
+                                #Option for standard export
                                 Section::make([
                                     Radio::make('orientation')
                                         ->label('')
@@ -1205,7 +1205,7 @@ class OrderResource extends Resource
                                 ])
                                     ->description(__('general.orientation'))
                                     ->visible(function (Get $get) {
-                                        return $get('export_type') == 'standart';
+                                        return $get('export_type') == 'standard';
                                     }),
 
                                 #When no option is available
@@ -1254,7 +1254,7 @@ class OrderResource extends Resource
                             //dd($data);
 
                             $timestamp = Carbon::now('Europe/Berlin')->format('Y_m_d_H_i_s');
-                            $exportType = $data['export_type'] ?? 'standart';
+                            $exportType = $data['export_type'] ?? 'standard';
                             $fileType = $data['file_type'] ?? 'xlsx';
 
                             $exportConfig = [
@@ -1264,9 +1264,9 @@ class OrderResource extends Resource
                                     'filename' => __('general.metro_list') . ' - ' . __('general.orders'),
                                     'params' => [$data['records']],
                                 ],
-                                'standart' => [
+                                'standard' => [
                                     'class' => OrderStandardExport::class,
-                                    'filename' => __('general.standart') . ' - ' . __('general.orders'),
+                                    'filename' => __('general.standard') . ' - ' . __('general.orders'),
                                     'params' => [$data, 92, 92, ['dangerous_good', 'big_size', 'needs_truck', 'booked_to_inventory', 'instant_delivery']],
                                 ],
                             ];
