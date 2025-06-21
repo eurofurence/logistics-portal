@@ -161,7 +161,8 @@ class ItemResource extends Resource
                                                 ->label(__('general.unit'))
                                                 ->searchable()
                                                 ->options(BaseUnit::all()->pluck('name', 'id'))
-                                                ->exists('base_units', 'id'),
+                                                ->exists('base_units', 'id')
+                                                ->disabled(),
                                             TextInput::make('price')
                                                 ->label(__('general.price'))
                                                 ->numeric()

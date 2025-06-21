@@ -50,7 +50,7 @@ return array(
     'city' => 'City',
     'zip' => 'ZIP',
     'map' => 'Map',
-    'adress' => 'Adress',
+    'address' => 'Address',
     'street' => 'Street',
     'enter_city_name' => 'Enter the city name',
     'enter_zip' => 'Enter the zip code',
@@ -381,4 +381,5 @@ return array(
     'show_who_added_order' => 'Who Added Order',
     'show_who_approved_order' => 'Who Approved Order',
     'special_fields' => 'Special fields',
+    'undefined' => 'Undefined',
 );

@@ -8,13 +8,15 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Gate;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\Support\Htmlable;
 use App\Filament\App\Resources\StorageResource\Pages;
-use Filament\Forms\Components\Section;
 use Parfaitementweb\FilamentCountryField\Forms\Components\Country;
 
 class StorageResource extends Resource
@@ -78,29 +80,51 @@ class StorageResource extends Resource
                             ->unique(ignoreRecord: true)
                             ->maxLength(64)
                             ->label(__('general.name')),
+                        Select::make('type')
+                            ->options([
+                                1 => __('general.general'),
+                                2 => __('general.department'),
+                            ])
+                            ->disableOptionWhen(
+                                function (string $value): bool {
+                                    return $value == 1 && true; //True is a placeholder for the permission check
+                                }
+                            )
+                            ->label(__('general.type'))
+                            ->required(),
                         Textarea::make('contact_details')
                             ->nullable()
                             ->maxLength(10000)
                             ->label(__('general.contact_details')),
-                        Country::make('country')
-                            ->required()
-                            ->label(__('general.country')),
-                        TextInput::make('street')
-                            ->required()
-                            ->maxLength(128)
-                            ->label(__('general.street')),
-                        TextInput::make('city')
-                            ->required()
-                            ->maxLength(128)
-                            ->label(__('general.city')),
-                        TextInput::make('post_code')
-                            ->required()
-                            ->maxLength(64)
-                            ->label(__('general.post_code')),
-                        Textarea::make('comment')
-                            ->nullable()
-                            ->maxLength(10000)
-                            ->label(__('general.comment'))
+                        Fieldset::make('address_fieldset')
+                            ->schema([
+                                Country::make('country')
+                                    ->label(__('general.country')),
+                                TextInput::make('street')
+                                    ->maxLength(128)
+                                    ->label(__('general.street')),
+                                TextInput::make('city')
+                                    ->maxLength(128)
+                                    ->label(__('general.city')),
+                                TextInput::make('post_code')
+                                    ->maxLength(64)
+                                    ->label(__('general.post_code')),
+                            ])
+                            ->columns([
+                                'default' => 1,
+                                'sm' => 1,
+                                'md' => 2,
+                                'lg' => 2,
+                            ])
+                            ->label(__('general.address')),
+                        Fieldset::make('miscellaneous')
+                            ->schema([
+                                Textarea::make('comment')
+                                    ->nullable()
+                                    ->maxLength(10000)
+                                    ->label(__('general.comment'))
+                            ])
+                            ->label(__('general.miscellaneous'))
                     ])
                     ->columns(2)
             ]);

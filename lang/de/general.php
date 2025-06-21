@@ -50,7 +50,7 @@ return array(
     'city' => 'Stadt',
     'zip' => 'PLZ',
     'map' => 'Karte',
-    'adress' => 'Adresse',
+    'address' => 'Adresse',
     'street' => 'Straße',
     'enter_city_name' => 'Gebe den Stadtname ein',
     'enter_zip' => 'Gib die PLZ ein',
@@ -380,4 +380,5 @@ return array(
     'show_who_added_order' => 'Besteller',
     'show_who_approved_order' => 'Freigegeben von',
     'special_fields' => 'Spezielle Felder',
+    'undefined' => 'Undefiniert',
 );
