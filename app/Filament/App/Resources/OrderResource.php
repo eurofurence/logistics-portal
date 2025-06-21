@@ -125,6 +125,19 @@ class OrderResource extends Resource
         return $query;
     }
 
+    /**
+     * Checks if the current request route corresponds to the order view page.
+     *
+     * This static method determines whether the current route name matches
+     * the specific route used for viewing an order in the Filament application.
+     *
+     * @return bool Returns true if the current route is the order view page, false otherwise.
+     */
+    public static function isView(): bool
+    {
+        return request()->route()->getName() === 'filament.app.resources.orders.view';
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -150,11 +163,15 @@ class OrderResource extends Resource
                                             ->required()
                                             ->exists('departments', 'id')
                                             ->options(function (): array {
-                                                $options = Auth::user()->can('can-create-orders-for-other-departments')
-                                                    ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
-                                                    : Auth::user()->getDepartmentsWithPermission('view-Order')->pluck('name', 'id')->toArray();
+                                                if (self::isView()) {
+                                                    return Department::all()->pluck('name', 'id')->toArray();
+                                                }
 
-                                                return $options;
+                                                if (Auth::user()->can('can-create-orders-for-other-departments')) {
+                                                    return Department::all()->pluck('name', 'id')->toArray();
+                                                } else {
+                                                    return Auth::user()->getDepartmentsWithPermission('view-Order')->pluck('name', 'id')->toArray();
+                                                }
                                             }),
                                         Select::make('order_event_id')
                                             ->label(__('general.order_event'))
@@ -328,14 +345,24 @@ class OrderResource extends Resource
                                                     ->hint(__('general.url'))
                                                     ->suffixIcon('heroicon-m-globe-alt')
                                                     ->columnSpan(2),
-                                                TextInput::make('article_number')
-                                                    ->label(__('general.article_number'))
-                                                    ->maxLength(500)
-                                                    ->columnSpan(1),
-                                                TextInput::make('order_number')
-                                                    ->label(__('general.order_number'))
-                                                    ->maxLength(250)
-                                                    ->columnSpan(1),
+                                                Fieldset::make('article_and_order_number')
+                                                    ->schema([
+                                                        TextInput::make('article_number')
+                                                            ->label(__('general.article_number'))
+                                                            ->maxLength(500)
+                                                            ,
+                                                        TextInput::make('order_number')
+                                                            ->label(__('general.order_number'))
+                                                            ->maxLength(250)
+                                                            ,
+                                                    ])
+                                                    ->columns([
+                                                        'default' => 1,
+                                                        'sm' => 1,
+                                                        'md' => 2,
+                                                        'lg' => 2,
+                                                    ])
+                                                    ->label(''),
                                                 Textarea::make('comment')
                                                     ->label(__('general.comment'))
                                                     ->maxLength(100000)
@@ -544,8 +571,7 @@ class OrderResource extends Resource
                                     ->relationship('orderRequest', 'title', fn(Builder $query) => $query->withTrashed())
                                     ->label(__('general.order_request'))
                                     ->searchable(['id', 'title'])
-                                    ->hint(__('general.search_for_name_or_id'))
-                                    ->unique('orders', 'order_request_id'),
+                                    ->hint(__('general.search_for_name_or_id')),
                             ])
                             ->visible(Auth::user()->can('can-manage-order-relationships'))
                             ->disabled(!Auth::user()->can('can-manage-order-relationships')),
@@ -557,7 +583,7 @@ class OrderResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $export_type_options = ['standart' => __('general.standart')];
+        $export_type_options = ['standard' => __('general.standard')];
 
         static::$export_column_options = [
             'id' => __('general.id'),
@@ -673,27 +699,35 @@ class OrderResource extends Resource
                     ->type('number')
                     ->rules(['numeric', 'min:1', 'max:1000000'])
                     ->disabled(function ($record) {
+                        if (Auth::user()->isSuperAdmin()) {
+                            return false;
+                        }
+
                         if ($record->department) {
                             if (!Auth::user()->hasDepartmentRoleWithPermissionTo('can-change-amount-order-table', $record->department->id)) {
-                                return true;
+                                if (!Auth::user()->can('can-change-amount-order-table-all')) {
+                                    return true;
+                                }
                             }
 
                             if (Auth::user()->can('can-see-all-orders')) {
                                 $userDepartments = Auth::user()->getDepartmentsWithPermission('can-change-amount-order-table')->pluck('id')->toArray();
                                 if (!in_array($record->department->id, $userDepartments)) {
-                                    return true;
+                                    if (!Auth::user()->can('can-change-amount-order-table-all')) {
+                                        return true;
+                                    }
                                 }
                             }
                         } else {
                             return true;
                         }
 
-                        if (Auth::user()->can('can-always-edit-orders')) {
-                            return false;
-                        }
-
                         if ($record->status == 'open' && !$record->event->locked) {
                             return false;
+                        } else {
+                            if (Auth::user()->can('can-always-edit-orders')) {
+                                return false;
+                            }
                         }
 
                         return true;
@@ -1089,7 +1123,7 @@ class OrderResource extends Resource
                                     Radio::make('export_type')
                                         ->options($export_type_options)
                                         ->descriptions([
-                                            'standart' => __('general.export_filetype_standart_description'),
+                                            'standard' => __('general.export_filetype_standard_description'),
                                             'metro_list' => __('general.metro_list_description'),
                                         ])
                                         ->required()
@@ -1125,19 +1159,19 @@ class OrderResource extends Resource
                                         ->disableOptionWhen(fn(string $value): bool => in_array($value, ['id', 'name'])),
                                 ])
                                     ->visible(function (Get $get) {
-                                        return $get('export_type') == 'standart';
+                                        return $get('export_type') == 'standard';
                                     })
                                     ->description(__('general.select_columns')),
                                 Section::make([
                                     Placeholder::make(__('general.no_options_available'))
                                 ])
                                     ->visible(function (Get $get) {
-                                        return $get('export_type') != 'standart';
+                                        return $get('export_type') != 'standard';
                                     })
                             ]),
                         Step::make(__('general.options'))
                             ->schema([
-                                #Option for standart export
+                                #Option for standard export
                                 Section::make([
                                     FileUpload::make('image')
                                         ->label('')
@@ -1157,10 +1191,10 @@ class OrderResource extends Resource
                                 ])
                                     ->description(__('general.picture') . ' - ' . __('general.export_picture_option_description'))
                                     ->visible(function (Get $get) {
-                                        return $get('export_type') == 'standart';
+                                        return $get('export_type') == 'standard';
                                     }),
 
-                                #Options for standart export
+                                #Options for standard export
                                 Section::make([
                                     Checkbox::make('calculate_total_net')
                                         ->inline()
@@ -1180,10 +1214,10 @@ class OrderResource extends Resource
                                 ])
                                     ->description(__('general.special_fields') . ' - (' . __('general.per_row') . ')')
                                     ->visible(function (Get $get) {
-                                        return $get('export_type') == 'standart';
+                                        return $get('export_type') == 'standard';
                                     }),
 
-                                #Option for standart export
+                                #Option for standard export
                                 Section::make([
                                     Radio::make('orientation')
                                         ->label('')
@@ -1197,7 +1231,7 @@ class OrderResource extends Resource
                                 ])
                                     ->description(__('general.orientation'))
                                     ->visible(function (Get $get) {
-                                        return $get('export_type') == 'standart';
+                                        return $get('export_type') == 'standard';
                                     }),
 
                                 #When no option is available
@@ -1246,7 +1280,7 @@ class OrderResource extends Resource
                             //dd($data);
 
                             $timestamp = Carbon::now('Europe/Berlin')->format('Y_m_d_H_i_s');
-                            $exportType = $data['export_type'] ?? 'standart';
+                            $exportType = $data['export_type'] ?? 'standard';
                             $fileType = $data['file_type'] ?? 'xlsx';
 
                             $exportConfig = [
@@ -1256,9 +1290,9 @@ class OrderResource extends Resource
                                     'filename' => __('general.metro_list') . ' - ' . __('general.orders'),
                                     'params' => [$data['records']],
                                 ],
-                                'standart' => [
+                                'standard' => [
                                     'class' => OrderStandardExport::class,
-                                    'filename' => __('general.standart') . ' - ' . __('general.orders'),
+                                    'filename' => __('general.standard') . ' - ' . __('general.orders'),
                                     'params' => [$data, 92, 92, ['dangerous_good', 'big_size', 'needs_truck', 'booked_to_inventory', 'instant_delivery']],
                                 ],
                             ];

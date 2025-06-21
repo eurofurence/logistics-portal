@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
- *
+ * 
  *
  * @property int $id
  * @property string $name
@@ -415,7 +415,6 @@ class Order extends Model implements HasMedia
     {
         if ($this->canBeApproved()) {
             $this->update(['status' => 'open', 'approved_by' => Auth::id()]);
-            #TODO: Should be added to an existing order
 
             if (!empty($this->order_article_id)) {
                 self::addToExistingOrder($this, just_amount: true);

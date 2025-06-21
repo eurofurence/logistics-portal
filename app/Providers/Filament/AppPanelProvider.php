@@ -90,6 +90,8 @@ class AppPanelProvider extends PanelProvider
                             ->label('EF Identity')
                             ->icon('heroicon-o-identification')
                             ->color(Color::Emerald)
+                            ->outlined(false)
+                            ->stateless(false)
                     ])
                     ->registration(true),
                 SpatieLaravelTranslatablePlugin::make()

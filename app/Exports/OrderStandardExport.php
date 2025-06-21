@@ -163,7 +163,7 @@ class OrderStandardExport implements WithMultipleSheets, WithDefaultStyles, With
                 $event->writer->getDelegate()->getProperties()
                     ->setCreator(Auth::user()->name)
                     ->setLastModifiedBy(Auth::user()->name)
-                    ->setTitle('Standart Order Export')
+                    ->setTitle('Standard Order Export')
                     ->setDescription('All orders that can be accessed by the current user grouped into departments')
                     ->setSubject('Orders')
                     ->setKeywords('orders,export,departments,eurofurence,logistics')

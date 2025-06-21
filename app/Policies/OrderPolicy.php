@@ -34,7 +34,7 @@ class OrderPolicy
             $user->checkPermissionTo('can-see-all-orders'));
 
         $orderNotLockedOrPermission = ($order->status != 'locked') ||
-            $user->checkPermissionTo('can-always-see-order');
+            $user->checkPermissionTo('can-always-see-order'); 
 
         return $canViewOrder && $orderNotLockedOrPermission;
     }

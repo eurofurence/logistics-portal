@@ -23,14 +23,14 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class MetroExport implements FromCollection, WithTitle, ShouldAutoSize, WithEvents, WithStyles, WithDefaultStyles, WithHeadings
 {
-    protected $orders;
+    protected \Illuminate\Support\Collection $orders;
     protected array $headings;
     protected array $included_columns = ['id', 'name', 'amount', 'price_net', 'price_gross', 'status', 'user_note', 'comment', 'article_number', 'url'];
     protected int $event_id;
 
     public function __construct(Collection $orders)
     {
-        
+
         $this->headings = [
             __('general.id') . '/' . __('general.group'),
             __('general.name'),
@@ -42,10 +42,12 @@ class MetroExport implements FromCollection, WithTitle, ShouldAutoSize, WithEven
             __('general.comment'),
             __('general.article_number'),
         ];
+
         // Filter the orders to include only those with the 'metro.de' domain in the URL
         $filteredOrders = $orders->filter(function ($order) {
             return strpos($order->url, 'metro.de') !== false;
         });
+
 
         // Group the selected data by 'url'
         $grouped_data = $filteredOrders->groupBy('url');
@@ -61,9 +63,25 @@ class MetroExport implements FromCollection, WithTitle, ShouldAutoSize, WithEven
             foreach ($records as $record) {
                 $recordArray = collect($record->toArray());
 
+                // Filter the record to include only the included columns
+                $filteredRecordArray = $recordArray->only($this->included_columns);
+
+                // Remove the 'url' attribute if it's still present
+                $filteredRecordArray->forget('url');
+
                 // Remove the 'url' attribute
-                $recordArray->forget('url');
-                $final_records->push($recordArray);
+                $filteredRecordArray->forget('url');
+
+                // Create a new collection with the attributes in the order of $included_columns
+                $orderedRecordArray = collect();
+
+                foreach ($this->included_columns as $column) {
+                    if ($filteredRecordArray->has($column)) {
+                        $orderedRecordArray->put($column, $filteredRecordArray->get($column));
+                    }
+                }
+
+                $final_records->push($orderedRecordArray);
             }
 
             // Calculate the total amount for this group
@@ -77,11 +95,11 @@ class MetroExport implements FromCollection, WithTitle, ShouldAutoSize, WithEven
             ]));
 
             // Add one empty row as a spacer
-            $final_records->push(collect([]));
+            $final_records->push(collect(['empty_row' => null]));
             // Add one empty row as a spacer
-            $final_records->push(collect([]));
+            $final_records->push(collect(['empty_row' => null]));
             // Add one empty row as a spacer
-            $final_records->push(collect([]));
+            $final_records->push(collect(['empty_row' => null]));
         }
 
         $this->orders = $final_records;

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $email
@@ -23,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Whitelist whereEmail($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Whitelist whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Whitelist whereUpdatedAt($value)
- * @mixin \Eloquent
+  * @mixin \Eloquent
  */
 class Whitelist extends Model
 {
