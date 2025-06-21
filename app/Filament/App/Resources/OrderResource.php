@@ -125,6 +125,19 @@ class OrderResource extends Resource
         return $query;
     }
 
+    /**
+     * Checks if the current request route corresponds to the order view page.
+     *
+     * This static method determines whether the current route name matches
+     * the specific route used for viewing an order in the Filament application.
+     *
+     * @return bool Returns true if the current route is the order view page, false otherwise.
+     */
+    public static function isView(): bool
+    {
+        return request()->route()->getName() === 'filament.app.resources.orders.view';
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -150,11 +163,15 @@ class OrderResource extends Resource
                                             ->required()
                                             ->exists('departments', 'id')
                                             ->options(function (): array {
-                                                $options = Auth::user()->can('can-create-orders-for-other-departments')
-                                                    ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
-                                                    : Auth::user()->getDepartmentsWithPermission('view-Order')->pluck('name', 'id')->toArray();
+                                                if (self::isView()) {
+                                                    return Department::all()->pluck('name', 'id')->toArray();
+                                                }
 
-                                                return $options;
+                                                if (Auth::user()->can('can-create-orders-for-other-departments')) {
+                                                    return Department::all()->pluck('name', 'id')->toArray();
+                                                } else {
+                                                    return Auth::user()->getDepartmentsWithPermission('view-Order')->pluck('name', 'id')->toArray();
+                                                }
                                             }),
                                         Select::make('order_event_id')
                                             ->label(__('general.order_event'))
@@ -328,14 +345,24 @@ class OrderResource extends Resource
                                                     ->hint(__('general.url'))
                                                     ->suffixIcon('heroicon-m-globe-alt')
                                                     ->columnSpan(2),
-                                                TextInput::make('article_number')
-                                                    ->label(__('general.article_number'))
-                                                    ->maxLength(500)
-                                                    ->columnSpan(1),
-                                                TextInput::make('order_number')
-                                                    ->label(__('general.order_number'))
-                                                    ->maxLength(250)
-                                                    ->columnSpan(1),
+                                                Fieldset::make('article_and_order_number')
+                                                    ->schema([
+                                                        TextInput::make('article_number')
+                                                            ->label(__('general.article_number'))
+                                                            ->maxLength(500)
+                                                            ,
+                                                        TextInput::make('order_number')
+                                                            ->label(__('general.order_number'))
+                                                            ->maxLength(250)
+                                                            ,
+                                                    ])
+                                                    ->columns([
+                                                        'default' => 1,
+                                                        'sm' => 1,
+                                                        'md' => 2,
+                                                        'lg' => 2,
+                                                    ])
+                                                    ->label(''),
                                                 Textarea::make('comment')
                                                     ->label(__('general.comment'))
                                                     ->maxLength(100000)
@@ -544,8 +571,7 @@ class OrderResource extends Resource
                                     ->relationship('orderRequest', 'title', fn(Builder $query) => $query->withTrashed())
                                     ->label(__('general.order_request'))
                                     ->searchable(['id', 'title'])
-                                    ->hint(__('general.search_for_name_or_id'))
-                                    ->unique('orders', 'order_request_id'),
+                                    ->hint(__('general.search_for_name_or_id')),
                             ])
                             ->visible(Auth::user()->can('can-manage-order-relationships'))
                             ->disabled(!Auth::user()->can('can-manage-order-relationships')),

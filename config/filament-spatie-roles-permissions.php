@@ -217,7 +217,6 @@ return [
             'can-choose-all-departments',
             'can-change-order-status',
             'instant-delivery-notification',
-            'can-see-all-departments',
             'can-moderate-order-request',
             'can-always-edit-orderRequests',
             'can-always-delete-orderRequests',
