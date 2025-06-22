@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -154,7 +154,7 @@ class Order extends Model implements HasMedia
         'price_net',
         'price_gross',
         'tax_rate',
-        'payment_methode',
+        'payment_method',
         'currency',
         'url',
         'contact',
