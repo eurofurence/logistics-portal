@@ -235,15 +235,6 @@ class Order extends Model implements HasMedia
             $model->added_by = Auth::user()->id;
             $model->edited_by = Auth::user()->id;
 
-            // Checking the authorization to change the status
-            if (!empty($model->status)) {
-                if (!Auth::user()->can('can-change-order-status')) {
-                    if ($model->status != 'awaiting_approval' || 'open') {
-                        throw new \Exception(__('middleware.no_permission_order_status'));
-                    }
-                }
-            }
-
             //static::sendInstantDeliveryMessage($model);
 
             if (!empty($model->order_article_id)) {
