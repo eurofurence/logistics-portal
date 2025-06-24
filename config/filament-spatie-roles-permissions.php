@@ -259,6 +259,7 @@ return [
             'bulk-delete-OrderRequest',
             'bulk-restore-Order',
             'bulk-delete-Order',
+            'can-view-order-delivery-address',
         ],
 
         'user_model' => \App\Models\User::class,

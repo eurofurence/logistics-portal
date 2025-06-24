@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -154,7 +154,7 @@ class Order extends Model implements HasMedia
         'price_net',
         'price_gross',
         'tax_rate',
-        'payment_methode',
+        'payment_method',
         'currency',
         'url',
         'contact',
@@ -234,15 +234,6 @@ class Order extends Model implements HasMedia
         static::creating(function ($model) {
             $model->added_by = Auth::user()->id;
             $model->edited_by = Auth::user()->id;
-
-            // Checking the authorization to change the status
-            if (!empty($model->status)) {
-                if (!Auth::user()->can('can-change-order-status')) {
-                    if ($model->status != 'awaiting_approval' || 'open') {
-                        throw new \Exception(__('middleware.no_permission_order_status'));
-                    }
-                }
-            }
 
             //static::sendInstantDeliveryMessage($model);
 

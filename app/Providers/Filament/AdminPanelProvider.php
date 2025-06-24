@@ -93,15 +93,6 @@ class AdminPanelProvider extends PanelProvider
                 \Mvenghaus\FilamentScheduleMonitor\FilamentPlugin::make(),
                 FilamentSpatieLaravelHealthPlugin::make()
                     ->usingPage(HealthCheckResults::class),
-                FilamentSocialitePlugin::make()
-                    // (required) Add providers corresponding with providers in `config/services.php`.
-                    ->providers([
-                        Provider::make('identity')
-                            ->label('EF Identity')
-                            ->icon('heroicon-o-identification')
-                            ->color(Color::Emerald)
-                    ])
-                    ->registration(true),
                 QuickCreatePlugin::make()
                     ->includes([
                         DepartmentResource::class,
