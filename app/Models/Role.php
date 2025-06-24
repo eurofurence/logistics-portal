@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -40,6 +40,18 @@ class Role extends ModelsRole
     protected static function boot()
     {
         parent::boot();
+
+        static::updating(function ($model) {
+            if ($model->id == 1 || $model->name == 'Master') {
+                return false;
+            }
+        });
+
+        static::deleting(function ($model) {
+            if ($model->id == 1 || $model->name == 'Master') {
+                return false;
+            }
+        });
 
         static::updated(function () {
             app()->make(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
