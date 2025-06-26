@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -55,7 +58,7 @@ class Storage extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'contact_details', 'country', 'street', 'city', 'post_code', 'added_by', 'edited_by', 'comment', 'documents'];
+    protected $fillable = ['name', 'contact_details', 'country', 'street', 'city', 'post_code', 'added_by', 'edited_by', 'comment', 'documents', 'managing_department'];
 
     protected static function boot()
     {
@@ -69,5 +72,13 @@ class Storage extends Model
         static::updating(function ($model) {
             $model->edited_by = Auth::user()->id;
         });
+    }
+
+    /**
+     * The departments that belong to the department.
+     */
+    public function departments(): MorphToMany
+    {
+        return $this->morphToMany(Department::class, 'department', 'storage_department', 'department', 'storage');
     }
 }

@@ -5,7 +5,7 @@
 
 /**
  * A helper file for Laravel, to provide autocomplete information to your IDE
- * Generated for Laravel 12.19.3.
+ * Generated for Laravel 12.9.2.
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
@@ -1620,15 +1620,11 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
-         * Finds an entry of the container by its identifier and returns it.
+         * {@inheritdoc}
          *
          * @template TClass of object
          * @param string|class-string<TClass> $id
          * @return ($id is class-string<TClass> ? TClass : mixed)
-         * @param string $id Identifier of the entry to look for.
-         * @throws NotFoundExceptionInterface  No entry was found for **this** identifier.
-         * @throws ContainerExceptionInterface Error while retrieving the entry.
-         * @return mixed Entry.
          * @static 
          */
         public static function get($id)
@@ -1742,19 +1738,6 @@ namespace Illuminate\Support\Facades {
             //Method inherited from \Illuminate\Container\Container 
             /** @var \Illuminate\Foundation\Application $instance */
             $instance->fireAfterResolvingAttributeCallbacks($attributes, $object);
-        }
-
-        /**
-         * Get the name of the binding the container is currently resolving.
-         *
-         * @return class-string|string|null 
-         * @static 
-         */
-        public static function currentlyResolving()
-        {
-            //Method inherited from \Illuminate\Container\Container 
-            /** @var \Illuminate\Foundation\Application $instance */
-            return $instance->currentlyResolving();
         }
 
         /**
@@ -3358,20 +3341,6 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
-         * Execute the given callback using a custom echo format.
-         *
-         * @param string $format
-         * @param callable $callback
-         * @return string 
-         * @static 
-         */
-        public static function usingEchoFormat($format, $callback)
-        {
-            /** @var \Illuminate\View\Compilers\BladeCompiler $instance */
-            return $instance->usingEchoFormat($format, $callback);
-        }
-
-        /**
          * Set the echo format to be used by the compiler.
          *
          * @param string $format
@@ -3989,30 +3958,6 @@ namespace Illuminate\Support\Facades {
         {
             /** @var \Illuminate\Bus\Dispatcher $instance */
             return $instance->map($map);
-        }
-
-        /**
-         * Allow dispatching after responses.
-         *
-         * @return \Illuminate\Bus\Dispatcher 
-         * @static 
-         */
-        public static function withDispatchingAfterResponses()
-        {
-            /** @var \Illuminate\Bus\Dispatcher $instance */
-            return $instance->withDispatchingAfterResponses();
-        }
-
-        /**
-         * Disable dispatching after responses.
-         *
-         * @return \Illuminate\Bus\Dispatcher 
-         * @static 
-         */
-        public static function withoutDispatchingAfterResponses()
-        {
-            /** @var \Illuminate\Bus\Dispatcher $instance */
-            return $instance->withoutDispatchingAfterResponses();
         }
 
         /**
@@ -4859,14 +4804,13 @@ namespace Illuminate\Support\Facades {
          * @param array{ 0: \DateTimeInterface|\DateInterval|int, 1: \DateTimeInterface|\DateInterval|int } $ttl
          * @param (callable(): TCacheValue) $callback
          * @param array{ seconds?: int, owner?: string }|null $lock
-         * @param bool $alwaysDefer
          * @return TCacheValue 
          * @static 
          */
-        public static function flexible($key, $ttl, $callback, $lock = null, $alwaysDefer = false)
+        public static function flexible($key, $ttl, $callback, $lock = null)
         {
             /** @var \Illuminate\Cache\Repository $instance */
-            return $instance->flexible($key, $ttl, $callback, $lock, $alwaysDefer);
+            return $instance->flexible($key, $ttl, $callback, $lock);
         }
 
         /**
@@ -5886,32 +5830,6 @@ namespace Illuminate\Support\Facades {
         {
             /** @var \Illuminate\Log\Context\Repository $instance */
             return $instance->onlyHidden($keys);
-        }
-
-        /**
-         * Retrieve all values except those with the given keys.
-         *
-         * @param array<int, string> $keys
-         * @return array<string, mixed> 
-         * @static 
-         */
-        public static function except($keys)
-        {
-            /** @var \Illuminate\Log\Context\Repository $instance */
-            return $instance->except($keys);
-        }
-
-        /**
-         * Retrieve all hidden values except those with the given keys.
-         *
-         * @param array<int, string> $keys
-         * @return array<string, mixed> 
-         * @static 
-         */
-        public static function exceptHidden($keys)
-        {
-            /** @var \Illuminate\Log\Context\Repository $instance */
-            return $instance->exceptHidden($keys);
         }
 
         /**
@@ -10100,8 +10018,6 @@ namespace Illuminate\Support\Facades {
      * @method static \Illuminate\Http\Client\PendingRequest stub(callable $callback)
      * @method static \Illuminate\Http\Client\PendingRequest async(bool $async = true)
      * @method static \GuzzleHttp\Promise\PromiseInterface|null getPromise()
-     * @method static \Illuminate\Http\Client\PendingRequest truncateExceptionsAt(int $length)
-     * @method static \Illuminate\Http\Client\PendingRequest dontTruncateExceptions()
      * @method static \Illuminate\Http\Client\PendingRequest setClient(\GuzzleHttp\Client $client)
      * @method static \Illuminate\Http\Client\PendingRequest setHandler(callable $handler)
      * @method static array getOptions()
@@ -10208,7 +10124,7 @@ namespace Illuminate\Support\Facades {
          * Create a new connection exception for use during stubbing.
          *
          * @param string|null $message
-         * @return \Closure(\Illuminate\Http\Client\Request): \GuzzleHttp\Promise\PromiseInterface
+         * @return \GuzzleHttp\Promise\PromiseInterface 
          * @static 
          */
         public static function failedConnection($message = null)
@@ -10232,7 +10148,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Register a stub callable that will intercept requests and be able to return stub responses.
          *
-         * @param callable|array<string, mixed>|null $callback
+         * @param callable|array|null $callback
          * @return \Illuminate\Http\Client\Factory 
          * @static 
          */
@@ -10259,7 +10175,7 @@ namespace Illuminate\Support\Facades {
          * Stub the given URL using the given callback.
          *
          * @param string $url
-         * @param \Illuminate\Http\Client\Response|\GuzzleHttp\Promise\PromiseInterface|callable|int|string|array|\Illuminate\Http\Client\ResponseSequence $callback
+         * @param \Illuminate\Http\Client\Response|\GuzzleHttp\Promise\PromiseInterface|callable|int|string|array $callback
          * @return \Illuminate\Http\Client\Factory 
          * @static 
          */
@@ -10335,7 +10251,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Assert that a request / response pair was recorded matching a given truth test.
          *
-         * @param callable|(\Closure(\Illuminate\Http\Client\Request, \Illuminate\Http\Client\Response|null): bool) $callback
+         * @param callable $callback
          * @return void 
          * @static 
          */
@@ -10348,7 +10264,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Assert that the given request was sent in the given order.
          *
-         * @param list<string|(\Closure(\Illuminate\Http\Client\Request, \Illuminate\Http\Client\Response|null): bool)|callable> $callbacks
+         * @param array $callbacks
          * @return void 
          * @static 
          */
@@ -10361,7 +10277,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Assert that a request / response pair was not recorded matching a given truth test.
          *
-         * @param callable|(\Closure(\Illuminate\Http\Client\Request, \Illuminate\Http\Client\Response|null): bool) $callback
+         * @param callable $callback
          * @return void 
          * @static 
          */
@@ -10411,8 +10327,8 @@ namespace Illuminate\Support\Facades {
         /**
          * Get a collection of the request / response pairs matching the given truth test.
          *
-         * @param (\Closure(\Illuminate\Http\Client\Request, \Illuminate\Http\Client\Response|null): bool)|callable $callback
-         * @return \Illuminate\Support\Collection<int, array{0: \Illuminate\Http\Client\Request, 1: \Illuminate\Http\Client\Response|null}>
+         * @param callable $callback
+         * @return \Illuminate\Support\Collection 
          * @static 
          */
         public static function recorded($callback = null)
@@ -12147,7 +12063,6 @@ namespace Illuminate\Support\Facades {
      * @method static void deleteToken(\Illuminate\Contracts\Auth\CanResetPassword $user)
      * @method static bool tokenExists(\Illuminate\Contracts\Auth\CanResetPassword $user, string $token)
      * @method static \Illuminate\Auth\Passwords\TokenRepositoryInterface getRepository()
-     * @method static \Illuminate\Support\Timebox getTimebox()
      * @see \Illuminate\Auth\Passwords\PasswordBrokerManager
      * @see \Illuminate\Auth\Passwords\PasswordBroker
      */
@@ -12590,19 +12505,6 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
-         * Register an event listener for the daemon queue starting.
-         *
-         * @param mixed $callback
-         * @return void 
-         * @static 
-         */
-        public static function starting($callback)
-        {
-            /** @var \Illuminate\Queue\QueueManager $instance */
-            $instance->starting($callback);
-        }
-
-        /**
          * Register an event listener for the daemon queue stopping.
          *
          * @param mixed $callback
@@ -12933,58 +12835,6 @@ namespace Illuminate\Support\Facades {
         {
             /** @var \Illuminate\Support\Testing\Fakes\QueueFake $instance */
             return $instance->size($queue);
-        }
-
-        /**
-         * Get the number of pending jobs.
-         *
-         * @param string|null $queue
-         * @return int 
-         * @static 
-         */
-        public static function pendingSize($queue = null)
-        {
-            /** @var \Illuminate\Support\Testing\Fakes\QueueFake $instance */
-            return $instance->pendingSize($queue);
-        }
-
-        /**
-         * Get the number of delayed jobs.
-         *
-         * @param string|null $queue
-         * @return int 
-         * @static 
-         */
-        public static function delayedSize($queue = null)
-        {
-            /** @var \Illuminate\Support\Testing\Fakes\QueueFake $instance */
-            return $instance->delayedSize($queue);
-        }
-
-        /**
-         * Get the number of reserved jobs.
-         *
-         * @param string|null $queue
-         * @return int 
-         * @static 
-         */
-        public static function reservedSize($queue = null)
-        {
-            /** @var \Illuminate\Support\Testing\Fakes\QueueFake $instance */
-            return $instance->reservedSize($queue);
-        }
-
-        /**
-         * Get the creation timestamp of the oldest pending job, excluding delayed jobs.
-         *
-         * @param string|null $queue
-         * @return int|null 
-         * @static 
-         */
-        public static function creationTimeOfOldestPendingJob($queue = null)
-        {
-            /** @var \Illuminate\Support\Testing\Fakes\QueueFake $instance */
-            return $instance->creationTimeOfOldestPendingJob($queue);
         }
 
         /**
@@ -13372,7 +13222,7 @@ namespace Illuminate\Support\Facades {
          * @param string $key
          * @param int $maxAttempts
          * @param \Closure $callback
-         * @param \DateTimeInterface|\DateInterval|int $decaySeconds
+         * @param int $decaySeconds
          * @return mixed 
          * @static 
          */
@@ -13400,7 +13250,7 @@ namespace Illuminate\Support\Facades {
          * Increment (by 1) the counter for a given key for a given decay time.
          *
          * @param string $key
-         * @param \DateTimeInterface|\DateInterval|int $decaySeconds
+         * @param int $decaySeconds
          * @return int 
          * @static 
          */
@@ -13414,7 +13264,7 @@ namespace Illuminate\Support\Facades {
          * Increment the counter for a given key for a given decay time by a given amount.
          *
          * @param string $key
-         * @param \DateTimeInterface|\DateInterval|int $decaySeconds
+         * @param int $decaySeconds
          * @param int $amount
          * @return int 
          * @static 
@@ -13429,7 +13279,7 @@ namespace Illuminate\Support\Facades {
          * Decrement the counter for a given key for a given decay time by a given amount.
          *
          * @param string $key
-         * @param \DateTimeInterface|\DateInterval|int $decaySeconds
+         * @param int $decaySeconds
          * @param int $amount
          * @return int 
          * @static 
@@ -13818,6 +13668,7 @@ namespace Illuminate\Support\Facades {
     /**
      * 
      *
+     * @method static array|(\Illuminate\Http\UploadedFile|\Illuminate\Http\UploadedFile[]|null file(string|null $key = null, mixed $default = null)
      * @method static array validate(array $rules, ...$params)
      * @method static array validateWithBag(string $errorBag, array $rules, ...$params)
      * @method static bool hasValidSignature(bool $absolute = true)
@@ -14202,7 +14053,7 @@ namespace Illuminate\Support\Facades {
          *
          * @param string|null $key
          * @param mixed $default
-         * @return ($key is null ? \Symfony\Component\HttpFoundation\InputBag : mixed)
+         * @return \Symfony\Component\HttpFoundation\InputBag|mixed 
          * @static 
          */
         public static function json($key = null, $default = null)
@@ -14352,7 +14203,7 @@ namespace Illuminate\Support\Facades {
          *
          * @param string|null $param
          * @param mixed $default
-         * @return ($param is null ? \Illuminate\Routing\Route : object|string|null)
+         * @return \Illuminate\Routing\Route|object|string|null 
          * @static 
          */
         public static function route($param = null, $default = null)
@@ -16172,14 +16023,13 @@ namespace Illuminate\Support\Facades {
          * @template TEnum of \BackedEnum
          * @param string $key
          * @param class-string<TEnum> $enumClass
-         * @param TEnum|null $default
          * @return TEnum|null 
          * @static 
          */
-        public static function enum($key, $enumClass, $default = null)
+        public static function enum($key, $enumClass)
         {
             /** @var \Illuminate\Http\Request $instance */
-            return $instance->enum($key, $enumClass, $default);
+            return $instance->enum($key, $enumClass);
         }
 
         /**
@@ -16437,7 +16287,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Create a new streamed response instance.
          *
-         * @param callable|null $callback
+         * @param callable $callback
          * @param int $status
          * @param array $headers
          * @return \Symfony\Component\HttpFoundation\StreamedResponse 
@@ -18578,7 +18428,7 @@ namespace Illuminate\Support\Facades {
         /**
          * Set the Schema Blueprint resolver callback.
          *
-         * @param \Closure(string, \Closure, string):  \Illuminate\Database\Schema\Blueprint|null  $resolver
+         * @param \Closure $resolver
          * @return void 
          * @static 
          */
@@ -26382,18 +26232,6 @@ namespace Illuminate\Testing {
             return \Illuminate\Testing\TestResponse::inertiaPage();
         }
 
-        /**
-         * 
-         *
-         * @see \Inertia\Testing\TestResponseMacros::inertiaProps()
-         * @param string|null $propName
-         * @static 
-         */
-        public static function inertiaProps($propName = null)
-        {
-            return \Illuminate\Testing\TestResponse::inertiaProps($propName);
-        }
-
             }
     }
 
@@ -32294,7 +32132,7 @@ namespace  {
         /**
          * Set the columns to be selected.
          *
-         * @param mixed $columns
+         * @param array|mixed $columns
          * @return \Illuminate\Database\Eloquent\Builder<static> 
          * @static 
          */
@@ -32364,7 +32202,7 @@ namespace  {
         /**
          * Add a new select column to the query.
          *
-         * @param mixed $column
+         * @param array|mixed $column
          * @return \Illuminate\Database\Eloquent\Builder<static> 
          * @static 
          */
@@ -32712,7 +32550,7 @@ namespace  {
         /**
          * Add a raw where clause to the query.
          *
-         * @param \Illuminate\Contracts\Database\Query\Expression|string $sql
+         * @param string $sql
          * @param mixed $bindings
          * @param string $boolean
          * @return \Illuminate\Database\Eloquent\Builder<static> 
@@ -34081,19 +33919,6 @@ namespace  {
         }
 
         /**
-         * Add descending "reorder" clause to the query.
-         *
-         * @param \Closure|\Illuminate\Database\Query\Builder|\Illuminate\Contracts\Database\Query\Expression|string|null $column
-         * @return \Illuminate\Database\Eloquent\Builder<static> 
-         * @static 
-         */
-        public static function reorderDesc($column)
-        {
-            /** @var \Illuminate\Database\Query\Builder $instance */
-            return $instance->reorderDesc($column);
-        }
-
-        /**
          * Add a union statement to the query.
          *
          * @param \Closure|\Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder<*> $query
@@ -34220,7 +34045,7 @@ namespace  {
         /**
          * Get the count of the total records for the paginator.
          *
-         * @param array<string|\Illuminate\Contracts\Database\Query\Expression> $columns
+         * @param array $columns
          * @return int 
          * @static 
          */
@@ -34530,7 +34355,7 @@ namespace  {
         /**
          * Get all of the query builder's columns in a text-only array with all expressions evaluated.
          *
-         * @return list<string> 
+         * @return array 
          * @static 
          */
         public static function getColumns()
@@ -34555,7 +34380,7 @@ namespace  {
         /**
          * Get the current query value bindings in a flattened array.
          *
-         * @return list<mixed> 
+         * @return array 
          * @static 
          */
         public static function getBindings()
@@ -34567,16 +34392,7 @@ namespace  {
         /**
          * Get the raw array of bindings.
          *
-         * @return \Illuminate\Database\Query\array{ select: list<mixed>,
-         *      from: list<mixed>,
-         *      join: list<mixed>,
-         *      where: list<mixed>,
-         *      groupBy: list<mixed>,
-         *      having: list<mixed>,
-         *      order: list<mixed>,
-         *      union: list<mixed>,
-         *      unionOrder: list<mixed>,
-         * }
+         * @return array 
          * @static 
          */
         public static function getRawBindings()
@@ -34588,8 +34404,7 @@ namespace  {
         /**
          * Set the bindings on the query builder.
          *
-         * @param list<mixed> $bindings
-         * @param "select"|"from"|"join"|"where"|"groupBy"|"having"|"order"|"union"|"unionOrder" $type
+         * @param string $type
          * @return \Illuminate\Database\Eloquent\Builder<static> 
          * @throws \InvalidArgumentException
          * @static 
@@ -34604,7 +34419,7 @@ namespace  {
          * Add a binding to the query.
          *
          * @param mixed $value
-         * @param "select"|"from"|"join"|"where"|"groupBy"|"having"|"order"|"union"|"unionOrder" $type
+         * @param string $type
          * @return \Illuminate\Database\Eloquent\Builder<static> 
          * @throws \InvalidArgumentException
          * @static 
@@ -34631,7 +34446,6 @@ namespace  {
         /**
          * Merge an array of bindings into our bindings.
          *
-         * @param self $query
          * @return \Illuminate\Database\Eloquent\Builder<static> 
          * @static 
          */
@@ -34644,8 +34458,7 @@ namespace  {
         /**
          * Remove all of the expressions from a list of bindings.
          *
-         * @param array<mixed> $bindings
-         * @return list<mixed> 
+         * @return array 
          * @static 
          */
         public static function cleanBindings($bindings)

@@ -1426,6 +1426,9 @@ class OrderResource extends Resource
                                     ->icon('heroicon-o-exclamation-triangle')
                                     ->iconColor('warning')
                                     ->send();
+                            })
+                            ->visible(function (): bool {
+                                return Auth::user()->can('can-approve-orders') || Auth::user()->can('can-approve-orders-for-other-departments');
                             }),
                         BulkAction::make('decline_order')
                             ->label(__('general.decline'))
@@ -1462,6 +1465,9 @@ class OrderResource extends Resource
                                     ->icon('heroicon-o-exclamation-triangle')
                                     ->iconColor('warning')
                                     ->send();
+                            })
+                            ->visible(function (): bool {
+                                return Auth::user()->can('can-decline-orders') || Auth::user()->can('can-decline-orders-for-other-departments');
                             })
                     ])
                         ->dropdown(false),

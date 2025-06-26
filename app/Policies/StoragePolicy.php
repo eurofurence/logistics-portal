@@ -13,7 +13,7 @@ class StoragePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->checkPermissionTo('view-any-Storage');
+        return $user->checkPermissionTo('view-any-Storage')  || $user->hasAnyDepartmentRoleWithPermissionTo('view-any-Storage');
     }
 
     /**

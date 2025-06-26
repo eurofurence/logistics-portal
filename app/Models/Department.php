@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -96,5 +97,13 @@ class Department extends Model
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'department_user', 'department_id', 'role_id');
+    }
+
+    /**
+     * The storages that belong to the department.
+     */
+    public function storages(): MorphToMany
+    {
+        return $this->morphToMany(Storage::class, 'storage', 'storage_department', 'storage', 'department');
     }
 }
