@@ -1391,6 +1391,27 @@ class OrderResource extends Resource
                                 ->send();
                         })
                         ->visible(Auth::user()->can('can-use-article-directory-special-functions')),
+                    BulkAction::make('returning_deposit_sync')
+                        ->label(__('general.returning_deposit_sync'))
+                        ->icon('heroicon-o-arrow-path-rounded-square')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            foreach ($records as $order) {
+                                $orderArticle = $order->directoryArticle;
+                                if ($orderArticle) {
+                                    $order->returning_deposit = $orderArticle->returning_deposit;
+                                    $order->save();
+                                }
+                            }
+
+                            Notification::make()
+                                ->body(__('general.successfully_synchronized'))
+                                ->success()
+                                ->icon('heroicon-o-check')
+                                ->iconColor('success')
+                                ->send();
+                        })
+                        ->visible(Auth::user()->can('can-use-article-directory-special-functions')),
                     BulkActionGroup::make([
                         BulkAction::make('approve_order')
                             ->label(__('general.approve'))

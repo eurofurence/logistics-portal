@@ -267,6 +267,7 @@ return array(
     'sum' => 'Sum',
     'special_functions' => 'Special functions',
     'article_number_sync' => 'Synchronize article numbers',
+    'returning_deposit_sync' => 'Synchronize returning deposit',
     'special_delivery' => 'Special delivery',
     'special_flag_text' => 'Special note',
     'set_delivery_address' => 'Set delivery address',
@@ -382,4 +383,5 @@ return array(
     'show_who_approved_order' => 'Who Approved Order',
     'special_fields' => 'Special fields',
     'undefined' => 'Undefined',
+    'access' => 'Access',
 );

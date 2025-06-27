@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
@@ -54,17 +55,25 @@ class Storage extends Model
     use HasFactory, SoftDeletes;
 
     /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'storages';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
-    protected $fillable = ['name', 'contact_details', 'country', 'street', 'city', 'post_code', 'added_by', 'edited_by', 'comment', 'documents', 'managing_department'];
+    protected $fillable = ['name', 'contact_details', 'country', 'street', 'city', 'post_code', 'added_by', 'edited_by', 'comment', 'managing_department', 'type'];
 
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($model) {
+            dd(33);
             $model->added_by = Auth::user()->id;
             $model->edited_by = Auth::user()->id;
         });
@@ -75,10 +84,18 @@ class Storage extends Model
     }
 
     /**
-     * The departments that belong to the department.
+     * The departments that belong to the storage.
      */
-    public function departments(): MorphToMany
+    public function departments(): HasMany
     {
-        return $this->morphToMany(Department::class, 'department', 'storage_department', 'department', 'storage');
+        return $this->hasMany(StorageDepartmentAccess::class, 'storage', 'department');
+    }
+
+    /**
+     * The managing department of the storage.
+     */
+    public function managing_department(): HasOne
+    {
+        return $this->hasOne(Department::class, 'id', 'managing_department');
     }
 }

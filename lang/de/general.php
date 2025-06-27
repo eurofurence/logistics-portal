@@ -268,6 +268,7 @@ return array(
     'sum' => 'Summe',
     'special_functions' => 'Sonderfunktionen',
     'article_number_sync' => 'Artikelnummern synchronisieren',
+    'returning_deposit_sync' => 'Pfand synchronisieren',
     'special_delivery' => 'Besondere Lieferung',
     'special_flag_text' => 'Sondervermerk',
     'set_delivery_address' => 'Lieferadresse setzen',
@@ -381,4 +382,5 @@ return array(
     'show_who_approved_order' => 'Freigegeben von',
     'special_fields' => 'Spezielle Felder',
     'undefined' => 'Undefiniert',
+    'access' => 'Zugang',
 );

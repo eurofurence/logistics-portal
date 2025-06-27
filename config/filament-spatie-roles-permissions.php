@@ -260,6 +260,8 @@ return [
             'bulk-restore-Order',
             'bulk-delete-Order',
             'can-view-order-delivery-address',
+            'can-create-storages-for-all-departments',
+
         ],
 
         'user_model' => \App\Models\User::class,
