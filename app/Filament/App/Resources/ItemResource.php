@@ -194,6 +194,11 @@ class ItemResource extends Resource
                                                 ->seconds(false)
                                                 ->timezone('Europe/Berlin')
                                                 ->hint('Europe/Berlin'),
+                                            Textarea::make('owner')
+                                                ->label(__('general.owner'))
+                                                ->maxlength(10000)
+                                                ->rows(5),
+
                                         ]),
                                     ]),
                                 Tabs\Tab::make(__('general.storage'))
@@ -231,6 +236,18 @@ class ItemResource extends Resource
                                                     ->inline(false),
                                                 DateTimePicker::make('sorted_out')
                                                     ->label(__('general.sorted_out')),
+                                                Toggle::make('borrowed_item')
+                                                    ->label(__('general.borrowed_item'))
+                                                    ->default(false)
+                                                    ->inline(false),
+                                                Toggle::make('rented_item')
+                                                    ->label(__('general.rented_item'))
+                                                    ->default(false)
+                                                    ->inline(false),
+                                                Toggle::make('will_be_brought_to_next_event')
+                                                    ->label(__('general.will_be_brought_to_next_event'))
+                                                    ->default(false)
+                                                    ->inline(false),
                                             ])
                                             ->label(__('general.note')),
                                         Fieldset::make('')
@@ -317,16 +334,23 @@ class ItemResource extends Resource
                     ->searchable()
                     ->label(__('general.department'))
                     ->toggleable(),
-                TextColumn::make('serialnumber')
-                    ->sortable()
-                    ->searchable()
-                    ->label(__('general.serialnumber'))
-                    ->toggleable(true, true),
                 ToggleIconColumn::make('sorted_out')
                     ->sortable()
                     ->toggleable(true, true)
                     ->label(__('general.sorted_out'))
-                    ->disabled(true),
+                    ->disabled(),
+                ToggleIconColumn::make('will_be_brought_to_next_event')
+                    ->sortable()
+                    ->toggleable(true, false)
+                    ->label(__('general.will_be_brought_to_next_event')),
+                ToggleIconColumn::make('borrowed_item')
+                    ->sortable()
+                    ->toggleable(true, true)
+                    ->label(__('general.borrowed_item')),
+                ToggleIconColumn::make('rented_item')
+                    ->sortable()
+                    ->toggleable(true, true)
+                    ->label(__('general.rented_item')),
                 TextColumn::make('created_at')
                     ->label(__('general.order_date'))
                     ->date()
@@ -380,6 +404,16 @@ class ItemResource extends Resource
                 TernaryFilter::make('sorted_out')
                     ->nullable()
                     ->label(__('general.sorted_out')),
+                TernaryFilter::make('borrowed_item')
+                    ->nullable()
+                    ->label(__('general.borrowed_item')),
+                TernaryFilter::make('rented_item')
+                    ->nullable()
+                    ->label(__('general.rented_item')),
+                TernaryFilter::make('will_be_brought_to_next_event')
+                    ->nullable()
+                    ->label(__('general.will_be_brought_to_next_event')),
+                #TODO: Restlichen Filter einbauen
             ])
             ->filtersFormColumns(3)
             ->actions([
@@ -397,6 +431,7 @@ class ItemResource extends Resource
                         ->visible(Gate::check('bulkDelete', Item::class)),
                     Tables\Actions\RestoreBulkAction::make()
                         ->visible(Gate::check('bulkRestore', Item::class)),
+                    #TODO: will_be_brought_to_next_event Bulk Action einbauen
                 ]),
             ])
             ->groups([

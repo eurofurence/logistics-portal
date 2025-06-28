@@ -384,4 +384,10 @@ return array(
     'special_fields' => 'Special fields',
     'undefined' => 'Undefined',
     'access' => 'Access',
+    'global' => 'Global',
+    'managing_department' => 'Managing department',
+    'owner' => 'Owner',
+    'borrowed_item' => 'Borrowed item',
+    'rented_item' => 'Rented item',
+    'will_be_brought_to_next_event' => 'Will be brought to the next event',
 );

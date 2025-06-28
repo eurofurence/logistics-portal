@@ -7,6 +7,7 @@ use App\Models\Storage;
 use Filament\Forms\Form;
 use App\Models\Department;
 use Filament\Tables\Table;
+use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Tabs;
@@ -17,11 +18,23 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Contracts\Support\Htmlable;
+use Filament\Tables\Actions\BulkActionGroup;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\RestoreBulkAction;
 use App\Filament\App\Resources\StorageResource\Pages;
 use Parfaitementweb\FilamentCountryField\Forms\Components\Country;
 
@@ -110,18 +123,18 @@ class StorageResource extends Resource
                                             ->label(__('general.name')),
                                         Select::make('type')
                                             ->options([
-                                                1 => __('general.general'),
+                                                1 => __('general.global'),
                                                 2 => __('general.department'),
                                             ])
+                                            ->default(2)
                                             ->disableOptionWhen(
                                                 function (string $value): bool {
-                                                    return $value == 1 && true; //True is a placeholder for the permission check
+                                                    return $value == 1 && !Auth::user()->can('can-create-global-storages');
                                                 }
                                             )
                                             ->label(__('general.type'))
                                             ->required(),
                                         Select::make('managing_department')
-                                            ->relationship('managing_department', 'name')
                                             ->exists('departments', 'id')
                                             ->options(function (): array {
                                                 if (self::isView()) {
@@ -134,6 +147,7 @@ class StorageResource extends Resource
                                                     return Auth::user()->getDepartmentsWithPermission('create-Storage')->pluck('name', 'id')->toArray();
                                                 }
                                             })
+                                            ->searchable()
                                             ->required(true)
                                             ->label(__('general.department')),
                                         Fieldset::make('address_fieldset')
@@ -186,8 +200,7 @@ class StorageResource extends Resource
                                     ->disabled()
                             ])
                             ->label(__('general.access'))
-                            ->icon('heroicon-o-key')
-                            ->disabled(false),
+                            ->icon('heroicon-o-key'),
                     ])
                     ->columnSpanFull()
                     ->persistTab()
@@ -203,14 +216,27 @@ class StorageResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->label(__('general.id'))
-                    ->toggleable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('type')
+                    ->icon(fn(string $state): string => match ($state) {
+                        '0' => 'heroicon-o-exclamation-triangle',
+                        '1' => 'heroicon-o-globe-alt',
+                        '2' => 'heroicon-o-user-group',
+                    })
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        '0' => __('general.undefined'),
+                        '1' => __('general.global'),
+                        '2' => __('general.department'),
+                    })
+                    ->label(__('general.type'))
+                    ->sortable(),
                 TextColumn::make('name')
                     ->sortable()
                     ->searchable()
                     ->label(__('general.name')),
                 TextColumn::make('country')
                     ->sortable()
-                    ->toggleable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(__('general.country')),
                 TextColumn::make('street')
                     ->sortable()
@@ -218,7 +244,7 @@ class StorageResource extends Resource
                     ->label(__('general.street')),
                 TextColumn::make('city')
                     ->sortable()
-                    ->toggleable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->label(__('general.city')),
                 TextColumn::make('post_code')
                     ->sortable()
@@ -226,19 +252,68 @@ class StorageResource extends Resource
                     ->label(__('general.post_code')),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make()
+                TrashedFilter::make()
                     ->visible(fn(Storage $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
+                SelectFilter::make('managing_department')
+                    ->options(function (): array {
+                        if (Auth::user()->can('can-see-all-storages')) {
+                            return Department::all()->pluck('name', 'id')->toArray();
+                        } else {
+                            return Auth::user()->getDepartmentsWithPermission('view-Storage')->pluck('name', 'id')->toArray();
+                        }
+                    })
+                    ->label(__('general.managing_department')),
+                SelectFilter::make('type')
+                    ->options([
+                        1 => __('general.global'),
+                        2 => __('general.department'),
+                    ])
+                    ->label(__('general.type')),
+                Tables\Filters\Filter::make('created_at')
+                    ->form([
+                        DatePicker::make('created_from')
+                            ->label(__('general.created_from'))
+                            ->placeholder(fn($state): string => 'Dec 18, ' . now()->subYear()->format('Y')),
+                        DatePicker::make('created_until')
+                            ->label(__('general.created_until'))
+                            ->placeholder(fn($state): string => now()->format('M d, Y')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'] ?? null,
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'] ?? null,
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['created_from'] ?? null) {
+                            $indicators['created_from'] = __('general.created_from') . ' ' . Carbon::parse($data['created_from'])->toFormattedDateString();
+                        }
+                        if ($data['created_until'] ?? null) {
+                            $indicators['created_until'] = __('general.created_until') . ' ' . Carbon::parse($data['created_until'])->toFormattedDateString();
+                        }
+
+                        return $indicators;
+                    }),
             ], layout: FiltersLayout::Modal)
             ->filtersFormColumns(2)
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make(),
+                ])
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->visible(Gate::check('bulkDelete', Storage::class)),
-                    Tables\Actions\RestoreBulkAction::make()
+                    RestoreBulkAction::make()
                         ->visible(Gate::check('bulkRestore', Storage::class)),
                 ]),
             ]);

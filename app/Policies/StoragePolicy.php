@@ -30,7 +30,7 @@ class StoragePolicy
                 break;
 
             case 2:
-                if ($user->hasDepartmentRoleWithPermissionTo('view-Storage', $storage->managing_department->id)) {
+                if ($user->hasDepartmentRoleWithPermissionTo('view-Storage', $storage->managing_department->id) || $user->checkPermissionTo('can-see-all-storages')) {
                     return true;
                 }
                 break;

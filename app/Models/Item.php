@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -89,9 +89,9 @@ class Item extends Model implements HasMedia
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var array'
      */
-    protected $fillable = ['name', 'shortname', 'serialnumber', 'weight_g', 'stackable', 'unit', 'due_date', 'sorted_out', 'description', 'comment', 'department', 'edited_by', 'added_by', 'price', 'locked', 'specific_editor', 'buy_date', 'qr_code', 'storage_container_id', 'storage'];
+    protected $fillable = ['name', 'shortname', 'serialnumber', 'weight_g', 'stackable', 'unit', 'due_date', 'sorted_out', 'description', 'comment', 'department', 'edited_by', 'added_by', 'price', 'locked', 'specific_editor', 'buy_date', 'qr_code', 'storage_container_id', 'storage', 'owner', 'borrowed_item', 'rented_item', 'will_be_brought_to_next_event'];
 
     protected static function boot()
     {

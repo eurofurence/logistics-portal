@@ -66,14 +66,13 @@ class Storage extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'contact_details', 'country', 'street', 'city', 'post_code', 'added_by', 'edited_by', 'comment', 'managing_department', 'type'];
+    protected $fillable = ['name', 'contact_details', 'country', 'street', 'city', 'post_code', 'added_by', 'edited_by', 'comment', 'managing_department', 'type', 'owner', 'borrowed_item', 'rented_item', 'will_be_brought_to_next_event'];
 
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($model) {
-            dd(33);
             $model->added_by = Auth::user()->id;
             $model->edited_by = Auth::user()->id;
         });

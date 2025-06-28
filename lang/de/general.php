@@ -383,4 +383,10 @@ return array(
     'special_fields' => 'Spezielle Felder',
     'undefined' => 'Undefiniert',
     'access' => 'Zugang',
+    'global' => 'Global',
+    'managing_department' => 'Verwaltende Abteilung',
+    'owner' => 'Eigentümer',
+    'borrowed_item' => 'Ausgeliehener Gegenstand',
+    'rented_item' => 'Gemieteter Gegenstand',
+    'will_be_brought_to_next_event' => 'Wird zur nächsten Veranstaltung mitgebracht',
 );

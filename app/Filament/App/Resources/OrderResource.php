@@ -722,7 +722,7 @@ class OrderResource extends Resource
                             return true;
                         }
 
-                        if ($record->status == 'open' && !$record->event->locked) {
+                        if (($record->status == 'open' || $record->status == 'awaiting_approval')  && !$record->event->locked) {
                             return false;
                         } else {
                             if (Auth::user()->can('can-always-edit-orders')) {
