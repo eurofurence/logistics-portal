@@ -24,6 +24,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
@@ -31,6 +32,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Collection;
 use Filament\Forms\Components\DateTimePicker;
 use App\Filament\App\Resources\ItemResource\Pages;
 use Archilex\ToggleIconColumn\Columns\ToggleIconColumn;
@@ -323,7 +325,19 @@ class ItemResource extends Resource
                 TextColumn::make('name')
                     ->sortable()
                     ->searchable()
-                    ->label(__('general.name')),
+                    ->label(__('general.name'))
+                    ->formatStateUsing(fn(string $state) => \Illuminate\Support\Str::limit($state, 40, '...'))
+                    ->description(function ($record): string {
+                        $flags = array_filter([
+                            $record->dangerous_good ? __('general.dangerous_good') : null,
+                            $record->borrowed_item ? __('general.borrowed_item') : null,
+                            $record->rented_item ? __('general.rented_item') : null,
+                            $record->comment ? __('general.comment') : null,
+                            $record->due_date ? __('general.due_date') : null,
+                        ]);
+
+                        return implode(' \ ', $flags);
+                    }),
                 TextColumn::make('shortname')
                     ->sortable()
                     ->searchable()
@@ -343,6 +357,7 @@ class ItemResource extends Resource
                     ->sortable()
                     ->toggleable(true, false)
                     ->label(__('general.will_be_brought_to_next_event')),
+                /*
                 ToggleIconColumn::make('borrowed_item')
                     ->sortable()
                     ->toggleable(true, true)
@@ -351,10 +366,11 @@ class ItemResource extends Resource
                     ->sortable()
                     ->toggleable(true, true)
                     ->label(__('general.rented_item')),
+                */
                 TextColumn::make('created_at')
-                    ->label(__('general.order_date'))
+                    ->label(__('general.created_at'))
                     ->date()
-                    ->toggleable()
+                    ->toggleable(true, true)
                     ->sortable(),
             ])
             ->filters([
@@ -391,6 +407,37 @@ class ItemResource extends Resource
 
                         return $indicators;
                     }),
+                Tables\Filters\Filter::make('due_date')
+                    ->form([
+                        Forms\Components\DatePicker::make('due_date_from')
+                            ->label(__('general.due_date_from'))
+                            ->placeholder(fn($state): string => 'Dec 18, ' . now()->subYear()->format('Y')),
+                        Forms\Components\DatePicker::make('due_date_until')
+                            ->label(__('general.due_date_until'))
+                            ->placeholder(fn($state): string => now()->format('M d, Y')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['due_date_from'] ?? null,
+                                fn(Builder $query, $date): Builder => $query->whereDate('due_date', '>=', $date),
+                            )
+                            ->when(
+                                $data['due_date_until'] ?? null,
+                                fn(Builder $query, $date): Builder => $query->whereDate('due_date', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['due_date_from'] ?? null) {
+                            $indicators['due_date_from'] = __('general.due_date_from') . ' ' . Carbon::parse($data['due_date_from'])->toFormattedDateString();
+                        }
+                        if ($data['due_date_until'] ?? null) {
+                            $indicators['due_date_until'] = __('general.due_date_until') . ' ' . Carbon::parse($data['due_date_until'])->toFormattedDateString();
+                        }
+
+                        return $indicators;
+                    }),
                 SelectFilter::make('department')
                     ->multiple()
                     ->label(__('general.department'))
@@ -399,6 +446,24 @@ class ItemResource extends Resource
                             return Department::all()->pluck('name', 'id')->toArray();
                         } else {
                             return Auth::user()->departments()->pluck('name', 'department_id')->toArray();
+                        }
+                    }),
+                SelectFilter::make('storage')
+                    ->multiple()
+                    ->label(__('general.storage'))
+                    ->options(function (): array {
+                        if (Auth::user()->can('can-see-all-storages')) {
+                            return Storage::all()->pluck('name', 'id')->toArray();
+                        } else {
+                            // Get the departments to which the user has access
+                            $accessibleDepartments = Auth::user()->departments;
+
+                            // Get the storages that belong to these departments
+                            $accessibleStorages = Storage::whereHas('managing_department', function ($query) use ($accessibleDepartments) {
+                                $query->whereIn('id', $accessibleDepartments->pluck('id'));
+                            })->pluck('name', 'id')->toArray();
+
+                            return $accessibleStorages;
                         }
                     }),
                 TernaryFilter::make('sorted_out')
@@ -413,16 +478,34 @@ class ItemResource extends Resource
                 TernaryFilter::make('will_be_brought_to_next_event')
                     ->nullable()
                     ->label(__('general.will_be_brought_to_next_event')),
-                #TODO: Restlichen Filter einbauen
+                TernaryFilter::make('dangerous_good')
+                    ->nullable()
+                    ->label(__('general.dangerous_good')),
+                TernaryFilter::make('big_size')
+                    ->nullable()
+                    ->label(__('general.big_size')),
+                TernaryFilter::make('needs_truck')
+                    ->nullable()
+                    ->label(__('general.needs_truck')),
+                TernaryFilter::make('stackable')
+                    ->nullable()
+                    ->label(__('general.stackable')),
             ])
             ->filtersFormColumns(3)
             ->actions([
                 ActionGroup::make([
+                    Tables\Actions\Action::make('show_storage_location_action')
+                        ->url(function (Model $record) {
+                            return route('filament.app.resources.storages.view', $record->storage);
+                        }, true)
+                        ->visible(fn(Model $record) => (!empty($record->storage) && Gate::allows('view-Storage', $record->storage) && Storage::where('id', $record->storage)->exists()))
+                        ->icon('heroicon-o-arrow-top-right-on-square')
+                        ->label(__('general.open_storage')),
+                    Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
                     Tables\Actions\RestoreAction::make(),
                     Tables\Actions\ForceDeleteAction::make(),
-                    Tables\Actions\ViewAction::make(),
                 ])
             ])
             ->bulkActions([
@@ -431,18 +514,49 @@ class ItemResource extends Resource
                         ->visible(Gate::check('bulkDelete', Item::class)),
                     Tables\Actions\RestoreBulkAction::make()
                         ->visible(Gate::check('bulkRestore', Item::class)),
-                    #TODO: will_be_brought_to_next_event Bulk Action einbauen
+                    Tables\Actions\BulkAction::make('setWillBeBroughtToNextEvent')
+                        ->label(__('general.will_be_brought_along'))
+                        ->action(function (Collection $records) {
+                            $records->each->update(['will_be_brought_to_next_event' => true]);
+
+                            Notification::make()
+                                ->body(__('general.saved'))
+                                ->success()
+                                ->send();
+                        })
+                        ->icon('heroicon-o-check-circle'),
+                    Tables\Actions\BulkAction::make('unsetWillBeBroughtToNextEvent')
+                        ->label(__('general.will_not_be_brought_along'))
+                        ->action(function (Collection $records) {
+                            $records->each->update(['will_be_brought_to_next_event' => false]);
+
+                            Notification::make()
+                                ->body(__('general.saved'))
+                                ->success()
+                                ->send();
+                        })
+                        ->icon('heroicon-o-x-circle'),
                 ]),
             ])
             ->groups([
                 Group::make('name')
                     ->label(__('general.name'))
                     ->collapsible(),
+                Group::make('will_be_brought_to_next_event')
+                    ->label(__('general.will_be_brought_to_next_event'))
+                    ->getTitleFromRecordUsing(function (Item $record): string {
+                        if ($record->will_be_brought_to_next_event) {
+                            return __('general.yes');
+                        }
+
+                        return __('general.no');
+                    })
+                    ->collapsible(),
                 Group::make('department.name')
                     ->label(__('general.department'))
                     ->collapsible(),
                 Group::make('created_at')
-                    ->label(__('general.order_date'))
+                    ->label(__('general.created_at'))
                     ->date()
                     ->collapsible(),
             ]);
@@ -461,6 +575,7 @@ class ItemResource extends Resource
             'index' => Pages\ListItems::route('/'),
             'create' => Pages\CreateItem::route('/create'),
             'edit' => Pages\EditItem::route('/{record}/edit'),
+            'view' => Pages\ViewItem::route('/{record}'),
         ];
     }
 }

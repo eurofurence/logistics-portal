@@ -389,5 +389,10 @@ return array(
     'owner' => 'Owner',
     'borrowed_item' => 'Borrowed item',
     'rented_item' => 'Rented item',
-    'will_be_brought_to_next_event' => 'Will be brought to the next event',
+    'will_be_brought_to_next_event' => 'Will be brought to the event',
+    'due_date_from' => 'Expiry date from',
+    'due_date_until' => 'Expiry date until',
+    'will_be_brought_along' => ' Will be brought along',
+    'will_not_be_brought_along' => 'Will not be brought along',
+    'open_storage' => 'Open storage',
 );

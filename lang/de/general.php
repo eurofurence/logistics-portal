@@ -388,5 +388,10 @@ return array(
     'owner' => 'Eigentümer',
     'borrowed_item' => 'Ausgeliehener Gegenstand',
     'rented_item' => 'Gemieteter Gegenstand',
-    'will_be_brought_to_next_event' => 'Wird zur nächsten Veranstaltung mitgebracht',
+    'will_be_brought_to_next_event' => 'Wird zum Event mitgebracht',
+    'due_date_from' => 'Verfallsdatum ab',
+    'due_date_until' => 'Verfallsdatum bis',
+    'will_be_brought_along' => ' Wird mitgebracht',
+    'will_not_be_brought_along' => 'Wird nicht mitgebracht',
+    'open_storage' => 'Lager öffnen',
 );

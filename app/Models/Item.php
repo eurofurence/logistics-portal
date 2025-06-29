@@ -121,4 +121,9 @@ class Item extends Model implements HasMedia
     {
         return $this->hasOne(User::class, 'id', 'edited_by');
     }
+
+    public function storage(): HasOne
+    {
+        return $this->hasOne(Storage::class, 'id', 'storage');
+    }
 }
