@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use InvalidArgumentException;
+use App\Models\ItemsOperationSite;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -105,5 +106,13 @@ class Department extends Model
     public function storages(): MorphToMany
     {
         return $this->morphToMany(Storage::class, 'storage', 'storage_department', 'storage', 'department');
+    }
+
+     /**
+     * The operations sites that belong to the department.
+     */
+    public function items_operation_sites(): HasMany
+    {
+        return $this->hasMany(ItemsOperationSite::class, 'department');
     }
 }

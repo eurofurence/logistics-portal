@@ -200,7 +200,8 @@ class StorageResource extends Resource
                                     ->disabled()
                             ])
                             ->label(__('general.access'))
-                            ->icon('heroicon-o-key'),
+                            ->icon('heroicon-o-key')
+                            ->visible(false),
                     ])
                     ->columnSpanFull()
                     ->persistTab()

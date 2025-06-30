@@ -12,10 +12,12 @@ use Filament\Forms\Form;
 use App\Models\Department;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use App\Models\ItemsOperationSite;
 use Filament\Forms\Components\Tabs;
 use Filament\Tables\Grouping\Group;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
@@ -203,8 +205,9 @@ class ItemResource extends Resource
 
                                         ]),
                                     ]),
-                                Tabs\Tab::make(__('general.storage'))
+                                Tabs\Tab::make('storage_and_locations')
                                     ->icon('heroicon-o-building-storefront')
+                                    ->label(__('general.storage') . '/' . __('general.locations'))
                                     ->schema([
                                         Select::make('storage')
                                             ->label(__('general.storage'))
@@ -212,7 +215,32 @@ class ItemResource extends Resource
                                                 $options = Storage::all(['id', 'name'])->pluck('name', 'id')->toArray();
 
                                                 return $options;
-                                            }),
+                                            })
+                                            ->searchable(['name'])
+                                            ->suffixIcon('heroicon-o-building-storefront'),
+                                        Select::make('operation_site')
+                                            ->label(__('general.operation_site'))
+                                            ->options(function ($record): array {
+                                                return ItemsOperationSite::all()->pluck('name', 'id')->toArray();
+                                            })
+                                            ->searchable(['name'])
+                                            ->preload()
+                                            ->createOptionForm(function ($record): array {
+                                                $department = $record->department();
+
+                                                return [
+                                                    TextInput::make('name')
+                                                        ->required()
+                                                        ->unique(),
+                                                    Select::make('department')
+                                                        ->exists('departments', 'id')
+                                                        ->options($department->pluck('name', 'id')->toArray())
+                                                        ->default($department->value('id'))
+                                                        ->required()
+                                                        ->selectablePlaceholder(false)
+                                                ];
+                                            })
+                                            ->suffixIcon('heroicon-o-map-pin'),
                                     ]),
                                 Tabs\Tab::make(__('general.more') . '/' . __('general.note'))
                                     ->icon('heroicon-o-ellipsis-horizontal-circle')
@@ -276,6 +304,7 @@ class ItemResource extends Resource
                                             ->collection('inventory_files')
                                             ->directory('inventory/files')
                                             ->multiple()
+                                            ->maxSize(15000)
                                             ->reorderable()
                                             ->panelLayout('grid')
                                             ->appendFiles()

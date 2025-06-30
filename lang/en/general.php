@@ -395,4 +395,6 @@ return array(
     'will_be_brought_along' => ' Will be brought along',
     'will_not_be_brought_along' => 'Will not be brought along',
     'open_storage' => 'Open storage',
+    'operation_site' => 'Operation site',
+    'locations' => 'Standorte',
 );

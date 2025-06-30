@@ -48,6 +48,7 @@
         "pxlrbt/filament-environment-indicator": "^2.0",
         "pxlrbt/filament-spotlight": "^1.2",
         "ralphjsmit/laravel-filament-components": "^2.0",
+        "sentry/sentry-laravel": "^4.15",
         "shuvroroy/filament-spatie-laravel-health": "^2.1",
         "spatie/cpu-load-health-check": "^1.0",
         "spatie/laravel-backup": "^9.2",

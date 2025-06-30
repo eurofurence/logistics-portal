@@ -394,4 +394,6 @@ return array(
     'will_be_brought_along' => ' Wird mitgebracht',
     'will_not_be_brought_along' => 'Wird nicht mitgebracht',
     'open_storage' => 'Lager öffnen',
+    'operation_site' => 'Einsatzort',
+    'locations' => 'Standorte',
 );
