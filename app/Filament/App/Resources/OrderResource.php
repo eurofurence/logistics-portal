@@ -349,12 +349,10 @@ class OrderResource extends Resource
                                                     ->schema([
                                                         TextInput::make('article_number')
                                                             ->label(__('general.article_number'))
-                                                            ->maxLength(500)
-                                                            ,
+                                                            ->maxLength(500),
                                                         TextInput::make('order_number')
                                                             ->label(__('general.order_number'))
-                                                            ->maxLength(250)
-                                                            ,
+                                                            ->maxLength(250),
                                                     ])
                                                     ->columns([
                                                         'default' => 1,
@@ -689,6 +687,7 @@ class OrderResource extends Resource
                         'refunded' => 'heroicon-o-arrow-uturn-left',
                         'awaiting_approval' => 'heroicon-o-shield-exclamation'
                     })
+                    ->extraAttributes(['class' => 'cursor-pointer'])
                     ->formatStateUsing(function ($state) {
                         return strtoupper(str_replace('_', ' ', $state));
                     }),
@@ -1493,6 +1492,20 @@ class OrderResource extends Resource
                     ])
                         ->dropdown(false),
                 ]),
+            ])
+            ->headerActions([
+                Tables\Actions\Action::make('statusDescriptions')
+                    ->label(__('general.status_descriptions_title'))
+                    ->action(function () {
+                        // This action opens up the modal
+                    })
+                    ->modalContent(function () {
+                        return view('components.order_status_description');
+                    })
+                    ->modalHeading(__('general.status_descriptions_title'))
+                    ->icon('heroicon-o-question-mark-circle')
+                    ->modalSubmitAction(false)
+                    ->modalCancelAction(fn($action) => $action->label(__('general.close'))),
             ])
             ->checkIfRecordIsSelectableUsing(
                 fn(Model $record): bool => $record->status != 'locked',

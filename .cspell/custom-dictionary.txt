@@ -31,6 +31,7 @@ Anfrage
 Anfragen
 angeben
 Angefragt
+angehalten
 angezeigt
 anhand
 Anmerkung
@@ -131,6 +132,7 @@ einen
 einer
 Einheit
 Einheiten
+Einsatzort
 Einstellungen
 Eintrag
 Einträge
@@ -139,6 +141,7 @@ Einzelheiten
 Einzeln
 Einzigartiger
 Elemente
+endforeach
 Enthält
 Entsperren
 enviroment
@@ -191,6 +194,7 @@ Gelöscht
 gelöschte
 Gemieteter
 genehmigen
+Genehmigung
 genug
 gerade
 Gesamtbetrag
@@ -355,11 +359,14 @@ stackable
 Stadt
 Stadtname
 standard
+Standorte
 Stapelbar
+Statuserklärung
 Steuern
 Steuersatz
 Steuersatzes
 Straße
+strtoupper
 Suche
 Summe
 synchronisieren
@@ -372,6 +379,7 @@ Toom
 Typen
 über
 überarbeiten
+überprüft
 überschrieben
 überschritten
 Übersicht
@@ -399,10 +407,12 @@ Verwaltende
 Verwaltung
 Verzeichnisartikel
 Verzögerung
+Vorgang
 vorhanden
 Vorschusszahlung
 Währung
 Warnung
+wartet
 weil
 Weitere
 Wenn
