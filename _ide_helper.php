@@ -1620,15 +1620,11 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
-         * Finds an entry of the container by its identifier and returns it.
+         * {@inheritdoc}
          *
          * @template TClass of object
          * @param string|class-string<TClass> $id
          * @return ($id is class-string<TClass> ? TClass : mixed)
-         * @param string $id Identifier of the entry to look for.
-         * @throws NotFoundExceptionInterface  No entry was found for **this** identifier.
-         * @throws ContainerExceptionInterface Error while retrieving the entry.
-         * @return mixed Entry.
          * @static 
          */
         public static function get($id)
@@ -25469,6 +25465,249 @@ namespace Maatwebsite\Excel\Facades {
             }
     }
 
+namespace Sentry\Laravel {
+    /**
+     * 
+     *
+     * @see \Sentry\State\HubInterface
+     */
+    class Facade {
+        /**
+         * Gets the client bound to the top of the stack.
+         *
+         * @static 
+         */
+        public static function getClient()
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->getClient();
+        }
+
+        /**
+         * Gets the ID of the last captured event.
+         *
+         * @static 
+         */
+        public static function getLastEventId()
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->getLastEventId();
+        }
+
+        /**
+         * Creates a new scope to store context information that will be layered on
+         * top of the current one. It is isolated, i.e. all breadcrumbs and context
+         * information added to this scope will be removed once the scope ends. Be
+         * sure to always remove this scope with {@see Hub::popScope} when the
+         * operation finishes or throws.
+         *
+         * @static 
+         */
+        public static function pushScope()
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->pushScope();
+        }
+
+        /**
+         * Removes a previously pushed scope from the stack. This restores the state
+         * before the scope was pushed. All breadcrumbs and context information added
+         * since the last call to {@see Hub::pushScope} are discarded.
+         *
+         * @static 
+         */
+        public static function popScope()
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->popScope();
+        }
+
+        /**
+         * Creates a new scope with and executes the given operation within. The scope
+         * is automatically removed once the operation finishes or throws.
+         *
+         * @param callable $callback The callback to be executed
+         * @return mixed|void The callback's return value, upon successful execution
+         * @psalm-template T
+         * @psalm-param callable(Scope): T $callback
+         * @psalm-return T
+         * @static 
+         */
+        public static function withScope($callback)
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->withScope($callback);
+        }
+
+        /**
+         * Calls the given callback passing to it the current scope so that any
+         * operation can be run within its context.
+         *
+         * @static 
+         */
+        public static function configureScope($callback)
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->configureScope($callback);
+        }
+
+        /**
+         * Binds the given client to the current scope.
+         *
+         * @static 
+         */
+        public static function bindClient($client)
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->bindClient($client);
+        }
+
+        /**
+         * Captures a message event and sends it to Sentry.
+         *
+         * @static 
+         */
+        public static function captureMessage($message, $level = null, $hint = null)
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->captureMessage($message, $level, $hint);
+        }
+
+        /**
+         * Captures an exception event and sends it to Sentry.
+         *
+         * @static 
+         */
+        public static function captureException($exception, $hint = null)
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->captureException($exception, $hint);
+        }
+
+        /**
+         * Captures a new event using the provided data.
+         *
+         * @static 
+         */
+        public static function captureEvent($event, $hint = null)
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->captureEvent($event, $hint);
+        }
+
+        /**
+         * Captures an event that logs the last occurred error.
+         *
+         * @static 
+         */
+        public static function captureLastError($hint = null)
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->captureLastError($hint);
+        }
+
+        /**
+         * Captures a check-in.
+         *
+         * @param int|float|null $duration
+         * @param int|float|null $duration
+         * @static 
+         */
+        public static function captureCheckIn($slug, $status, $duration = null, $monitorConfig = null, $checkInId = null)
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->captureCheckIn($slug, $status, $duration, $monitorConfig, $checkInId);
+        }
+
+        /**
+         * Records a new breadcrumb which will be attached to future events. They
+         * will be added to subsequent events to provide more context on user's
+         * actions prior to an error or crash.
+         *
+         * @static 
+         */
+        public static function addBreadcrumb($breadcrumb)
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->addBreadcrumb($breadcrumb);
+        }
+
+        /**
+         * Gets the integration whose FQCN matches the given one if it's available on the current client.
+         *
+         * @param string $className The FQCN of the integration
+         * @psalm-template T of IntegrationInterface
+         * @psalm-param class-string<T> $className
+         * @psalm-return T|null
+         * @static 
+         */
+        public static function getIntegration($className)
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->getIntegration($className);
+        }
+
+        /**
+         * Starts a new `Transaction` and returns it. This is the entry point to manual
+         * tracing instrumentation.
+         * 
+         * A tree structure can be built by adding child spans to the transaction, and
+         * child spans to other spans. To start a new child span within the transaction
+         * or any span, call the respective `startChild()` method.
+         * 
+         * Every child span must be finished before the transaction is finished,
+         * otherwise the unfinished spans are discarded.
+         * 
+         * The transaction must be finished with a call to its `finish()` method, at
+         * which point the transaction with all its finished child spans will be sent to
+         * Sentry.
+         *
+         * @param array<string, mixed> $customSamplingContext Additional context that will be passed to the {@see SamplingContext}
+         * @param array<string, mixed> $customSamplingContext Additional context that will be passed to the {@see SamplingContext}
+         * @static 
+         */
+        public static function startTransaction($context, $customSamplingContext = [])
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->startTransaction($context, $customSamplingContext);
+        }
+
+        /**
+         * Returns the transaction that is on the Hub.
+         *
+         * @static 
+         */
+        public static function getTransaction()
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->getTransaction();
+        }
+
+        /**
+         * Sets the span on the Hub.
+         *
+         * @static 
+         */
+        public static function setSpan($span)
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->setSpan($span);
+        }
+
+        /**
+         * Returns the span that is on the Hub.
+         *
+         * @static 
+         */
+        public static function getSpan()
+        {
+            /** @var \Sentry\State\Hub $instance */
+            return $instance->getSpan();
+        }
+
+            }
+    }
+
 namespace Spatie\Health\Facades {
     /**
      * 
@@ -26704,6 +26943,93 @@ namespace Illuminate\Database\Eloquent\Relations {
         public static function getPowerJoinExistenceCompareKey()
         {
             return \Illuminate\Database\Eloquent\Relations\Relation::getPowerJoinExistenceCompareKey();
+        }
+
+            }
+    }
+
+namespace Illuminate\Console\Scheduling {
+    /**
+     * 
+     *
+     */
+    class Event {
+        /**
+         * 
+         *
+         * @see \Sentry\Laravel\Features\ConsoleSchedulingIntegration::register()
+         * @param string|null $monitorSlug
+         * @param int|null $checkInMargin
+         * @param int|null $maxRuntime
+         * @param bool $updateMonitorConfig
+         * @param int|null $failureIssueThreshold
+         * @param int|null $recoveryThreshold
+         * @static 
+         */
+        public static function sentryMonitor($monitorSlug = null, $checkInMargin = null, $maxRuntime = null, $updateMonitorConfig = true, $failureIssueThreshold = null, $recoveryThreshold = null)
+        {
+            return \Illuminate\Console\Scheduling\Event::sentryMonitor($monitorSlug, $checkInMargin, $maxRuntime, $updateMonitorConfig, $failureIssueThreshold, $recoveryThreshold);
+        }
+
+        /**
+         * 
+         *
+         * @var MonitoredScheduledTasks $monitoredScheduledTasks
+         * @see \Spatie\ScheduleMonitor\ScheduleMonitorServiceProvider::registerSchedulerEventMacros()
+         * @param string $monitorName
+         * @static 
+         */
+        public static function monitorName($monitorName)
+        {
+            return \Illuminate\Console\Scheduling\Event::monitorName($monitorName);
+        }
+
+        /**
+         * 
+         *
+         * @see \Spatie\ScheduleMonitor\ScheduleMonitorServiceProvider::registerSchedulerEventMacros()
+         * @param int $graceTimeInMinutes
+         * @static 
+         */
+        public static function graceTimeInMinutes($graceTimeInMinutes)
+        {
+            return \Illuminate\Console\Scheduling\Event::graceTimeInMinutes($graceTimeInMinutes);
+        }
+
+        /**
+         * 
+         *
+         * @see \Spatie\ScheduleMonitor\ScheduleMonitorServiceProvider::registerSchedulerEventMacros()
+         * @param bool $bool
+         * @static 
+         */
+        public static function doNotMonitor($bool = true)
+        {
+            return \Illuminate\Console\Scheduling\Event::doNotMonitor($bool);
+        }
+
+        /**
+         * 
+         *
+         * @see \Spatie\ScheduleMonitor\ScheduleMonitorServiceProvider::registerSchedulerEventMacros()
+         * @param bool $bool
+         * @static 
+         */
+        public static function doNotMonitorAtOhDear($bool = true)
+        {
+            return \Illuminate\Console\Scheduling\Event::doNotMonitorAtOhDear($bool);
+        }
+
+        /**
+         * 
+         *
+         * @see \Spatie\ScheduleMonitor\ScheduleMonitorServiceProvider::registerSchedulerEventMacros()
+         * @param bool $bool
+         * @static 
+         */
+        public static function storeOutputInDb($bool = true)
+        {
+            return \Illuminate\Console\Scheduling\Event::storeOutputInDb($bool);
         }
 
             }
@@ -29667,76 +29993,6 @@ namespace Illuminate\View {
         public static function response($callback)
         {
             return \Illuminate\View\View::response($callback);
-        }
-
-            }
-    }
-
-namespace Illuminate\Console\Scheduling {
-    /**
-     * 
-     *
-     */
-    class Event {
-        /**
-         * 
-         *
-         * @var MonitoredScheduledTasks $monitoredScheduledTasks
-         * @see \Spatie\ScheduleMonitor\ScheduleMonitorServiceProvider::registerSchedulerEventMacros()
-         * @param string $monitorName
-         * @static 
-         */
-        public static function monitorName($monitorName)
-        {
-            return \Illuminate\Console\Scheduling\Event::monitorName($monitorName);
-        }
-
-        /**
-         * 
-         *
-         * @see \Spatie\ScheduleMonitor\ScheduleMonitorServiceProvider::registerSchedulerEventMacros()
-         * @param int $graceTimeInMinutes
-         * @static 
-         */
-        public static function graceTimeInMinutes($graceTimeInMinutes)
-        {
-            return \Illuminate\Console\Scheduling\Event::graceTimeInMinutes($graceTimeInMinutes);
-        }
-
-        /**
-         * 
-         *
-         * @see \Spatie\ScheduleMonitor\ScheduleMonitorServiceProvider::registerSchedulerEventMacros()
-         * @param bool $bool
-         * @static 
-         */
-        public static function doNotMonitor($bool = true)
-        {
-            return \Illuminate\Console\Scheduling\Event::doNotMonitor($bool);
-        }
-
-        /**
-         * 
-         *
-         * @see \Spatie\ScheduleMonitor\ScheduleMonitorServiceProvider::registerSchedulerEventMacros()
-         * @param bool $bool
-         * @static 
-         */
-        public static function doNotMonitorAtOhDear($bool = true)
-        {
-            return \Illuminate\Console\Scheduling\Event::doNotMonitorAtOhDear($bool);
-        }
-
-        /**
-         * 
-         *
-         * @see \Spatie\ScheduleMonitor\ScheduleMonitorServiceProvider::registerSchedulerEventMacros()
-         * @param bool $bool
-         * @static 
-         */
-        public static function storeOutputInDb($bool = true)
-        {
-            return \Illuminate\Console\Scheduling\Event::storeOutputInDb($bool);
         }
 
             }
@@ -35103,12 +35359,18 @@ namespace  {
     class Socialite extends \Laravel\Socialite\Facades\Socialite {}
     class Livewire extends \Livewire\Livewire {}
     class Excel extends \Maatwebsite\Excel\Facades\Excel {}
+    class Sentry extends \Sentry\Laravel\Facade {}
     class Health extends \Spatie\Health\Facades\Health {}
     class Flare extends \Spatie\LaravelIgnition\Facades\Flare {}
     class Signal extends \Spatie\SignalAwareCommand\Facades\Signal {}
 }
 
 
+namespace Facades\Livewire\Features\SupportFileUploads {
+    /**
+     * @mixin \Livewire\Features\SupportFileUploads\GenerateSignedUploadUrl     */
+    class GenerateSignedUploadUrl extends \Livewire\Features\SupportFileUploads\GenerateSignedUploadUrl {}
+}
 
 
 

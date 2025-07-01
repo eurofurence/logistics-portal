@@ -99,6 +99,7 @@ class HeaderOrderAction
                     $order->price_net = $record->price_net;
                     $order->order_article_id = $record->id;
                     $order->article_number = $record->article_number;
+                    $order->returning_deposit = $record->returning_deposit;
 
                     if (Auth::user()->hasDepartmentRoleWithPermissionTo('order-needs-approval', $order->department_id)) {
                         $order->status = 'awaiting_approval';

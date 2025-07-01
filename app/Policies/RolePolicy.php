@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class RolePolicy
 {
@@ -19,7 +18,7 @@ class RolePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Role $role): bool
+    public function view(User $user): bool
     {
         return $user->checkPermissionTo('view-Role');
     }
@@ -37,6 +36,10 @@ class RolePolicy
      */
     public function update(User $user, Role $role): bool
     {
+        if ($role->name == 'Master' || $role->id == 1) {
+            return false;
+        }
+
         return $user->checkPermissionTo('update-Role');
     }
 
@@ -45,13 +48,17 @@ class RolePolicy
      */
     public function delete(User $user, Role $role): bool
     {
+        if ($role->name == 'Master' || $role->id == 1) {
+            return false;
+        }
+        
         return $user->checkPermissionTo('delete-Role');
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Role $role): bool
+    public function restore(User $user): bool
     {
         return $user->checkPermissionTo('restore-Role');
     }
@@ -59,7 +66,7 @@ class RolePolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Role $role): bool
+    public function forceDelete(User $user): bool
     {
         return $user->checkPermissionTo('force-delete-Role');
     }

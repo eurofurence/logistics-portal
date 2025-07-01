@@ -349,12 +349,10 @@ class OrderResource extends Resource
                                                     ->schema([
                                                         TextInput::make('article_number')
                                                             ->label(__('general.article_number'))
-                                                            ->maxLength(500)
-                                                            ,
+                                                            ->maxLength(500),
                                                         TextInput::make('order_number')
                                                             ->label(__('general.order_number'))
-                                                            ->maxLength(250)
-                                                            ,
+                                                            ->maxLength(250),
                                                     ])
                                                     ->columns([
                                                         'default' => 1,
@@ -689,6 +687,7 @@ class OrderResource extends Resource
                         'refunded' => 'heroicon-o-arrow-uturn-left',
                         'awaiting_approval' => 'heroicon-o-shield-exclamation'
                     })
+                    ->extraAttributes(['class' => 'cursor-pointer'])
                     ->formatStateUsing(function ($state) {
                         return strtoupper(str_replace('_', ' ', $state));
                     }),
@@ -722,7 +721,7 @@ class OrderResource extends Resource
                             return true;
                         }
 
-                        if ($record->status == 'open' && !$record->event->locked) {
+                        if (($record->status == 'open' || $record->status == 'awaiting_approval')  && !$record->event->locked) {
                             return false;
                         } else {
                             if (Auth::user()->can('can-always-edit-orders')) {
@@ -1391,6 +1390,27 @@ class OrderResource extends Resource
                                 ->send();
                         })
                         ->visible(Auth::user()->can('can-use-article-directory-special-functions')),
+                    BulkAction::make('returning_deposit_sync')
+                        ->label(__('general.returning_deposit_sync'))
+                        ->icon('heroicon-o-arrow-path-rounded-square')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            foreach ($records as $order) {
+                                $orderArticle = $order->directoryArticle;
+                                if ($orderArticle) {
+                                    $order->returning_deposit = $orderArticle->returning_deposit;
+                                    $order->save();
+                                }
+                            }
+
+                            Notification::make()
+                                ->body(__('general.successfully_synchronized'))
+                                ->success()
+                                ->icon('heroicon-o-check')
+                                ->iconColor('success')
+                                ->send();
+                        })
+                        ->visible(Auth::user()->can('can-use-article-directory-special-functions')),
                     BulkActionGroup::make([
                         BulkAction::make('approve_order')
                             ->label(__('general.approve'))
@@ -1426,6 +1446,9 @@ class OrderResource extends Resource
                                     ->icon('heroicon-o-exclamation-triangle')
                                     ->iconColor('warning')
                                     ->send();
+                            })
+                            ->visible(function (): bool {
+                                return Auth::user()->can('can-approve-orders') || Auth::user()->can('can-approve-orders-for-other-departments');
                             }),
                         BulkAction::make('decline_order')
                             ->label(__('general.decline'))
@@ -1463,9 +1486,26 @@ class OrderResource extends Resource
                                     ->iconColor('warning')
                                     ->send();
                             })
+                            ->visible(function (): bool {
+                                return Auth::user()->can('can-decline-orders') || Auth::user()->can('can-decline-orders-for-other-departments');
+                            })
                     ])
                         ->dropdown(false),
                 ]),
+            ])
+            ->headerActions([
+                Tables\Actions\Action::make('statusDescriptions')
+                    ->label(__('general.status_descriptions_title'))
+                    ->action(function () {
+                        // This action opens up the modal
+                    })
+                    ->modalContent(function () {
+                        return view('components.order_status_description');
+                    })
+                    ->modalHeading(__('general.status_descriptions_title'))
+                    ->icon('heroicon-o-question-mark-circle')
+                    ->modalSubmitAction(false)
+                    ->modalCancelAction(fn($action) => $action->label(__('general.close'))),
             ])
             ->checkIfRecordIsSelectableUsing(
                 fn(Model $record): bool => $record->status != 'locked',

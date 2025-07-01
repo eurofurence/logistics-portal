@@ -34,7 +34,7 @@ class OrderPolicy
             $user->checkPermissionTo('can-see-all-orders'));
 
         $orderNotLockedOrPermission = ($order->status != 'locked') ||
-            $user->checkPermissionTo('can-always-see-order'); 
+            $user->checkPermissionTo('can-always-see-order');
 
         return $canViewOrder && $orderNotLockedOrPermission;
     }
@@ -105,7 +105,7 @@ class OrderPolicy
         $result = false;
 
         // Check whether the order can be deleted
-        if ((($order->status == 'open') && ($order->status != 'awaiting_approval')) || $user->checkPermissionTo('can-always-delete-orders')) {
+        if ((($order->status == 'open') && ($order->status != 'awaiting_approval')) || $user->checkPermissionTo('can-always-delete-orders') || (($order->status == 'awaiting_approval') && ($order->added_by == $user->id))) {
             $result = true;
         }
 

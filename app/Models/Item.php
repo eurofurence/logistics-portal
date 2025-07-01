@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -89,9 +89,9 @@ class Item extends Model implements HasMedia
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var array'
      */
-    protected $fillable = ['name', 'shortname', 'serialnumber', 'weight_g', 'stackable', 'unit', 'due_date', 'sorted_out', 'description', 'comment', 'department', 'edited_by', 'added_by', 'price', 'locked', 'specific_editor', 'buy_date', 'qr_code', 'storage_container_id', 'storage'];
+    protected $fillable = ['name', 'shortname', 'serialnumber', 'weight_g', 'stackable', 'unit', 'due_date', 'sorted_out', 'description', 'comment', 'department', 'edited_by', 'added_by', 'price', 'locked', 'specific_editor', 'buy_date', 'qr_code', 'storage_container_id', 'storage', 'owner', 'borrowed_item', 'rented_item', 'will_be_brought_to_next_event', 'operation_site'];
 
     protected static function boot()
     {
@@ -107,18 +107,43 @@ class Item extends Model implements HasMedia
         });
     }
 
-    public function department_(): HasOne
+    /**
+     * The department that belong to the item.
+     */
+    public function department(): HasOne
     {
         return $this->hasOne(Department::class, 'id', 'department');
     }
 
+    /**
+     * The user that added the item
+     */
     public function addedBy(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'added_by');
     }
 
+    /**
+     * The last user that edited the item
+     */
     public function editedBy(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'edited_by');
+    }
+
+    /**
+     * The storage that belongs to the item
+     */
+    public function storage(): HasOne
+    {
+        return $this->hasOne(Storage::class, 'id', 'storage');
+    }
+
+    /**
+     * The operation site that belongs to the item
+     */
+    public function operation_site(): HasOne
+    {
+        return $this->hasOne(ItemsOperationSite::class, 'operation_site');
     }
 }

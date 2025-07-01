@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use Illuminate\Auth\Access\Response;
 use App\Models\Storage;
 use App\Models\User;
 
@@ -13,7 +12,7 @@ class StoragePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->checkPermissionTo('view-any-Storage');
+        return $user->checkPermissionTo('view-any-Storage')  || $user->hasAnyDepartmentRoleWithPermissionTo('view-any-Storage');
     }
 
     /**
@@ -21,7 +20,27 @@ class StoragePolicy
      */
     public function view(User $user, Storage $storage): bool
     {
-        return $user->checkPermissionTo('view-Storage');
+        switch ($storage->type) {
+            case 0:
+                return false;
+                break;
+
+            case 1:
+                return true;
+                break;
+
+            case 2:
+                if ($user->hasDepartmentRoleWithPermissionTo('view-Storage', $storage->managing_department->id) || $user->checkPermissionTo('can-see-all-storages')) {
+                    return true;
+                }
+                break;
+
+            default:
+                return false;
+                break;
+        }
+
+        return false;
     }
 
     /**
@@ -29,7 +48,7 @@ class StoragePolicy
      */
     public function create(User $user): bool
     {
-        return $user->checkPermissionTo('create-Storage');
+        return $user->checkPermissionTo('create-Storage') || $user->hasAnyDepartmentRoleWithPermissionTo('create-Storage');
     }
 
     /**

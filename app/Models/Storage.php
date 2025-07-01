@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $name
@@ -51,11 +53,18 @@ class Storage extends Model
     use HasFactory, SoftDeletes;
 
     /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'storages';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
-    protected $fillable = ['name', 'contact_details', 'country', 'street', 'city', 'post_code', 'added_by', 'edited_by', 'comment', 'documents'];
+    protected $fillable = ['name', 'contact_details', 'country', 'street', 'city', 'post_code', 'added_by', 'edited_by', 'comment', 'managing_department', 'type', 'owner', 'borrowed_item', 'rented_item', 'will_be_brought_to_next_event'];
 
     protected static function boot()
     {
@@ -69,5 +78,21 @@ class Storage extends Model
         static::updating(function ($model) {
             $model->edited_by = Auth::user()->id;
         });
+    }
+
+    /**
+     * The departments that belong to the storage.
+     */
+    public function departments(): HasMany
+    {
+        return $this->hasMany(StorageDepartmentAccess::class, 'storage', 'department');
+    }
+
+    /**
+     * The managing department of the storage.
+     */
+    public function managing_department(): HasOne
+    {
+        return $this->hasOne(Department::class, 'id', 'managing_department');
     }
 }

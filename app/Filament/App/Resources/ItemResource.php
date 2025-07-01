@@ -12,10 +12,12 @@ use Filament\Forms\Form;
 use App\Models\Department;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use App\Models\ItemsOperationSite;
 use Filament\Forms\Components\Tabs;
 use Filament\Tables\Grouping\Group;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
@@ -24,6 +26,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\SelectFilter;
@@ -31,6 +34,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Collection;
 use Filament\Forms\Components\DateTimePicker;
 use App\Filament\App\Resources\ItemResource\Pages;
 use Archilex\ToggleIconColumn\Columns\ToggleIconColumn;
@@ -194,10 +198,16 @@ class ItemResource extends Resource
                                                 ->seconds(false)
                                                 ->timezone('Europe/Berlin')
                                                 ->hint('Europe/Berlin'),
+                                            Textarea::make('owner')
+                                                ->label(__('general.owner'))
+                                                ->maxlength(10000)
+                                                ->rows(5),
+
                                         ]),
                                     ]),
-                                Tabs\Tab::make(__('general.storage'))
+                                Tabs\Tab::make('storage_and_locations')
                                     ->icon('heroicon-o-building-storefront')
+                                    ->label(__('general.storage') . '/' . __('general.locations'))
                                     ->schema([
                                         Select::make('storage')
                                             ->label(__('general.storage'))
@@ -205,7 +215,32 @@ class ItemResource extends Resource
                                                 $options = Storage::all(['id', 'name'])->pluck('name', 'id')->toArray();
 
                                                 return $options;
-                                            }),
+                                            })
+                                            ->searchable(['name'])
+                                            ->suffixIcon('heroicon-o-building-storefront'),
+                                        Select::make('operation_site')
+                                            ->label(__('general.operation_site'))
+                                            ->options(function ($record): array {
+                                                return ItemsOperationSite::all()->pluck('name', 'id')->toArray();
+                                            })
+                                            ->searchable(['name'])
+                                            ->preload()
+                                            ->createOptionForm(function ($record): array {
+                                                $department = $record->department();
+
+                                                return [
+                                                    TextInput::make('name')
+                                                        ->required()
+                                                        ->unique(),
+                                                    Select::make('department')
+                                                        ->exists('departments', 'id')
+                                                        ->options($department->pluck('name', 'id')->toArray())
+                                                        ->default($department->value('id'))
+                                                        ->required()
+                                                        ->selectablePlaceholder(false)
+                                                ];
+                                            })
+                                            ->suffixIcon('heroicon-o-map-pin'),
                                     ]),
                                 Tabs\Tab::make(__('general.more') . '/' . __('general.note'))
                                     ->icon('heroicon-o-ellipsis-horizontal-circle')
@@ -231,6 +266,18 @@ class ItemResource extends Resource
                                                     ->inline(false),
                                                 DateTimePicker::make('sorted_out')
                                                     ->label(__('general.sorted_out')),
+                                                Toggle::make('borrowed_item')
+                                                    ->label(__('general.borrowed_item'))
+                                                    ->default(false)
+                                                    ->inline(false),
+                                                Toggle::make('rented_item')
+                                                    ->label(__('general.rented_item'))
+                                                    ->default(false)
+                                                    ->inline(false),
+                                                Toggle::make('will_be_brought_to_next_event')
+                                                    ->label(__('general.will_be_brought_to_next_event'))
+                                                    ->default(false)
+                                                    ->inline(false),
                                             ])
                                             ->label(__('general.note')),
                                         Fieldset::make('')
@@ -257,6 +304,7 @@ class ItemResource extends Resource
                                             ->collection('inventory_files')
                                             ->directory('inventory/files')
                                             ->multiple()
+                                            ->maxSize(15000)
                                             ->reorderable()
                                             ->panelLayout('grid')
                                             ->appendFiles()
@@ -306,7 +354,19 @@ class ItemResource extends Resource
                 TextColumn::make('name')
                     ->sortable()
                     ->searchable()
-                    ->label(__('general.name')),
+                    ->label(__('general.name'))
+                    ->formatStateUsing(fn(string $state) => \Illuminate\Support\Str::limit($state, 40, '...'))
+                    ->description(function ($record): string {
+                        $flags = array_filter([
+                            $record->dangerous_good ? __('general.dangerous_good') : null,
+                            $record->borrowed_item ? __('general.borrowed_item') : null,
+                            $record->rented_item ? __('general.rented_item') : null,
+                            $record->comment ? __('general.comment') : null,
+                            $record->due_date ? __('general.due_date') : null,
+                        ]);
+
+                        return implode(' \ ', $flags);
+                    }),
                 TextColumn::make('shortname')
                     ->sortable()
                     ->searchable()
@@ -317,20 +377,29 @@ class ItemResource extends Resource
                     ->searchable()
                     ->label(__('general.department'))
                     ->toggleable(),
-                TextColumn::make('serialnumber')
-                    ->sortable()
-                    ->searchable()
-                    ->label(__('general.serialnumber'))
-                    ->toggleable(true, true),
                 ToggleIconColumn::make('sorted_out')
                     ->sortable()
                     ->toggleable(true, true)
                     ->label(__('general.sorted_out'))
-                    ->disabled(true),
+                    ->disabled(),
+                ToggleIconColumn::make('will_be_brought_to_next_event')
+                    ->sortable()
+                    ->toggleable(true, false)
+                    ->label(__('general.will_be_brought_to_next_event')),
+                /*
+                ToggleIconColumn::make('borrowed_item')
+                    ->sortable()
+                    ->toggleable(true, true)
+                    ->label(__('general.borrowed_item')),
+                ToggleIconColumn::make('rented_item')
+                    ->sortable()
+                    ->toggleable(true, true)
+                    ->label(__('general.rented_item')),
+                */
                 TextColumn::make('created_at')
-                    ->label(__('general.order_date'))
+                    ->label(__('general.created_at'))
                     ->date()
-                    ->toggleable()
+                    ->toggleable(true, true)
                     ->sortable(),
             ])
             ->filters([
@@ -367,6 +436,37 @@ class ItemResource extends Resource
 
                         return $indicators;
                     }),
+                Tables\Filters\Filter::make('due_date')
+                    ->form([
+                        Forms\Components\DatePicker::make('due_date_from')
+                            ->label(__('general.due_date_from'))
+                            ->placeholder(fn($state): string => 'Dec 18, ' . now()->subYear()->format('Y')),
+                        Forms\Components\DatePicker::make('due_date_until')
+                            ->label(__('general.due_date_until'))
+                            ->placeholder(fn($state): string => now()->format('M d, Y')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['due_date_from'] ?? null,
+                                fn(Builder $query, $date): Builder => $query->whereDate('due_date', '>=', $date),
+                            )
+                            ->when(
+                                $data['due_date_until'] ?? null,
+                                fn(Builder $query, $date): Builder => $query->whereDate('due_date', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['due_date_from'] ?? null) {
+                            $indicators['due_date_from'] = __('general.due_date_from') . ' ' . Carbon::parse($data['due_date_from'])->toFormattedDateString();
+                        }
+                        if ($data['due_date_until'] ?? null) {
+                            $indicators['due_date_until'] = __('general.due_date_until') . ' ' . Carbon::parse($data['due_date_until'])->toFormattedDateString();
+                        }
+
+                        return $indicators;
+                    }),
                 SelectFilter::make('department')
                     ->multiple()
                     ->label(__('general.department'))
@@ -377,18 +477,64 @@ class ItemResource extends Resource
                             return Auth::user()->departments()->pluck('name', 'department_id')->toArray();
                         }
                     }),
+                SelectFilter::make('storage')
+                    ->multiple()
+                    ->label(__('general.storage'))
+                    ->options(function (): array {
+                        if (Auth::user()->can('can-see-all-storages')) {
+                            return Storage::all()->pluck('name', 'id')->toArray();
+                        } else {
+                            // Get the departments to which the user has access
+                            $accessibleDepartments = Auth::user()->departments;
+
+                            // Get the storages that belong to these departments
+                            $accessibleStorages = Storage::whereHas('managing_department', function ($query) use ($accessibleDepartments) {
+                                $query->whereIn('id', $accessibleDepartments->pluck('id'));
+                            })->pluck('name', 'id')->toArray();
+
+                            return $accessibleStorages;
+                        }
+                    }),
                 TernaryFilter::make('sorted_out')
                     ->nullable()
                     ->label(__('general.sorted_out')),
+                TernaryFilter::make('borrowed_item')
+                    ->nullable()
+                    ->label(__('general.borrowed_item')),
+                TernaryFilter::make('rented_item')
+                    ->nullable()
+                    ->label(__('general.rented_item')),
+                TernaryFilter::make('will_be_brought_to_next_event')
+                    ->nullable()
+                    ->label(__('general.will_be_brought_to_next_event')),
+                TernaryFilter::make('dangerous_good')
+                    ->nullable()
+                    ->label(__('general.dangerous_good')),
+                TernaryFilter::make('big_size')
+                    ->nullable()
+                    ->label(__('general.big_size')),
+                TernaryFilter::make('needs_truck')
+                    ->nullable()
+                    ->label(__('general.needs_truck')),
+                TernaryFilter::make('stackable')
+                    ->nullable()
+                    ->label(__('general.stackable')),
             ])
             ->filtersFormColumns(3)
             ->actions([
                 ActionGroup::make([
+                    Tables\Actions\Action::make('show_storage_location_action')
+                        ->url(function (Model $record) {
+                            return route('filament.app.resources.storages.view', $record->storage);
+                        }, true)
+                        ->visible(fn(Model $record) => (!empty($record->storage) && Gate::allows('view-Storage', $record->storage) && Storage::where('id', $record->storage)->exists()))
+                        ->icon('heroicon-o-arrow-top-right-on-square')
+                        ->label(__('general.open_storage')),
+                    Tables\Actions\ViewAction::make(),
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
                     Tables\Actions\RestoreAction::make(),
                     Tables\Actions\ForceDeleteAction::make(),
-                    Tables\Actions\ViewAction::make(),
                 ])
             ])
             ->bulkActions([
@@ -397,17 +543,49 @@ class ItemResource extends Resource
                         ->visible(Gate::check('bulkDelete', Item::class)),
                     Tables\Actions\RestoreBulkAction::make()
                         ->visible(Gate::check('bulkRestore', Item::class)),
+                    Tables\Actions\BulkAction::make('setWillBeBroughtToNextEvent')
+                        ->label(__('general.will_be_brought_along'))
+                        ->action(function (Collection $records) {
+                            $records->each->update(['will_be_brought_to_next_event' => true]);
+
+                            Notification::make()
+                                ->body(__('general.saved'))
+                                ->success()
+                                ->send();
+                        })
+                        ->icon('heroicon-o-check-circle'),
+                    Tables\Actions\BulkAction::make('unsetWillBeBroughtToNextEvent')
+                        ->label(__('general.will_not_be_brought_along'))
+                        ->action(function (Collection $records) {
+                            $records->each->update(['will_be_brought_to_next_event' => false]);
+
+                            Notification::make()
+                                ->body(__('general.saved'))
+                                ->success()
+                                ->send();
+                        })
+                        ->icon('heroicon-o-x-circle'),
                 ]),
             ])
             ->groups([
                 Group::make('name')
                     ->label(__('general.name'))
                     ->collapsible(),
+                Group::make('will_be_brought_to_next_event')
+                    ->label(__('general.will_be_brought_to_next_event'))
+                    ->getTitleFromRecordUsing(function (Item $record): string {
+                        if ($record->will_be_brought_to_next_event) {
+                            return __('general.yes');
+                        }
+
+                        return __('general.no');
+                    })
+                    ->collapsible(),
                 Group::make('department.name')
                     ->label(__('general.department'))
                     ->collapsible(),
                 Group::make('created_at')
-                    ->label(__('general.order_date'))
+                    ->label(__('general.created_at'))
                     ->date()
                     ->collapsible(),
             ]);
@@ -426,6 +604,7 @@ class ItemResource extends Resource
             'index' => Pages\ListItems::route('/'),
             'create' => Pages\CreateItem::route('/create'),
             'edit' => Pages\EditItem::route('/{record}/edit'),
+            'view' => Pages\ViewItem::route('/{record}'),
         ];
     }
 }

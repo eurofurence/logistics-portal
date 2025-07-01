@@ -79,7 +79,7 @@ class AppServiceProvider extends ServiceProvider
             DatabaseConnectionCountCheck::new()
                 ->warnWhenMoreConnectionsThan(50)
                 ->failWhenMoreConnectionsThan(100),
-            QueueCheck::new(),
+            //QueueCheck::new(),
         ]);
 
 

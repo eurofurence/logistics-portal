@@ -18,12 +18,12 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('schedule-monitor:sync')->everyFifteenMinutes();
         $schedule->command('files:delete-old')->hourly();
-        $schedule->command(DispatchQueueCheckJobsCommand::class)->everyMinute();
+        //$schedule->command(DispatchQueueCheckJobsCommand::class)->everyMinute();
         //$schedule->command(ScheduleCheckHeartbeatCommand::class)->everyMinute();
         $schedule->command('model:prune', ['--model' => MonitoredScheduledTaskLogItem::class])->daily();
 
         if(config('app.backup_schedule_active')){
-            Log::info('Running backup schedule...');
+            //Log::info('Running backup schedule...');
             $schedule->command('backup:with-s3')->daily();
             $schedule->command('backup:clean')->daily();
         }

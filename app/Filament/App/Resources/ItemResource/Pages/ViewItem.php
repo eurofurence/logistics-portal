@@ -2,21 +2,22 @@
 
 namespace App\Filament\App\Resources\ItemResource\Pages;
 
-use App\Filament\App\Resources\ItemResource;
 use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\App\Resources\ItemResource;
+use Filament\Resources\Pages\ViewRecord;
 
-class EditItem extends EditRecord
+class ViewItem extends ViewRecord
 {
+
     protected static string $resource = ItemResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
+            Actions\EditAction::make()
+                ->icon('heroicon-o-pencil'),
             Actions\DeleteAction::make()
                 ->icon('heroicon-o-trash'),
-            Actions\ViewAction::make()
-                ->icon('heroicon-o-eye')
         ];
     }
 }
