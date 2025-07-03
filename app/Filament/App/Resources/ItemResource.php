@@ -372,10 +372,20 @@ class ItemResource extends Resource
                     ->searchable()
                     ->label(__('general.shortname'))
                     ->toggleable(true, true),
-                TextColumn::make('department_.name')
+                TextColumn::make('storage.name')
+                    ->sortable()
+                    ->searchable()
+                    ->label(__('general.name'))
+                    ->toggleable(true, true),
+                TextColumn::make('connected_department.name')
                     ->sortable()
                     ->searchable()
                     ->label(__('general.department'))
+                    ->toggleable(true, true),
+                TextColumn::make('connected_storage.name')
+                    ->sortable()
+                    ->searchable()
+                    ->label(__('general.storage'))
                     ->toggleable(),
                 ToggleIconColumn::make('sorted_out')
                     ->sortable()

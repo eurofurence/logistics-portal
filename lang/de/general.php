@@ -408,7 +408,7 @@ return array(
         'rejected' => 'Die Bestellung wurde abgelehnt und wird nicht weiter bearbeitet.',
         'locked' => 'Die Bestellung ist gesperrt und ist ohne Sonderrecht nicht einsehbar/bearbeitbar/auswählbar.',
         'refunded' => 'Die Bestellung wurde erstattet.',
-        'awaiting_approval' => 'Die Bestellung wartet auf Genehmigung durch einen Direktor der Abteilung dür die diese Bestellung getätigt wurde. Der Status wird vergeben wenn der Einkäufer in der Abteilung nicht der Direktor ist und die Bestellung eine Freigabe braucht, oder der Benutzer eine Flag hat dass Bestellungen eine extra genehmigung brauchen. Ist eine Genehmigung durch den Direktor nicht möglich oder nur schwer umzusetzten muss sich an den Admin gewandt werden. Solange die Bestellung diesen Status hat wird sie nicht aktiv bearbeitet. Sollten sich bereits mehrere gleiche Artikel in der Liste zur Genehmigung befinden, werden diese beim Akzeptieren zusammengeführt.',
+        'awaiting_approval' => 'Die Bestellung wartet auf Genehmigung durch einen Direktor der Abteilung für die diese Bestellung getätigt wurde. Der Status wird vergeben wenn der Einkäufer in der Abteilung nicht der Direktor ist und die Bestellung eine Freigabe braucht, oder der Benutzer eine Flag hat dass Bestellungen eine extra genehmigung brauchen. Ist eine Genehmigung durch den Direktor nicht möglich oder nur schwer umzusetzten muss sich an den Admin gewandt werden. Solange die Bestellung diesen Status hat wird sie nicht aktiv bearbeitet. Sollten sich bereits mehrere gleiche Artikel in der Liste zur Genehmigung befinden, werden diese beim Akzeptieren zusammengeführt.',
     ],
     'status_descriptions_title' => 'Statuserklärung',
 );
