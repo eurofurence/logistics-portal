@@ -38,9 +38,11 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Njxqlus\FilamentProgressbar\FilamentProgressbarPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use MartinPetricko\FilamentSentryFeedback\Entities\SentryUser;
 use TomatoPHP\FilamentDeveloperGate\FilamentDeveloperGatePlugin;
 use DutchCodingCompany\FilamentSocialite\FilamentSocialitePlugin;
 use pxlrbt\FilamentEnvironmentIndicator\EnvironmentIndicatorPlugin;
+use MartinPetricko\FilamentSentryFeedback\FilamentSentryFeedbackPlugin;
 use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
 
 class AppPanelProvider extends PanelProvider
@@ -111,12 +113,12 @@ class AppPanelProvider extends PanelProvider
                         //ItemResource::class,
                     ]),
                 EnvironmentIndicatorPlugin::make()
-                    ->visible(fn () => match (config('app.env')) {
+                    ->visible(fn() => match (config('app.env')) {
                         'production' => false,
                         'local' => true,
                         'testing' => true,
                     })
-                    ->color(fn () => match (config('app.env')) {
+                    ->color(fn() => match (config('app.env')) {
                         'production' => null,
                         'local' => Color::Pink,
                         'testing' => Color::Orange,
@@ -124,7 +126,11 @@ class AppPanelProvider extends PanelProvider
                     }),
                 SpotlightPlugin::make(),
                 GlobalSearchModalPlugin::make(),
-                FilamentDeveloperGatePlugin::make()
+                FilamentDeveloperGatePlugin::make(),
+                FilamentSentryFeedbackPlugin::make()
+                    ->sentryUser(function (): ?SentryUser {
+                        return new SentryUser(auth()->user()->name, auth()->user()->email);
+                    })
             ])
             ->unsavedChangesAlerts()
             ->authMiddleware([

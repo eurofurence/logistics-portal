@@ -110,7 +110,7 @@ class Item extends Model implements HasMedia
     /**
      * The department that belong to the item.
      */
-    public function department(): HasOne
+    public function connected_department(): HasOne
     {
         return $this->hasOne(Department::class, 'id', 'department');
     }
@@ -134,7 +134,7 @@ class Item extends Model implements HasMedia
     /**
      * The storage that belongs to the item
      */
-    public function storage(): HasOne
+    public function connected_storage(): HasOne
     {
         return $this->hasOne(Storage::class, 'id', 'storage');
     }
@@ -142,7 +142,7 @@ class Item extends Model implements HasMedia
     /**
      * The operation site that belongs to the item
      */
-    public function operation_site(): HasOne
+    public function connected_operation_site(): HasOne
     {
         return $this->hasOne(ItemsOperationSite::class, 'operation_site');
     }

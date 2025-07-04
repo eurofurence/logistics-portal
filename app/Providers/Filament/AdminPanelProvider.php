@@ -33,9 +33,11 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Njxqlus\FilamentProgressbar\FilamentProgressbarPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use MartinPetricko\FilamentSentryFeedback\Entities\SentryUser;
 use TomatoPHP\FilamentDeveloperGate\FilamentDeveloperGatePlugin;
 use DutchCodingCompany\FilamentSocialite\FilamentSocialitePlugin;
 use pxlrbt\FilamentEnvironmentIndicator\EnvironmentIndicatorPlugin;
+use MartinPetricko\FilamentSentryFeedback\FilamentSentryFeedbackPlugin;
 use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
 use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
 
@@ -116,7 +118,11 @@ class AdminPanelProvider extends PanelProvider
                 //FilamentUserActivityPlugin::make(),
                 SpotlightPlugin::make(),
                 GlobalSearchModalPlugin::make(),
-                FilamentDeveloperGatePlugin::make()
+                FilamentDeveloperGatePlugin::make(),
+                FilamentSentryFeedbackPlugin::make()
+                    ->sentryUser(function (): ?SentryUser {
+                        return new SentryUser(auth()->user()->name, auth()->user()->email);
+                    })
             ])
             ->plugin(FilamentSpatieRolesPermissionsPlugin::make())
             ->authMiddleware([

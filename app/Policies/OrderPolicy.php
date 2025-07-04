@@ -122,7 +122,7 @@ class OrderPolicy
      */
     public function restore(User $user): bool
     {
-        return $user->hasAnyDepartmentRoleWithPermissionTo('restore-Order');
+        return $user->checkPermissionTo('restore-Order') || $user->hasAnyDepartmentRoleWithPermissionTo('restore-Order');
     }
 
     /**

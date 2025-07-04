@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "faeee9e129eaf0b3d5de49e71dfc7c41",
+    "content-hash": "856e1fb4ff5fe03fddbb9430b1284466",
     "packages": [
         {
             "name": "althinect/filament-spatie-roles-permissions",
@@ -6006,6 +6006,80 @@
                 "source": "https://github.com/MarkBaker/PHPMatrix/tree/3.0.1"
             },
             "time": "2022-12-02T22:17:43+00:00"
+        },
+        {
+            "name": "martinpetricko/filament-sentry-feedback",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MartinPetricko/filament-sentry-feedback.git",
+                "reference": "4b16695d66ed0433c019b921fee65ec9978250ca"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MartinPetricko/filament-sentry-feedback/zipball/4b16695d66ed0433c019b921fee65ec9978250ca",
+                "reference": "4b16695d66ed0433c019b921fee65ec9978250ca",
+                "shasum": ""
+            },
+            "require": {
+                "filament/filament": "^3.3",
+                "php": "^8.2",
+                "spatie/laravel-package-tools": "^1.15"
+            },
+            "require-dev": {
+                "larastan/larastan": "^3.1",
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^8.6",
+                "orchestra/testbench": "^10.0",
+                "pestphp/pest": "^3.7",
+                "pestphp/pest-plugin-arch": "^3.0",
+                "pestphp/pest-plugin-laravel": "^3.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "MartinPetricko\\FilamentSentryFeedback\\FilamentSentryFeedbackServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MartinPetricko\\FilamentSentryFeedback\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Martin Petricko",
+                    "email": "matopetricko@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "FilamentPHP package that integrates Sentry User Feedback",
+            "homepage": "https://github.com/martinpetricko/filament-sentry-feedback",
+            "keywords": [
+                "MartinPetricko",
+                "feedback",
+                "filament",
+                "filament-sentry-feedback",
+                "laravel",
+                "sentry"
+            ],
+            "support": {
+                "issues": "https://github.com/martinpetricko/filament-sentry-feedback/issues",
+                "source": "https://github.com/martinpetricko/filament-sentry-feedback"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/MartinPetricko",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-04-10T14:19:39+00:00"
         },
         {
             "name": "masterminds/html5",
