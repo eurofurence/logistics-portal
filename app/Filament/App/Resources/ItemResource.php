@@ -169,22 +169,16 @@ class ItemResource extends Resource
                                                     ->required()
                                                     ->exists('departments', 'id')
                                                     ->options(function (): array {
-                                                        $options = Auth::user()->can('can-choose-all-departments')
-                                                            ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
-                                                            : Auth::user()->departments()->withoutTrashed()->pluck('name', 'department')->toArray();
+                                                        if (self::isView()) {
+                                                            return Department::all()->pluck('name', 'id')->toArray();
+                                                        }
 
-                                                        return $options;
-                                                    })
-                                                    #BUG
-                                                    /*
-                                                    ->default(function () {
-                                                        $options = Auth::user()->can('can-choose-all-departments')
-                                                            ? Department::withoutTrashed()->pluck('id')->toArray()
-                                                            : Auth::user()->departments()->withoutTrashed()->pluck('department')->toArray();
-
-                                                        return count($options) === 1 ? $options[0] : null;
-                                                    })
-                                                        */,
+                                                        if (Auth::user()->can('can-create-items-for-other-departments')) {
+                                                            return Department::all()->pluck('name', 'id')->toArray();
+                                                        } else {
+                                                            return Auth::user()->getDepartmentsWithPermission('view-Item')->pluck('name', 'id')->toArray();
+                                                        }
+                                                    }),
                                                 Textarea::make('description')
                                                     ->label(__('general.description'))
                                                     ->maxLength(10000)

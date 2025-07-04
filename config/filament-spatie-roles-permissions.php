@@ -262,7 +262,8 @@ return [
             'can-view-order-delivery-address',
             'can-create-storages-for-all-departments',
             'can-create-global-storages',
-            'can-see-all-storages'
+            'can-see-all-storages',
+            'can-create-items-for-other-departments'
         ],
 
         'user_model' => \App\Models\User::class,
