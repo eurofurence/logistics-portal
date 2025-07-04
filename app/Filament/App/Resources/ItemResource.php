@@ -175,13 +175,16 @@ class ItemResource extends Resource
 
                                                         return $options;
                                                     })
+                                                    #BUG
+                                                    /*
                                                     ->default(function () {
                                                         $options = Auth::user()->can('can-choose-all-departments')
                                                             ? Department::withoutTrashed()->pluck('id')->toArray()
                                                             : Auth::user()->departments()->withoutTrashed()->pluck('department')->toArray();
 
                                                         return count($options) === 1 ? $options[0] : null;
-                                                    }),
+                                                    })
+                                                        */,
                                                 Textarea::make('description')
                                                     ->label(__('general.description'))
                                                     ->maxLength(10000)
