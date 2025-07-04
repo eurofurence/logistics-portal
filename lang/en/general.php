@@ -412,4 +412,6 @@ return array(
         'awaiting_approval' => 'The order is awaiting approval by a director of the department for which this order was placed. This status is assigned if the purchaser in the department is not the director and the order requires approval, or if the user has a flag indicating that orders need extra approval. If approval by the director is not possible or difficult to implement, the admin must be contacted. As long as the order has this status, it will not be actively processed. If there are already several identical items on the list awaiting approval, they will be merged upon acceptance.',
     ],
     'status_descriptions_title' => 'Declaration of Status',
+    'operation_site_create_note_1' => 'Please create the entry before adding a location',
+    'operation_site_create_note_2' => 'Operation sites in your department',
 );

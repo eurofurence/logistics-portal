@@ -7,6 +7,7 @@ use Filament\Forms;
 use App\Models\Item;
 use Filament\Tables;
 use App\Models\Storage;
+use Filament\Forms\Set;
 use App\Models\BaseUnit;
 use Filament\Forms\Form;
 use App\Models\Department;
@@ -35,6 +36,7 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Collection;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
 use App\Filament\App\Resources\ItemResource\Pages;
 use Archilex\ToggleIconColumn\Columns\ToggleIconColumn;
@@ -86,6 +88,45 @@ class ItemResource extends Resource
             __('general.department') => $record->department_->name,
             __('general.created_at') => $record->created_at,
         ];
+    }
+
+    /**
+     * Checks if the current request route corresponds to the item view page.
+     *
+     * This static method determines whether the current route name matches
+     * the specific route used for viewing an item in the Filament application.
+     *
+     * @return bool Returns true if the current route is the item view page, false otherwise.
+     */
+    public static function isView(): bool
+    {
+        return request()->route()->getName() === 'filament.app.resources.items.view';
+    }
+
+    /**
+     * Checks if the current request route corresponds to the item edit page.
+     *
+     * This static method determines whether the current route name matches
+     * the specific route used for editing an item in the Filament application.
+     *
+     * @return bool Returns true if the current route is the item edit page, false otherwise.
+     */
+    public static function isEdit(): bool
+    {
+        return request()->route()->getName() === 'filament.app.resources.items.edit';
+    }
+
+    /**
+     * Checks if the current request route corresponds to the item create page.
+     *
+     * This static method determines whether the current route name matches
+     * the specific route used for creating an item in the Filament application.
+     *
+     * @return bool Returns true if the current route is the item create page, false otherwise.
+     */
+    public static function isCreate(): bool
+    {
+        return request()->route()->getName() === 'filament.app.resources.items.create';
     }
 
     public static function form(Form $form): Form
@@ -225,22 +266,47 @@ class ItemResource extends Resource
                                             })
                                             ->searchable(['name'])
                                             ->preload()
-                                            ->createOptionForm(function ($record): array {
-                                                $department = $record->department();
+                                            ->suffixAction(
+                                                Action::make('add_operation_site')
+                                                    ->icon('heroicon-o-plus')
+                                                    ->disabled()
+                                                    ->action(function (Set $set, $state) {
+                                                        $set('price', $state);
+                                                    })
+                                                    ->form(function ($record) {
+                                                        if (!self::isCreate()) {
+                                                            $department = $record->connected_department();
 
-                                                return [
-                                                    TextInput::make('name')
-                                                        ->required()
-                                                        ->unique(),
-                                                    Select::make('department')
-                                                        ->exists('departments', 'id')
-                                                        ->options($department->pluck('name', 'id')->toArray())
-                                                        ->default($department->value('id'))
-                                                        ->required()
-                                                        ->selectablePlaceholder(false)
-                                                ];
+                                                            return [
+                                                                TextInput::make('name')
+                                                                    ->required()
+                                                                    ->unique(),
+                                                                Select::make('department')
+                                                                    ->exists('departments', 'id')
+                                                                    ->options($department->pluck('name', 'id')->toArray())
+                                                                    ->default($department->value('id'))
+                                                                    ->required()
+                                                                    ->selectablePlaceholder(false)
+                                                            ];
+                                                        }
+                                                    })
+                                            )
+                                            ->suffixIcon('heroicon-o-map-pin')
+                                            ->disabled(function (): bool {
+                                                if (self::isCreate()) {
+                                                    return true;;
+                                                }
+
+                                                return false;
                                             })
-                                            ->suffixIcon('heroicon-o-map-pin'),
+                                            ->hint(function () {
+                                                if (self::isCreate()) {
+                                                    return __('general.operation_site_create_note_1');
+                                                }
+
+                                                return __('general.operation_site_create_note_2');
+                                            })
+                                            ->disabled(),
                                     ]),
                                 Tabs\Tab::make(__('general.more') . '/' . __('general.note'))
                                     ->icon('heroicon-o-ellipsis-horizontal-circle')

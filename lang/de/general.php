@@ -411,4 +411,6 @@ return array(
         'awaiting_approval' => 'Die Bestellung wartet auf Genehmigung durch einen Direktor der Abteilung für die diese Bestellung getätigt wurde. Der Status wird vergeben wenn der Einkäufer in der Abteilung nicht der Direktor ist und die Bestellung eine Freigabe braucht, oder der Benutzer eine Flag hat dass Bestellungen eine extra genehmigung brauchen. Ist eine Genehmigung durch den Direktor nicht möglich oder nur schwer umzusetzten muss sich an den Admin gewandt werden. Solange die Bestellung diesen Status hat wird sie nicht aktiv bearbeitet. Sollten sich bereits mehrere gleiche Artikel in der Liste zur Genehmigung befinden, werden diese beim Akzeptieren zusammengeführt.',
     ],
     'status_descriptions_title' => 'Statuserklärung',
+    'operation_site_create_note_1' => 'Vor dem Hinzufügen eines Einsatzortes bitte den Eintrag erstellen',
+    'operation_site_create_note_2' => 'Einsatzorte in deinem Department',
 );

@@ -142,7 +142,7 @@ class Item extends Model implements HasMedia
     /**
      * The operation site that belongs to the item
      */
-    public function operation_site(): HasOne
+    public function connected_operation_site(): HasOne
     {
         return $this->hasOne(ItemsOperationSite::class, 'operation_site');
     }

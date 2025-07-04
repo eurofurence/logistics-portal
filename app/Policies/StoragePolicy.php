@@ -56,7 +56,7 @@ class StoragePolicy
      */
     public function update(User $user, Storage $storage): bool
     {
-        return $user->checkPermissionTo('update-Storage');
+        return $user->checkPermissionTo('update-Storage') || $user->hasDepartmentRoleWithPermissionTo('update-Storage', $storage->managing_department);
     }
 
     /**
@@ -64,21 +64,21 @@ class StoragePolicy
      */
     public function delete(User $user, Storage $storage): bool
     {
-        return $user->checkPermissionTo('delete-Storage');
+        return $user->checkPermissionTo('delete-Storage') || $user->hasDepartmentRoleWithPermissionTo('delete-Storage', $storage->managing_department);
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Storage $storage): bool
+    public function restore(User $user): bool
     {
-        return $user->checkPermissionTo('restore-Storage');
+        return $user->checkPermissionTo('restore-Storage')  || $user->hasAnyDepartmentRoleWithPermissionTo('restore-Storage');
     }
 
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Storage $storage): bool
+    public function forceDelete(User $user): bool
     {
         return $user->checkPermissionTo('force-delete-Storage');
     }
