@@ -23,7 +23,8 @@ class ItemsOperationSite extends Model
         'name',
         'department',
         'added_by',
-        'edited_by'
+        'edited_by',
+        'department_id'
     ];
 
     protected static function boot()

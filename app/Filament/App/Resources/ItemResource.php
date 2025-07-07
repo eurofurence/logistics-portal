@@ -262,6 +262,7 @@ class ItemResource extends Resource
                                             ->searchable(['name'])
                                             ->suffixIcon('heroicon-o-building-storefront'),
                                         Select::make('operation_site')
+                                            #TODO: Permissions einbauen
                                             ->label(__('general.operation_site'))
                                             ->options(function ($record): array {
                                                 return ItemsOperationSite::all()->pluck('name', 'id')->toArray();
@@ -299,8 +300,6 @@ class ItemResource extends Resource
                                                                     ->send();
                                                             }
                                                         }
-
-
                                                     })
                                                     ->form(function ($record, Get $get) {
                                                         $department = $record->connected_department();
@@ -324,26 +323,34 @@ class ItemResource extends Resource
                                             ->suffixAction(
                                                 Action::make('add_operation_site')
                                                     ->icon('heroicon-o-plus')
-                                                    ->action(function (Set $set, $state) {
-                                                        $set('operation_site', $state);
+                                                    ->action(function (array $data, Set $set) {
+                                                        $operationSite = ItemsOperationSite::create([
+                                                            'name' => $data['name'],
+                                                            'department' => $data['department'],
+                                                        ]);
+
+                                                        $set('operation_site', $operationSite->id);
+
+                                                        Notification::make('operation_side_added')
+                                                            ->title(__('general.added'))
+                                                            ->success()
+                                                            ->send();
                                                     })
                                                     ->form(function ($record) {
-                                                        if (!(self::isCreate() || self::isView())) {
-                                                            $department = $record->connected_department();
+                                                        $department = $record->connected_department();
 
-                                                            return [
-                                                                TextInput::make('name')
-                                                                    ->required()
-                                                                    ->unique()
-                                                                    ->maxlength(64),
-                                                                Select::make('department')
-                                                                    ->exists('departments', 'id')
-                                                                    ->options($department->pluck('name', 'id')->toArray())
-                                                                    ->default($department->value('id'))
-                                                                    ->required()
-                                                                    ->selectablePlaceholder(false)
-                                                            ];
-                                                        }
+                                                        return [
+                                                            TextInput::make('name')
+                                                                ->required()
+                                                                ->unique()
+                                                                ->maxlength(64),
+                                                            Select::make('department')
+                                                                ->exists('departments', 'id')
+                                                                ->options($department->pluck('name', 'id')->toArray())
+                                                                ->default($department->value('id'))
+                                                                ->required()
+                                                                ->selectablePlaceholder(false)
+                                                        ];
                                                     })
                                                     ->disabled(function (): bool {
                                                         if (self::isCreate() || self::isView()) {
