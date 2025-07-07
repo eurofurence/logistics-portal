@@ -770,7 +770,7 @@ class ItemResource extends Resource
                         return __('general.no');
                     })
                     ->collapsible(),
-                Group::make('department.name')
+                Group::make('connected_department.name')
                     ->label(__('general.department'))
                     ->collapsible(),
                 Group::make('created_at')
