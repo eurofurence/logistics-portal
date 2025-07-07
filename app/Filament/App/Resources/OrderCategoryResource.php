@@ -96,23 +96,26 @@ class OrderCategoryResource extends Resource
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make()
-                    ->visible(fn (OrderCategory $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
+                    ->visible(fn(OrderCategory $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
             ])
             ->actions([
                 Tables\Actions\RestoreAction::make(),
                 Tables\Actions\ForceDeleteAction::make(),
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->modalHeading(function ($record): string {
+                        return __('general.delete') . ': ' . $record->name;
+                    }),
                 Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make()
-                        ->visible(fn (OrderCategory $record): bool => Gate::allows('bulk-delete', $record)),
+                        ->visible(fn(OrderCategory $record): bool => Gate::allows('bulk-delete', $record)),
                     Tables\Actions\RestoreBulkAction::make()
-                        ->visible(fn (OrderCategory $record): bool => Gate::allows('bulk-restore-OrderCategory', $record)),
+                        ->visible(fn(OrderCategory $record): bool => Gate::allows('bulk-restore-OrderCategory', $record)),
                     Tables\Actions\ForceDeleteBulkAction::make()
-                        ->visible(fn (OrderCategory $record): bool => Gate::allows('bulk-force-delete-OrderCategory', $record))
+                        ->visible(fn(OrderCategory $record): bool => Gate::allows('bulk-force-delete-OrderCategory', $record))
                 ]),
             ]);
     }

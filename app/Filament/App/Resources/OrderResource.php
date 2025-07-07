@@ -1030,7 +1030,10 @@ class OrderResource extends Resource
 
                                 return true;
                             }),
-                        Tables\Actions\DeleteAction::make(),
+                        Tables\Actions\DeleteAction::make()
+                            ->modalHeading(function ($record): string {
+                                return __('general.delete') . ': ' . $record->name;
+                            }),
                         Tables\Actions\RestoreAction::make()
                             ->visible(function (Model $record) {
                                 if ($record->status == 'locked') {

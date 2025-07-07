@@ -99,6 +99,9 @@ class IdpRankSyncResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
+                    ->modalHeading(function ($record): string {
+                        return __('general.delete') . ': ' . $record->name;
+                    })
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

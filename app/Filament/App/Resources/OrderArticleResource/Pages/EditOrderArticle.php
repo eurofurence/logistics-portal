@@ -13,7 +13,11 @@ class EditOrderArticle extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()
+                ->icon('heroicon-o-trash')
+                ->modalHeading(function ($record): string {
+                    return __('general.delete') . ': ' . $record->name;
+                }),
             Actions\ViewAction::make(),
         ];
     }

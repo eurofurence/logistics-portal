@@ -3,9 +3,6 @@
 namespace App\Filament\App\Resources\ItemResource\Pages;
 
 use Filament\Actions;
-use Illuminate\Support\Str;
-use Filament\Actions\Action;
-use Filament\Actions\ReplicateAction;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\EditRecord;
@@ -19,10 +16,13 @@ class EditItem extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make()
-                ->icon('heroicon-o-trash'),
             Actions\ViewAction::make()
                 ->icon('heroicon-o-eye'),
+            Actions\DeleteAction::make()
+                ->icon('heroicon-o-trash')
+                ->modalHeading(function ($record): string {
+                    return __('general.delete') . ': ' . $record->name;
+                }),
             Actions\ReplicateAction::make()
                 ->icon('heroicon-o-arrow-up-on-square-stack')
                 ->form([

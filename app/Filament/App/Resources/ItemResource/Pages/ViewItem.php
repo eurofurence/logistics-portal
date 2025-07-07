@@ -20,7 +20,10 @@ class ViewItem extends ViewRecord
             Actions\EditAction::make()
                 ->icon('heroicon-o-pencil'),
             Actions\DeleteAction::make()
-                ->icon('heroicon-o-trash'),
+                ->icon('heroicon-o-trash')
+                ->modalHeading(function ($record): string {
+                    return __('general.delete') . ': ' . $record->name;
+                }),
             Actions\ReplicateAction::make()
                 ->icon('heroicon-o-arrow-up-on-square-stack')
                 ->form([

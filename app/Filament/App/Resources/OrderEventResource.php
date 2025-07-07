@@ -156,7 +156,10 @@ class OrderEventResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->modalHeading(function ($record): string {
+                        return __('general.delete') . ': ' . $record->name;
+                    }),
                 Tables\Actions\RestoreAction::make(),
             ])
             ->bulkActions([
