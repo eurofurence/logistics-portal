@@ -15,7 +15,10 @@ class EditOrder extends EditRecord
     {
         return [
             Actions\DeleteAction::make()
-            ->icon('heroicon-o-trash'),
+                ->icon('heroicon-o-trash')
+                ->modalHeading(function ($record): string {
+                    return __('general.delete') . ': ' . $record->name;
+                }),
         ];
     }
 }

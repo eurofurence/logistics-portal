@@ -312,7 +312,10 @@ class OrderRequestResource extends Resource
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->modalHeading(function ($record): string {
+                            return __('general.delete') . ': ' . $record->title;
+                        }),
                     Tables\Actions\RestoreAction::make(),
                     Tables\Actions\ViewAction::make(),
                 ]),

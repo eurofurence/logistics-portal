@@ -15,9 +15,12 @@ class ViewOrder extends ViewRecord
     {
         return [
             Actions\EditAction::make()
-            ->icon('heroicon-o-pencil'),
+                ->icon('heroicon-o-pencil'),
             Actions\DeleteAction::make()
-            ->icon('heroicon-o-trash'),
+                ->icon('heroicon-o-trash')
+                ->modalHeading(function ($record): string {
+                    return __('general.delete') . ': ' . $record->name;
+                }),
         ];
     }
 }

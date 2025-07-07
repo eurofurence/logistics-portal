@@ -1030,7 +1030,10 @@ class OrderResource extends Resource
 
                                 return true;
                             }),
-                        Tables\Actions\DeleteAction::make(),
+                        Tables\Actions\DeleteAction::make()
+                            ->modalHeading(function ($record): string {
+                                return __('general.delete') . ': ' . $record->name;
+                            }),
                         Tables\Actions\RestoreAction::make()
                             ->visible(function (Model $record) {
                                 if ($record->status == 'locked') {
@@ -1283,7 +1286,6 @@ class OrderResource extends Resource
                             $fileType = $data['file_type'] ?? 'xlsx';
 
                             $exportConfig = [
-                                #TODO: Metro noch überarbeiten
                                 'metro_list' => [
                                     'class' => MetroExport::class,
                                     'filename' => __('general.metro_list') . ' - ' . __('general.orders'),
@@ -1431,7 +1433,7 @@ class OrderResource extends Resource
 
                                 if ($approved_elements_counter > 0) {
                                     Notification::make()
-                                        ->body(__('general.approved'))
+                                        ->body($approved_elements_counter . ' ' . __('general.approved'))
                                         ->success()
                                         ->icon('heroicon-o-check')
                                         ->iconColor('success')
@@ -1448,7 +1450,7 @@ class OrderResource extends Resource
                                     ->send();
                             })
                             ->visible(function (): bool {
-                                return Auth::user()->can('can-approve-orders') || Auth::user()->can('can-approve-orders-for-other-departments');
+                                return Auth::user()->hasAnyDepartmentRoleWithPermissionTo('can-approve-orders') || Auth::user()->can('can-approve-orders-for-other-departments');
                             }),
                         BulkAction::make('decline_order')
                             ->label(__('general.decline'))
@@ -1468,7 +1470,7 @@ class OrderResource extends Resource
 
                                 if ($declined_elements_counter > 0) {
                                     Notification::make()
-                                        ->title(__('general.declined'))
+                                        ->title($declined_elements_counter . ' ' .  __('general.declined'))
                                         ->body(__('general.moved_to_deleted_elements'))
                                         ->success()
                                         ->icon('heroicon-o-check')
@@ -1487,7 +1489,7 @@ class OrderResource extends Resource
                                     ->send();
                             })
                             ->visible(function (): bool {
-                                return Auth::user()->can('can-decline-orders') || Auth::user()->can('can-decline-orders-for-other-departments');
+                                return Auth::user()->hasAnyDepartmentRoleWithPermissionTo('can-decline-orders') || Auth::user()->can('can-decline-orders-for-other-departments');
                             })
                     ])
                         ->dropdown(false),

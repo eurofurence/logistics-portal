@@ -505,7 +505,10 @@ class OrderArticleResource extends Resource
                     ->size(ActionSize::ExtraSmall),
                 ActionGroup::make([
                     EditAction::make(),
-                    DeleteAction::make(),
+                    DeleteAction::make()
+                        ->modalHeading(function ($record): string {
+                            return __('general.delete') . ': ' . $record->name;
+                        }),
                     RestoreAction::make(),
                     ForceDeleteAction::make(),
                 ])

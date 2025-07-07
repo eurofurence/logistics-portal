@@ -307,7 +307,10 @@ class StorageResource extends Resource
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
-                    DeleteAction::make(),
+                    DeleteAction::make()
+                        ->modalHeading(function ($record): string {
+                            return __('general.delete') . ': ' . $record->name;
+                        }),
                 ])
             ])
             ->bulkActions([

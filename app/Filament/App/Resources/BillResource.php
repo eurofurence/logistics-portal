@@ -458,7 +458,10 @@ class BillResource extends Resource
                 ActionGroup::make([
                     ActionGroup::make([
                         Tables\Actions\EditAction::make(),
-                        Tables\Actions\DeleteAction::make(),
+                        Tables\Actions\DeleteAction::make()
+                            ->modalHeading(function ($record): string {
+                                return __('general.delete') . ': ' . $record->title;
+                            }),
                         Tables\Actions\RestoreAction::make(),
                         Tables\Actions\ForceDeleteAction::make(),
                         Tables\Actions\ViewAction::make(),
