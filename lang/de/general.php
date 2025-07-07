@@ -413,4 +413,9 @@ return array(
     'status_descriptions_title' => 'Statuserklärung',
     'operation_site_create_note_1' => 'Vor dem Hinzufügen eines Einsatzortes bitte den Eintrag erstellen',
     'operation_site_create_note_2' => 'Einsatzorte in deinem Department',
+    'custom_fields' => 'Benutzerdefinierte Felder',
+    'field_name' => 'Feldname',
+    'copy' => 'Kopie',
+    'entry_duplicated' => 'Eintrag dupliziert',
+    'duplicate_note_1' => 'Bitte beachte dass Dateien nicht mit dupliziert werden werden',
 );

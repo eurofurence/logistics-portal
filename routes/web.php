@@ -1,7 +1,6 @@
 <?php
 
 use Filament\Facades\Filament;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,15 +39,14 @@ Route::prefix('/auth')->name('auth.')->group(function () {
 Route::redirect('/app/artisan', '/app')->name('filament.app.pages.artisan');
 
 Route::fallback(function () {
-    Log::warning('Route not found: ' . request()->path());
-    abort(404);
+    return redirect(config('auth.auth_direct_url'));
 });
 
 Route::get('/login', function () {
     $prevUrl = url()->previous();
 
     if (! $prevUrl) {
-        abort(404); // or redirect some where
+        return redirect(config('auth.auth_direct_url'));
     }
 
     $path = parse_url($prevUrl, PHP_URL_PATH);
@@ -56,7 +54,7 @@ Route::get('/login', function () {
     $panelId = explode('/', trim($path, '/'))[0];
 
     if (! in_array($panelId, array_keys(Filament::getPanels()))) {
-        abort(404);
+        return redirect(config('auth.auth_direct_url'));
     }
 
     return redirect(route("filament.{$panelId}.auth.login"));
@@ -66,7 +64,7 @@ Route::get('/theme', function () {
     $prevUrl = url()->previous();
 
     if (! $prevUrl) {
-        abort(404); // or redirect some where
+        return redirect(config('auth.auth_direct_url'));
     }
 
     $path = parse_url($prevUrl, PHP_URL_PATH);
@@ -74,7 +72,7 @@ Route::get('/theme', function () {
     $panelId = explode('/', trim($path, '/'))[0];
 
     if (! in_array($panelId, array_keys(Filament::getPanels()))) {
-        abort(404);
+        return redirect(config('auth.auth_direct_url'));
     }
 
     return redirect(route("filament.{$panelId}.auth.login"));

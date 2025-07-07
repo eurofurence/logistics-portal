@@ -105,7 +105,7 @@ class OrderPolicy
         $result = false;
 
         // Check whether the order can be deleted
-        if ((($order->status == 'open') && ($order->status != 'awaiting_approval')) || $user->checkPermissionTo('can-always-delete-orders') || (($order->status == 'awaiting_approval') && ($order->added_by == $user->id))) {
+        if ((($order->status == 'open') || ($order->status == 'awaiting_approval')) || $user->checkPermissionTo('can-always-delete-orders')) {
             $result = true;
         }
 
@@ -167,59 +167,5 @@ class OrderPolicy
         }
 
         return $result || $user->checkPermissionTo('bulk-restore-Order');
-    }
-
-    public function declineOrder(User $user, Order $order)
-    {
-        // Initialize the result to false
-        $result = false;
-
-        // Check if the order can be declined based on its event status and status
-        $canDeclineOrder = !$order->event->locked &&
-            $order->event->order_deadline < now() &&
-            $order->status == 'awaiting_approval';
-
-        // Check if the user has permission to always decline orders
-        $hasAlwaysDeclinePermission = $user->checkPermissionTo('can-always-decline-orders');
-
-        // Set result to true if the order can be declined or the user has always decline permission
-        if ($canDeclineOrder || $hasAlwaysDeclinePermission) {
-            $result = true;
-        }
-
-        $hasRequiredPermission = $user->hasDepartmentRoleWithPermissionTo('can-decline-orders', $order->department->id);
-
-        // Check if the user has permission to decline orders for other departments
-        $canDeclineForOtherDepartments = $user->checkPermissionTo('can-decline-orders-for-other-departments');
-
-        // Return true if the user is in the department and has the role or can decline orders for other departments, and the result is true
-        return ($hasRequiredPermission || $canDeclineForOtherDepartments) && $result;
-    }
-
-    public function approveOrder(User $user, Order $order)
-    {
-        // Initialize the result to false
-        $result = false;
-
-        // Check if the order can be approved based on its event status and status
-        $canApproveOrder = !$order->event->locked &&
-            $order->event->order_deadline < now() &&
-            $order->status == 'awaiting_approval';
-
-        // Check if the user has permission to always approve orders
-        $hasAlwaysApprovePermission = $user->checkPermissionTo('can-always-approve-orders');
-
-        // Set result to true if the order can be approved or the user has always approve permission
-        if ($canApproveOrder || $hasAlwaysApprovePermission) {
-            $result = true;
-        }
-
-        $hasRequiredPermission = $user->hasDepartmentRoleWithPermissionTo('can-approve-orders', $order->department->id);
-
-        // Check if the user has permission to approve orders for other departments
-        $canApproveForOtherDepartments = $user->checkPermissionTo('can-approve-orders-for-other-departments');
-
-        // Return true if the user is in the department and has the role or can approve orders for other departments, and the result is true
-        return ($hasRequiredPermission || $canApproveForOtherDepartments) && $result;
     }
 }

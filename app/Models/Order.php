@@ -449,9 +449,29 @@ class Order extends Model implements HasMedia
     {
         if ($this->status == 'awaiting_approval') {
             if (empty($this->deleted_at)) {
-                if (Gate::check('approveOrder', [$this])) {
-                    return true;
+                // Initialize the result to false
+                $result = false;
+
+                // Check if the order can be approved based on its event status and status
+                $canApproveOrder = !$this->event->locked &&
+                    $this->event->order_deadline < now() &&
+                    $this->status == 'awaiting_approval';
+
+                // Check if the user has permission to always approve orders
+                $hasAlwaysApprovePermission = Auth::user()->checkPermissionTo('can-always-approve-orders');
+
+                // Set result to true if the order can be approved or the user has always approve permission
+                if ($canApproveOrder || $hasAlwaysApprovePermission) {
+                    $result = true;
                 }
+
+                $hasRequiredPermission = Auth::user()->hasDepartmentRoleWithPermissionTo('can-approve-orders', $this->department_id);
+
+                // Check if the user has permission to approve orders for other departments
+                $canApproveForOtherDepartments = Auth::user()->checkPermissionTo('can-approve-orders-for-other-departments');
+
+                // Return true if the user is in the department and has the role or can approve orders for other departments, and the result is true
+                return ($hasRequiredPermission || $canApproveForOtherDepartments) && $result;
             }
         }
 
@@ -469,9 +489,29 @@ class Order extends Model implements HasMedia
     {
         if ($this->status == 'awaiting_approval') {
             if (empty($this->deleted_at)) {
-                if (Gate::check('declineOrder', [$this])) {
-                    return true;
+                // Initialize the result to false
+                $result = false;
+
+                // Check if the order can be declined based on its event status and status
+                $canDeclineOrder = !$this->event->locked &&
+                    $this->event->order_deadline < now() &&
+                    $this->status == 'awaiting_approval';
+
+                // Check if the user has permission to always decline orders
+                $hasAlwaysDeclinePermission = Auth::user()->checkPermissionTo('can-always-decline-orders');
+
+                // Set result to true if the order can be declined or the user has always decline permission
+                if ($canDeclineOrder || $hasAlwaysDeclinePermission) {
+                    $result = true;
                 }
+
+                $hasRequiredPermission = Auth::user()->hasDepartmentRoleWithPermissionTo('can-decline-orders', $this->department_id);
+
+                // Check if the user has permission to decline orders for other departments
+                $canDeclineForOtherDepartments = Auth::user()->checkPermissionTo('can-decline-orders-for-other-departments');
+
+                // Return true if the user is in the department and has the role or can decline orders for other departments, and the result is true
+                return ($hasRequiredPermission || $canDeclineForOtherDepartments) && $result;
             }
         }
 

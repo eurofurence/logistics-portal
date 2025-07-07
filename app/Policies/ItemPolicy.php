@@ -56,6 +56,20 @@ class ItemPolicy
     }
 
     /**
+     * Determine whether the user can replicate the model.
+     */
+    public function replicate(User $user, Item $bill): bool
+    {
+        $result = false;
+
+        if (!$user->checkPermissionTo('replicate-Item')) {
+            return false;
+        }
+
+        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments') && $result;
+    }
+
+    /**
      * Determine whether the user can permanently delete the model.
      */
     public function forceDelete(User $user): bool

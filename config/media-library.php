@@ -259,7 +259,7 @@ return [
      *
      * More info: https://css-tricks.com/native-lazy-loading/
      */
-    'default_loading_attribute_value' => null,
+    'default_loading_attribute_value' => 'auto',
 
     /*
      * You can specify a prefix for that is used for storing all media.
@@ -271,5 +271,5 @@ return [
      * When forcing lazy loading, media will be loaded even if you don't eager load media and you have
      * disabled lazy loading globally in the service provider.
      */
-    'force_lazy_loading' => env('FORCE_MEDIA_LIBRARY_LAZY_LOADING', true),
+    'force_lazy_loading' => env('FORCE_MEDIA_LIBRARY_LAZY_LOADING', false),
 ];

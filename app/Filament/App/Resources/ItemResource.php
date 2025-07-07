@@ -23,6 +23,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
@@ -77,16 +78,17 @@ class ItemResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['name', 'shortname', 'serialnumber', 'url'];
+        return ['name', 'serialnumber', 'url', 'description', 'owner'];
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
             __('general.name') => $record->name,
-            __('general.shortname') => $record->shortname,
-            __('general.department') => $record->department_->name,
-            __('general.created_at') => $record->created_at,
+            __('general.department') => $record->connected_department->name,
+            __('general.serialnumber') => $record->serialnumber,
+            __('general.owner') => $record->owner,
+            __('general.description') => $record->description,
         ];
     }
 
@@ -159,11 +161,13 @@ class ItemResource extends Resource
                                                 TextInput::make('name')
                                                     ->label(__('general.name'))
                                                     ->required()
+                                                    ->unique(ignoreRecord: true)
                                                     ->maxLength(64),
                                                 TextInput::make('shortname')
                                                     ->unique(ignoreRecord: true)
                                                     ->hint(__('general.unique_name'))
-                                                    ->label(__('general.shortname')),
+                                                    ->label(__('general.shortname'))
+                                                    ->visible(false),
                                                 Select::make('department')
                                                     ->label(__('general.department'))
                                                     ->required()
@@ -204,7 +208,8 @@ class ItemResource extends Resource
                                                 ->searchable()
                                                 ->options(BaseUnit::all()->pluck('name', 'id'))
                                                 ->exists('base_units', 'id')
-                                                ->disabled(),
+                                                ->disabled()
+                                                ->visible(false),
                                             TextInput::make('price')
                                                 ->label(__('general.price'))
                                                 ->numeric()
@@ -266,7 +271,6 @@ class ItemResource extends Resource
                                             ->suffixAction(
                                                 Action::make('add_operation_site')
                                                     ->icon('heroicon-o-plus')
-                                                    ->disabled()
                                                     ->action(function (Set $set, $state) {
                                                         $set('price', $state);
                                                     })
@@ -302,8 +306,7 @@ class ItemResource extends Resource
                                                 }
 
                                                 return __('general.operation_site_create_note_2');
-                                            })
-                                            ->disabled(),
+                                            }),
                                     ]),
                                 Tabs\Tab::make(__('general.more') . '/' . __('general.note'))
                                     ->icon('heroicon-o-ellipsis-horizontal-circle')
@@ -368,14 +371,12 @@ class ItemResource extends Resource
                                             ->directory('inventory/files')
                                             ->multiple()
                                             ->maxSize(15000)
-                                            ->reorderable()
                                             ->panelLayout('grid')
                                             ->appendFiles()
                                             ->openable()
                                             ->downloadable()
                                             ->previewable()
-                                            ->visibility('private')
-                                            ->responsiveImages(),
+                                            ->visibility('private'),
                                     ]),
                                 Tabs\Tab::make(__('general.qr_code'))
                                     ->icon('heroicon-o-qr-code')
@@ -397,6 +398,13 @@ class ItemResource extends Resource
                                             ])
                                     ])
                                     ->visible(false),
+                                Tabs\Tab::make(__('general.custom_fields'))
+                                    ->icon('heroicon-o-table-cells')
+                                    ->schema([
+                                        KeyValue::make('custom_fields')
+                                            ->label(__('general.custom_fields'))
+                                            ->keyLabel(__('general.field_name'))
+                                    ]),
                             ])
 
                     ])
@@ -434,7 +442,8 @@ class ItemResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->label(__('general.shortname'))
-                    ->toggleable(true, true),
+                    ->toggleable(true, true)
+                    ->visible(false),
                 TextColumn::make('storage.name')
                     ->sortable()
                     ->searchable()
@@ -459,6 +468,11 @@ class ItemResource extends Resource
                     ->sortable()
                     ->toggleable(true, false)
                     ->label(__('general.will_be_brought_to_next_event')),
+                ToggleIconColumn::make('serialnumber')
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(true, true)
+                    ->label(__('general.serialnumber')),
                 /*
                 ToggleIconColumn::make('borrowed_item')
                     ->sortable()
