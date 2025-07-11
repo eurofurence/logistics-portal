@@ -89,6 +89,7 @@ class ItemResource extends Resource
             __('general.serialnumber') => $record->serialnumber,
             __('general.owner') => $record->owner,
             __('general.description') => $record->description,
+            __('general.storage') => $record->connected_storage->name
         ];
     }
 
@@ -262,7 +263,6 @@ class ItemResource extends Resource
                                             ->searchable(['name'])
                                             ->suffixIcon('heroicon-o-building-storefront'),
                                         Select::make('operation_site')
-                                            #TODO: Permissions einbauen
                                             ->label(__('general.operation_site'))
                                             ->options(function ($record): array {
                                                 return ItemsOperationSite::all()->pluck('name', 'id')->toArray();
@@ -279,6 +279,7 @@ class ItemResource extends Resource
                                             ->suffixAction(
                                                 Action::make('edit_operation_site')
                                                     ->icon('heroicon-o-pencil')
+                                                    ->label(__('general.edit_operation_site'))
                                                     ->action(function ($record, array $data, Set $set, Get $get) {
                                                         $current_id = $get('current_selected_operation_site_id');
 
@@ -323,6 +324,7 @@ class ItemResource extends Resource
                                             ->suffixAction(
                                                 Action::make('add_operation_site')
                                                     ->icon('heroicon-o-plus')
+                                                    ->label(__('general.add_operation_site'))
                                                     ->action(function (array $data, Set $set) {
                                                         $operationSite = ItemsOperationSite::create([
                                                             'name' => $data['name'],
@@ -364,6 +366,7 @@ class ItemResource extends Resource
                                                 Action::make('delete_operation_site')
                                                     ->icon('heroicon-o-trash')
                                                     ->requiresConfirmation()
+                                                    ->label(__('general.delete_operation_site'))
                                                     ->modalHeading(function (Get $get) {
                                                         return __('general.delete') . ': ' . $get('current_selected_operation_site_name');
                                                     })
@@ -770,7 +773,7 @@ class ItemResource extends Resource
                         return __('general.no');
                     })
                     ->collapsible(),
-                Group::make('department.name')
+                Group::make('connected_department.name')
                     ->label(__('general.department'))
                     ->collapsible(),
                 Group::make('created_at')

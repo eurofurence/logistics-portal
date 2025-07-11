@@ -58,15 +58,13 @@ class ItemPolicy
     /**
      * Determine whether the user can replicate the model.
      */
-    public function replicate(User $user, Item $bill): bool
+    public function replicate(User $user, Item $item): bool
     {
-        $result = false;
-
-        if (!$user->checkPermissionTo('replicate-Item')) {
-            return false;
+        if ($user->checkPermissionTo('replicate-Item') || $user->hasDepartmentRoleWithPermissionTo('replicate-Item', $item->department)) {
+            return true;
         }
 
-        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments') && $result;
+        return false;
     }
 
     /**

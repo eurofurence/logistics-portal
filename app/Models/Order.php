@@ -454,7 +454,7 @@ class Order extends Model implements HasMedia
 
                 // Check if the order can be approved based on its event status and status
                 $canApproveOrder = !$this->event->locked &&
-                    $this->event->order_deadline < now() &&
+                    $this->event->order_deadline > now() &&
                     $this->status == 'awaiting_approval';
 
                 // Check if the user has permission to always approve orders

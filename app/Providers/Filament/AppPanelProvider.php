@@ -15,6 +15,7 @@ use Filament\Navigation\NavigationItem;
 use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Http\Middleware\Authenticate;
 use App\Filament\App\Resources\BillResource;
+use App\Filament\App\Resources\ItemResource;
 use App\Filament\App\Resources\OrderResource;
 use Filament\SpatieLaravelTranslatablePlugin;
 use pxlrbt\FilamentSpotlight\SpotlightPlugin;
@@ -110,7 +111,7 @@ class AppPanelProvider extends PanelProvider
                         OrderRequestResource::class,
                         BillResource::class,
                         StorageResource::class,
-                        //ItemResource::class,
+                        ItemResource::class,
                     ]),
                 EnvironmentIndicatorPlugin::make()
                     ->visible(fn() => match (config('app.env')) {
