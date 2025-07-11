@@ -193,7 +193,8 @@ return [
          * Define excluded_models
          */
         'excluded_models' => [
-            //
+             \App\Models\ItemsOperationSite::class
+             
         ],
 
         'excluded_policy_models' => [
