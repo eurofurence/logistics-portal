@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Spatie\MediaLibrary\HasMedia;
+use App\Models\InventorySubCategory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -91,7 +92,7 @@ class Item extends Model implements HasMedia
      *
      * @var array'
      */
-    protected $fillable = ['name', 'shortname', 'serialnumber', 'weight_g', 'stackable', 'unit', 'due_date', 'sorted_out', 'description', 'comment', 'department', 'edited_by', 'added_by', 'price', 'locked', 'specific_editor', 'buy_date', 'qr_code', 'storage_container_id', 'storage', 'owner', 'borrowed_item', 'rented_item', 'will_be_brought_to_next_event', 'operation_site', 'custom_fields'];
+    protected $fillable = ['name', 'shortname', 'serialnumber', 'weight_g', 'stackable', 'unit', 'due_date', 'sorted_out', 'description', 'comment', 'department', 'edited_by', 'added_by', 'price', 'locked', 'specific_editor', 'buy_date', 'qr_code', 'storage_container_id', 'storage', 'owner', 'borrowed_item', 'rented_item', 'will_be_brought_to_next_event', 'operation_site', 'custom_fields', 'sub_category'];
 
     protected $casts = [
         'custom_fields' => 'array',
@@ -100,6 +101,9 @@ class Item extends Model implements HasMedia
     protected static function boot()
     {
         parent::boot();
+
+        #TODO: Sollte das Department mal im Nachhinein geändert werden müssen hier Checks eingebaut werden die Prüfen ob die Kategorie/operation site zum Department gehört
+
 
         static::creating(function ($model) {
             $model->added_by = Auth::user()->id;
@@ -149,5 +153,13 @@ class Item extends Model implements HasMedia
     public function connected_operation_site(): HasOne
     {
         return $this->hasOne(ItemsOperationSite::class, 'operation_site');
+    }
+
+    /**
+     * The operation site that belongs to the item
+     */
+    public function connected_sub_category(): HasOne
+    {
+        return $this->hasOne(InventorySubCategory::class, 'sub_category');
     }
 }

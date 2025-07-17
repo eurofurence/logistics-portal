@@ -17,6 +17,7 @@ use Filament\Resources\Resource;
 use App\Models\ItemsOperationSite;
 use Filament\Forms\Components\Tabs;
 use Filament\Tables\Grouping\Group;
+use App\Models\InventorySubCategory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Select;
@@ -37,8 +38,9 @@ use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Collection;
-use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
+use App\Actions\Inventory\OperationSiteActions;
+use App\Actions\Inventory\SubCategorySiteActions;
 use App\Filament\App\Resources\ItemResource\Pages;
 use Archilex\ToggleIconColumn\Columns\ToggleIconColumn;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -93,40 +95,16 @@ class ItemResource extends Resource
         ];
     }
 
-    /**
-     * Checks if the current request route corresponds to the item view page.
-     *
-     * This static method determines whether the current route name matches
-     * the specific route used for viewing an item in the Filament application.
-     *
-     * @return bool Returns true if the current route is the item view page, false otherwise.
-     */
     public static function isView(): bool
     {
         return request()->route()->getName() === 'filament.app.resources.items.view';
     }
 
-    /**
-     * Checks if the current request route corresponds to the item edit page.
-     *
-     * This static method determines whether the current route name matches
-     * the specific route used for editing an item in the Filament application.
-     *
-     * @return bool Returns true if the current route is the item edit page, false otherwise.
-     */
     public static function isEdit(): bool
     {
         return request()->route()->getName() === 'filament.app.resources.items.edit';
     }
 
-    /**
-     * Checks if the current request route corresponds to the item create page.
-     *
-     * This static method determines whether the current route name matches
-     * the specific route used for creating an item in the Filament application.
-     *
-     * @return bool Returns true if the current route is the item create page, false otherwise.
-     */
     public static function isCreate(): bool
     {
         return request()->route()->getName() === 'filament.app.resources.items.create';
@@ -171,6 +149,7 @@ class ItemResource extends Resource
                                                     ->visible(false),
                                                 Select::make('department')
                                                     ->label(__('general.department'))
+                                                    ->id('department')
                                                     ->required()
                                                     ->exists('departments', 'id')
                                                     ->options(function (): array {
@@ -182,6 +161,50 @@ class ItemResource extends Resource
                                                             return Department::all()->pluck('name', 'id')->toArray();
                                                         } else {
                                                             return Auth::user()->getDepartmentsWithPermission('view-Item')->pluck('name', 'id')->toArray();
+                                                        }
+                                                    })
+                                                    ->disabled(function () {
+                                                        if (self::isEdit() || self::isView()) {
+                                                            return true;
+                                                        }
+
+                                                        return false;
+                                                    })
+                                                    ->hint(function () {
+                                                        if (self::isEdit() || self::isCreate()) {
+                                                            return __('general.inventory_department_note_1');
+                                                        }
+                                                    }),
+                                                Select::make('sub_category')
+                                                    ->label(__('general.department_sub_category'))
+                                                    ->options(function ($record): array {
+                                                        if (!empty($record->connected_department->inventory_sub_categories)) {
+                                                            return $record->connected_department->inventory_sub_categories->pluck('name', 'id')->toArray();
+                                                        }
+                                                        return [];
+                                                    })
+                                                    ->searchable(['name'])
+                                                    ->live()
+                                                    ->preload()
+                                                    ->afterStateUpdated(function (Set $set, $state) {
+                                                        // Saving the ID and name of the selected element
+                                                        $subCategory = InventorySubCategory::find($state);
+                                                        $set('current_selected_sub_category_id', $subCategory ? $subCategory->id : null);
+                                                        $set('current_selected_sub_category_name', $subCategory ? $subCategory->name : null);
+                                                    })
+                                                    ->suffixAction(SubCategorySiteActions::getEditAction())
+                                                    ->suffixAction(SubCategorySiteActions::getAddAction())
+                                                    ->suffixAction(SubCategorySiteActions::getDeleteAction())
+                                                    ->disabled(function () {
+                                                        if (self::isView() || self::isCreate()) {
+                                                            return true;
+                                                        }
+
+                                                        return false;
+                                                    })
+                                                    ->hint(function () {
+                                                        if (self::isCreate()) {
+                                                            return __('general.sub_category_create_note_1');
                                                         }
                                                     }),
                                                 Textarea::make('description')
@@ -276,138 +299,22 @@ class ItemResource extends Resource
                                                 $set('current_selected_operation_site_id', $operationSite ? $operationSite->id : null);
                                                 $set('current_selected_operation_site_name', $operationSite ? $operationSite->name : null);
                                             })
-                                            ->suffixAction(
-                                                Action::make('edit_operation_site')
-                                                    ->icon('heroicon-o-pencil')
-                                                    ->label(__('general.edit_operation_site'))
-                                                    ->action(function ($record, array $data, Set $set, Get $get) {
-                                                        $current_id = $get('current_selected_operation_site_id');
-
-                                                        if ($current_id != null) {
-                                                            $operationSite = ItemsOperationSite::find($current_id);
-                                                            if ($operationSite) {
-                                                                $operationSite->update([
-                                                                    'name' => $data['name'],
-                                                                    //'department_id' => $data['department'],
-                                                                ]);
-
-                                                                $set('current_selected_operation_site_id', $operationSite->id);
-                                                                $set('current_selected_operation_site_name', $data['name']);
-                                                                $set('operation_site', $operationSite->id);
-
-                                                                Notification::make('operation_side_edited')
-                                                                    ->title(__('general.saved'))
-                                                                    ->success()
-                                                                    ->send();
-                                                            }
-                                                        }
-                                                    })
-                                                    ->form(function ($record, Get $get) {
-                                                        $department = $record->connected_department();
-                                                        return [
-                                                            TextInput::make('name')
-                                                                ->required()
-                                                                ->default($get('current_selected_operation_site_name'))
-                                                                ->maxlength(64),
-                                                            Select::make('department')
-                                                                ->exists('departments', 'id')
-                                                                ->options($department->pluck('name', 'id')->toArray())
-                                                                ->default($department->value('id'))
-                                                                ->required()
-                                                                ->selectablePlaceholder(false)
-                                                        ];
-                                                    })
-                                                    ->disabled(function (Get $get): bool {
-                                                        return self::isCreate() || self::isView() || ($get('current_selected_operation_site_id') == null);
-                                                    }),
-                                            )
-                                            ->suffixAction(
-                                                Action::make('add_operation_site')
-                                                    ->icon('heroicon-o-plus')
-                                                    ->label(__('general.add_operation_site'))
-                                                    ->action(function (array $data, Set $set) {
-                                                        $operationSite = ItemsOperationSite::create([
-                                                            'name' => $data['name'],
-                                                            'department' => $data['department'],
-                                                        ]);
-
-                                                        $set('operation_site', $operationSite->id);
-
-                                                        Notification::make('operation_side_added')
-                                                            ->title(__('general.added'))
-                                                            ->success()
-                                                            ->send();
-                                                    })
-                                                    ->form(function ($record) {
-                                                        $department = $record->connected_department();
-
-                                                        return [
-                                                            TextInput::make('name')
-                                                                ->required()
-                                                                ->unique()
-                                                                ->maxlength(64),
-                                                            Select::make('department')
-                                                                ->exists('departments', 'id')
-                                                                ->options($department->pluck('name', 'id')->toArray())
-                                                                ->default($department->value('id'))
-                                                                ->required()
-                                                                ->selectablePlaceholder(false)
-                                                        ];
-                                                    })
-                                                    ->disabled(function (): bool {
-                                                        if (self::isCreate() || self::isView()) {
-                                                            return true;;
-                                                        }
-
-                                                        return false;
-                                                    })
-                                            )
-                                            ->suffixAction(
-                                                Action::make('delete_operation_site')
-                                                    ->icon('heroicon-o-trash')
-                                                    ->requiresConfirmation()
-                                                    ->label(__('general.delete_operation_site'))
-                                                    ->modalHeading(function (Get $get) {
-                                                        return __('general.delete') . ': ' . $get('current_selected_operation_site_name');
-                                                    })
-                                                    ->color('danger')
-                                                    ->action(function (Set $set, Get $get) {
-                                                        $current_id = $get('current_selected_operation_site_id');
-
-                                                        if ($current_id != null) {
-                                                            $operationSite = ItemsOperationSite::find($current_id);
-                                                            if ($operationSite) {
-                                                                $operationSite->delete();
-
-                                                                $set('current_selected_operation_site_id', null);
-                                                                $set('current_selected_operation_site_name', null);
-                                                                $set('operation_site', null);
-
-                                                                Notification::make('operation_side_deleted')
-                                                                    ->title(__('general.deleted'))
-                                                                    ->success()
-                                                                    ->send();
-                                                            }
-                                                        }
-                                                    })
-                                                    ->disabled(function (Get $get): bool {
-                                                        return self::isCreate() || self::isView() || ($get('current_selected_operation_site_id') == null);
-                                                    }),
-                                            )
-                                            ->suffixIcon('heroicon-o-map-pin')
-                                            ->disabled(function (): bool {
-                                                if (self::isCreate() || self::isView()) {
-                                                    return true;;
+                                            ->suffixAction(OperationSiteActions::getEditAction())
+                                            ->suffixAction(OperationSiteActions::getAddAction())
+                                            ->suffixAction(OperationSiteActions::getDeleteAction())
+                                            ->disabled(function () {
+                                                if (self::isView() || self::isCreate()) {
+                                                    return true;
                                                 }
 
                                                 return false;
                                             })
                                             ->hint(function () {
-                                                if (self::isCreate()) {
+                                                if (self::isEdit()) {
+                                                    return __('general.operation_site_create_note_2');
+                                                } elseif (self::isCreate()) {
                                                     return __('general.operation_site_create_note_1');
                                                 }
-
-                                                return __('general.operation_site_create_note_2');
                                             }),
                                     ]),
                                 Tabs\Tab::make(__('general.more') . '/' . __('general.note'))

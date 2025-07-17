@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('items_operations_sites', function (Blueprint $table) {
+        Schema::create('inventory_sub_category', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
             $table->foreignIdFor(Department::class, 'department');
@@ -28,12 +28,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('items_operations_sites', function (Blueprint $table) {
+        Schema::table('inventory_sub_category', function (Blueprint $table) {
             $table->dropForeign(['added_by']);
             $table->dropForeign(['edited_by']);
             $table->dropForeign(['department']);
         });
 
-        Schema::dropIfExists('items_operations_sites');
+        Schema::dropIfExists('inventory_sub_category');
     }
 };

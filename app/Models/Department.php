@@ -4,6 +4,7 @@ namespace App\Models;
 
 use InvalidArgumentException;
 use App\Models\ItemsOperationSite;
+use App\Models\InventorySubCategory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -108,11 +109,19 @@ class Department extends Model
         return $this->morphToMany(Storage::class, 'storage', 'storage_department', 'storage', 'department');
     }
 
-     /**
+    /**
      * The operations sites that belong to the department.
      */
     public function items_operation_sites(): HasMany
     {
         return $this->hasMany(ItemsOperationSite::class, 'department');
+    }
+
+    /**
+     * The operations sites that belong to the department.
+     */
+    public function inventory_sub_categories(): HasMany
+    {
+        return $this->hasMany(InventorySubCategory::class, 'department');
     }
 }
