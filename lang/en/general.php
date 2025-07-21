@@ -430,4 +430,8 @@ return array(
     'add_sub_category' => 'Add category',
     'delete_sub_category' => 'Delete category',
     'added' => 'Added',
+    'manufacturer_barcode' => 'Manufacturer barcode',
+    'scan_barcode' => 'Scan barcode',
+    'generate' => 'Generate',
+    'connect' => 'Connect',
 );

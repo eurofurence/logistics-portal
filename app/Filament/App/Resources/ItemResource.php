@@ -20,6 +20,7 @@ use Filament\Tables\Grouping\Group;
 use App\Models\InventorySubCategory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use App\View\Components\BarcodeInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
@@ -254,6 +255,18 @@ class ItemResource extends Resource
                                                 ->label(__('general.due_date'))
                                                 ->timezone('Europe/Berlin')
                                                 ->hint('Europe/Berlin'),
+                                            BarcodeInput::make('manufacturer_barcode')
+                                                ->title(__('general.manufacturer_barcode'))
+                                                ->label(__('general.manufacturer_barcode'))
+                                                ->icon('heroicon-m-qr-code')
+                                                ->maxlength(255)
+                                                ->disabled(function () {
+                                                    if (self::isView()) {
+                                                        return true;
+                                                    }
+
+                                                    return false;
+                                                }),
                                             TextInput::make('url')
                                                 ->label(__('general.url'))
                                                 ->url()
@@ -392,21 +405,21 @@ class ItemResource extends Resource
                                     ->schema([
                                         Tabs::make('Tabs')
                                             ->tabs([
-                                                Tabs\Tab::make('Tab 1')
+                                                Tabs\Tab::make('generate_code')
                                                     ->schema([
-                                                        // ...
-                                                    ]),
-                                                Tabs\Tab::make('Tab 2')
+                                                        Placeholder::make('WIP')
+                                                    ])
+                                                    ->label(__('general.generate'))
+                                                    ->icon('heroicon-o-plus-circle'),
+                                                Tabs\Tab::make('link_code')
                                                     ->schema([
-                                                        // ...
-                                                    ]),
-                                                Tabs\Tab::make('Tab 3')
-                                                    ->schema([
-                                                        // ...
-                                                    ]),
+                                                        Placeholder::make('WIP')
+                                                    ])
+                                                    ->label(__('general.connect'))
+                                                    ->disabled()
+                                                    ->icon('heroicon-o-link')
                                             ])
-                                    ])
-                                    ->visible(false),
+                                    ]),
                                 Tabs\Tab::make(__('general.custom_fields'))
                                     ->icon('heroicon-o-table-cells')
                                     ->schema([
@@ -415,7 +428,8 @@ class ItemResource extends Resource
                                             ->keyLabel(__('general.field_name'))
                                     ]),
                             ])
-
+                            ->persistTabInQueryString()
+                            ->contained(false)
                     ])
             ]);
     }
@@ -453,7 +467,7 @@ class ItemResource extends Resource
                     ->label(__('general.shortname'))
                     ->toggleable(true, true)
                     ->visible(false),
-                TextColumn::make('storage.name')
+                TextColumn::make('connected_storage.name')
                     ->sortable()
                     ->searchable()
                     ->label(__('general.name'))
@@ -497,6 +511,11 @@ class ItemResource extends Resource
                     ->date()
                     ->toggleable(true, true)
                     ->sortable(),
+                TextColumn::make('manufacturer_barcode')
+                    ->label(__('general.manufacturer_barcode'))
+                    ->toggleable(true, true)
+                    ->sortable()
+                    ->searchable(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make()

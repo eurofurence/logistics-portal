@@ -428,4 +428,8 @@ return array(
     'add_sub_category' => 'Kategorie hinzufügen',
     'delete_sub_category' => 'Kategorie löschen',
     'added' => 'Hinzugefügt',
+    'manufacturer_barcode' => 'Hersteller Barcode',
+    'scan_barcode' => 'Barcode scannen',
+    'generate' => 'Generieren',
+    'connect' => 'Verbinden',
 );
