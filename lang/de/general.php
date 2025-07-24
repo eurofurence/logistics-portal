@@ -432,4 +432,8 @@ return array(
     'scan_barcode' => 'Barcode scannen',
     'generate' => 'Generieren',
     'connect' => 'Verbinden',
+    'no_department' => 'Keine Abteilung',
+    'no_category' => 'Keine Kategorie',
+    'no_operation_site' => 'Kein Einsatzort',
+    'sub_category' => 'Unterkategorie',
 );

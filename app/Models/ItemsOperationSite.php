@@ -44,7 +44,7 @@ class ItemsOperationSite extends Model
      /**
      * The department that belong to the operation site.
      */
-    public function department(): BelongsTo
+    public function connected_department(): BelongsTo
     {
         return $this->belongsTo(Department::class, 'department');
     }

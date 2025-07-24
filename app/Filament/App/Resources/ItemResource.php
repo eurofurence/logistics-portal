@@ -178,9 +178,12 @@ class ItemResource extends Resource
                                                     }),
                                                 Select::make('sub_category')
                                                     ->label(__('general.department_sub_category'))
-                                                    ->options(function ($record): array {
+                                                    ->options(function ($record) {
                                                         if (!empty($record->connected_department->inventory_sub_categories)) {
-                                                            return $record->connected_department->inventory_sub_categories->pluck('name', 'id')->toArray();
+                                                            return $record->connected_department->inventory_sub_categories->mapWithKeys(function ($subCategory) {
+                                                                $departmentName = $subCategory->connected_department ? $subCategory->connected_department->name : __('general.no_department');
+                                                                return [$subCategory->id => __('general.id') . ": {$subCategory->id} - {$subCategory->name} ({$departmentName})"];
+                                                            })->toArray();
                                                         }
                                                         return [];
                                                     })
@@ -301,7 +304,9 @@ class ItemResource extends Resource
                                         Select::make('operation_site')
                                             ->label(__('general.operation_site'))
                                             ->options(function ($record): array {
-                                                return ItemsOperationSite::all()->pluck('name', 'id')->toArray();
+                                                return $record->connected_department->items_operation_sites->mapWithKeys(function ($operationSite) {
+                                                    return [$operationSite->id => __('general.id') . ": {$operationSite->id} - {$operationSite->name} ({$operationSite->connected_department->name})"];
+                                                })->toArray();
                                             })
                                             ->searchable(['name'])
                                             ->live()
@@ -705,6 +710,26 @@ class ItemResource extends Resource
                 Group::make('created_at')
                     ->label(__('general.created_at'))
                     ->date()
+                    ->collapsible(),
+                Group::make('connected_operation_site.name')
+                    ->label(__('general.operation_site'))
+                    ->getTitleFromRecordUsing(function (Item $record): string{
+                        if (!empty($record->connected_operation_site)) {
+                            return ucfirst($record->connected_operation_site->name) . " ({$record->connected_department->name})";
+                        }
+
+                        return __('general.no_operation_site');
+                    })
+                    ->collapsible(),
+                Group::make('connected_sub_category.name')
+                    ->label(__('general.sub_category'))
+                    ->getTitleFromRecordUsing(function (Item $record): string{
+                        if (!empty($record->connected_sub_category)) {
+                            return ucfirst($record->connected_sub_category->name) . " ({$record->connected_department->name})";
+                        }
+
+                        return __('general.no_category');
+                    })
                     ->collapsible(),
             ]);
     }

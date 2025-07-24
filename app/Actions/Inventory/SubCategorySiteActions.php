@@ -85,6 +85,8 @@ final class SubCategorySiteActions
                     'department' => $data['department'],
                 ]);
                 $set('sub_category', $subCategory->id);
+                $set('current_selected_sub_category_id', $subCategory->id);
+                $set('current_selected_sub_category_name', $subCategory->name);
                 Notification::make('sub_category_added')
                     ->title(__('general.added'))
                     ->success()
@@ -95,7 +97,6 @@ final class SubCategorySiteActions
                 return [
                     TextInput::make('name')
                         ->required()
-                        ->unique()
                         ->maxlength(64),
                     Select::make('department')
                         ->exists('departments', 'id')

@@ -80,6 +80,8 @@ final class OperationSiteActions
                     'department' => $data['department'],
                 ]);
                 $set('operation_site', $operationSite->id);
+                $set('current_selected_operation_site_id', $operationSite->id);
+                $set('current_selected_operation_site_name', $operationSite->name);
                 Notification::make('operation_side_added')
                     ->title(__('general.added'))
                     ->success()
@@ -90,7 +92,6 @@ final class OperationSiteActions
                 return [
                     TextInput::make('name')
                         ->required()
-                        ->unique()
                         ->maxlength(64),
                     Select::make('department')
                         ->exists('departments', 'id')

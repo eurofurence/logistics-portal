@@ -30,12 +30,14 @@ class InventorySubCategory extends Model
     {
         parent::boot();
 
+        #TODO: Checks einbauen
         #TODO: Sollte das Department mal im Nachhinein geändert werden müssen hier Checks eingebaut werden die Prüfen ob die Kategorie/operation site zum Department gehört
         static::creating(function ($model) {
             $model->added_by = Auth::user()->id;
             $model->edited_by = Auth::user()->id;
         });
 
+        #TODO: Checks einbauen
         #TODO: Sollte das Department mal im Nachhinein geändert werden müssen hier Checks eingebaut werden die Prüfen ob die Kategorie/operation site zum Department gehört
         static::updating(function ($model) {
             $model->edited_by = Auth::user()->id;
@@ -45,7 +47,7 @@ class InventorySubCategory extends Model
      /**
      * The department that belong to the operation site.
      */
-    public function department(): BelongsTo
+    public function connected_department(): BelongsTo
     {
         return $this->belongsTo(Department::class, 'department');
     }

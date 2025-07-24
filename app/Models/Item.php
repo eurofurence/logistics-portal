@@ -152,7 +152,7 @@ class Item extends Model implements HasMedia
      */
     public function connected_operation_site(): HasOne
     {
-        return $this->hasOne(ItemsOperationSite::class, 'operation_site');
+        return $this->hasOne(ItemsOperationSite::class, 'id', 'operation_site');
     }
 
     /**
@@ -160,6 +160,6 @@ class Item extends Model implements HasMedia
      */
     public function connected_sub_category(): HasOne
     {
-        return $this->hasOne(InventorySubCategory::class, 'sub_category');
+        return $this->hasOne(InventorySubCategory::class, 'id', 'sub_category');
     }
 }

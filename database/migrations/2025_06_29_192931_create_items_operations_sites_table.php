@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('items_operations_sites', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->string('name');
             $table->foreignIdFor(Department::class, 'department');
             $table->foreignIdFor(User::class, 'added_by');
             $table->foreignIdFor(User::class, 'edited_by');
