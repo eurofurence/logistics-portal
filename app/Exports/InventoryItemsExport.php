@@ -2,7 +2,6 @@
 
 namespace App\Exports;
 
-use App\Models\Order;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Events\AfterSheet;
@@ -21,7 +20,7 @@ use Maatwebsite\Excel\Concerns\WithDefaultStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class ItemsExport implements FromCollection, WithTitle, ShouldAutoSize, WithEvents, WithStyles, WithDefaultStyles, WithHeadings
+class InventoryItemsExport implements FromCollection, WithTitle, ShouldAutoSize, WithEvents, WithStyles, WithDefaultStyles, WithHeadings
 {
     protected \Illuminate\Support\Collection $orders;
     protected array $headings;
