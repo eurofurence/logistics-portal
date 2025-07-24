@@ -7,12 +7,13 @@ use App\Models\User;
 
 class ItemPolicy
 {
+    #TODO: $user->isSuperAdmin() überall einbauen
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->checkPermissionTo('view-any-Item') || $user->hasAnyDepartmentRoleWithPermissionTo('view-any-Item');
+        return $user->isSuperAdmin() || $user->hasAnyDepartmentRoleWithPermissionTo('view-any-Item');
     }
 
     /**
@@ -20,7 +21,7 @@ class ItemPolicy
      */
     public function view(User $user, Item $item): bool
     {
-        return $user->checkPermissionTo('view-Item') || $user->hasDepartmentRoleWithPermissionTo('view-Item', $item->department) ;
+        return $user->isSuperAdmin() || $user->checkPermissionTo('can-see-all_items') || $user->hasDepartmentRoleWithPermissionTo('view-Item', $item->department) ;
     }
 
     /**
@@ -28,7 +29,7 @@ class ItemPolicy
      */
     public function create(User $user): bool
     {
-        return $user->checkPermissionTo('create-Item') || $user->hasAnyDepartmentRoleWithPermissionTo('create-Item');
+        return $user->isSuperAdmin() || $user->hasAnyDepartmentRoleWithPermissionTo('create-Item');
     }
 
     /**
@@ -36,7 +37,7 @@ class ItemPolicy
      */
     public function update(User $user, Item $item): bool
     {
-        return $user->checkPermissionTo('update-Item') || $user->hasDepartmentRoleWithPermissionTo('update-Item', $item->department);
+        return $user->isSuperAdmin() || $user->hasDepartmentRoleWithPermissionTo('update-Item', $item->department);
     }
 
     /**
@@ -44,7 +45,7 @@ class ItemPolicy
      */
     public function delete(User $user, Item $item): bool
     {
-        return $user->checkPermissionTo('delete-Item')  || $user->hasDepartmentRoleWithPermissionTo('delete-Storage', $item->department);
+        return $user->isSuperAdmin() || $user->hasDepartmentRoleWithPermissionTo('delete-Storage', $item->department);
     }
 
     /**
@@ -52,7 +53,7 @@ class ItemPolicy
      */
     public function restore(User $user): bool
     {
-        return $user->checkPermissionTo('restore-Item') || $user->hasAnyDepartmentRoleWithPermissionTo('restore-Item');
+        return $user->isSuperAdmin() || $user->hasAnyDepartmentRoleWithPermissionTo('restore-Item');
     }
 
     /**
@@ -60,7 +61,7 @@ class ItemPolicy
      */
     public function replicate(User $user, Item $item): bool
     {
-        if ($user->checkPermissionTo('replicate-Item') || $user->hasDepartmentRoleWithPermissionTo('replicate-Item', $item->department)) {
+        if ($user->isSuperAdmin() || $user->hasDepartmentRoleWithPermissionTo('replicate-Item', $item->department)) {
             return true;
         }
 
@@ -72,7 +73,7 @@ class ItemPolicy
      */
     public function forceDelete(User $user): bool
     {
-        return $user->checkPermissionTo('force-delete-Item');
+        return $user->isSuperAdmin();//$user->checkPermissionTo('force-delete-Item');
     }
 
     /**
@@ -80,7 +81,7 @@ class ItemPolicy
      */
     public function bulkForceDelete(User $user): bool
     {
-        return $user->checkPermissionTo('bulk-force-delete-Item');
+        return $user->isSuperAdmin(); //$user->checkPermissionTo('bulk-force-delete-Item');
     }
 
     /**
@@ -88,7 +89,7 @@ class ItemPolicy
      */
     public function bulkDelete(User $user): bool
     {
-        return $user->checkPermissionTo('bulk-delete-Item');
+        return $user->isSuperAdmin(); //$user->checkPermissionTo('bulk-delete-Item');
     }
 
     /**
@@ -96,6 +97,6 @@ class ItemPolicy
      */
     public function bulkRestore(User $user): bool
     {
-        return $user->checkPermissionTo('bulk-restore-Item');
+        return $user->isSuperAdmin(); //$user->checkPermissionTo('bulk-restore-Item');
     }
 }

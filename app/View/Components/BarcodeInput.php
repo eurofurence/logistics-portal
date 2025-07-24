@@ -14,7 +14,7 @@ class BarcodeInput extends TextInput
 
         // Set default properties for the BarcodeInput
         $this->label('Barcode Input')
-            ->placeholder('Enter barcode...');
+            ->placeholder('0123456789');
     }
 
     /**

@@ -31,6 +31,7 @@ anderen
 Anderes
 ändern
 Änderung
+Änderungen
 Anfrage
 Anfragen
 angeben
@@ -63,6 +64,7 @@ Ausrichtung
 Aussehen
 Aussortiert
 ausstehen
+ausstehend
 aussteht
 auswählbar
 auswählen
@@ -73,6 +75,7 @@ Awcodes
 Basiseinheit
 Basiseinheiten
 Baumarkt
+beachte
 bearbeitbar
 Bearbeiten
 bearbeitet
@@ -88,6 +91,7 @@ Benachrichtigungen
 benötigst
 benötigt
 Benutzer
+Benutzerdefinierte
 Benutzername
 berechnen
 Berechnung
@@ -136,12 +140,15 @@ Daten
 dazu
 decription
 deine
+deinem
 deiner
 dessen
+diesem
 diesen
 dieser
 Direktor
 Dokumente
+dupliziert
 durch
 Ebenso
 Eigentümer
@@ -156,6 +163,7 @@ Einheit
 Einheiten
 Einkäufer
 Einsatzort
+Einsatzorte
 Einsatzortes
 einsehbar
 Einstellungen
@@ -197,6 +205,7 @@ Fehler
 Fehlermeldung
 fehlgeschlagen
 Felder
+Feldname
 festgelegt
 festlegen
 finden
@@ -224,6 +233,7 @@ gelöschte
 Gemieteter
 genehmigen
 Genehmigung
+Generieren
 genug
 geprüft
 gerade
@@ -257,6 +267,7 @@ haben
 Hagebau
 Helfer
 heroicon
+Hersteller
 hier
 hinterlegt
 Hinweis
@@ -296,6 +307,7 @@ konnten
 könnten
 Kontakt
 Kontaktdaten
+Kopie
 Kurzname
 läuft
 Letzter
@@ -329,6 +341,7 @@ möglich
 Mömax
 MPDF
 nach
+Nachhinein
 Nachricht
 Nein
 Netto
@@ -396,6 +409,7 @@ Sonderfunktionen
 Sonderrecht
 Sondervermerk
 Sonstiges
+sowie
 Spalten
 Spatie
 Speichern
@@ -412,6 +426,7 @@ Statuserklärung
 Steuern
 Steuersatz
 Steuersatzes
+Stornierungen
 Straße
 strtoupper
 Suche
@@ -442,7 +457,9 @@ ungelesen
 Ungültiger
 Untereinheit
 Untereinheiten
+Unterkategorie
 uturn
+Verbinden
 Verfallsdatum
 Verfolgungsnummer
 verfügbar

@@ -457,7 +457,7 @@ class OrderResource extends Resource
                                             ->maxValue(config('constants.inputs.numeric.max'))
                                             ->hint(__('general.gross'))
                                             ->default(0)
-                                            ->required(false)
+                                            ->required(true)
                                             ->suffixIcon('heroicon-m-currency-euro'),
                                         DateTimePicker::make('delivery_date')
                                             ->label(__('general.delivery_date'))

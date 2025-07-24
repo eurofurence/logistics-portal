@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('items_operations_sites', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->string('name');
             $table->foreignIdFor(Department::class, 'department');
             $table->foreignIdFor(User::class, 'added_by');
             $table->foreignIdFor(User::class, 'edited_by');
@@ -28,7 +28,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('order_articles', function (Blueprint $table) {
+        Schema::table('items_operations_sites', function (Blueprint $table) {
             $table->dropForeign(['added_by']);
             $table->dropForeign(['edited_by']);
             $table->dropForeign(['department']);

@@ -193,8 +193,8 @@ return [
          * Define excluded_models
          */
         'excluded_models' => [
-             \App\Models\ItemsOperationSite::class
-             
+             //\App\Models\ItemsOperationSite::class
+
         ],
 
         'excluded_policy_models' => [
@@ -264,7 +264,8 @@ return [
             'can-create-storages-for-all-departments',
             'can-create-global-storages',
             'can-see-all-storages',
-            'can-create-items-for-other-departments'
+            'can-create-items-for-other-departments',
+            'can-see-all_items',
         ],
 
         'user_model' => \App\Models\User::class,
