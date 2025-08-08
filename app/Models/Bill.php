@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Models\User;
 use App\Models\Department;
 use App\Models\OrderEvent;
-use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
@@ -15,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string $title
@@ -84,7 +83,8 @@ class Bill extends Model implements HasMedia
         'added_by',
         'edited_by',
         'advance_payment_value',
-        'advance_payment_receiver'
+        'advance_payment_receiver',
+        'repayment_method'
     ];
 
     /**

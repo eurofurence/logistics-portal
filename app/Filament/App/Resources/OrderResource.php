@@ -1135,13 +1135,13 @@ class OrderResource extends Resource
                             ])
                             ->icon('heroicon-o-document'),
                         Step::make('select_columns')
-                            ->label(__('Select Columns'))
-                            ->description(__('Select the columns you want to export'))
+                            ->label(__('general.select_columns'))
+                            ->description(__('general.select_columns_description'))
                             ->icon('heroicon-o-list-bullet')
                             ->schema([
                                 Checkbox::make('select_all')
                                     ->label(__('general.select_all'))
-                                    ->reactive() // Ermöglicht Live-Aktualisierung
+                                    ->reactive() // Enables live updating
                                     ->afterStateUpdated(function (callable $set, $state) {
                                         if ($state) {
                                             // If "Select All" is ticked, set all options

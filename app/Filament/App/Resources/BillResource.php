@@ -44,7 +44,7 @@ class BillResource extends Resource
 
     public static function getNavigationGroup(): string
     {
-        static::$navigationGroup = __('general.billing');
+        static::$navigationGroup = __('general.billing') . ' (BETA)';
 
         return static::$navigationGroup;
     }
@@ -268,6 +268,11 @@ class BillResource extends Resource
                                     ->label(__('general.advance_payment_to'))
                                     ->columnSpan(1)
                                     ->maxLength(255),
+                                Textarea::make('repayment_method')
+                                    ->label(__('general.repayment_method'))
+                                    ->nullable()
+                                    ->maxLength(10000)
+                                    ->rows(5)
                             ])
                         ])
                             ->description(__('general.expenses'))
@@ -533,6 +538,7 @@ class BillResource extends Resource
             'index' => Pages\ListBills::route('/'),
             'create' => Pages\CreateBill::route('/create'),
             'edit' => Pages\EditBill::route('/{record}/edit'),
+            'view' => Pages\ViewBill::route('/{record}'),
         ];
     }
 }

@@ -1,211 +1,104 @@
 <?php
-
 namespace App\Exports;
 
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use Maatwebsite\Excel\Concerns\WithTitle;
-use PhpOffice\PhpSpreadsheet\Style\Style;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Events\BeforeExport;
-use PhpOffice\PhpSpreadsheet\Style\Border;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithDefaultStyles;
-use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use App\Models\Department;
+use App\Exports\SingleDepartmentSheet;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class InventoryItemsExport implements FromCollection, WithTitle, ShouldAutoSize, WithEvents, WithStyles, WithDefaultStyles, WithHeadings
+class InventoryItemsExport extends ExportBase implements WithMultipleSheets
 {
-    protected \Illuminate\Support\Collection $orders;
-    protected array $headings;
-    protected array $included_columns = ['id', 'name', 'amount', 'price_net', 'price_gross', 'status', 'user_note', 'comment', 'article_number', 'url'];
-    protected int $event_id;
-
-    public function __construct(Collection $orders)
+    public function __construct(array $data, int $image_height = 92, int $image_width = 92, array $bool_columns = [])
     {
+        parent::__construct($data, $image_height, $image_width, $bool_columns);
 
-        $this->headings = [
-            __('general.id') . '/' . __('general.group'),
-            __('general.name'),
-            __('general.amount'),
-            __('general.price_net'),
-            __('general.price_gross'),
-            __('general.status'),
-            __('general.user_note'),
-            __('general.comment'),
-            __('general.article_number'),
-        ];
+        $item_collection = $this->data['records'];
+        $this->included_columns[] = 'department';
 
-        // Filter the orders to include only those with the 'metro.de' domain in the URL
-        $filteredOrders = $orders->filter(function ($order) {
-            return strpos($order->url, 'metro.de') !== false;
+        $items = $item_collection->map(function ($item) {
+            $list = [];
+            foreach ($this->included_columns as $column) {
+                $list[$column] = $item[$column] ?? null;
+            }
+            return $list;
         });
 
-
-        // Group the selected data by 'url'
-        $grouped_data = $filteredOrders->groupBy('url');
-
-        $final_records = collect();
-
-        // Iterate over grouped data to insert header and spacer rows
-        foreach ($grouped_data as $url => $records) {
-            // Add the URL as a header row
-            $final_records->push(collect(['url' => $url]));
-
-            // Add the records for this group
-            foreach ($records as $record) {
-                $recordArray = collect($record->toArray());
-
-                // Filter the record to include only the included columns
-                $filteredRecordArray = $recordArray->only($this->included_columns);
-
-                // Remove the 'url' attribute if it's still present
-                $filteredRecordArray->forget('url');
-
-                // Remove the 'url' attribute
-                $filteredRecordArray->forget('url');
-
-                // Create a new collection with the attributes in the order of $included_columns
-                $orderedRecordArray = collect();
-
-                foreach ($this->included_columns as $column) {
-                    if ($filteredRecordArray->has($column)) {
-                        $orderedRecordArray->put($column, $filteredRecordArray->get($column));
-                    }
+        $items = $items->transform(function ($item) {
+            $itemArray = is_array($item) ? $item : (array) $item;
+            foreach ($itemArray as $key => $value) {
+                if (in_array($key, $this->bool_columns)) {
+                    $itemArray[$key] = $value ? __('general.yes') : __('general.no');
                 }
-
-                $final_records->push($orderedRecordArray);
             }
+            return $itemArray;
+        });
 
-            // Calculate the total amount for this group
-            $total_amount = $records->sum('amount');
-
-            // Add a row with the total amount
-            $final_records->push(collect([
-                'empty1' => null,
-                'empty2' => null,
-                'total_amount' => __('general.sum') . ': ' . $total_amount
-            ]));
-
-            // Add one empty row as a spacer
-            $final_records->push(collect(['empty_row' => null]));
-            // Add one empty row as a spacer
-            $final_records->push(collect(['empty_row' => null]));
-            // Add one empty row as a spacer
-            $final_records->push(collect(['empty_row' => null]));
+        $final_records = array();
+        foreach ($items->groupBy('department_id') as $key => $value) {
+            $department_name = Department::where('id', $key)->first()->name ?? 'Unknown Department';
+            $final_records[$key]['department_name'] = $department_name;
+            $final_records[$key]['items'] = $value->map(function ($record) {
+                $recordArray = collect($record);
+                return $recordArray->only(array_diff($this->included_columns, ['department']));
+            });
         }
 
-        $this->orders = $final_records;
+        $this->final_records = $final_records;
+        $this->processOption('show_who_added_order', $this->data);
+        $this->processOption('show_who_approved_order', $this->data);
     }
 
-    /**
-     * @return \Illuminate\Support\Collection
-     */
-    public function collection()
+    public function sheets(): array
     {
-        return $this->orders;
+        $sheets = [];
+        foreach ($this->final_records as $sheet) {
+            $sheets[] = new SingleDepartmentSheet($sheet['department_name'], $sheet['items'], $this->headings, $this->data, $this->image_height, $this->image_width);
+        }
+        return $sheets;
     }
 
-    public function title(): string
+    private function processOption(string $option): bool
     {
-        return __('general.metro_list');
-    }
+        if (isset($this->data[$option]) && $this->data[$option] === true) {
+            $this->headings[] = __('table_exports.option_titles.' . $option);
 
-    public function registerEvents(): array
-    {
-        return [
-            AfterSheet::class => function (AfterSheet $event) {
-                $event->sheet->getPageSetup()->setOrientation(PageSetup::ORIENTATION_LANDSCAPE);
-            },
-            BeforeExport::class => function (BeforeExport $event) {
-                $event->writer->getDelegate()->getProperties()
-                    ->setCreator(Auth::user()->name)
-                    ->setLastModifiedBy(Auth::user()->name)
-                    ->setTitle('Inventory-Items Export')
-                    ->setDescription('A list of inventory items')
-                    ->setSubject('Orders')
-                    ->setKeywords('items,export,departments,eurofurence,logistics')
-                    ->setCategory('Inventory');
-            },
-        ];
-    }
+            switch ($option) {
 
-    public function headings(): array
-    {
-        return $this->headings;
-    }
+                #TODO:: Storage Option
 
-    public function styles(Worksheet $sheet)
-    {
-        return [
-            1    => [
-                'font' => [
-                    'bold' => true
-                ],
-                'fill' => [
-                    'fillType' => Fill::FILL_SOLID,
-                    'color' => ['argb' => '055350'],
-                ],
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_CENTER,
-                    'vertical' => Alignment::VERTICAL_CENTER,
-                    'wrapText' => true,
-                ],
-            ],
-            'A'    => [
-                'font' => [
-                    'bold' => true
-                ],
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_CENTER,
-                    'vertical' => Alignment::VERTICAL_CENTER,
-                    'wrapText' => true,
-                ],
-            ],
-        ];
-    }
+                #TODO: Operation Site Option
 
-    public function defaultStyles(Style $defaultStyle)
-    {
-        return [
-            'font' => [
-                'name' => 'Arial',
-                'color' => [
-                    'rgb' => '1a1a1a'
-                ]
-            ],
-            'borders' => [
-                'bottom' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => [
-                        'rgb' => '1a1a1a'
-                    ]
-                ],
-                'top' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => [
-                        'rgb' => '1a1a1a'
-                    ]
-                ],
-                'left' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => [
-                        'rgb' => '1a1a1a'
-                    ]
-                ],
-                'right' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => [
-                        'rgb' => '1a1a1a'
-                    ]
-                ]
-            ]
-        ];
+                #TODO: custom_fields Option
+
+                #TODO: sub_category Option
+
+                case 'show_who_added_order':
+                    foreach ($this->final_records as &$department) {
+                        foreach ($department['orders'] as &$order) {
+                            $order_id = $order['id'];
+                            $order_model = $this->data['records']->where('id', $order_id)->first();
+                            $order['show_who_added_order'] = $order_model['addedBy']['name'];
+                        }
+                    }
+                    break;
+
+                case 'show_who_approved_order':
+                    foreach ($this->final_records as &$department) {
+                        foreach ($department['orders'] as &$order) {
+                            $order_id = $order['id'];
+                            $order_model = $this->data['records']->where('id', $order_id)->first();
+
+                            if (!empty($order_model['approvedBy']['name'])) {
+                                $order['show_who_approved_order'] = $order_model['approvedBy']['name'];
+                            }
+                        }
+                    }
+                    break;
+
+                default:
+                    return false;
+            }
+            return true;
+        }
+        return false;
     }
 }
