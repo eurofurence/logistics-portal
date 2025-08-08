@@ -14,8 +14,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
- *
- *
  * @property int $id
  * @property string $title
  * @property string $description
@@ -60,6 +58,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereValue($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill withoutTrashed()
+ * @property string|null $repayment_method
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereRepaymentMethod($value)
  * @mixin \Eloquent
  */
 class Bill extends Model implements HasMedia

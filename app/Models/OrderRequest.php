@@ -13,8 +13,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Filament\Notifications\Notification as FilamentNotification;
 
 /**
- * 
- *
  * @property int $id
  * @property string $title
  * @property string|null $message

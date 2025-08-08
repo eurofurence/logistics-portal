@@ -12,8 +12,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
- *
- *
  * @property int $id
  * @property string $name
  * @property string|null $shortname
@@ -81,6 +79,27 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereWeightG($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Item withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Item withoutTrashed()
+ * @property string|null $owner
+ * @property int $borrowed_item
+ * @property int $rented_item
+ * @property int $will_be_brought_to_next_event
+ * @property int|null $operation_site
+ * @property array<array-key, mixed>|null $custom_fields
+ * @property int|null $sub_category
+ * @property string|null $manufacturer_barcode
+ * @property-read \App\Models\Department|null $connected_department
+ * @property-read \App\Models\ItemsOperationSite|null $connected_operation_site
+ * @property-read \App\Models\Storage|null $connected_storage
+ * @property-read InventorySubCategory|null $connected_sub_category
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereBorrowedItem($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereCustomFields($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereManufacturerBarcode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereOperationSite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereOwner($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereRentedItem($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereSubCategory($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereWeight($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereWillBeBroughtToNextEvent($value)
  * @mixin \Eloquent
  */
 class Item extends Model implements HasMedia
