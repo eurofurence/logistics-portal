@@ -150,14 +150,14 @@ class BillResource extends Resource
                                     ->options(function (): array {
                                         $options = Auth::user()->can('can-create-bills-for-other-departments')
                                             ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
-                                            : Auth::user()->getDepartmentsWithPermission_Array('create-Bill');
+                                            : Auth::user()->getDepartmentsWithPermission('create-Bill')->pluck('name', 'id');
 
                                         return $options;
                                     })
                                     ->default(function () {
                                         $options = Auth::user()->can('can-create-bills-for-other-departments')
                                             ? Department::withoutTrashed()->pluck('id')->toArray()
-                                            : Auth::user()->getDepartmentsWithPermission_Array('create-Bill');
+                                            : Auth::user()->getDepartmentsWithPermission('create-Bill')->pluck('name', 'id');
 
 
                                         return count($options) === 1 ? $options[0] : null;
@@ -441,7 +441,7 @@ class BillResource extends Resource
                         if (Auth::user()->can('can-see-all-bills')) {
                             return Department::all()->pluck('name', 'id')->toArray();
                         } else {
-                            return Auth::user()->getDepartmentsWithPermission_Array('view-Bill');
+                            return Auth::user()->getDepartmentsWithPermission('view-Bill')->pluck('name', 'department_id')->toArray();
                         }
                     }),
                 SelectFilter::make('status')
