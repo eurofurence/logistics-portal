@@ -498,7 +498,7 @@ class BillResource extends Resource
                     ->label(__('general.department'))
                     ->collapsible(),
             ])
-            ->defaultGroup('connected_event.name')
+            ->defaultGroup('connected_department.name')
             ->deferLoading()
             ->searchDebounce('750ms')
             ->persistSortInSession();
