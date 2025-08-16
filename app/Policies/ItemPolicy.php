@@ -21,7 +21,7 @@ class ItemPolicy
      */
     public function view(User $user, Item $item): bool
     {
-        return $user->isSuperAdmin() || $user->checkPermissionTo('can-see-all_items') || $user->hasDepartmentRoleWithPermissionTo('view-Item', $item->department) ;
+        return $user->isSuperAdmin() || $user->checkPermissionTo('can-see-all_items') || $user->hasDepartmentRoleWithPermissionTo('view-Item', $item->department);
     }
 
     /**
@@ -29,6 +29,7 @@ class ItemPolicy
      */
     public function create(User $user): bool
     {
+        #TODO: Permission for create for other departments
         return $user->isSuperAdmin() || $user->hasAnyDepartmentRoleWithPermissionTo('create-Item');
     }
 

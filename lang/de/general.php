@@ -441,4 +441,7 @@ return array(
     'columns' => 'Spalten',
     'select_columns' => 'Spalten auswählen',
     'select_columns_description' => 'Wähle die Spalten aus, die exportiert werden sollen',
+    'repayment_method' => 'Rückzahlungsmodalitäten',
+    'repayment_method_description' => 'Auf welche Art und Weise möchtest du dein Geld zurück haben?',
+    'status_has_changed_bill' => 'Der Status deiner Abrechnung hat sich geändert',
 );

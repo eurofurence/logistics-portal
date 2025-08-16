@@ -727,8 +727,7 @@ class ItemResource extends Resource
                         } else {
                             $options = [];
                             foreach (Auth::user()->getDepartmentsWithPermission_Array('view-Item') as $department) {
-                                // Angenommen, es gibt eine Beziehung oder Methode, um Sub-Kategorien einer Abteilung zu erhalten
-                                $subCategories = InventorySubCategory::where('department_id', $department['id'])->get();
+                                $subCategories = InventorySubCategory::where('department', $department['id'])->get();
                                 if ($subCategories->isNotEmpty()) {
                                     foreach ($subCategories as $subCategory) {
                                         $departmentName = $subCategory->connected_department ? $subCategory->connected_department->name : 'No Department';

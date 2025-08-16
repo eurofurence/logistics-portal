@@ -443,4 +443,7 @@ return array(
     'columns' => 'Columns',
     'select_columns' => 'Select Columns',
     'select_columns_description' => 'Select the columns you want to export',
+    'repayment_method' => 'Repayment methode',
+    'repayment_method_description' => 'How would you like to get your money back?',
+    'status_has_changed_bill' => 'The status of your bill has changed',
 );

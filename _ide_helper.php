@@ -5,7 +5,7 @@
 
 /**
  * A helper file for Laravel, to provide autocomplete information to your IDE
- * Generated for Laravel 12.21.0.
+ * Generated for Laravel 12.24.0.
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
@@ -1618,11 +1618,15 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
-         * {@inheritdoc}
+         * Finds an entry of the container by its identifier and returns it.
          *
          * @template TClass of object
          * @param string|class-string<TClass> $id
          * @return ($id is class-string<TClass> ? TClass : mixed)
+         * @param string $id Identifier of the entry to look for.
+         * @throws NotFoundExceptionInterface  No entry was found for **this** identifier.
+         * @throws ContainerExceptionInterface Error while retrieving the entry.
+         * @return mixed Entry.
          * @static
          */
         public static function get($id)
@@ -9647,7 +9651,7 @@ namespace Illuminate\Support\Facades {
          * Determine if all of the given abilities should be granted for the current user.
          *
          * @param iterable|\UnitEnum|string $ability
-         * @param array{class-string<TClass>|TClass, ...} $arguments
+         * @param mixed $arguments
          * @return bool
          * @static
          */
@@ -9661,7 +9665,7 @@ namespace Illuminate\Support\Facades {
          * Determine if any of the given abilities should be denied for the current user.
          *
          * @param iterable|\UnitEnum|string $ability
-         * @param array{class-string<TClass>|TClass, ...} $arguments
+         * @param mixed $arguments
          * @return bool
          * @static
          */
@@ -9675,7 +9679,7 @@ namespace Illuminate\Support\Facades {
          * Determine if all of the given abilities should be granted for the current user.
          *
          * @param iterable|\UnitEnum|string $abilities
-         * @param array{class-string<TClass>|TClass, ...} $arguments
+         * @param mixed $arguments
          * @return bool
          * @static
          */
@@ -9689,7 +9693,7 @@ namespace Illuminate\Support\Facades {
          * Determine if any one of the given abilities should be granted for the current user.
          *
          * @param iterable|\UnitEnum|string $abilities
-         * @param array{class-string<TClass>|TClass, ...} $arguments
+         * @param mixed $arguments
          * @return bool
          * @static
          */
@@ -9703,7 +9707,7 @@ namespace Illuminate\Support\Facades {
          * Determine if all of the given abilities should be denied for the current user.
          *
          * @param iterable|\UnitEnum|string $abilities
-         * @param array{class-string<TClass>|TClass, ...} $arguments
+         * @param mixed $arguments
          * @return bool
          * @static
          */
@@ -9717,7 +9721,7 @@ namespace Illuminate\Support\Facades {
          * Determine if the given ability should be granted for the current user.
          *
          * @param \UnitEnum|string $ability
-         * @param array{class-string<TClass>|TClass, ...} $arguments
+         * @param mixed $arguments
          * @return \Illuminate\Auth\Access\Response
          * @throws \Illuminate\Auth\Access\AuthorizationException
          * @static
@@ -9732,7 +9736,7 @@ namespace Illuminate\Support\Facades {
          * Inspect the user for the given ability.
          *
          * @param \UnitEnum|string $ability
-         * @param array{class-string<TClass>|TClass, ...} $arguments
+         * @param array|mixed $arguments
          * @return \Illuminate\Auth\Access\Response
          * @static
          */
@@ -9746,7 +9750,7 @@ namespace Illuminate\Support\Facades {
          * Get the raw result from the authorization callback.
          *
          * @param string $ability
-         * @param array{class-string<TClass>|TClass, ...} $arguments
+         * @param array|mixed $arguments
          * @return mixed
          * @throws \Illuminate\Auth\Access\AuthorizationException
          * @static
@@ -13510,7 +13514,7 @@ namespace Illuminate\Support\Facades {
          * Reset the number of attempts for the given key.
          *
          * @param string $key
-         * @return mixed
+         * @return bool
          * @static
          */
         public static function resetAttempts($key)
@@ -17859,10 +17863,8 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
+         * @param array<array-key, mixed> $props
          * @see \Inertia\ServiceProvider::registerRouterMacro()
-         * @param mixed $uri
-         * @param mixed $component
-         * @param mixed $props
          * @static
          */
         public static function inertia($uri, $component, $props = [])
@@ -26311,10 +26313,8 @@ namespace Illuminate\Routing {
      */
     class Router {
         /**
+         * @param array<array-key, mixed> $props
          * @see \Inertia\ServiceProvider::registerRouterMacro()
-         * @param mixed $uri
-         * @param mixed $component
-         * @param mixed $props
          * @static
          */
         public static function inertia($uri, $component, $props = [])
@@ -29294,6 +29294,7 @@ namespace  {
     class Arr extends \Illuminate\Support\Arr {}
     class Artisan extends \Illuminate\Support\Facades\Artisan {}
     class Auth extends \Illuminate\Support\Facades\Auth {}
+    class Benchmark extends \Illuminate\Support\Benchmark {}
     class Blade extends \Illuminate\Support\Facades\Blade {}
     class Broadcast extends \Illuminate\Support\Facades\Broadcast {}
     class Bus extends \Illuminate\Support\Facades\Bus {}

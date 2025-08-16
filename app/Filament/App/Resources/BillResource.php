@@ -145,33 +145,32 @@ class BillResource extends Resource
                                 Select::make('department_id')
                                     ->label(__('general.department'))
                                     ->required()
+                                    ->searchable()
                                     ->exists('departments', 'id')
                                     ->options(function (): array {
-                                        $options = Auth::user()->can('can-choose-all-departments')
+                                        $options = Auth::user()->can('can-create-bills-for-other-departments')
                                             ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
-                                            : Auth::user()->departments()->withoutTrashed()->pluck('name', 'department_id')->toArray();
+                                            : Auth::user()->getDepartmentsWithPermission_Array('create-Bill');
 
                                         return $options;
                                     })
                                     ->default(function () {
-                                        $options = Auth::user()->can('can-choose-all-departments')
+                                        $options = Auth::user()->can('can-create-bills-for-other-departments')
                                             ? Department::withoutTrashed()->pluck('id')->toArray()
-                                            : Auth::user()->departments()->withoutTrashed()->pluck('department_id')->toArray();
+                                            : Auth::user()->getDepartmentsWithPermission_Array('create-Bill');
+
 
                                         return count($options) === 1 ? $options[0] : null;
                                     }),
                                 Select::make('order_event_id')
                                     ->label(__('general.order_event'))
                                     ->required()
+                                    ->searchable()
                                     ->exists('order_events', 'id')
                                     ->options(function (): array {
                                         $options = Auth::user()->can('can-always-order')
                                             ? OrderEvent::withoutTrashed()->pluck('name', 'id')->toArray()
-                                            : OrderEvent::where('locked', false)
-                                            ->where(function ($query) {
-                                                $query->whereNull('order_deadline')
-                                                    ->orWhere('order_deadline', '>', now());
-                                            })
+                                            : OrderEvent::all()
                                             ->withoutTrashed()
                                             ->pluck('name', 'id')
                                             ->toArray();
@@ -180,12 +179,8 @@ class BillResource extends Resource
                                     })
                                     ->default(function () {
                                         $options = Auth::user()->can('can-always-order')
-                                            ? OrderEvent::withoutTrashed()->pluck('id')->toArray()
-                                            : OrderEvent::where('locked', false)
-                                            ->where(function ($query) {
-                                                $query->whereNull('order_deadline')
-                                                    ->orWhere('order_deadline', '>', now());
-                                            })
+                                            ? OrderEvent::withoutTrashed()->pluck('name', 'id')->toArray()
+                                            : OrderEvent::all()
                                             ->withoutTrashed()
                                             ->pluck('id')
                                             ->toArray();
@@ -203,6 +198,7 @@ class BillResource extends Resource
                                     ])
                                     ->default('open')
                                     ->required()
+                                    ->searchable()
                                     ->visible(fn() => Auth::user()->can('can-change-bill-status')),
                             ]),
                         ])
@@ -254,6 +250,13 @@ class BillResource extends Resource
                                     ->required()
                                     ->searchable()
                                     ->default('EUR'),
+                                Textarea::make('repayment_method')
+                                    ->label(__('general.repayment_method'))
+                                    ->placeholder(__('general.repayment_method_description'))
+                                    ->required()
+                                    ->nullable()
+                                    ->maxLength(10000)
+                                    ->rows(5),
                                 TextInput::make('advance_payment_value')
                                     ->nullable()
                                     ->numeric()
@@ -267,12 +270,7 @@ class BillResource extends Resource
                                     ->datalist(User::all(['name'])->pluck('name'))
                                     ->label(__('general.advance_payment_to'))
                                     ->columnSpan(1)
-                                    ->maxLength(255),
-                                Textarea::make('repayment_method')
-                                    ->label(__('general.repayment_method'))
-                                    ->nullable()
-                                    ->maxLength(10000)
-                                    ->rows(5)
+                                    ->maxLength(255)
                             ])
                         ])
                             ->description(__('general.expenses'))
@@ -322,11 +320,11 @@ class BillResource extends Resource
                     ->label(__('general.title'))
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('department.name')
+                TextColumn::make('connected_department.name')
                     ->label(__('general.department'))
                     ->sortable()
                     ->toggleable(),
-                TextColumn::make('event.name')
+                TextColumn::make('connected_event.name')
                     ->label(__('general.order_event'))
                     ->sortable()
                     ->toggleable(),
@@ -440,10 +438,10 @@ class BillResource extends Resource
                     ->multiple()
                     ->label(__('general.department'))
                     ->options(function (): array {
-                        if (Auth::user()->can('can-choose-all-departments') || Auth::user()->can('can-see-all-departments')) {
+                        if (Auth::user()->can('can-see-all-bills')) {
                             return Department::all()->pluck('name', 'id')->toArray();
                         } else {
-                            return Auth::user()->departments()->pluck('name', 'department_id')->toArray();
+                            return Auth::user()->getDepartmentsWithPermission_Array('view-Bill');
                         }
                     }),
                 SelectFilter::make('status')
@@ -505,7 +503,7 @@ class BillResource extends Resource
                 ]),
             ])
             ->groups([
-                Group::make('event.name')
+                Group::make('connected_event.name')
                     ->label(__('general.order_event'))
                     ->collapsible(),
                 Group::make('created_at')
@@ -515,11 +513,11 @@ class BillResource extends Resource
                 Group::make('status')
                     ->label(__('general.status'))
                     ->collapsible(),
-                Group::make('department.name')
+                Group::make('connected_department.name')
                     ->label(__('general.department'))
                     ->collapsible(),
             ])
-            ->defaultGroup('event.name')
+            ->defaultGroup('connected_event.name')
             ->deferLoading()
             ->searchDebounce('750ms')
             ->persistSortInSession();

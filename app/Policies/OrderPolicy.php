@@ -8,6 +8,7 @@ use App\Models\OrderEvent;
 
 class OrderPolicy
 {
+    #TODO: $user->isSuperAdmin() überall einbauen
     /**
      * Determine whether the user can view any models.
      */

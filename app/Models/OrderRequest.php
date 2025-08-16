@@ -107,9 +107,7 @@ class OrderRequest extends Model
 
                 if ($model->isDirty('status')) {
                     $model_link = null;
-                    if (Auth::user()->can('view-OrderRequest')) {
-                        $model_link = route('filament.app.resources.order-requests.view', $model);
-                    }
+                    $model_link = route('filament.app.resources.order-requests.view', $model);
 
                     if ($model->status_notifications == true) {
                         //Send email
@@ -129,7 +127,6 @@ class OrderRequest extends Model
                                 Action::make(__('general.show'))
                                     ->url(route('filament.app.resources.order-requests.view', $model))
                                     ->button()
-                                    ->visible(Auth::user()->can('view-OrderRequest'))
                             ])
                             ->sendToDatabase($model->addedBy);
                     }
