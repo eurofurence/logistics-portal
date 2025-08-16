@@ -118,10 +118,6 @@ class AdminPanelProvider extends PanelProvider
                 SpotlightPlugin::make(),
                 GlobalSearchModalPlugin::make(),
                 FilamentDeveloperGatePlugin::make(),
-                FilamentSentryFeedbackPlugin::make()
-                    ->sentryUser(function (): ?SentryUser {
-                        return new SentryUser(auth()->user()->name, auth()->user()->email);
-                    })
             ])
             ->plugin(FilamentSpatieRolesPermissionsPlugin::make())
             ->authMiddleware([
