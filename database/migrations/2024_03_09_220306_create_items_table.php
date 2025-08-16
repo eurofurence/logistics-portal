@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('shortname')->unique()->nullable();
             $table->string('serialnumber')->nullable();
-            $table->unsignedBigInteger('weight_g')->unsigned()->nullable();
+            $table->string('weight')->nullable();
             $table->boolean('stackable')->nullable();
             $table->foreignIdFor(BaseUnit::class, 'unit')->nullable();
             $table->timestamp('due_date')->nullable();

@@ -10,8 +10,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- *
- *
  * @property int $id
  * @property string $name
  * @property string|null $contact_details
@@ -46,6 +44,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage withoutTrashed()
+ * @property int $type
+ * @property \App\Models\Department|null $managing_department
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\StorageDepartmentAccess> $departments
+ * @property-read int|null $departments_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereManagingDepartment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereType($value)
  * @mixin \Eloquent
  */
 class Storage extends Model

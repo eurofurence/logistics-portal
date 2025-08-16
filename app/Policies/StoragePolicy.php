@@ -7,12 +7,14 @@ use App\Models\User;
 
 class StoragePolicy
 {
+    #TODO: $user->isSuperAdmin() überall einbauen
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return $user->checkPermissionTo('view-any-Storage')  || $user->hasAnyDepartmentRoleWithPermissionTo('view-any-Storage');
+        return $user->isSuperAdmin() || $user->hasAnyDepartmentRoleWithPermissionTo('view-any-Storage');
     }
 
     /**
@@ -48,6 +50,7 @@ class StoragePolicy
      */
     public function create(User $user): bool
     {
+        #TODO: create Storage for other department permission
         return $user->checkPermissionTo('create-Storage') || $user->hasAnyDepartmentRoleWithPermissionTo('create-Storage');
     }
 
@@ -64,6 +67,7 @@ class StoragePolicy
      */
     public function delete(User $user, Storage $storage): bool
     {
+        #TODO: Perssion to delete all Storage
         return $user->checkPermissionTo('delete-Storage') || $user->hasDepartmentRoleWithPermissionTo('delete-Storage', $storage->managing_department);
     }
 

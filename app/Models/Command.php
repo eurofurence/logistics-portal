@@ -9,8 +9,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 /**
- * 
- *
  * @property int $id
  * @property string|null $name
  * @property string|null $description

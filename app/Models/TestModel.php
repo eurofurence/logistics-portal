@@ -8,8 +8,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
- * 
- *
  * @property int $id
  * @property string|null $data1
  * @property string|null $data2

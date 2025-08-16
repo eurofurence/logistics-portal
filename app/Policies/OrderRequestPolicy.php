@@ -9,6 +9,9 @@ use App\Models\OrderRequest;
 class OrderRequestPolicy
 {
 
+    #TODO: $user->isSuperAdmin() überall einbauen
+    #TODO: Bug mit ANY Permission? Wie Delete oder Restore?
+
     public function viewAny(User $user): bool
     {
         return $user->checkPermissionTo('view-any-OrderRequest') || $user->hasAnyDepartmentRoleWithPermissionTo('view-any-OrderRequest');

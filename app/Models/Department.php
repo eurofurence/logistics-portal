@@ -13,8 +13,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
- *
- *
  * @property int $id
  * @property string $name
  * @property string|null $icon
@@ -46,6 +44,12 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Department whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Department withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Department withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, InventorySubCategory> $inventory_sub_categories
+ * @property-read int|null $inventory_sub_categories_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ItemsOperationSite> $items_operation_sites
+ * @property-read int|null $items_operation_sites_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Storage> $storages
+ * @property-read int|null $storages_count
  * @mixin \Eloquent
  */
 class Department extends Model

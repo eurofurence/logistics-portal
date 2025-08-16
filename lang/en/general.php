@@ -438,4 +438,12 @@ return array(
     'no_category' => 'No category',
     'no_operation_site' => 'No operation site',
     'sub_category' => 'Sub category',
+    'add_custom_columns' => 'Add custom columns',
+    'add_custom_columns_description' => 'Add custom columns without value',
+    'columns' => 'Columns',
+    'select_columns' => 'Select Columns',
+    'select_columns_description' => 'Select the columns you want to export',
+    'repayment_method' => 'Repayment methode',
+    'repayment_method_description' => 'How would you like to get your money back?',
+    'status_has_changed_bill' => 'The status of your bill has changed',
 );

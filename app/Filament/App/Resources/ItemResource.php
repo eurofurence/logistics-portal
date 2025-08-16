@@ -64,7 +64,7 @@ class ItemResource extends Resource
 
     public static function getNavigationGroup(): string
     {
-        static::$navigationGroup = __('general.inventory');
+        static::$navigationGroup = __('general.inventory') . ' (BETA)';
 
         return static::$navigationGroup;
     }
@@ -260,10 +260,9 @@ class ItemResource extends Resource
                                             TextInput::make('serialnumber')
                                                 ->label(__('general.serialnumber'))
                                                 ->maxLength(250),
-                                            TextInput::make('weight_g')
+                                            TextInput::make('weight')
                                                 ->label(__('general.weight'))
-                                                ->hint(__('general.in_grams'))
-                                                ->maxValue(config('constants.inputs.numeric.max')),
+                                                ->maxLength(250),
                                             DatePicker::make('due_date')
                                                 ->label(__('general.due_date'))
                                                 ->timezone('Europe/Berlin')
@@ -459,33 +458,26 @@ class ItemResource extends Resource
         static::$export_column_options = [
             'id' => __('general.id'),
             'name' => __('general.name'),
+            'serialnumber' => __('general.serialnumber'),
+            'weight' => __('general.weight'),
+            'stackable' => __('general.stackable'),
+            'due_date' => __('general.due_date'),
+            'sorted_out' => __('general.sorted_out'),
             'description' => __('general.description'),
-            'delivery_provider' => __('general.delivery_provider'),
-            'delivery_by' => __('general.delivery_by'),
-            'tracking_number' => __('general.tracking_number'),
-            'delivery_date' => __('general.delivery_date'),
-            'instant_delivery' => __('general.instant_delivery'),
-            'amount' => __('general.amount'),
-            'price_net' => __('general.price_net'),
-            'price_gross' => __('general.price_gross'),
-            'tax_rate' => __('general.tax_rate'),
-            'payment_method' => __('general.payment_method'),
-            'currency' => __('general.currency'),
-            'url' => __('general.url'),
-            'contact' => __('general.contact'),
+            'comment' => __('general.comment'),
+            'price' => __('general.price'),
+            'buy_date' => __('general.buy_date'),
             'dangerous_good' => __('general.dangerous_good'),
             'big_size' => __('general.big_size'),
+            'url' => __('general.url'),
             'needs_truck' => __('general.needs_truck'),
-            'ordered_at' => __('general.ordered_at'),
-            'comment' => __('general.comment'),
-            'status' => __('general.status'),
             'created_at' => __('general.created_at'),
             'updated_at' => __('general.updated_at'),
-            'user_note' => __('general.user_note'),
-            'returning_deposit' => __('general.returning_deposit') . ' (' . __('general.single') . ')',
-            'article_number' => __('general.article_number'),
-            'order_number' => __('general.order_number'),
-            'approved_at' => __('general.approved_at'),
+            'owner' => __('general.owner'),
+            'borrowed_item' => __('general.borrowed_item'),
+            'rented_item' => __('general.rented_item'),
+            'will_be_brought_to_next_event' => __('general.will_be_brought_to_next_event'),
+            'manufacturer_barcode' => __('general.manufacturer_barcode'),
         ];
 
         return $table
@@ -735,8 +727,7 @@ class ItemResource extends Resource
                         } else {
                             $options = [];
                             foreach (Auth::user()->getDepartmentsWithPermission_Array('view-Item') as $department) {
-                                // Angenommen, es gibt eine Beziehung oder Methode, um Sub-Kategorien einer Abteilung zu erhalten
-                                $subCategories = InventorySubCategory::where('department_id', $department['id'])->get();
+                                $subCategories = InventorySubCategory::where('department', $department['id'])->get();
                                 if ($subCategories->isNotEmpty()) {
                                     foreach ($subCategories as $subCategory) {
                                         $departmentName = $subCategory->connected_department ? $subCategory->connected_department->name : 'No Department';
@@ -772,7 +763,6 @@ class ItemResource extends Resource
                 Tables\Actions\BulkAction::make('export_selected')
                     ->label(__('general.export'))
                     ->color('primary')
-                    ->disabled()
                     ->icon('heroicon-o-printer')
                     ->steps([
                         Step::make(__('general.select_type'))
@@ -782,7 +772,6 @@ class ItemResource extends Resource
                                         ->options($export_type_options)
                                         ->descriptions([
                                             'standard' => __('general.export_filetype_standard_description'),
-                                            'metro_list' => __('general.metro_list_description'),
                                         ])
                                         ->required()
                                         ->label('')
@@ -791,13 +780,13 @@ class ItemResource extends Resource
                             ])
                             ->icon('heroicon-o-document'),
                         Step::make('select_columns')
-                            ->label(__('Select Columns'))
-                            ->description(__('Select the columns you want to export'))
+                            ->label(__('general.select_columns'))
+                            ->description(__('general.select_columns_description'))
                             ->icon('heroicon-o-list-bullet')
                             ->schema([
                                 Checkbox::make('select_all')
                                     ->label(__('general.select_all'))
-                                    ->reactive() // Ermöglicht Live-Aktualisierung
+                                    ->reactive() // Enables live updating
                                     ->afterStateUpdated(function (callable $set, $state) {
                                         if ($state) {
                                             // If "Select All" is ticked, set all options
@@ -854,6 +843,13 @@ class ItemResource extends Resource
 
                                 #Options for standard export
                                 Section::make([
+                                    #TODO:: Storage Option
+
+                                    #TODO: Operation Site Option
+
+                                    #TODO: custom_fields Option
+
+                                    #TODO: sub_category Option
                                     Checkbox::make('calculate_total_net')
                                         ->inline()
                                         ->label(__('general.calculate_total_net')),
@@ -901,6 +897,15 @@ class ItemResource extends Resource
                                     })
                             ])
                             ->icon('heroicon-o-puzzle-piece'),
+                        Step::make(__('general.columns'))
+                            ->schema([
+                                Section::make([
+
+                                ])
+                                ->description(__('general.add_custom_columns_description'))
+                            ])
+                            ->description(__('general.add_custom_columns'))
+                            ->icon('heroicon-o-table-cells'),
                         Step::make(__('general.file_type'))
                             ->schema([
                                 Section::make([
@@ -915,7 +920,8 @@ class ItemResource extends Resource
                                         ])
                                         ->required()
                                         ->label('')
-                                ])->description(__('general.file_type'))
+                                ])
+                                ->description(__('general.file_type'))
                             ])
                             ->icon('heroicon-o-cog-6-tooth'),
                     ])

@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\ScheduleMonitor\Models\MonitoredScheduledTask as ScheduledTaskModel;
 
 /**
- * 
- *
  * @property int $id
  * @property string $name
  * @property string|null $type

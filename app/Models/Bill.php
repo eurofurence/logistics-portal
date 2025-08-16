@@ -5,18 +5,19 @@ namespace App\Models;
 use App\Models\User;
 use App\Models\Department;
 use App\Models\OrderEvent;
-use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
+use App\Notifications\GeneralNotification;
+use Filament\Notifications\Actions\Action;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Filament\Notifications\Notification as FilamentNotification;
 
 /**
- * 
- *
  * @property int $id
  * @property string $title
  * @property string $description
@@ -61,6 +62,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereValue($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill withoutTrashed()
+ * @property string|null $repayment_method
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereRepaymentMethod($value)
  * @mixin \Eloquent
  */
 class Bill extends Model implements HasMedia
@@ -84,7 +87,8 @@ class Bill extends Model implements HasMedia
         'added_by',
         'edited_by',
         'advance_payment_value',
-        'advance_payment_receiver'
+        'advance_payment_receiver',
+        'repayment_method'
     ];
 
     /**
@@ -97,7 +101,8 @@ class Bill extends Model implements HasMedia
         'advance_payment_value' => 'real'
     ];
 
-    protected static function boot(){
+    protected static function boot()
+    {
         parent::boot();
 
         static::creating(function ($model) {
@@ -106,16 +111,48 @@ class Bill extends Model implements HasMedia
         });
 
         static::updating(function ($model) {
-            $model->edited_by = Auth::user()->id;
+            $user = Auth::user();
+            $model->edited_by = $user->id;
+
+            if ($model->isDirty('status')) {
+                if (!$user->can('can-change-bill-status')) {
+                    abort(403);
+                }
+
+                if ($model->isDirty('status')) {
+                    $model_link = null;
+                    $model_link = route('filament.app.resources.bills.view', $model);
+
+                    //Send email
+                    Notification::send($model->addedBy, new GeneralNotification($model->addedBy->name, __('general.bill', [], 'en') . ' #' . $model->id . ' - ' . $model->title, __('general.status_has_changed', [], 'en'), __('general.status_has_changed_bill', [], 'en'), $model->title, null, $model->comment, $model_link, __('general.show', [], 'en')));
+
+                    //Send database notification
+                    FilamentNotification::make()
+                        ->title(__('general.bill'))
+                        ->body(__('general.status_has_changed') . ': ' . $model->title)
+                        ->icon('heroicon-o-chat-bubble-left-ellipsis')
+                        ->iconColor('info')
+                        ->actions([
+                            Action::make(__('general.mark_as_unread'))
+                                ->markAsUnread(),
+                            Action::make(__('general.mark_as_read'))
+                                ->markAsRead(),
+                            Action::make(__('general.show'))
+                                ->url(route('filament.app.resources.bills.view', $model))
+                                ->button()
+                        ])
+                        ->sendToDatabase($model->addedBy);
+                }
+            }
         });
     }
 
-    public function event(): HasOne
+    public function connected_event(): HasOne
     {
         return $this->hasOne(OrderEvent::class, 'id', 'order_event_id');
     }
 
-    public function department(): HasOne
+    public function connected_department(): HasOne
     {
         return $this->hasOne(Department::class, 'id', 'department_id');
     }

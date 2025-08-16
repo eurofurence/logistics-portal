@@ -46,7 +46,7 @@ class StorageResource extends Resource
 
     public static function getNavigationGroup(): string
     {
-        static::$navigationGroup = __('general.inventory');
+        static::$navigationGroup = __('general.inventory') . ' (BETA)';
 
         return static::$navigationGroup;
     }

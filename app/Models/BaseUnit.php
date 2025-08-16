@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
- * 
- *
  * @property int $id
  * @property string $name
  * @property int|null $sub_unit

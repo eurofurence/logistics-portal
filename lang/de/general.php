@@ -436,4 +436,12 @@ return array(
     'no_category' => 'Keine Kategorie',
     'no_operation_site' => 'Kein Einsatzort',
     'sub_category' => 'Unterkategorie',
+    'add_custom_columns' => 'Eigene Spalten hinzufügen',
+    'add_custom_columns_description' => 'Füge benutzerdefinierte Spalten ohne Wert hinzu',
+    'columns' => 'Spalten',
+    'select_columns' => 'Spalten auswählen',
+    'select_columns_description' => 'Wähle die Spalten aus, die exportiert werden sollen',
+    'repayment_method' => 'Rückzahlungsmodalitäten',
+    'repayment_method_description' => 'Auf welche Art und Weise möchtest du dein Geld zurück haben?',
+    'status_has_changed_bill' => 'Der Status deiner Abrechnung hat sich geändert',
 );

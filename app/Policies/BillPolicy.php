@@ -5,7 +5,6 @@ namespace App\Policies;
 use App\Models\Bill;
 use App\Models\User;
 use App\Models\OrderEvent;
-use Illuminate\Auth\Access\Response;
 
 class BillPolicy
 {
@@ -14,7 +13,7 @@ class BillPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->checkPermissionTo('view-any-Bill');
+        return $user->isSuperAdmin() || $user->hasAnyDepartmentRoleWithPermissionTo('view-any-Bill');
     }
 
     /**
@@ -22,11 +21,7 @@ class BillPolicy
      */
     public function view(User $user, Bill $bill): bool
     {
-        if (!$user->checkPermissionTo('view-Bill')) {
-            return false;
-        }
-
-        return (($user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-see-all-departments'))  || $user->checkPermissionTo('can-choose-all-departments'));
+        return $user->isSuperAdmin() || $user->checkPermissionTo('can-see-all-bills') || $user->hasDepartmentRoleWithPermissionTo('view-Bill', $bill->department_id);
     }
 
     /**
@@ -34,15 +29,13 @@ class BillPolicy
      */
     public function create(User $user): bool
     {
-        $result = false;
-        $department_counter = $user->departments()->count();
-        $event_counter = OrderEvent::all(['id'])->count();
-
-        if (($event_counter > 0) && (($department_counter > 0) || $user->checkPermissionTo('can-choose-all-departments'))) {
-            $result = true;
+        if ($user->isSuperAdmin()) {
+            return true;
         }
 
-        return $user->checkPermissionTo('create-Bill') && $result;
+        $event_counter = OrderEvent::all(['id'])->count();
+
+        return $user->hasAnyDepartmentRoleWithPermissionTo('create-Bill') && ($event_counter > 0);
     }
 
     /**
@@ -50,17 +43,17 @@ class BillPolicy
      */
     public function update(User $user, Bill $bill): bool
     {
-        $result = false;
-
-        if (!$user->checkPermissionTo('update-Bill')) {
-            return false;
+        if ($user->isSuperAdmin()) {
+            return true;
         }
+
+        $result = false;
 
         if ($bill->status == 'open' || $user->checkPermissionTo('can-always-edit-bills')) {
             $result = true;
         }
 
-        return ($user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments')) && $result;
+        return ($user->hasDepartmentRoleWithPermissionTo('update-Bill', $bill->department_id) || $user->checkPermissionTo('can-edit-all-bills')) && $result;
     }
 
     /**
@@ -68,17 +61,17 @@ class BillPolicy
      */
     public function delete(User $user, Bill $bill): bool
     {
-        $result = false;
-
-        if (!$user->checkPermissionTo('delete-Bill')) {
-            return false;
+        if ($user->isSuperAdmin()) {
+            return true;
         }
+
+        $result = false;
 
         if ($bill->status == 'open' || $user->checkPermissionTo('can-always-delete-bills')) {
             $result = true;
         }
 
-        return ($user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments')) && $result;
+        return ($user->hasDepartmentRoleWithPermissionTo('delete-Bill', $bill->department_id) || $user->checkPermissionTo('can-delete-all-bills')) && $result;
     }
 
     /**
@@ -86,7 +79,7 @@ class BillPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->checkPermissionTo('delete-any-Bill');
+        return true;
     }
 
     /**
@@ -94,13 +87,11 @@ class BillPolicy
      */
     public function restore(User $user, Bill $bill): bool
     {
-        $result = false;
-
-        if (!$user->checkPermissionTo('restore-Bill')) {
-            return false;
+        if ($user->isSuperAdmin()) {
+            return true;
         }
 
-        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments') && $result;
+        return $user->hasDepartmentRoleWithPermissionTo('restore-Bill', $bill->department_id) || $user->checkPermissionTo('can-restore-all-bills');
     }
 
     /**
@@ -108,7 +99,7 @@ class BillPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->checkPermissionTo('restore-any-Bill');
+        return true;
     }
 
     /**
@@ -130,7 +121,7 @@ class BillPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->checkPermissionTo('reorder-Bill');
+        return false;
     }
 
     /**
@@ -138,11 +129,7 @@ class BillPolicy
      */
     public function forceDelete(User $user, Bill $bill): bool
     {
-        if (!$user->checkPermissionTo('force-delete-Bill')) {
-            return false;
-        }
-
-        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments');
+        return $user->isSuperAdmin();
     }
 
     /**
@@ -150,16 +137,12 @@ class BillPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->checkPermissionTo('force-delete-any-Bill');
+        return $user->isSuperAdmin();
     }
 
     public function bulkForceDelete(User $user, Bill $bill): bool
     {
-        if (!$user->checkPermissionTo('bulk-force-delete-Bill')) {
-            return false;
-        }
-
-        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments');
+        return $user->isSuperAdmin();
     }
 
     /**
@@ -167,11 +150,7 @@ class BillPolicy
      */
     public function bulkDelete(User $user, Bill $bill): bool
     {
-        if (!$user->checkPermissionTo('bulk-delete-Bill')) {
-            return false;
-        }
-
-        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments');
+        return $user->isSuperAdmin();
     }
 
     /**
@@ -179,10 +158,6 @@ class BillPolicy
      */
     public function bulkRestore(User $user, Bill $bill): bool
     {
-        if (!$user->checkPermissionTo('bulk-restore-Bill')) {
-            return false;
-        }
-
-        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments');
+        return $user->isSuperAdmin();
     }
 }

@@ -17,7 +17,7 @@ class TypesAndUnits extends Cluster
 
     public static function getNavigationGroup(): ?string
     {
-        return __('general.inventory');
+        return __('general.inventory') . ' (BETA)';
     }
 
     public static function getClusterBreadcrumb(): string

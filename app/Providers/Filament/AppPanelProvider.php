@@ -32,7 +32,6 @@ use App\Filament\App\Resources\OrderCategoryResource;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Saade\FilamentLaravelLog\FilamentLaravelLogPlugin;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use CharrafiMed\GlobalSearchModal\GlobalSearchModalPlugin;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -127,11 +126,13 @@ class AppPanelProvider extends PanelProvider
                     }),
                 SpotlightPlugin::make(),
                 GlobalSearchModalPlugin::make(),
-                FilamentDeveloperGatePlugin::make(),
+                FilamentDeveloperGatePlugin::make()
+                /*
                 FilamentSentryFeedbackPlugin::make()
                     ->sentryUser(function (): ?SentryUser {
                         return new SentryUser(auth()->user()->name, auth()->user()->email);
                     })
+                */
             ])
             ->unsavedChangesAlerts()
             ->authMiddleware([
@@ -139,6 +140,8 @@ class AppPanelProvider extends PanelProvider
                 UserIsLocked::class,
                 CheckWhitelist::class,
             ])
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->sidebarCollapsibleOnDesktop()
             ->navigationItems([
                 NavigationItem::make('dashboard')

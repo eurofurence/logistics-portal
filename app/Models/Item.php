@@ -12,13 +12,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
- *
- *
  * @property int $id
  * @property string $name
  * @property string|null $shortname
  * @property string|null $serialnumber
- * @property int|null $weight_g
+ * @property int|null $weight
  * @property int|null $stackable
  * @property int|null $unit
  * @property string|null $due_date
@@ -81,6 +79,27 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereWeightG($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Item withTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Item withoutTrashed()
+ * @property string|null $owner
+ * @property int $borrowed_item
+ * @property int $rented_item
+ * @property int $will_be_brought_to_next_event
+ * @property int|null $operation_site
+ * @property array<array-key, mixed>|null $custom_fields
+ * @property int|null $sub_category
+ * @property string|null $manufacturer_barcode
+ * @property-read \App\Models\Department|null $connected_department
+ * @property-read \App\Models\ItemsOperationSite|null $connected_operation_site
+ * @property-read \App\Models\Storage|null $connected_storage
+ * @property-read InventorySubCategory|null $connected_sub_category
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereBorrowedItem($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereCustomFields($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereManufacturerBarcode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereOperationSite($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereOwner($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereRentedItem($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereSubCategory($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereWeight($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereWillBeBroughtToNextEvent($value)
  * @mixin \Eloquent
  */
 class Item extends Model implements HasMedia
@@ -92,7 +111,7 @@ class Item extends Model implements HasMedia
      *
      * @var array'
      */
-    protected $fillable = ['name', 'shortname', 'serialnumber', 'weight_g', 'stackable', 'unit', 'due_date', 'sorted_out', 'description', 'comment', 'department', 'edited_by', 'added_by', 'price', 'locked', 'specific_editor', 'buy_date', 'qr_code', 'storage_container_id', 'storage', 'owner', 'borrowed_item', 'rented_item', 'will_be_brought_to_next_event', 'operation_site', 'custom_fields', 'sub_category', 'manufacturer_barcode'];
+    protected $fillable = ['name', 'shortname', 'serialnumber', 'weight', 'stackable', 'unit', 'due_date', 'sorted_out', 'description', 'comment', 'department', 'edited_by', 'added_by', 'price', 'locked', 'specific_editor', 'buy_date', 'qr_code', 'storage_container_id', 'storage', 'owner', 'borrowed_item', 'rented_item', 'will_be_brought_to_next_event', 'operation_site', 'custom_fields', 'sub_category', 'manufacturer_barcode'];
 
     protected $casts = [
         'custom_fields' => 'array',
