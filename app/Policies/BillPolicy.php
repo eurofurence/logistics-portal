@@ -13,7 +13,7 @@ class BillPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->hasAnyDepartmentRoleWithPermissionTo('view-any-Bill');
+        return $user->isSuperAdmin() || $user->hasAnyDepartmentRoleWithPermissionTo('view-any-Bill') || $user->checkPermissionTo('can-see-all-bills');
     }
 
     /**
@@ -85,13 +85,13 @@ class BillPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Bill $bill): bool
+    public function restore(User $user): bool
     {
         if ($user->isSuperAdmin()) {
             return true;
         }
 
-        return $user->hasDepartmentRoleWithPermissionTo('restore-Bill', $bill->department_id) || $user->checkPermissionTo('can-restore-all-bills');
+        return $user->hasAnyDepartmentRoleWithPermissionTo('restore-Bill') || $user->checkPermissionTo('can-restore-all-bills');
     }
 
     /**
