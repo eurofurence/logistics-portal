@@ -124,7 +124,7 @@ class Bill extends Model implements HasMedia
                     $model_link = route('filament.app.resources.bills.view', $model);
 
                     //Send email
-                    Notification::send($model->addedBy, new GeneralNotification($model->addedBy->name, __('general.bill', [], 'en') . ' #' . $model->id . ' - ' . $model->title, __('general.status_has_changed', [], 'en'), __('general.status_has_changed_bill', [], 'en'), $model->title, null, $model->comment, $model_link, __('general.show', [], 'en')));
+                    Notification::send($model->addedBy, new GeneralNotification($model->addedBy->name, __('general.bill', [], 'en') . ' #' . $model->id . ' - ' . $model->title, __('general.status_has_changed', [], 'en'), __('general.status_has_changed_bill', [], 'en'), $model->title, null, null, $model_link, __('general.show', [], 'en')));
 
                     //Send database notification
                     FilamentNotification::make()
