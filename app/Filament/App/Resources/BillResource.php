@@ -150,17 +150,9 @@ class BillResource extends Resource
                                     ->options(function (): array {
                                         $options = Auth::user()->can('can-create-bills-for-other-departments')
                                             ? Department::withoutTrashed()->pluck('name', 'id')->toArray()
-                                            : Auth::user()->getDepartmentsWithPermission('create-Bill')->pluck('name', 'id');
+                                            : Auth::user()->getDepartmentsWithPermission('create-Bill')->pluck('name', 'id')->toArray();
 
                                         return $options;
-                                    })
-                                    ->default(function () {
-                                        $options = Auth::user()->can('can-create-bills-for-other-departments')
-                                            ? Department::withoutTrashed()->pluck('id')->toArray()
-                                            : Auth::user()->getDepartmentsWithPermission('create-Bill')->pluck('name', 'id');
-
-
-                                        return count($options) === 1 ? $options[0] : null;
                                     }),
                                 Select::make('order_event_id')
                                     ->label(__('general.order_event'))
@@ -171,21 +163,10 @@ class BillResource extends Resource
                                         $options = Auth::user()->can('can-always-order')
                                             ? OrderEvent::withoutTrashed()->pluck('name', 'id')->toArray()
                                             : OrderEvent::all()
-                                            ->withoutTrashed()
                                             ->pluck('name', 'id')
                                             ->toArray();
 
                                         return $options;
-                                    })
-                                    ->default(function () {
-                                        $options = Auth::user()->can('can-always-order')
-                                            ? OrderEvent::withoutTrashed()->pluck('name', 'id')->toArray()
-                                            : OrderEvent::all()
-                                            ->withoutTrashed()
-                                            ->pluck('id')
-                                            ->toArray();
-
-                                        return count($options) === 1 ? $options[0] : null;
                                     }),
                                 Select::make('status')
                                     ->options([
