@@ -99,6 +99,7 @@ class UserResource extends Resource
                         ->label(__('general.password')), //notification_email
                     TextInput::make('notification_email')
                         ->maxLength(255)
+                        ->email()
                         ->label(__('general.notification_email')), //notification_email
                     TextInput::make('ex_id')
                         ->readOnly()
