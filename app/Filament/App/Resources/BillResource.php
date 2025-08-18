@@ -86,21 +86,23 @@ class BillResource extends Resource
 
     protected function getTableQuery()
     {
-        return parent::getTableQuery()->select([
-            'id',
-            'title',
-            'department_id',
-            'value',
-            'currency',
-            'status',
-            'deleted_at',
-            'created_at',
-            'order_event_id',
-        ])
+        return parent::getTableQuery()
             ->with([
                 'event',
                 'department'
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+        $user = Auth::user();
+
+        $query->when(!$user->can('can-see-all-bills'), function ($query) use ($user) {
+            return $query->whereIn('department_id', $user->getDepartmentsWithPermission('view-Bill')->pluck('id'));
+        });
+
+        return $query;
     }
 
     public static function form(Form $form): Form
@@ -153,6 +155,12 @@ class BillResource extends Resource
                                             : Auth::user()->getDepartmentsWithPermission('create-Bill')->pluck('name', 'id')->toArray();
 
                                         return $options;
+                                    })
+                                    ->afterStateHydrated(function (Select $component, $state) {
+                                        $options = $component->getOptions();
+                                        if (count($options) === 1) {
+                                            $component->state(array_key_first($options));
+                                        }
                                     }),
                                 Select::make('order_event_id')
                                     ->label(__('general.order_event'))
@@ -167,6 +175,12 @@ class BillResource extends Resource
                                             ->toArray();
 
                                         return $options;
+                                    })
+                                    ->afterStateHydrated(function (Select $component, $state) {
+                                        $options = $component->getOptions();
+                                        if (count($options) === 1) {
+                                            $component->state(array_key_first($options));
+                                        }
                                     }),
                                 Select::make('status')
                                     ->options([
@@ -192,45 +206,57 @@ class BillResource extends Resource
                                 'md' => 3,
                                 'lg' => 3,
                             ])->schema([
-                                TextInput::make('value')
-                                    ->required()
-                                    ->numeric()
-                                    ->label(__('general.value'))
-                                    ->columnSpan(2)
-                                    ->step(0.01)
-                                    ->minValue(config('constants.inputs.numeric.min'))
-                                    ->maxValue(config('constants.inputs.numeric.max')),
-                                Select::make('currency')
-                                    ->label(__('general.currency'))
-                                    ->options([
-                                        'EUR' => '€ - Euro',
-                                        'USD' => '$ - US Dollar',
-                                        'GBP' => '£ - British Pound',
-                                        'JPY' => '¥ - Japanese Yen',
-                                        'CHF' => 'CHF - Swiss Franc',
-                                        'CAD' => '$ - Canadian Dollar',
-                                        'AUD' => '$ - Australian Dollar',
-                                        'NZD' => '$ - New Zealand Dollar',
-                                        'CNY' => '¥ - Chinese Yuan',
-                                        'INR' => '₹ - Indian Rupee',
-                                        'BRL' => 'R$ - Brazilian Real',
-                                        'ZAR' => 'R - South African Rand',
-                                        'KRW' => '₩ - South Korean Won',
-                                        'MXN' => '$ - Mexican Peso',
-                                        'SEK' => 'kr - Swedish Krona',
-                                        'NOK' => 'kr - Norwegian Krone',
-                                        'DKK' => 'kr - Danish Krone',
-                                        'PLN' => 'zł - Polish Zloty',
-                                        'TRY' => '₺ - Turkish Lira',
-                                        'SGD' => '$ - Singapore Dollar',
-                                        'HKD' => '$ - Hong Kong Dollar',
-                                        'THB' => '฿ - Thai Baht',
-                                        'IDR' => 'Rp - Indonesian Rupiah',
-                                        'MYR' => 'RM - Malaysian Ringgit',
+                                Fieldset::make()
+                                    ->schema([
+                                        TextInput::make('value')
+                                            ->required()
+                                            ->numeric()
+                                            ->label(__('general.bill_amount'))
+                                            ->step(0.01)
+                                            ->minValue(config('constants.inputs.numeric.min'))
+                                            ->maxValue(config('constants.inputs.numeric.max')),
+                                        Select::make('currency')
+                                            ->label(__('general.currency'))
+                                            ->options([
+                                                'EUR' => '€ - Euro',
+                                                'USD' => '$ - US Dollar',
+                                                'GBP' => '£ - British Pound',
+                                                'JPY' => '¥ - Japanese Yen',
+                                                'CHF' => 'CHF - Swiss Franc',
+                                                'CAD' => '$ - Canadian Dollar',
+                                                'AUD' => '$ - Australian Dollar',
+                                                'NZD' => '$ - New Zealand Dollar',
+                                                'CNY' => '¥ - Chinese Yuan',
+                                                'INR' => '₹ - Indian Rupee',
+                                                'BRL' => 'R$ - Brazilian Real',
+                                                'ZAR' => 'R - South African Rand',
+                                                'KRW' => '₩ - South Korean Won',
+                                                'MXN' => '$ - Mexican Peso',
+                                                'SEK' => 'kr - Swedish Krona',
+                                                'NOK' => 'kr - Norwegian Krone',
+                                                'DKK' => 'kr - Danish Krone',
+                                                'PLN' => 'zł - Polish Zloty',
+                                                'TRY' => '₺ - Turkish Lira',
+                                                'SGD' => '$ - Singapore Dollar',
+                                                'HKD' => '$ - Hong Kong Dollar',
+                                                'THB' => '฿ - Thai Baht',
+                                                'IDR' => 'Rp - Indonesian Rupiah',
+                                                'MYR' => 'RM - Malaysian Ringgit',
+                                            ])
+                                            ->required()
+                                            ->searchable()
+                                            ->default('EUR'),
+                                        TextInput::make('exchange_rate')
+                                            ->required()
+                                            ->numeric()
+                                            ->default(1)
+                                            ->label(__('general.exchange_rate'))
+                                            ->step(0.00001)
+                                            ->minValue(0.00001)
+                                            ->maxValue(99999999.99999),
                                     ])
-                                    ->required()
-                                    ->searchable()
-                                    ->default('EUR'),
+                                    ->columns(1)
+                                    ->columnSpan(1),
                                 Textarea::make('repayment_method')
                                     ->label(__('general.repayment_method'))
                                     ->placeholder(__('general.repayment_method_description'))
@@ -238,36 +264,44 @@ class BillResource extends Resource
                                     ->nullable()
                                     ->maxLength(10000)
                                     ->rows(5),
-                                TextInput::make('advance_payment_value')
-                                    ->nullable()
-                                    ->numeric()
-                                    ->label(__('general.advance_payment'))
-                                    ->columnSpan(1)
-                                    ->step(0.01)
-                                    ->minValue(0)
-                                    ->maxValue(config('constants.inputs.numeric.max')),
-                                TextInput::make('advance_payment_receiver')
-                                    ->nullable()
-                                    ->datalist(User::all(['name'])->pluck('name'))
-                                    ->label(__('general.advance_payment_to'))
-                                    ->columnSpan(1)
-                                    ->maxLength(255)
+                                Fieldset::make()
+                                    ->schema([
+                                        TextInput::make('advance_payment_value')
+                                            ->nullable()
+                                            ->numeric()
+                                            ->label(__('general.advance_payment'))
+                                            ->columnSpan(1)
+                                            ->step(0.01)
+                                            ->minValue(0)
+                                            ->maxValue(config('constants.inputs.numeric.max')),
+                                        TextInput::make('advance_payment_receiver')
+                                            ->nullable()
+                                            ->datalist(User::all(['name'])->pluck('name'))
+                                            ->label(__('general.advance_payment_to'))
+                                            ->columnSpan(1)
+                                            ->maxLength(255)
+                                    ])
+                                    ->columns(1)
+                                    ->columnSpan(1),
                             ])
                         ])
                             ->description(__('general.expenses'))
                             ->icon('heroicon-m-currency-euro'),
-                        Textarea::make('description')
-                            ->label(__('general.description'))
-                            ->maxLength(10000)
-                            ->columnSpanFull()
-                            ->required()
-                            ->helperText(__('general.bill_description_description'))
-                            ->rows(6),
-                        Textarea::make('comment')
-                            ->label(__('general.comment'))
-                            ->maxLength(100000)
-                            ->columnSpanFull()
-                            ->helperText(__('general.comment_description')),
+                        Fieldset::make()
+                            ->schema([
+                                Textarea::make('description')
+                                    ->label(__('general.description'))
+                                    ->maxLength(10000)
+                                    ->required()
+                                    ->helperText(__('general.bill_description_description'))
+                                    ->rows(6),
+                                Textarea::make('comment')
+                                    ->label(__('general.comment'))
+                                    ->maxLength(100000)
+                                    ->helperText(__('general.comment_description'))
+                                    ->rows(6),
+                            ])
+                            ->columns(2),
                         Fieldset::make('')
                             ->schema([
                                 Placeholder::make('added_by')

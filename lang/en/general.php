@@ -154,7 +154,7 @@ return array(
     'dangerous_good_description' => 'Is marked as a dangerous article in the listing',
     'booked_to_inventory' => 'Booked to inventory',
     'inventory_id' => 'Inventory id',
-    'widget_total_amount_decription' => 'Without rejected orders',
+    'widget_total_amount_decription_orders' => 'Without rejected orders',
     'price_calculation_description' => 'If you change the net price, the gross price will be recalculated based on the tax rate. Similarly, changing the gross price will update the net price. Adjusting the tax rate will recalculate the gross price using the current net price. Gross = price with taxes, net = price without taxes',
     'auto_calculate' => 'Enable automatic calculation',
     'delivery_costs' => 'Delivery costs',
@@ -446,4 +446,11 @@ return array(
     'repayment_method' => 'Repayment methode',
     'repayment_method_description' => 'How would you like to get your money back?',
     'status_has_changed_bill' => 'The status of your bill has changed',
+    'notification_email' => 'Email for notifications',
+    'thereof' => 'thereof',
+    'widget_total_amount_decription_bills' => 'Without rejected bills',
+    'exchange_rate' => 'Exchange rate',
+    'bill_amount' => 'Invoice total',
+    'new_bill_is_available' => 'New bill is available',
+    'notification_email_description' => 'The email address to which notifications should be sent. If the field is left blank, the email address entered during registration will be used'
 );

@@ -96,7 +96,10 @@ class UserResource extends Resource
                     TextInput::make('password')
                         ->password()
                         ->maxLength(255)
-                        ->label(__('general.password')),
+                        ->label(__('general.password')), //notification_email
+                    TextInput::make('notification_email')
+                        ->maxLength(255)
+                        ->label(__('general.notification_email')), //notification_email
                     TextInput::make('ex_id')
                         ->readOnly()
                         ->label(__('general.external_id')),
