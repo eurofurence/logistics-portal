@@ -120,7 +120,7 @@ class Bill extends Model implements HasMedia
 
                 foreach ($users_to_notify as $user_to_notify) {
                     //Send email
-                    Notification::send($user_to_notify, new GeneralNotification(username: $user_to_notify->name, subject: __('general.bill', [], 'en') . ' #' . $model->id . ' - ' . $model->title, title: __('general.new_bill_is_available', [], 'en'), message: __('general.new_bill_is_available', [], 'en'), details_title: $model->title, details_title_hint: null, details_message: __('general.department') . ': ' . $model->connected_department->name, details_link: $model_link, details_link_title: __('general.show', [], 'en')));
+                    Notification::send($user_to_notify, new GeneralNotification(username: $user_to_notify->name, subject: __('general.bill', [], 'en') . ' #' . $model->id . ' - ' . $model->title, titel: __('general.new_bill_is_available', [], 'en'), message: __('general.new_bill_is_available', [], 'en'), details_title: $model->title, details_title_hint: null, details_message: __('general.department') . ': ' . $model->connected_department->name, details_link: $model_link, details_link_title: __('general.show', [], 'en')));
 
                     //Send database notification
                     FilamentNotification::make()
