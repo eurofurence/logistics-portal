@@ -11,6 +11,7 @@ use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -100,7 +101,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         'email_verified_at',
         'last_login',
         'separated_rights',
-        'separated_departments'
+        'separated_departments',
+        'notification_email'
     ];
 
     /**
@@ -192,6 +194,19 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
                 return false;
             }
         });
+    }
+
+    /**
+     * Returns the notification_email, or if null, the email.
+     */
+    public function getNotificationEmailOrFallbackAttribute($notification): string
+    {
+        return $this->notification_email ?? $this->email;
+    }
+
+    public function routeNotificationForMail($notification): string
+    {
+        return $this->getNotificationEmailOrFallbackAttribute($notification);
     }
 
     /**

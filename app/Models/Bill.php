@@ -88,7 +88,8 @@ class Bill extends Model implements HasMedia
         'edited_by',
         'advance_payment_value',
         'advance_payment_receiver',
-        'repayment_method'
+        'repayment_method',
+        'exchange_rate',
     ];
 
     /**
@@ -108,6 +109,37 @@ class Bill extends Model implements HasMedia
         static::creating(function ($model) {
             $model->added_by = Auth::user()->id;
             $model->edited_by = Auth::user()->id;
+        });
+
+        static::created(function ($model) {
+            $users_to_notify = User::permission('get-new-bill-accountant-notification')->get();
+
+            if (!empty($users_to_notify)) {
+                $model_link = null;
+                $model_link = route('filament.app.resources.bills.view', $model);
+
+                foreach ($users_to_notify as $user_to_notify) {
+                    //Send email
+                    Notification::send($user_to_notify, new GeneralNotification($user_to_notify->name, __('general.bill', [], 'en') . ' #' . $model->id . ' - ' . $model->title, __('general.new_bill_is_available', [], 'en'), __('general.new_bill_is_available', [], 'en'), $model->title, null, null, $model_link, __('general.show', [], 'en')));
+
+                    //Send database notification
+                    FilamentNotification::make()
+                        ->title(__('general.bill'))
+                        ->body(__('general.new_bill_is_available') . ': ' . $model->title)
+                        ->icon('heroicon-o-chat-bubble-left-ellipsis')
+                        ->iconColor('info')
+                        ->actions([
+                            Action::make(__('general.mark_as_unread'))
+                                ->markAsUnread(),
+                            Action::make(__('general.mark_as_read'))
+                                ->markAsRead(),
+                            Action::make(__('general.show'))
+                                ->url(route('filament.app.resources.bills.view', $model))
+                                ->button()
+                        ])
+                        ->sendToDatabase($user_to_notify);
+                }
+            }
         });
 
         static::updating(function ($model) {

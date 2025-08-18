@@ -107,13 +107,11 @@ class BillPolicy
      */
     public function replicate(User $user, Bill $bill): bool
     {
-        $result = false;
-
-        if (!$user->checkPermissionTo('replicate-Bill')) {
-            return false;
+        if ($user->isSuperAdmin()) {
+            return true;
         }
-
-        return $user->departments->contains('id', $bill->department_id) || $user->checkPermissionTo('can-choose-all-departments') && $result;
+        
+        return $user->hasAnyDepartmentRoleWithPermissionTo('replicate-Bill');
     }
 
     /**

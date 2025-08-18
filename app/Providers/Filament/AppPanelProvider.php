@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\UserIsLocked;
 use App\Http\Middleware\CheckWhitelist;
 use Filament\Navigation\NavigationItem;
+use App\Filament\Pages\Auth\EditProfile;
 use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Http\Middleware\Authenticate;
 use App\Filament\App\Resources\BillResource;
@@ -154,8 +155,7 @@ class AppPanelProvider extends PanelProvider
             ->passwordReset()
             ->emailVerification()
             //->registration()
-            #8 Add profile function #TODO
-            //->profile()
+            ->profile(EditProfile::class, false)
             ->bootUsing(function () {
                 PanelSwitch::configureUsing(function (PanelSwitch $panelSwitch) {
                     $panelSwitch

@@ -155,7 +155,7 @@ return array(
     'dangerous_good_description' => 'Wird in der Auflistung als gefährlicher Artikel markiert',
     'booked_to_inventory' => 'In den Bestand gebucht',
     'inventory_id' => 'Inventar ID',
-    'widget_total_amount_decription' => 'Ohne abgelehnte Aufträge',
+    'widget_total_amount_decription_orders' => 'Ohne abgelehnte Aufträge',
     'price_calculation_description' => 'Wenn Sie den Nettopreis ändern, wird der Bruttopreis auf der Grundlage des Steuersatzes neu errechnet. Ebenso wird bei einer Änderung des Bruttopreises der Nettopreis aktualisiert. Die Anpassung des Steuersatzes führt zu einer Neuberechnung des Bruttopreises auf der Grundlage des aktuellen Nettopreises. Brutto = Preis mit Steuern, Netto = Preis ohne Steuern',
     'auto_calculate' => 'Automatische Berechnung aktivieren',
     'delivery_costs' => 'Lieferkosten',
@@ -444,4 +444,13 @@ return array(
     'repayment_method' => 'Rückzahlungsmodalitäten',
     'repayment_method_description' => 'Auf welche Art und Weise möchtest du dein Geld zurück haben?',
     'status_has_changed_bill' => 'Der Status deiner Abrechnung hat sich geändert',
+    'notification_email' => 'Email für Benachrichtigungen',
+    'thereof' => 'davon',
+    'widget_total_amount_decription_bills' => 'Ohne abgelehnte Rechnungen',
+    'exchange_rate' => 'Wechselkurs',
+    'bill_amount' => 'Rechnungssumme',
+    'new_bill_is_available' => 'Neue Rechnung ist verfügbar',
+    'notification_email_description' => 'Die Email Adresse and die Benachrichtigungen gesendet werden sollen. Wird das Feld leer gelassen wird die Email verwendet die bei der Registrierung hinterlegt wurde'
 );
+
+

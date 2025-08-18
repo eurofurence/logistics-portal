@@ -10,6 +10,7 @@ use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\UserIsLocked;
 use App\Http\Middleware\CheckWhitelist;
+use App\Filament\Pages\Auth\EditProfile;
 use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Http\Middleware\Authenticate;
 use Filament\SpatieLaravelTranslatablePlugin;
@@ -72,8 +73,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->login()
             ->passwordReset()
+            ->profile(EditProfile::class, false)
             ->emailVerification()
             ->unsavedChangesAlerts()
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->sidebarCollapsibleOnDesktop()
             ->middleware([
                 EncryptCookies::class,

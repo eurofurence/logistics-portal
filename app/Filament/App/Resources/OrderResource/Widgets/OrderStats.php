@@ -30,7 +30,6 @@ class OrderStats extends BaseWidget
             if ($entry->status != 'rejected') {
                 if ($entry->price_net) {
                     $totalAmount += ($entry->amount * $entry->price_net) - $entry->discount_net;
-
                 }
 
                 if ($entry->delivery_costs) {
@@ -49,10 +48,10 @@ class OrderStats extends BaseWidget
             Stat::make(__('general.open_orders'), $this->getPageTableQuery()->whereIn('status', ['open', 'processing'])->count())
                 ->icon('heroicon-o-arrow-path'),
             Stat::make(__('general.total_amount') . ' (' . __('general.net') . ')', number_format($totalAmount, 2) . '€')
-                ->description(__('general.widget_total_amount_decription'))
+                ->description(__('general.widget_total_amount_decription_orders'))
                 ->icon('heroicon-o-currency-euro'),
             Stat::make(__('general.delivery_costs') . ' ' . __('general.and') . ' ' . __('general.returning_deposit'), number_format($totalAmountReturnDeposit + $totalAmountShippingCosts, 2) . '€')
-                ->description(__('general.widget_total_amount_decription') . ', ' . __('general.delivery_costs') . ': ' . number_format($totalAmountShippingCosts, 2) . '€, ' . __('general.returning_deposit') . ': ' . number_format($totalAmountReturnDeposit, 2) . '€, ' . __('general.gross'))
+                ->description(__('general.widget_total_amount_decription_orders') . ', ' . __('general.delivery_costs') . ': ' . number_format($totalAmountShippingCosts, 2) . '€, ' . __('general.returning_deposit') . ': ' . number_format($totalAmountReturnDeposit, 2) . '€, ' . __('general.gross'))
                 ->icon('heroicon-o-currency-euro'),
         ];
     }

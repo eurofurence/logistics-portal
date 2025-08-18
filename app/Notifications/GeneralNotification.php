@@ -50,7 +50,7 @@ class GeneralNotification extends Notification
      * appear in the footer of the notification. If a value is provided for `footer_name`, it will be used as the name in
      * the footer. Otherwise, it will default to the value retrieved from the application configuration
      */
-    public function __construct(string $username, string $subject = null, string $titel = null, string $message = null, string $details_title = null, string $details_title_hint = null, string $details_message = null, string $details_link = null, string $details_link_title = null, int $footer_year = null, string $footer_name = null)
+    public function __construct(string $username, ?string $subject = null, ?string $titel = null, ?string $message = null, ?string $details_title = null, ?string $details_title_hint = null, ?string $details_message = null, ?string $details_link = null, ?string $details_link_title = null, ?int $footer_year = null, ?string $footer_name = null)
     {
         $transfer_data = [
             'data' => [

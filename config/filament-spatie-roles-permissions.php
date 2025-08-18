@@ -271,6 +271,7 @@ return [
             'can-restore-all-bills',
             'can-create-bills-for-other-departments',
             'can-see-all-bills',
+            'get-new-bill-accountant-notification',
         ],
 
         'user_model' => \App\Models\User::class,
