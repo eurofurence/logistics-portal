@@ -2,39 +2,46 @@
 
 namespace App\Filament\App\Resources;
 
+use Filament\Panel;
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Tables\Filters\Filter;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use App\Filament\App\Resources\StorageResource\Pages\ListStorages;
+use App\Filament\App\Resources\StorageResource\Pages\CreateStorage;
+use App\Filament\App\Resources\StorageResource\Pages\EditStorage;
+use App\Filament\App\Resources\StorageResource\Pages\ViewStorage;
 use Filament\Tables;
 use App\Models\Storage;
-use Filament\Forms\Form;
 use App\Models\Department;
 use Filament\Tables\Table;
 use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Tabs;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
-use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Contracts\Support\Htmlable;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\RestoreBulkAction;
 use App\Filament\App\Resources\StorageResource\Pages;
 use Parfaitementweb\FilamentCountryField\Forms\Components\Country;
 
@@ -42,7 +49,7 @@ class StorageResource extends Resource
 {
     protected static ?string $model = Storage::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-building-storefront';
 
     public static function getNavigationGroup(): string
     {
@@ -83,7 +90,7 @@ class StorageResource extends Resource
         ];
     }
 
-    public static function getRoutePrefix(): string
+    public static function getRoutePrefix(Panel $panel): string
     {
         return 'storage';
     }
@@ -101,13 +108,13 @@ class StorageResource extends Resource
         return request()->route()->getName() === 'filament.app.resources.storages.view';
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Tabs::make('Tabs')
                     ->tabs([
-                        Tabs\Tab::make('General')
+                        Tab::make('General')
                             ->schema([
                                 Grid::make([
                                     'default' => 1,
@@ -187,7 +194,7 @@ class StorageResource extends Resource
                             ])
                             ->label(__('general.general'))
                             ->icon('heroicon-o-bars-3-center-left'),
-                        Tabs\Tab::make('Access')
+                        Tab::make('Access')
                             ->schema([
                                 Repeater::make('departments')
 
@@ -270,8 +277,8 @@ class StorageResource extends Resource
                         2 => __('general.department'),
                     ])
                     ->label(__('general.type')),
-                Tables\Filters\Filter::make('created_at')
-                    ->form([
+                Filter::make('created_at')
+                    ->schema([
                         DatePicker::make('created_from')
                             ->label(__('general.created_from'))
                             ->placeholder(fn($state): string => 'Dec 18, ' . now()->subYear()->format('Y')),
@@ -303,7 +310,7 @@ class StorageResource extends Resource
                     }),
             ], layout: FiltersLayout::Modal)
             ->filtersFormColumns(2)
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
                     ViewAction::make(),
                     EditAction::make(),
@@ -313,7 +320,7 @@ class StorageResource extends Resource
                         }),
                 ])
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->visible(Gate::check('bulkDelete', Storage::class)),
@@ -333,10 +340,10 @@ class StorageResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListStorages::route('/'),
-            'create' => Pages\CreateStorage::route('/create'),
-            'edit' => Pages\EditStorage::route('/{record}/edit'),
-            'view' => Pages\ViewStorage::route('/{record}'),
+            'index' => ListStorages::route('/'),
+            'create' => CreateStorage::route('/create'),
+            'edit' => EditStorage::route('/{record}/edit'),
+            'view' => ViewStorage::route('/{record}'),
         ];
     }
 }

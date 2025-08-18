@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use Exception;
 use App\Models\OrderArticle;
 use Illuminate\Bus\Batchable;
 use App\Services\AsinDataService;
@@ -55,7 +56,7 @@ class SyncDataToOrderArticleJob implements ShouldQueue
             $this->order_article = $order_article;
             $this->current_user_id = $current_user_id;
             $this->fields = $fields;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->fail($e);
         }
     }
@@ -145,7 +146,7 @@ class SyncDataToOrderArticleJob implements ShouldQueue
 
                     // If there are no more fields left, throw an exception
                     if (empty($this->fields)) {
-                        throw new \Exception('All required product data fields are missing or null.');
+                        throw new Exception('All required product data fields are missing or null.');
                     }
 
                     // Putting the data into the model
@@ -180,7 +181,7 @@ class SyncDataToOrderArticleJob implements ShouldQueue
             }
 
             Cache::forget('SyncDataToOrderArticleJob_running');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logError($e->getMessage(), $this->order_article_id);
             $this->fail($e);
             Cache::forget('SyncDataToOrderArticleJob_running');
@@ -201,7 +202,7 @@ class SyncDataToOrderArticleJob implements ShouldQueue
             $logEntry = "User ID: {$this->current_user_id}, Job Title: {$jobTitle}, Timestamp: {$timestamp}, Error: {$reason}, Article ID: {$article_id}\n";
 
             Storage::disk('local_logs')->append('/job_errors_' . $article_id . '.log', $logEntry);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->fail($e);
         }
     }

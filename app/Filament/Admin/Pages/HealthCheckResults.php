@@ -11,7 +11,7 @@ use ShuvroRoy\FilamentSpatieLaravelHealth\Pages\HealthCheckResults as BaseHealth
 
 class HealthCheckResults extends BaseHealthCheckResults
 {
-    protected static ?string $navigationIcon = 'heroicon-o-heart';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-heart';
 
     /*
     public function getHeading(): string | Htmlable

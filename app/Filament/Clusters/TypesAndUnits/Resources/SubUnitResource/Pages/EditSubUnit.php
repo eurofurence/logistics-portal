@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\TypesAndUnits\Resources\SubUnitResource\Pages;
 
+use Filament\Actions\DeleteAction;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\Clusters\TypesAndUnits\Resources\SubUnitResource;
@@ -13,7 +14,7 @@ class EditSubUnit extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            DeleteAction::make(),
         ];
     }
 }

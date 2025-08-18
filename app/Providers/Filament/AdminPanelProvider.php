@@ -2,6 +2,12 @@
 
 namespace App\Providers\Filament;
 
+use Exception;
+use Filament\Widgets\AccountWidget;
+use LaraZeus\SpatieTranslatable\SpatieTranslatablePlugin;
+use Mvenghaus\FilamentScheduleMonitor\FilamentPlugin;
+use Althinect\FilamentSpatieRolesPermissions\Resources\PermissionResource;
+use Althinect\FilamentSpatieRolesPermissions\Resources\RoleResource;
 use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
@@ -13,7 +19,6 @@ use App\Http\Middleware\CheckWhitelist;
 use App\Filament\Pages\Auth\EditProfile;
 use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Filament\Http\Middleware\Authenticate;
-use Filament\SpatieLaravelTranslatablePlugin;
 use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 use Illuminate\Session\Middleware\StartSession;
 use App\Filament\Admin\Pages\HealthCheckResults;
@@ -48,7 +53,7 @@ class AdminPanelProvider extends PanelProvider
     {
         try {
             $primaryColor = app(ThemeSettings::class)->primary_color;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Set an alternative value if an error occurs
             $primaryColor = '#007bff'; // Example: Standard blue color
         }
@@ -69,7 +74,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\\Filament\\Admin\\Widgets')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
             ->widgets([
-                Widgets\AccountWidget::class,
+                AccountWidget::class,
             ])
             ->login()
             ->passwordReset()
@@ -93,9 +98,9 @@ class AdminPanelProvider extends PanelProvider
             ->plugins([
                 MaintenanceSwitchPlugin::make(),
                 FilamentProgressbarPlugin::make()->color('#29b'),
-                SpatieLaravelTranslatablePlugin::make()
+                SpatieTranslatablePlugin::make()
                     ->defaultLocales(['en', 'de']),
-                \Mvenghaus\FilamentScheduleMonitor\FilamentPlugin::make(),
+                FilamentPlugin::make(),
                 FilamentSpatieLaravelHealthPlugin::make()
                     ->usingPage(HealthCheckResults::class),
                 QuickCreatePlugin::make()
@@ -103,8 +108,8 @@ class AdminPanelProvider extends PanelProvider
                         DepartmentResource::class,
                         WhitelistResource::class,
                         IdpRankSyncResource::class,
-                        \Althinect\FilamentSpatieRolesPermissions\Resources\PermissionResource::class,
-                        \Althinect\FilamentSpatieRolesPermissions\Resources\RoleResource::class,
+                        PermissionResource::class,
+                        RoleResource::class,
                     ]),
                 EnvironmentIndicatorPlugin::make()
                     ->visible(fn() => match (config('app.env')) {

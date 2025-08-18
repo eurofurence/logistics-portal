@@ -2,6 +2,8 @@
 
 namespace App\Filament\App\Resources\OrderResource\Pages;
 
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
 use Filament\Actions;
 use App\Filament\App\Resources\OrderResource;
 use Filament\Resources\Pages\ViewRecord;
@@ -14,9 +16,9 @@ class ViewOrder extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\EditAction::make()
+            EditAction::make()
                 ->icon('heroicon-o-pencil'),
-            Actions\DeleteAction::make()
+            DeleteAction::make()
                 ->icon('heroicon-o-trash')
                 ->modalHeading(function ($record): string {
                     return __('general.delete') . ': ' . $record->name;

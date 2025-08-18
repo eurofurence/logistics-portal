@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use Bugsnag\BugsnagLaravel\Commands\DeployCommand;
+use Bugsnag\BugsnagLaravel\OomBootstrapper;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Console\Scheduling\Schedule;
 use Spatie\Health\Commands\DispatchQueueCheckJobsCommand;
@@ -41,13 +43,13 @@ class Kernel extends ConsoleKernel
 
     protected $commands = [
         // ...
-        \Bugsnag\BugsnagLaravel\Commands\DeployCommand::class
+        DeployCommand::class
     ];
 
     protected function bootstrappers()
     {
         return array_merge(
-            [\Bugsnag\BugsnagLaravel\OomBootstrapper::class],
+            [OomBootstrapper::class],
             parent::bootstrappers(),
         );
     }

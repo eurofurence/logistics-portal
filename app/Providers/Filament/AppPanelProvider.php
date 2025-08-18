@@ -2,6 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use Exception;
+use Filament\Widgets\AccountWidget;
+use LaraZeus\SpatieTranslatable\SpatieTranslatablePlugin;
 use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
@@ -18,7 +21,6 @@ use Filament\Http\Middleware\Authenticate;
 use App\Filament\App\Resources\BillResource;
 use App\Filament\App\Resources\ItemResource;
 use App\Filament\App\Resources\OrderResource;
-use Filament\SpatieLaravelTranslatablePlugin;
 use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 use App\Filament\App\Resources\StorageResource;
 use Illuminate\Session\Middleware\StartSession;
@@ -52,7 +54,7 @@ class AppPanelProvider extends PanelProvider
     {
         try {
             $primaryColor = app(ThemeSettings::class)->primary_color;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Set an alternative value if an error occurs
             $primaryColor = '#007bff'; // Example: Standard blue color
         }
@@ -72,7 +74,7 @@ class AppPanelProvider extends PanelProvider
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
             //->viteTheme('resources/css/filament/app/theme.css')
             ->widgets([
-                Widgets\AccountWidget::class,
+                AccountWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -86,7 +88,7 @@ class AppPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
-                SpatieLaravelTranslatablePlugin::make()
+                SpatieTranslatablePlugin::make()
                     ->defaultLocales(['en', 'de']),
                 FilamentProgressbarPlugin::make()->color('#29b'),
                 FilamentSpatieLaravelHealthPlugin::make()

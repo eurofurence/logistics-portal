@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
 use ZipArchive;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
@@ -138,7 +140,7 @@ class RestoreBackup extends Command
 
     function uploadFilesToS3($sourcePath, $destinationPrefix, $s3Disk)
     {
-        $files = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($sourcePath));
+        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($sourcePath));
 
         foreach ($files as $name => $file) {
             if (!$file->isDir()) {

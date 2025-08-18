@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Illuminate\Database\Eloquent\Builder;
 use Spatie\MediaLibrary\HasMedia;
 use App\Models\InventorySubCategory;
 use Illuminate\Support\Facades\Auth;
@@ -37,48 +41,48 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property int $needs_truck
  * @property string|null $url
  * @property int|null $storage
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\User|null $addedBy
- * @property-read \App\Models\Department|null $department_
- * @property-read \App\Models\User|null $editedBy
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User|null $addedBy
+ * @property-read Department|null $department_
+ * @property-read User|null $editedBy
+ * @property-read MediaCollection<int, Media> $media
  * @property-read int|null $media_count
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereAddedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereBigSize($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereBuyDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereComment($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereDangerousGood($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereDepartment($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereDueDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereEditedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereLocked($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereNeedsTruck($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item wherePrice($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereQrCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereSerialnumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereShortname($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereSortedOut($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereSpecificEditor($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereStackable($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereStorage($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereStorageContainerId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereUnit($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereUrl($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereWeightG($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item withoutTrashed()
+ * @method static Builder<static>|Item newModelQuery()
+ * @method static Builder<static>|Item newQuery()
+ * @method static Builder<static>|Item onlyTrashed()
+ * @method static Builder<static>|Item query()
+ * @method static Builder<static>|Item whereAddedBy($value)
+ * @method static Builder<static>|Item whereBigSize($value)
+ * @method static Builder<static>|Item whereBuyDate($value)
+ * @method static Builder<static>|Item whereComment($value)
+ * @method static Builder<static>|Item whereCreatedAt($value)
+ * @method static Builder<static>|Item whereDangerousGood($value)
+ * @method static Builder<static>|Item whereDeletedAt($value)
+ * @method static Builder<static>|Item whereDepartment($value)
+ * @method static Builder<static>|Item whereDescription($value)
+ * @method static Builder<static>|Item whereDueDate($value)
+ * @method static Builder<static>|Item whereEditedBy($value)
+ * @method static Builder<static>|Item whereId($value)
+ * @method static Builder<static>|Item whereLocked($value)
+ * @method static Builder<static>|Item whereName($value)
+ * @method static Builder<static>|Item whereNeedsTruck($value)
+ * @method static Builder<static>|Item wherePrice($value)
+ * @method static Builder<static>|Item whereQrCode($value)
+ * @method static Builder<static>|Item whereSerialnumber($value)
+ * @method static Builder<static>|Item whereShortname($value)
+ * @method static Builder<static>|Item whereSortedOut($value)
+ * @method static Builder<static>|Item whereSpecificEditor($value)
+ * @method static Builder<static>|Item whereStackable($value)
+ * @method static Builder<static>|Item whereStorage($value)
+ * @method static Builder<static>|Item whereStorageContainerId($value)
+ * @method static Builder<static>|Item whereUnit($value)
+ * @method static Builder<static>|Item whereUpdatedAt($value)
+ * @method static Builder<static>|Item whereUrl($value)
+ * @method static Builder<static>|Item whereWeightG($value)
+ * @method static Builder<static>|Item withTrashed()
+ * @method static Builder<static>|Item withoutTrashed()
  * @property string|null $owner
  * @property int $borrowed_item
  * @property int $rented_item
@@ -87,19 +91,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property array<array-key, mixed>|null $custom_fields
  * @property int|null $sub_category
  * @property string|null $manufacturer_barcode
- * @property-read \App\Models\Department|null $connected_department
- * @property-read \App\Models\ItemsOperationSite|null $connected_operation_site
- * @property-read \App\Models\Storage|null $connected_storage
+ * @property-read Department|null $connected_department
+ * @property-read ItemsOperationSite|null $connected_operation_site
+ * @property-read Storage|null $connected_storage
  * @property-read InventorySubCategory|null $connected_sub_category
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereBorrowedItem($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereCustomFields($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereManufacturerBarcode($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereOperationSite($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereOwner($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereRentedItem($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereSubCategory($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereWeight($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Item whereWillBeBroughtToNextEvent($value)
+ * @method static Builder<static>|Item whereBorrowedItem($value)
+ * @method static Builder<static>|Item whereCustomFields($value)
+ * @method static Builder<static>|Item whereManufacturerBarcode($value)
+ * @method static Builder<static>|Item whereOperationSite($value)
+ * @method static Builder<static>|Item whereOwner($value)
+ * @method static Builder<static>|Item whereRentedItem($value)
+ * @method static Builder<static>|Item whereSubCategory($value)
+ * @method static Builder<static>|Item whereWeight($value)
+ * @method static Builder<static>|Item whereWillBeBroughtToNextEvent($value)
  * @mixin \Eloquent
  */
 class Item extends Model implements HasMedia

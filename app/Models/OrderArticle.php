@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,8 +16,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property string $name
  * @property string|null $description
  * @property string|null $picture
- * @property \App\Models\User|null $added_by
- * @property \App\Models\User|null $edited_by
+ * @property User|null $added_by
+ * @property User|null $edited_by
  * @property int|null $category
  * @property float $price_net
  * @property float $price_gross
@@ -35,44 +37,44 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property string|null $deadline
  * @property bool $auto_calculate
  * @property string|null $important_note
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\OrderCategory|null $categorie
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereAddedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereArticleNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereArticleVariants($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereAutoCalculate($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereCategory($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereComment($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereCurrency($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereDeadline($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereEditedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereImportantNote($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereLocked($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereLockedReason($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle wherePackagingArticleQuantity($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle wherePackagingSizePerArticle($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle wherePackagingSizePerArticleUnit($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle wherePicture($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle wherePriceGross($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle wherePriceNet($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereQuantityAvailable($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereReturningDeposit($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereTaxRate($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle whereUrl($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderArticle withoutTrashed()
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read OrderCategory|null $categorie
+ * @method static Builder<static>|OrderArticle newModelQuery()
+ * @method static Builder<static>|OrderArticle newQuery()
+ * @method static Builder<static>|OrderArticle onlyTrashed()
+ * @method static Builder<static>|OrderArticle query()
+ * @method static Builder<static>|OrderArticle whereAddedBy($value)
+ * @method static Builder<static>|OrderArticle whereArticleNumber($value)
+ * @method static Builder<static>|OrderArticle whereArticleVariants($value)
+ * @method static Builder<static>|OrderArticle whereAutoCalculate($value)
+ * @method static Builder<static>|OrderArticle whereCategory($value)
+ * @method static Builder<static>|OrderArticle whereComment($value)
+ * @method static Builder<static>|OrderArticle whereCreatedAt($value)
+ * @method static Builder<static>|OrderArticle whereCurrency($value)
+ * @method static Builder<static>|OrderArticle whereDeadline($value)
+ * @method static Builder<static>|OrderArticle whereDeletedAt($value)
+ * @method static Builder<static>|OrderArticle whereDescription($value)
+ * @method static Builder<static>|OrderArticle whereEditedBy($value)
+ * @method static Builder<static>|OrderArticle whereId($value)
+ * @method static Builder<static>|OrderArticle whereImportantNote($value)
+ * @method static Builder<static>|OrderArticle whereLocked($value)
+ * @method static Builder<static>|OrderArticle whereLockedReason($value)
+ * @method static Builder<static>|OrderArticle whereName($value)
+ * @method static Builder<static>|OrderArticle wherePackagingArticleQuantity($value)
+ * @method static Builder<static>|OrderArticle wherePackagingSizePerArticle($value)
+ * @method static Builder<static>|OrderArticle wherePackagingSizePerArticleUnit($value)
+ * @method static Builder<static>|OrderArticle wherePicture($value)
+ * @method static Builder<static>|OrderArticle wherePriceGross($value)
+ * @method static Builder<static>|OrderArticle wherePriceNet($value)
+ * @method static Builder<static>|OrderArticle whereQuantityAvailable($value)
+ * @method static Builder<static>|OrderArticle whereReturningDeposit($value)
+ * @method static Builder<static>|OrderArticle whereTaxRate($value)
+ * @method static Builder<static>|OrderArticle whereUpdatedAt($value)
+ * @method static Builder<static>|OrderArticle whereUrl($value)
+ * @method static Builder<static>|OrderArticle withTrashed()
+ * @method static Builder<static>|OrderArticle withoutTrashed()
  * @mixin \Eloquent
  */
 class OrderArticle extends Model

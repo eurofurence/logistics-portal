@@ -26,8 +26,6 @@ use App\Providers\Socialite\SocialiteIdentityProvider;
 use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
 use Spatie\Health\Checks\Checks\DatabaseConnectionCountCheck;
 use Spatie\SecurityAdvisoriesHealthCheck\SecurityAdvisoriesCheck;
-//use Spatie\SecurityAdvisoriesHealthCheck\SecurityAdvisoriesCheck;
-use Filament\Http\Responses\Auth\Contracts\LogoutResponse as LogoutResponseContract;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -36,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(LogoutResponseContract::class, LogoutResponse::class);
+        $this->app->bind(\Filament\Auth\Http\Responses\Contracts\LogoutResponse::class, LogoutResponse::class);
     }
 
     /**

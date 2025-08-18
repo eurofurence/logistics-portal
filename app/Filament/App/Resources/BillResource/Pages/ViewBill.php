@@ -2,6 +2,9 @@
 
 namespace App\Filament\App\Resources\BillResource\Pages;
 
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ReplicateAction;
 use Filament\Actions;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
@@ -16,16 +19,16 @@ class ViewBill extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\EditAction::make()
+            EditAction::make()
                 ->icon('heroicon-o-pencil'),
-            Actions\DeleteAction::make()
+            DeleteAction::make()
                 ->icon('heroicon-o-trash')
                 ->modalHeading(function ($record): string {
                     return __('general.delete') . ': ' . $record->title;
                 }),
-            Actions\ReplicateAction::make()
+            ReplicateAction::make()
                 ->icon('heroicon-o-arrow-up-on-square-stack')
-                ->form([
+                ->schema([
                     Placeholder::make('duplicate_hint')
                         ->label(__('general.hint'))
                         ->content(__('general.duplicate_note_1')),

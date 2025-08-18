@@ -2,9 +2,15 @@
 
 namespace App\Filament\Admin\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Admin\Resources\TestModelResource\Pages\ListTestModels;
+use App\Filament\Admin\Resources\TestModelResource\Pages\CreateTestModel;
+use App\Filament\Admin\Resources\TestModelResource\Pages\EditTestModel;
 use Filament\Forms;
 use Filament\Tables;
-use Filament\Forms\Form;
 use App\Models\TestModel;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -21,7 +27,7 @@ class TestModelResource extends Resource
 {
     protected static ?string $model = TestModel::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function getNavigationGroup(): string
     {
@@ -31,10 +37,10 @@ class TestModelResource extends Resource
     }
 
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 FileUpload::make('data1')
                 ->disk('s3')
                 ->visibility('public'),
@@ -63,12 +69,12 @@ class TestModelResource extends Resource
             ->filters([
                 
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -83,9 +89,9 @@ class TestModelResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTestModels::route('/'),
-            'create' => Pages\CreateTestModel::route('/create'),
-            'edit' => Pages\EditTestModel::route('/{record}/edit'),
+            'index' => ListTestModels::route('/'),
+            'create' => CreateTestModel::route('/create'),
+            'edit' => EditTestModel::route('/{record}/edit'),
         ];
     }
 }

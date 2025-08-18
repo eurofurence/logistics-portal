@@ -2,14 +2,16 @@
 
 namespace App\Models;
 
+use Spatie\ScheduleMonitor\Models\MonitoredScheduledTask;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Spatie\ScheduleMonitor\Models\MonitoredScheduledTaskLogItem as ScheduledTaskLogItemModel;
 
 /**
- * @property-read \Spatie\ScheduleMonitor\Models\MonitoredScheduledTask|null $monitoredScheduledTask
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskLogItem newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskLogItem newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ScheduledTaskLogItem query()
+ * @property-read MonitoredScheduledTask|null $monitoredScheduledTask
+ * @method static Builder<static>|ScheduledTaskLogItem newModelQuery()
+ * @method static Builder<static>|ScheduledTaskLogItem newQuery()
+ * @method static Builder<static>|ScheduledTaskLogItem query()
  * @mixin \Eloquent
  */
 class ScheduledTaskLogItem extends ScheduledTaskLogItemModel

@@ -2,14 +2,23 @@
 
 namespace App\Filament\Clusters\TypesAndUnits\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypeResource\Pages\ListContainerTypes;
+use App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypeResource\Pages\CreateContainerType;
+use App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypeResource\Pages\EditContainerType;
 use Filament\Forms;
 use Filament\Tables;
-use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\ContainerType;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Gate;
-use Filament\Forms\Components\Section;
 use Illuminate\Database\Eloquent\Model;
 use App\Filament\Clusters\TypesAndUnits;
 use Filament\Forms\Components\TextInput;
@@ -22,7 +31,7 @@ class ContainerTypeResource extends Resource
 {
     protected static ?string $model = ContainerType::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-viewfinder-circle';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-viewfinder-circle';
 
     protected static ?string $cluster = TypesAndUnits::class;
 
@@ -58,10 +67,10 @@ class ContainerTypeResource extends Resource
         return ['name'];
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make()
                     ->schema([
                         TextInput::make('name')
@@ -77,26 +86,26 @@ class ContainerTypeResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
+                TextColumn::make('id')
                     ->sortable()
                     ->toggleable()
                     ->label(__('general.id')),
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable()
                     ->sortable()
                     ->label(__('general.name')),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make()
+                TrashedFilter::make()
                     ->visible(fn (ContainerType $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -111,9 +120,9 @@ class ContainerTypeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListContainerTypes::route('/'),
-            'create' => Pages\CreateContainerType::route('/create'),
-            'edit' => Pages\EditContainerType::route('/{record}/edit'),
+            'index' => ListContainerTypes::route('/'),
+            'create' => CreateContainerType::route('/create'),
+            'edit' => EditContainerType::route('/{record}/edit'),
         ];
     }
 }

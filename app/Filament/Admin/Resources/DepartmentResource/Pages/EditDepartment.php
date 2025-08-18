@@ -2,6 +2,9 @@
 
 namespace App\Filament\Admin\Resources\DepartmentResource\Pages;
 
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
 use App\Filament\Admin\Resources\DepartmentResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
@@ -13,12 +16,12 @@ class EditDepartment extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make()
+            DeleteAction::make()
                 ->modalHeading(function ($record): string {
                     return __('general.delete') . ': ' . $record->name;
                 }),
-            Actions\ForceDeleteAction::make(),
-            Actions\RestoreAction::make(),
+            ForceDeleteAction::make(),
+            RestoreAction::make(),
         ];
     }
 }

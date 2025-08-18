@@ -2,6 +2,8 @@
 
 namespace App\Filament\App\Resources\OrderRequestResource\Pages;
 
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use App\Models\Order;
 use Filament\Actions;
 use Filament\Actions\Action;
@@ -11,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use App\Filament\App\Resources\OrderRequestResource;
-use Filament\Notifications\Actions\Action as NotificationAction;
 
 class ViewOrderRequest extends ViewRecord
 {
@@ -25,12 +26,12 @@ class ViewOrderRequest extends ViewRecord
         $this->existing_order = Order::where('order_request_id', $this->record->id)->withoutTrashed()->first();
 
         return [
-            Actions\DeleteAction::make()
+            DeleteAction::make()
                 ->icon('heroicon-o-trash')
                 ->modalHeading(function ($record): string {
                     return __('general.delete') . ': ' . $record->title;
                 }),
-            Actions\EditAction::make()
+            EditAction::make()
                 ->icon('heroicon-o-pencil'),
             Action::make('openLink')
                 ->label(__('general.open_linked_order'))
@@ -89,7 +90,7 @@ class ViewOrderRequest extends ViewRecord
                                 ->color('success')
                                 ->persistent()
                                 ->actions([
-                                    NotificationAction::make('redirect_button')
+                                    Action::make('redirect_button')
                                         ->label(__('general.open_this_order'))
                                         ->button()
                                         ->icon('heroicon-o-arrow-top-right-on-square')

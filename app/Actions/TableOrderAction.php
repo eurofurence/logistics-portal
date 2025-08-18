@@ -2,10 +2,10 @@
 
 namespace App\Actions;
 
+use Filament\Actions\Action;
 use App\Models\Order;
 use App\Models\Department;
 use App\Models\OrderEvent;
-use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Select;
@@ -13,7 +13,6 @@ use Filament\Forms\Components\Textarea;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Notifications\Actions\Action as NotificationAction;
 
 class TableOrderAction
 {
@@ -23,7 +22,7 @@ class TableOrderAction
             ->label(__('general.make_order'))
             ->icon('heroicon-o-shopping-bag')
             ->outlined()
-            ->form([
+            ->schema([
                 TextInput::make('quantity')
                     ->label(__('general.quantity'))
                     ->numeric()
@@ -113,7 +112,7 @@ class TableOrderAction
                             ->body(__('general.go_to_orders_for_overview'))
                             ->success()
                             ->actions([
-                                NotificationAction::make('view')
+                                Action::make('view')
                                     ->button()
                                     ->label(__('general.overview'))
                                     ->url(route('filament.app.resources.orders.index'), true)
@@ -129,7 +128,7 @@ class TableOrderAction
                                 ->body(__('general.added_to_existing_order'))
                                 ->success()
                                 ->actions([
-                                    NotificationAction::make('view')
+                                    Action::make('view')
                                         ->button()
                                         ->label(__('general.overview'))
                                         ->url(route('filament.app.resources.orders.index'), true)

@@ -2,21 +2,21 @@
 
 namespace App\Filament\Admin\Resources\DepartmentResource\RelationManagers;
 
+use Filament\Schemas\Schema;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use App\Models\Role;
 
 use App\Models\User;
-use Filament\Forms\Form;
 use App\Models\Department;
 use Filament\Tables\Table;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
-use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Resources\RelationManagers\RelationManager;
 
 class DepartmentMembersRelationManager extends RelationManager
@@ -38,10 +38,10 @@ class DepartmentMembersRelationManager extends RelationManager
         return __('general.members');
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 // Empty
             ]);
     }
@@ -87,7 +87,7 @@ class DepartmentMembersRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->form(fn(): array => [
+                    ->schema(fn(): array => [
                         Select::make('department_id')
                             ->options(Department::where('id', $this->getOwnerRecord()->getAttribute('id'))->pluck('name', 'id')->toArray())
                             ->default($this->getOwnerRecord()->getAttribute('id'))
@@ -119,10 +119,10 @@ class DepartmentMembersRelationManager extends RelationManager
                     ->label(__('general.add_member'))
                     ->createAnother(false),
             ])
-            ->actions([
+            ->recordActions([
                 DeleteAction::make(),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
                 ]),

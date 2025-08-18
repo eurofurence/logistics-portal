@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Gate;
+use Str;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Artisan;
 use Sushi\Sushi;
@@ -17,17 +20,17 @@ use Symfony\Component\Console\Input\InputOption;
  * @property string|null $options
  * @property string|null $error
  * @property string|null $group
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Command newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Command newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Command query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Command whereArguments($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Command whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Command whereError($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Command whereGroup($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Command whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Command whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Command whereOptions($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Command whereSynopsis($value)
+ * @method static Builder<static>|Command newModelQuery()
+ * @method static Builder<static>|Command newQuery()
+ * @method static Builder<static>|Command query()
+ * @method static Builder<static>|Command whereArguments($value)
+ * @method static Builder<static>|Command whereDescription($value)
+ * @method static Builder<static>|Command whereError($value)
+ * @method static Builder<static>|Command whereGroup($value)
+ * @method static Builder<static>|Command whereId($value)
+ * @method static Builder<static>|Command whereName($value)
+ * @method static Builder<static>|Command whereOptions($value)
+ * @method static Builder<static>|Command whereSynopsis($value)
  * @mixin \Eloquent
  */
 class Command extends Model
@@ -62,7 +65,7 @@ class Command extends Model
         foreach ($commands as $gKey => $group) {
             foreach ($group as $cKey => $command) {
 
-                if (($permission = $permissions[$command] ?? null) && !\Gate::check($permission)) {
+                if (($permission = $permissions[$command] ?? null) && !Gate::check($permission)) {
                     unset($commands[$gKey][$cKey]);
                     continue;
                 }
@@ -92,7 +95,7 @@ class Command extends Model
         $definition = $command->getDefinition();
         $arguments = array_map(function (InputArgument $argument) {
             return [
-                'title' => \Str::of($argument->getName())->replace('_', ' ')->title()->__toString(),
+                'title' => Str::of($argument->getName())->replace('_', ' ')->title()->__toString(),
                 'name' => $argument->getName(),
                 'description' => $argument->getDescription(),
                 'default' => empty($default = $argument->getDefault()) ? null : $default,
@@ -137,7 +140,7 @@ class Command extends Model
 
         $options = array_map(function (InputOption $option) {
             return [
-                'title' => \Str::of($option->getName())->replace('_', ' ')->title()->__toString(),
+                'title' => Str::of($option->getName())->replace('_', ' ')->title()->__toString(),
                 'name' => $option->getName(),
                 'description' => $option->getDescription(),
                 'shortcut' => $option->getShortcut(),
@@ -154,7 +157,7 @@ class Command extends Model
     protected function renameKeys(array $array): array
     {
         $keys = array_map(function ($key) {
-            return \Str::title($key);
+            return Str::title($key);
         }, array_keys($array));
 
         return array_combine($keys, array_values($array));

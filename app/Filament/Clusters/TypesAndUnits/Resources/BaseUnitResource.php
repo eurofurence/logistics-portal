@@ -2,16 +2,24 @@
 
 namespace App\Filament\Clusters\TypesAndUnits\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use App\Filament\Clusters\TypesAndUnits\Resources\BaseUnitResource\Pages\ListBaseUnits;
+use App\Filament\Clusters\TypesAndUnits\Resources\BaseUnitResource\Pages\CreateBaseUnit;
+use App\Filament\Clusters\TypesAndUnits\Resources\BaseUnitResource\Pages\EditBaseUnit;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\SubUnit;
 use App\Models\BaseUnit;
-use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use App\Filament\Clusters\TypesAndUnits;
@@ -26,7 +34,7 @@ class BaseUnitResource extends Resource
 {
     protected static ?string $model = BaseUnit::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-cube-transparent';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-cube-transparent';
 
     protected static ?string $cluster = TypesAndUnits::class;
 
@@ -70,10 +78,10 @@ class BaseUnitResource extends Resource
         ];
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make()
                     ->schema([
                         TextInput::make('name')
@@ -111,16 +119,16 @@ class BaseUnitResource extends Resource
                     ->label(__('general.sub_unit'))
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make()
+                TrashedFilter::make()
                     ->visible(fn (BaseUnit $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -135,9 +143,9 @@ class BaseUnitResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListBaseUnits::route('/'),
-            'create' => Pages\CreateBaseUnit::route('/create'),
-            'edit' => Pages\EditBaseUnit::route('/{record}/edit'),
+            'index' => ListBaseUnits::route('/'),
+            'create' => CreateBaseUnit::route('/create'),
+            'edit' => EditBaseUnit::route('/{record}/edit'),
         ];
     }
 }

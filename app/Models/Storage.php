@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -21,35 +24,35 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string|null $documents
  * @property int $added_by
  * @property int $edited_by
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereAddedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereCity($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereComment($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereContactDetails($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereCountry($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereDocuments($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereEditedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage wherePostCode($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereStreet($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage withoutTrashed()
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder<static>|Storage newModelQuery()
+ * @method static Builder<static>|Storage newQuery()
+ * @method static Builder<static>|Storage onlyTrashed()
+ * @method static Builder<static>|Storage query()
+ * @method static Builder<static>|Storage whereAddedBy($value)
+ * @method static Builder<static>|Storage whereCity($value)
+ * @method static Builder<static>|Storage whereComment($value)
+ * @method static Builder<static>|Storage whereContactDetails($value)
+ * @method static Builder<static>|Storage whereCountry($value)
+ * @method static Builder<static>|Storage whereCreatedAt($value)
+ * @method static Builder<static>|Storage whereDeletedAt($value)
+ * @method static Builder<static>|Storage whereDocuments($value)
+ * @method static Builder<static>|Storage whereEditedBy($value)
+ * @method static Builder<static>|Storage whereId($value)
+ * @method static Builder<static>|Storage whereName($value)
+ * @method static Builder<static>|Storage wherePostCode($value)
+ * @method static Builder<static>|Storage whereStreet($value)
+ * @method static Builder<static>|Storage whereUpdatedAt($value)
+ * @method static Builder<static>|Storage withTrashed()
+ * @method static Builder<static>|Storage withoutTrashed()
  * @property int $type
- * @property \App\Models\Department|null $managing_department
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\StorageDepartmentAccess> $departments
+ * @property Department|null $managing_department
+ * @property-read Collection<int, StorageDepartmentAccess> $departments
  * @property-read int|null $departments_count
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereManagingDepartment($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Storage whereType($value)
+ * @method static Builder<static>|Storage whereManagingDepartment($value)
+ * @method static Builder<static>|Storage whereType($value)
  * @mixin \Eloquent
  */
 class Storage extends Model

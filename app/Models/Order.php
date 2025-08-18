@@ -2,6 +2,11 @@
 
 namespace App\Models;
 
+use Filament\Actions\Action;
+use Exception;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
 use App\Models\OrderEvent;
 use App\Models\OrderArticle;
@@ -10,7 +15,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
-use Filament\Notifications\Actions\Action;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -61,69 +65,69 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\User|null $addedBy
- * @property-read \App\Models\Department|null $department
+ * @property-read User|null $addedBy
+ * @property-read Department|null $department
  * @property-read OrderArticle|null $directoryArticle
- * @property-read \App\Models\User|null $editedBy
+ * @property-read User|null $editedBy
  * @property-read OrderEvent|null $event
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
+ * @property-read MediaCollection<int, Media> $media
  * @property-read int|null $media_count
- * @property-read \App\Models\OrderRequest|null $orderRequest
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereAddedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereArticleNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereBigSize($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereBookedToInventory($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereComment($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereContact($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereCurrency($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDangerousGood($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeliveryBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeliveryCosts($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeliveryDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeliveryDestination($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDeliveryProvider($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDepartmentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereDiscountNet($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereEditedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereInstantDelivery($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereInvId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereNeedsTruck($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrderArticleId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrderEventId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrderNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrderRequestId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereOrderedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order wherePaymentMethod($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order wherePicture($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order wherePriceGross($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order wherePriceNet($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereReturningDeposit($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereSpecialDelivery($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereSpecialFlagText($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereTags($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereTaxRate($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereTrackingNumber($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUrl($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereUserNote($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order withoutTrashed()
+ * @property-read OrderRequest|null $orderRequest
+ * @method static Builder<static>|Order newModelQuery()
+ * @method static Builder<static>|Order newQuery()
+ * @method static Builder<static>|Order onlyTrashed()
+ * @method static Builder<static>|Order query()
+ * @method static Builder<static>|Order whereAddedBy($value)
+ * @method static Builder<static>|Order whereAmount($value)
+ * @method static Builder<static>|Order whereArticleNumber($value)
+ * @method static Builder<static>|Order whereBigSize($value)
+ * @method static Builder<static>|Order whereBookedToInventory($value)
+ * @method static Builder<static>|Order whereComment($value)
+ * @method static Builder<static>|Order whereContact($value)
+ * @method static Builder<static>|Order whereCreatedAt($value)
+ * @method static Builder<static>|Order whereCurrency($value)
+ * @method static Builder<static>|Order whereDangerousGood($value)
+ * @method static Builder<static>|Order whereDeletedAt($value)
+ * @method static Builder<static>|Order whereDeliveryBy($value)
+ * @method static Builder<static>|Order whereDeliveryCosts($value)
+ * @method static Builder<static>|Order whereDeliveryDate($value)
+ * @method static Builder<static>|Order whereDeliveryDestination($value)
+ * @method static Builder<static>|Order whereDeliveryProvider($value)
+ * @method static Builder<static>|Order whereDepartmentId($value)
+ * @method static Builder<static>|Order whereDescription($value)
+ * @method static Builder<static>|Order whereDiscountNet($value)
+ * @method static Builder<static>|Order whereEditedBy($value)
+ * @method static Builder<static>|Order whereId($value)
+ * @method static Builder<static>|Order whereInstantDelivery($value)
+ * @method static Builder<static>|Order whereInvId($value)
+ * @method static Builder<static>|Order whereName($value)
+ * @method static Builder<static>|Order whereNeedsTruck($value)
+ * @method static Builder<static>|Order whereOrderArticleId($value)
+ * @method static Builder<static>|Order whereOrderEventId($value)
+ * @method static Builder<static>|Order whereOrderNumber($value)
+ * @method static Builder<static>|Order whereOrderRequestId($value)
+ * @method static Builder<static>|Order whereOrderedAt($value)
+ * @method static Builder<static>|Order wherePaymentMethod($value)
+ * @method static Builder<static>|Order wherePicture($value)
+ * @method static Builder<static>|Order wherePriceGross($value)
+ * @method static Builder<static>|Order wherePriceNet($value)
+ * @method static Builder<static>|Order whereReturningDeposit($value)
+ * @method static Builder<static>|Order whereSpecialDelivery($value)
+ * @method static Builder<static>|Order whereSpecialFlagText($value)
+ * @method static Builder<static>|Order whereStatus($value)
+ * @method static Builder<static>|Order whereTags($value)
+ * @method static Builder<static>|Order whereTaxRate($value)
+ * @method static Builder<static>|Order whereTrackingNumber($value)
+ * @method static Builder<static>|Order whereUpdatedAt($value)
+ * @method static Builder<static>|Order whereUrl($value)
+ * @method static Builder<static>|Order whereUserNote($value)
+ * @method static Builder<static>|Order withTrashed()
+ * @method static Builder<static>|Order withoutTrashed()
  * @property string|null $approved_at
  * @property int|null $approved_by
- * @property-read \App\Models\User|null $approvedBy
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereApprovedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Order whereApprovedBy($value)
+ * @property-read User|null $approvedBy
+ * @method static Builder<static>|Order whereApprovedAt($value)
+ * @method static Builder<static>|Order whereApprovedBy($value)
  * @mixin \Eloquent
  */
 class Order extends Model implements HasMedia
@@ -253,7 +257,7 @@ class Order extends Model implements HasMedia
                 if (!Auth::user()->can('can-change-order-status')) {
                     if ($model->status != 'awaiting_approval') {
                         if ($model->status != 'open') {
-                            throw new \Exception(__('middleware.no_permission_order_status'));
+                            throw new Exception(__('middleware.no_permission_order_status'));
                         }
                     }
                 }
@@ -274,7 +278,7 @@ class Order extends Model implements HasMedia
             if ($model->discount_net) {
                 if ($model->discount_net > 0) {
                     if ($model->discount_net > ($model->amount * $model->price_net) || $model->discount_net > config('constants.inputs.numeric.max')) {
-                        throw new \Exception(__('general.discount_limit_exceeded'));
+                        throw new Exception(__('general.discount_limit_exceeded'));
                     }
                 }
             }

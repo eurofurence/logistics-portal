@@ -2,61 +2,71 @@
 
 namespace App\Filament\App\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Section;
+use Filament\Actions\Action;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Support\Enums\Size;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Support\Enums\Width;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\BulkAction;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Flex;
+use App\Filament\App\Resources\OrderArticleResource\Pages\ListOrderArticles;
+use App\Filament\App\Resources\OrderArticleResource\Pages\CreateOrderArticle;
+use App\Filament\App\Resources\OrderArticleResource\Pages\EditOrderArticle;
+use App\Filament\App\Resources\OrderArticleResource\Pages\ViewOrderArticle;
 use DateTime;
 use DateTimeZone;
 use Filament\Tables;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\OrderArticle;
 use App\Models\OrderCategory;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use App\Actions\TableOrderAction;
 use App\Services\AsinDataService;
 use Filament\Infolists\Components;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\HtmlString;
-use Filament\Forms\Components\Tabs;
 use Illuminate\Support\Facades\Bus;
-use Filament\Support\Enums\MaxWidth;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
 use Illuminate\Support\Facades\Cache;
-use Filament\Forms\Components\Section;
-use Filament\Support\Enums\ActionSize;
 use Filament\Support\Enums\FontWeight;
 use App\Jobs\SyncDataToOrderArticleJob;
-use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
-use Filament\Tables\Actions\BulkAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\ViewField;
 use Filament\Notifications\Notification;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Enums\FiltersLayout;
-use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
-use Filament\Tables\Actions\RestoreAction;
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Infolists\Components\TextEntry;
 use Illuminate\Database\Eloquent\Collection;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Tables\Actions\ForceDeleteAction;
-use Filament\Tables\Actions\Action as TableAction;
 use App\Filament\App\Resources\OrderArticleResource\Pages;
-use Filament\Forms\Components\Actions\Action as FormAction;
 use Njxqlus\Filament\Components\Infolists\LightboxImageEntry;
 
 class OrderArticleResource extends Resource
@@ -64,7 +74,7 @@ class OrderArticleResource extends Resource
 
     protected static ?string $model = OrderArticle::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-list-bullet';
 
     public static function getNavigationGroup(): string
     {
@@ -105,13 +115,13 @@ class OrderArticleResource extends Resource
         ];
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Tabs::make('form_tabs_1')
                     ->tabs([
-                        Tabs\Tab::make('info_tab')
+                        Tab::make('info_tab')
                             ->schema([
                                 TextInput::make('name')
                                     ->required()
@@ -215,11 +225,11 @@ class OrderArticleResource extends Resource
                                     ->required()
                                     ->label(__('general.url_to_product'))
                                     ->suffixActions([
-                                        FormAction::make('getProductData')
+                                        Action::make('getProductData')
                                             ->icon('heroicon-m-arrow-path')
                                             ->color('info')
                                             ->requiresConfirmation()
-                                            ->form([
+                                            ->schema([
                                                 Placeholder::make(__('general.hint'))
                                                     ->content(new HtmlString('<b><label style="color: orange">' . __('general.selected_fields_will_be_overwritten') . '</label></b>'))
                                                     ->extraAttributes(['class' => 'text-red-500'])
@@ -355,7 +365,7 @@ class OrderArticleResource extends Resource
                             ])
                             ->label(__('general.informations'))
                             ->icon('heroicon-o-list-bullet'),
-                        Tabs\Tab::make('options')
+                        Tab::make('options')
                             ->schema([
                                 Fieldset::make('lock_article_set')
                                     ->schema([
@@ -448,7 +458,7 @@ class OrderArticleResource extends Resource
                 ])
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make()
+                TrashedFilter::make()
                     ->visible(fn(OrderArticle $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
                 SelectFilter::make('category')
                     ->label(__('general.category'))
@@ -499,10 +509,10 @@ class OrderArticleResource extends Resource
                 72,
                 'all',
             ])
-            ->actions([
+            ->recordActions([
                 TableOrderAction::make()
                     ->button()
-                    ->size(ActionSize::ExtraSmall),
+                    ->size(Size::ExtraSmall),
                 ActionGroup::make([
                     EditAction::make(),
                     DeleteAction::make()
@@ -513,18 +523,18 @@ class OrderArticleResource extends Resource
                     ForceDeleteAction::make(),
                 ])
                     ->button()
-                    ->size(ActionSize::ExtraSmall)
+                    ->size(Size::ExtraSmall)
                     ->color(Color::Indigo)
                     ->outlined(),
-                TableAction::make('article_note')
+                Action::make('article_note')
                     ->label(__('general.note'))
                     ->icon('heroicon-o-shield-exclamation')
                     ->color(Color::Yellow)
-                    ->size(ActionSize::ExtraSmall)
+                    ->size(Size::ExtraSmall)
                     ->visible(function (Model $record): bool {
                         return !empty(static::getOrderArticleNotes($record));
                     })
-                    ->form(function (Model $record) {
+                    ->schema(function (Model $record) {
                         return [
                             ViewField::make('note_list')
                                 ->view('components.form-list')
@@ -534,17 +544,17 @@ class OrderArticleResource extends Resource
                         ];
                     })
                     ->modalIcon('heroicon-o-shield-exclamation')
-                    ->modalWidth(MaxWidth::ExtraLarge)
+                    ->modalWidth(Width::ExtraLarge)
                     ->modalSubmitAction(false)
                     ->modalCancelAction(false)
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->visible(Gate::check('bulkDelete', OrderArticle::class)),
-                    Tables\Actions\RestoreBulkAction::make()
+                    RestoreBulkAction::make()
                         ->visible(Gate::check('bulkRestore', OrderArticle::class)),
-                    Tables\Actions\ForceDeleteBulkAction::make()
+                    ForceDeleteBulkAction::make()
                         ->visible(Gate::check('bulkForceDelete', OrderArticle::class)),
                     BulkAction::make('bulk_calc_gross_price')
                         ->label(__('general.recalculate_gross_price'))
@@ -684,11 +694,11 @@ class OrderArticleResource extends Resource
         ];
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                Components\Section::make()
+        return $schema
+            ->components([
+                Section::make()
                     ->schema([
                         TextEntry::make('special_notes')
                             ->label('')
@@ -706,7 +716,7 @@ class OrderArticleResource extends Resource
                     ->visible(function (Model $record) {
                         return $record->locked || !empty($record->deadline);
                     }),
-                Components\Section::make(__('general.informations'))
+                Section::make(__('general.informations'))
                     ->columns([
                         'sm' => 1,
                         'md' => 2,
@@ -729,7 +739,7 @@ class OrderArticleResource extends Resource
                             ->size(255)
                             ->slideHeight('100%')
                             ->slideWidth('100%'),
-                        Components\Group::make([
+                        Group::make([
                             TextEntry::make('name')
                                 ->label(__('general.name')),
                             TextEntry::make('price_net')
@@ -756,7 +766,7 @@ class OrderArticleResource extends Resource
                                     return $record->article_number;
                                 })
                         ]),
-                        Components\Group::make([
+                        Group::make([
                             TextEntry::make('returning_deposit')
                                 ->money(fn(Model $record) => match ($record->returning_deposit) {
                                     'EUR' => 'EUR',
@@ -790,7 +800,7 @@ class OrderArticleResource extends Resource
                                 }),
                         ])
                     ]),
-                Components\Section::make(__('general.comment'))
+                Section::make(__('general.comment'))
                     ->schema([
                         TextEntry::make('comment')
                             ->default(__('general.not_set'))
@@ -799,16 +809,16 @@ class OrderArticleResource extends Resource
                     ->visible(function (Model $record) {
                         return $record->comment;
                     }),
-                Components\Section::make(__('general.other_infos'))
+                Section::make(__('general.other_infos'))
                     ->schema([
-                        Components\Split::make([
-                            Components\Group::make([
+                        Flex::make([
+                            Group::make([
                                 TextEntry::make('added_by.name')
                                     ->label(__('general.added_by')),
                                 TextEntry::make('edited_by.name')
                                     ->label(__('general.edited_by'))
                             ]),
-                            Components\Group::make([
+                            Group::make([
                                 TextEntry::make('created_at')
                                     ->label(__('general.created_at'))
                                     ->dateTime(timezone: 'Europe/Berlin'),
@@ -824,10 +834,10 @@ class OrderArticleResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListOrderArticles::route('/'),
-            'create' => Pages\CreateOrderArticle::route('/create'),
-            'edit' => Pages\EditOrderArticle::route('/{record}/edit'),
-            'view' => Pages\ViewOrderArticle::route('{record}')
+            'index' => ListOrderArticles::route('/'),
+            'create' => CreateOrderArticle::route('/create'),
+            'edit' => EditOrderArticle::route('/{record}/edit'),
+            'view' => ViewOrderArticle::route('{record}')
         ];
     }
 
