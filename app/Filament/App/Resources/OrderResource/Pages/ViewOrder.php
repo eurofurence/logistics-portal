@@ -2,9 +2,11 @@
 
 namespace App\Filament\App\Resources\OrderResource\Pages;
 
+use App\Models\Order;
 use Filament\Actions;
-use App\Filament\App\Resources\OrderResource;
 use Filament\Resources\Pages\ViewRecord;
+use App\Filament\App\Resources\OrderResource;
+use App\Filament\App\Widgets\StatusTimelineWidget;
 
 class ViewOrder extends ViewRecord
 {

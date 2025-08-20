@@ -86,17 +86,6 @@ class AppPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
-                FilamentSocialitePlugin::make()
-                    // (required) Add providers corresponding with providers in `config/services.php`.
-                    ->providers([
-                        Provider::make('identity')
-                            ->label('EF Identity')
-                            ->icon('heroicon-o-identification')
-                            ->color(Color::Emerald)
-                            ->outlined(false)
-                            ->stateless(false)
-                    ])
-                    ->registration(true),
                 SpatieLaravelTranslatablePlugin::make()
                     ->defaultLocales(['en', 'de']),
                 FilamentProgressbarPlugin::make()->color('#29b'),

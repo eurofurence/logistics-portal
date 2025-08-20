@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources;
 
 use Filament\Forms;
+use App\Models\User;
 use Filament\Tables;
 use App\Models\Order;
 use Filament\Forms\Get;
@@ -16,6 +17,7 @@ use App\Models\OrderArticle;
 use App\Models\OrderRequest;
 use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
+use App\Forms\Components\Timeline;
 use Filament\Support\Colors\Color;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Tabs;
@@ -55,6 +57,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Tables\Actions\Action as TableAction;
 use App\Filament\App\Resources\OrderResource\Pages;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use App\Models\StatusHistory;
 
 class OrderResource extends Resource
 {
@@ -387,6 +390,10 @@ class OrderResource extends Resource
                                         'awaiting_approval' => __('general.awaiting_approval')
                                     ])
                                     ->default('open'),
+                                Section::make(__('timeline.status_history'))
+                                    ->schema([
+                                        Timeline::make('status_timeline')
+                                    ]),
                             ])->visible(Auth::user()->can('can-change-order-status')),
                         Tabs\Tab::make(__('general.files'))
                             ->icon('heroicon-o-document')
@@ -975,6 +982,12 @@ class OrderResource extends Resource
                         }
 
                         return $query;
+                    }),
+                SelectFilter::make('added_by')
+                    ->multiple()
+                    ->label(__('general.added_by'))
+                    ->options(function (): array {
+                        return User::all()->pluck('name', 'id')->toArray();
                     }),
             ], layout: FiltersLayout::Modal)
             ->filtersFormColumns(3)

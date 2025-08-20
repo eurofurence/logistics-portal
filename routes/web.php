@@ -36,6 +36,10 @@ Route::prefix('/auth')->name('auth.')->group(function () {
     Route::get('/frontchannel-logout', [\App\Http\Controllers\AuthController::class,'logoutCallback'])->name('logout.callback');
 });
 
+Route::get('/app/oauth/identity', function () {
+    return Socialite::driver('identity')->redirect();
+});
+
 Route::redirect('/app/artisan', '/app')->name('filament.app.pages.artisan');
 
 Route::fallback(function () {

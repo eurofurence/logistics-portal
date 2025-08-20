@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use NotificationChannels\Webhook\WebhookChannel;
+use NotificationChannels\Webhook\WebhookMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 
 class GeneralNotification extends Notification
@@ -82,7 +84,7 @@ class GeneralNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail', WebhookChannel::class];
     }
 
     /**
@@ -103,5 +105,30 @@ class GeneralNotification extends Notification
     public function toArray(object $notifiable): array
     {
         return $this->data;
+    }
+
+    public function toWebhook($notifiable)
+    {
+        return WebhookMessage::create()
+            ->data([
+                'embeds' => [
+                    [
+                        'title'       => 'New Notification',
+                        'description' => 'You got a new Notification from: ' . config('app.name'),
+                        'color'       => 0x00ff00, // Green color
+                        'fields'      => [
+                            [
+                                'name'  => 'Subject:',
+                                'value' => $this->data['data']['subject'],
+                            ],
+                            [
+                                'name'  => 'Message:',
+                                'value' => $this->data['data']['message'],
+                            ]
+                        ],
+                    ],
+                ]
+            ])
+            ->header('Content-Type', 'application/json');
     }
 }

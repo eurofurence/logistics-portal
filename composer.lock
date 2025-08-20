@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "856e1fb4ff5fe03fddbb9430b1284466",
+    "content-hash": "30a1b2362c76001f82013894bf476c3a",
     "packages": [
         {
             "name": "althinect/filament-spatie-roles-permissions",
@@ -403,16 +403,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.354.1",
+            "version": "3.355.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "6aa524596cd83416085777a3bd037d06a70b5c65"
+                "reference": "17e7dd50a31164d18f4767636fd5d1c123f714e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/6aa524596cd83416085777a3bd037d06a70b5c65",
-                "reference": "6aa524596cd83416085777a3bd037d06a70b5c65",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/17e7dd50a31164d18f4767636fd5d1c123f714e0",
+                "reference": "17e7dd50a31164d18f4767636fd5d1c123f714e0",
                 "shasum": ""
             },
             "require": {
@@ -494,9 +494,9 @@
             "support": {
                 "forum": "https://github.com/aws/aws-sdk-php/discussions",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
-                "source": "https://github.com/aws/aws-sdk-php/tree/3.354.1"
+                "source": "https://github.com/aws/aws-sdk-php/tree/3.355.0"
             },
-            "time": "2025-08-15T18:05:41+00:00"
+            "time": "2025-08-18T18:15:09+00:00"
         },
         {
             "name": "bezhansalleh/filament-language-switch",
@@ -2190,94 +2190,6 @@
             "time": "2024-10-09T13:47:03+00:00"
         },
         {
-            "name": "dutchcodingcompany/filament-socialite",
-            "version": "2.4.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/DutchCodingCompany/filament-socialite.git",
-                "reference": "be7e58a1e73f9222f288f0ab04b1945198310e62"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/DutchCodingCompany/filament-socialite/zipball/be7e58a1e73f9222f288f0ab04b1945198310e62",
-                "reference": "be7e58a1e73f9222f288f0ab04b1945198310e62",
-                "shasum": ""
-            },
-            "require": {
-                "filament/filament": "^3.2.72",
-                "illuminate/contracts": "^10.0|^11.0|^12.0",
-                "laravel/socialite": "^5.5",
-                "php": "^8.1",
-                "spatie/laravel-package-tools": "^1.9.2"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.8",
-                "larastan/larastan": "^2.9|^3.0",
-                "nunomaduro/collision": "^7.0|^8.1",
-                "orchestra/testbench": "^8.0|^9.0|^10.0",
-                "phpunit/phpunit": "^10.0|^11.5.3",
-                "rector/rector": "^0.19.8|^2.0"
-            },
-            "suggest": {
-                "owenvoke/blade-fontawesome": "^2.0"
-            },
-            "bin": [
-                "bin/upgrade-v2"
-            ],
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "aliases": {
-                        "FilamentSocialite": "DutchCodingCompany\\FilamentSocialite\\Facades\\FilamentSocialite"
-                    },
-                    "providers": [
-                        "DutchCodingCompany\\FilamentSocialite\\FilamentSocialiteServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Utils\\Rector\\": "utils/rector/src",
-                    "DutchCodingCompany\\FilamentSocialite\\": "src",
-                    "DutchCodingCompany\\FilamentSocialite\\Tests\\": "tests",
-                    "DutchCodingCompany\\FilamentSocialite\\Database\\Factories\\": "database/factories"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Marco Boers",
-                    "email": "m@rcoboe.rs",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Tom Janssen",
-                    "email": "dododedodonl@thor.edu",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Bram Raaijmakers",
-                    "email": "bram@dutchcodingcompany.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Social login for Filament through Laravel Socialite",
-            "homepage": "https://github.com/dutchcodingcompany/filament-socialite",
-            "keywords": [
-                "dutchcodingcompany",
-                "filament-socialite",
-                "laravel"
-            ],
-            "support": {
-                "issues": "https://github.com/DutchCodingCompany/filament-socialite/issues",
-                "source": "https://github.com/DutchCodingCompany/filament-socialite/tree/2.4.0"
-            },
-            "time": "2025-02-25T10:24:58+00:00"
-        },
-        {
             "name": "egulias/email-validator",
             "version": "4.0.4",
             "source": {
@@ -2407,7 +2319,7 @@
         },
         {
             "name": "filament/actions",
-            "version": "v3.3.36",
+            "version": "v3.3.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/actions.git",
@@ -2460,7 +2372,7 @@
         },
         {
             "name": "filament/filament",
-            "version": "v3.3.36",
+            "version": "v3.3.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/panels.git",
@@ -2525,16 +2437,16 @@
         },
         {
             "name": "filament/forms",
-            "version": "v3.3.36",
+            "version": "v3.3.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/forms.git",
-                "reference": "6d2eddf754f30dee8730535dfcbcefb4cd5e1136"
+                "reference": "5cb8623735691d65b9a08c43be9b4431b017c51a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/filamentphp/forms/zipball/6d2eddf754f30dee8730535dfcbcefb4cd5e1136",
-                "reference": "6d2eddf754f30dee8730535dfcbcefb4cd5e1136",
+                "url": "https://api.github.com/repos/filamentphp/forms/zipball/5cb8623735691d65b9a08c43be9b4431b017c51a",
+                "reference": "5cb8623735691d65b9a08c43be9b4431b017c51a",
                 "shasum": ""
             },
             "require": {
@@ -2577,11 +2489,11 @@
                 "issues": "https://github.com/filamentphp/filament/issues",
                 "source": "https://github.com/filamentphp/filament"
             },
-            "time": "2025-08-12T13:15:47+00:00"
+            "time": "2025-08-18T11:12:37+00:00"
         },
         {
             "name": "filament/infolists",
-            "version": "v3.3.36",
+            "version": "v3.3.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/infolists.git",
@@ -2632,7 +2544,7 @@
         },
         {
             "name": "filament/notifications",
-            "version": "v3.3.36",
+            "version": "v3.3.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/notifications.git",
@@ -2684,7 +2596,7 @@
         },
         {
             "name": "filament/spatie-laravel-media-library-plugin",
-            "version": "v3.3.36",
+            "version": "v3.3.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/spatie-laravel-media-library-plugin.git",
@@ -2722,7 +2634,7 @@
         },
         {
             "name": "filament/spatie-laravel-settings-plugin",
-            "version": "v3.3.36",
+            "version": "v3.3.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/spatie-laravel-settings-plugin.git",
@@ -2769,7 +2681,7 @@
         },
         {
             "name": "filament/spatie-laravel-translatable-plugin",
-            "version": "v3.3.36",
+            "version": "v3.3.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/spatie-laravel-translatable-plugin.git",
@@ -2814,7 +2726,7 @@
         },
         {
             "name": "filament/support",
-            "version": "v3.3.36",
+            "version": "v3.3.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/support.git",
@@ -2873,7 +2785,7 @@
         },
         {
             "name": "filament/tables",
-            "version": "v3.3.36",
+            "version": "v3.3.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/tables.git",
@@ -2925,7 +2837,7 @@
         },
         {
             "name": "filament/widgets",
-            "version": "v3.3.36",
+            "version": "v3.3.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/widgets.git",
@@ -3762,86 +3674,6 @@
             "time": "2025-03-19T14:43:43+00:00"
         },
         {
-            "name": "kenepa/banner",
-            "version": "0.0.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/kenepa/banner.git",
-                "reference": "15e38362bcb9e4702bc29d70c9672e292c48c3e1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/kenepa/banner/zipball/15e38362bcb9e4702bc29d70c9672e292c48c3e1",
-                "reference": "15e38362bcb9e4702bc29d70c9672e292c48c3e1",
-                "shasum": ""
-            },
-            "require": {
-                "filament/filament": "^3.0",
-                "php": "^8.1",
-                "spatie/laravel-package-tools": "^1.15.0"
-            },
-            "require-dev": {
-                "laravel/pint": "^1.0",
-                "nunomaduro/collision": "^7.9",
-                "nunomaduro/larastan": "^2.0.1",
-                "orchestra/testbench": "^8.0",
-                "pestphp/pest": "^2.1",
-                "pestphp/pest-plugin-arch": "^2.0",
-                "pestphp/pest-plugin-laravel": "^2.0",
-                "pestphp/pest-plugin-livewire": "^2.1",
-                "phpstan/extension-installer": "^1.1",
-                "phpstan/phpstan-deprecation-rules": "^1.0",
-                "phpstan/phpstan-phpunit": "^1.0",
-                "tightenco/duster": "^3.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "aliases": {
-                        "Banner": "BannerManager"
-                    },
-                    "providers": [
-                        "Kenepa\\Banner\\BannerServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Kenepa\\Banner\\": "src/",
-                    "Kenepa\\Banner\\Database\\Factories\\": "database/factories/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jehizkia",
-                    "email": "Jehizkia@users.noreply.github.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Displays a informative banner to users",
-            "homepage": "https://github.com/kenepa/banner",
-            "keywords": [
-                "Kenepa",
-                "banner",
-                "laravel"
-            ],
-            "support": {
-                "issues": "https://github.com/kenepa/banner/issues",
-                "source": "https://github.com/kenepa/banner"
-            },
-            "funding": [
-                {
-                    "url": "https://github.com/kenepa",
-                    "type": "github"
-                }
-            ],
-            "time": "2024-07-11T16:31:13+00:00"
-        },
-        {
             "name": "kirschbaum-development/eloquent-power-joins",
             "version": "4.2.8",
             "source": {
@@ -3991,6 +3823,61 @@
                 }
             ],
             "time": "2025-05-05T16:03:34+00:00"
+        },
+        {
+            "name": "laravel-notification-channels/webhook",
+            "version": "2.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel-notification-channels/webhook.git",
+                "reference": "418bc8e27ff0f46e76396e5bc0e351e6e785aff7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel-notification-channels/webhook/zipball/418bc8e27ff0f46e76396e5bc0e351e6e785aff7",
+                "reference": "418bc8e27ff0f46e76396e5bc0e351e6e785aff7",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.2 || ^7.0",
+                "illuminate/notifications": "^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0 || ^11.0 || ^12.0",
+                "illuminate/support": "^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0 || ^11.0 || ^12.0",
+                "php": "^7.2.5 || ^8.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "^1.3",
+                "orchestra/testbench": "^4.0 || ^5.0 || ^6.0 || ^7.0 || ^8.0 || ^9.0 || ^10.0",
+                "phpunit/phpunit": "^9.0 || ^10.5 || ^11.5.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "NotificationChannels\\Webhook\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marcel Pociot",
+                    "email": "m.pociot@gmail.com",
+                    "homepage": "http://www.marcelpociot.com"
+                },
+                {
+                    "name": "atymic",
+                    "email": "atymicq@gmail.com",
+                    "homepage": "https://atymic.dev"
+                }
+            ],
+            "description": "Webhook Notifications driver",
+            "homepage": "https://github.com/laravel-notification-channels/webhook",
+            "support": {
+                "issues": "https://github.com/laravel-notification-channels/webhook/issues",
+                "source": "https://github.com/laravel-notification-channels/webhook/tree/2.7.0"
+            },
+            "time": "2025-08-14T02:31:15+00:00"
         },
         {
             "name": "laravel/framework",
@@ -7250,90 +7137,6 @@
             "time": "2025-07-07T06:15:55+00:00"
         },
         {
-            "name": "owen-it/laravel-auditing",
-            "version": "v14.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/owen-it/laravel-auditing.git",
-                "reference": "f92602d1b3f53df29ddd577290e9d735ea707c53"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/owen-it/laravel-auditing/zipball/f92602d1b3f53df29ddd577290e9d735ea707c53",
-                "reference": "f92602d1b3f53df29ddd577290e9d735ea707c53",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "illuminate/console": "^11.0|^12.0",
-                "illuminate/database": "^11.0|^12.0",
-                "illuminate/filesystem": "^11.0|^12.0",
-                "php": "^8.2"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.5.1",
-                "orchestra/testbench": "^9.0|^10.0",
-                "phpunit/phpunit": "^11.0"
-            },
-            "type": "package",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "OwenIt\\Auditing\\AuditingServiceProvider"
-                    ]
-                },
-                "branch-alias": {
-                    "dev-master": "v14-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "OwenIt\\Auditing\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Antério Vieira",
-                    "email": "anteriovieira@gmail.com"
-                },
-                {
-                    "name": "Raphael França",
-                    "email": "raphaelfrancabsb@gmail.com"
-                },
-                {
-                    "name": "Morten D. Hansen",
-                    "email": "morten@visia.dk"
-                }
-            ],
-            "description": "Audit changes of your Eloquent models in Laravel",
-            "homepage": "https://laravel-auditing.com",
-            "keywords": [
-                "Accountability",
-                "Audit",
-                "auditing",
-                "changes",
-                "eloquent",
-                "history",
-                "laravel",
-                "log",
-                "logging",
-                "lumen",
-                "observer",
-                "record",
-                "revision",
-                "tracking"
-            ],
-            "support": {
-                "issues": "https://github.com/owen-it/laravel-auditing/issues",
-                "source": "https://github.com/owen-it/laravel-auditing"
-            },
-            "time": "2025-02-26T16:40:54+00:00"
-        },
-        {
             "name": "paragonie/constant_time_encoding",
             "version": "v3.0.0",
             "source": {
@@ -10024,16 +9827,16 @@
         },
         {
             "name": "spatie/laravel-health",
-            "version": "1.34.5",
+            "version": "1.34.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/laravel-health.git",
-                "reference": "8487a3a43551f3d24e73546362f93da2684a0a3a"
+                "reference": "da949c364611e0f2ce5cf9723f7786c60485b66d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/laravel-health/zipball/8487a3a43551f3d24e73546362f93da2684a0a3a",
-                "reference": "8487a3a43551f3d24e73546362f93da2684a0a3a",
+                "url": "https://api.github.com/repos/spatie/laravel-health/zipball/da949c364611e0f2ce5cf9723f7786c60485b66d",
+                "reference": "da949c364611e0f2ce5cf9723f7786c60485b66d",
                 "shasum": ""
             },
             "require": {
@@ -10105,7 +9908,7 @@
                 "spatie"
             ],
             "support": {
-                "source": "https://github.com/spatie/laravel-health/tree/1.34.5"
+                "source": "https://github.com/spatie/laravel-health/tree/1.34.6"
             },
             "funding": [
                 {
@@ -10113,7 +9916,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-07-25T07:00:21+00:00"
+            "time": "2025-08-18T08:47:15+00:00"
         },
         {
             "name": "spatie/laravel-medialibrary",
@@ -13926,83 +13729,6 @@
             "time": "2025-07-29T20:02:46+00:00"
         },
         {
-            "name": "tapp/filament-auditing",
-            "version": "v3.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/TappNetwork/filament-auditing.git",
-                "reference": "1471b4906fc61d954cf349e2161b801fe28d61c0"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/TappNetwork/filament-auditing/zipball/1471b4906fc61d954cf349e2161b801fe28d61c0",
-                "reference": "1471b4906fc61d954cf349e2161b801fe28d61c0",
-                "shasum": ""
-            },
-            "require": {
-                "filament/filament": "^3.0-stable",
-                "owen-it/laravel-auditing": "^14.0||^13.0",
-                "php": "^8.2",
-                "spatie/laravel-package-tools": "^1.16"
-            },
-            "require-dev": {
-                "larastan/larastan": "^2.9||^3.0",
-                "laravel/pint": "^1.14",
-                "nunomaduro/collision": "^8.1.1||^7.10.0",
-                "orchestra/testbench": "^10.0.0||^9.0.0||^8.22.0",
-                "pestphp/pest": "^3.0||^2.34",
-                "pestphp/pest-plugin-arch": "^3.0||^2.7",
-                "pestphp/pest-plugin-laravel": "^3.0||^2.3",
-                "phpstan/extension-installer": "^1.3||^2.0",
-                "phpstan/phpstan-deprecation-rules": "^1.1||^2.0",
-                "phpstan/phpstan-phpunit": "^1.3||^2.0",
-                "spatie/laravel-ray": "^1.35"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Tapp\\FilamentAuditing\\FilamentAuditingServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Tapp\\FilamentAuditing\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Tapp Network",
-                    "email": "steve@tappnetwork.com",
-                    "role": "Developer"
-                },
-                {
-                    "name": "Tapp Network",
-                    "email": "andreia.bohner@tappnetwork.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Filament Laravel Auditing plugin.",
-            "homepage": "https://github.com/TappNetwork/filament-auditing",
-            "keywords": [
-                "Audit",
-                "auditing",
-                "filament",
-                "laravel",
-                "tapp network"
-            ],
-            "support": {
-                "issues": "https://github.com/TappNetwork/filament-auditing/issues",
-                "source": "https://github.com/TappNetwork/filament-auditing"
-            },
-            "time": "2025-06-04T16:52:10+00:00"
-        },
-        {
             "name": "tightenco/ziggy",
             "version": "v2.5.3",
             "source": {
@@ -14981,7 +14707,7 @@
         },
         {
             "name": "filament/upgrade",
-            "version": "v3.3.36",
+            "version": "v3.3.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/filamentphp/upgrade.git",
@@ -16034,16 +15760,16 @@
         },
         {
             "name": "phpdocumentor/reflection-docblock",
-            "version": "5.6.2",
+            "version": "5.6.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/ReflectionDocBlock.git",
-                "reference": "92dde6a5919e34835c506ac8c523ef095a95ed62"
+                "reference": "94f8051919d1b0369a6bcc7931d679a511c03fe9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/92dde6a5919e34835c506ac8c523ef095a95ed62",
-                "reference": "92dde6a5919e34835c506ac8c523ef095a95ed62",
+                "url": "https://api.github.com/repos/phpDocumentor/ReflectionDocBlock/zipball/94f8051919d1b0369a6bcc7931d679a511c03fe9",
+                "reference": "94f8051919d1b0369a6bcc7931d679a511c03fe9",
                 "shasum": ""
             },
             "require": {
@@ -16092,9 +15818,9 @@
             "description": "With this component, a library can provide support for annotations via DocBlocks or otherwise retrieve information that is embedded in a DocBlock.",
             "support": {
                 "issues": "https://github.com/phpDocumentor/ReflectionDocBlock/issues",
-                "source": "https://github.com/phpDocumentor/ReflectionDocBlock/tree/5.6.2"
+                "source": "https://github.com/phpDocumentor/ReflectionDocBlock/tree/5.6.3"
             },
-            "time": "2025-04-13T19:20:35+00:00"
+            "time": "2025-08-01T19:43:32+00:00"
         },
         {
             "name": "phpstan/phpstan",

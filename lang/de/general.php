@@ -450,7 +450,11 @@ return array(
     'exchange_rate' => 'Wechselkurs',
     'bill_amount' => 'Rechnungssumme',
     'new_bill_is_available' => 'Neue Rechnung ist verfügbar',
-    'notification_email_description' => 'Die Email Adresse and die Benachrichtigungen gesendet werden sollen. Wird das Feld leer gelassen wird die Email verwendet die bei der Registrierung hinterlegt wurde'
+    'notification_email_description' => 'Die Email Adresse and die Benachrichtigungen gesendet werden sollen. Wird das Feld leer gelassen wird die Email verwendet die bei der Registrierung hinterlegt wurde',
+    'webhook' => 'Webhook',
+    'discord_webhook' => 'Discord Webhook',
+    'discord_webhook_description' => 'Sende eine Kopie deiner Benachrichtigungen an einen Discord Webhook',
+    'reimbursement_to_invoice_issuer' => 'Erstattung an Rechnungssteller',
 );
 
 
