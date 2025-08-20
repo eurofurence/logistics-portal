@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Models\User;
 use App\Models\Department;
 use App\Models\OrderEvent;
+use App\Events\BillCreated;
+use App\Events\BillStatusChanged;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
@@ -90,6 +92,7 @@ class Bill extends Model implements HasMedia
         'advance_payment_receiver',
         'repayment_method',
         'exchange_rate',
+        'reimbursement_to_invoice_issuer',
     ];
 
     /**
@@ -112,34 +115,7 @@ class Bill extends Model implements HasMedia
         });
 
         static::created(function ($model) {
-            $users_to_notify = User::permission('get-new-bill-accountant-notification')->get();
-
-            if (!empty($users_to_notify)) {
-                $model_link = null;
-                $model_link = route('filament.app.resources.bills.view', $model);
-
-                foreach ($users_to_notify as $user_to_notify) {
-                    //Send email
-                    Notification::send($user_to_notify, new GeneralNotification(username: $user_to_notify->name, subject: __('general.bill', [], 'en') . ' #' . $model->id . ' - ' . $model->title, titel: __('general.new_bill_is_available', [], 'en'), message: __('general.new_bill_is_available', [], 'en'), details_title: $model->title, details_title_hint: null, details_message: __('general.department') . ': ' . $model->connected_department->name, details_link: $model_link, details_link_title: __('general.show', [], 'en')));
-
-                    //Send database notification
-                    FilamentNotification::make()
-                        ->title(__('general.bill'))
-                        ->body(__('general.new_bill_is_available') . ': ' . $model->title)
-                        ->icon('heroicon-o-chat-bubble-left-ellipsis')
-                        ->iconColor('info')
-                        ->actions([
-                            Action::make(__('general.mark_as_unread'))
-                                ->markAsUnread(),
-                            Action::make(__('general.mark_as_read'))
-                                ->markAsRead(),
-                            Action::make(__('general.show'))
-                                ->url(route('filament.app.resources.bills.view', $model))
-                                ->button()
-                        ])
-                        ->sendToDatabase($user_to_notify);
-                }
-            }
+            BillCreated::dispatch($model);
         });
 
         static::updating(function ($model) {
@@ -152,28 +128,7 @@ class Bill extends Model implements HasMedia
                 }
 
                 if ($model->isDirty('status')) {
-                    $model_link = null;
-                    $model_link = route('filament.app.resources.bills.view', $model);
-
-                    //Send email
-                    Notification::send($model->addedBy, new GeneralNotification($model->addedBy->name, __('general.bill', [], 'en') . ' #' . $model->id . ' - ' . $model->title, __('general.status_has_changed', [], 'en'), __('general.status_has_changed_bill', [], 'en'), $model->title, null, null, $model_link, __('general.show', [], 'en')));
-
-                    //Send database notification
-                    FilamentNotification::make()
-                        ->title(__('general.bill'))
-                        ->body(__('general.status_has_changed') . ': ' . $model->title)
-                        ->icon('heroicon-o-chat-bubble-left-ellipsis')
-                        ->iconColor('info')
-                        ->actions([
-                            Action::make(__('general.mark_as_unread'))
-                                ->markAsUnread(),
-                            Action::make(__('general.mark_as_read'))
-                                ->markAsRead(),
-                            Action::make(__('general.show'))
-                                ->url(route('filament.app.resources.bills.view', $model))
-                                ->button()
-                        ])
-                        ->sendToDatabase($model->addedBy);
+                    BillStatusChanged::dispatch($model);
                 }
             }
         });
@@ -197,5 +152,15 @@ class Bill extends Model implements HasMedia
     public function editedBy(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'edited_by');
+    }
+
+    public function statusHistory()
+    {
+        return StatusHistory::query()
+            ->where('model_type', Bill::class)
+            ->where('model_id', $this->id)
+            ->with('user')
+            ->latest()
+            ->get();
     }
 }

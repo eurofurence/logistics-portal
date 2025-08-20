@@ -102,7 +102,8 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         'last_login',
         'separated_rights',
         'separated_departments',
-        'notification_email'
+        'notification_email',
+        'discord_webhook',
     ];
 
     /**
@@ -207,6 +208,11 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     public function routeNotificationForMail($notification): string
     {
         return $this->getNotificationEmailOrFallbackAttribute($notification);
+    }
+
+    public function routeNotificationForWebhook()
+    {
+        return $this->discord_webhook;
     }
 
     /**

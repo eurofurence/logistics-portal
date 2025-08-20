@@ -515,4 +515,14 @@ class Order extends Model implements HasMedia
 
         return false;
     }
+
+    public function statusHistory()
+    {
+        return StatusHistory::query()
+            ->where('model_type', Order::class)
+            ->where('model_id', $this->id)
+            ->with('user')
+            ->latest()
+            ->get();
+    }
 }

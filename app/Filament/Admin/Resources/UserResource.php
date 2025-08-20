@@ -96,7 +96,7 @@ class UserResource extends Resource
                     TextInput::make('password')
                         ->password()
                         ->maxLength(255)
-                        ->label(__('general.password')), //notification_email
+                        ->label(__('general.password')),
                     TextInput::make('notification_email')
                         ->maxLength(255)
                         ->email()
@@ -104,6 +104,13 @@ class UserResource extends Resource
                     TextInput::make('ex_id')
                         ->readOnly()
                         ->label(__('general.external_id')),
+                    TextInput::make('discord_webhook')
+                        ->label(__('general.discord_webhook'))
+                        ->url()
+                        ->nullable()
+                        ->rules([
+                            'regex:/^https:\/\/discord\.com\/api\/webhooks\/\d+\/[a-zA-Z0-9\-_]+$/',
+                        ]),
                     TextInput::make('ex_groups')
                         ->readOnly()
                         ->label(__('general.idp_groups'))

@@ -26,7 +26,18 @@ class EditProfile extends BaseEditProfile
                                             ->maxLength(255)
                                             ->email(),
                                     ])
-                                    ->description(__('general.notification_email_description'))
+                                    ->description(__('general.notification_email_description')),
+                                Section::make(__('general.discord_webhook'))
+                                    ->schema([
+                                        TextInput::make('discord_webhook')
+                                            ->label(__('general.webhook'))
+                                            ->url()
+                                            ->nullable()
+                                            ->rules([
+                                                'regex:/^https:\/\/discord\.com\/api\/webhooks\/\d+\/[a-zA-Z0-9\-_]+$/',
+                                            ]),
+                                    ])
+                                    ->description(__('general.discord_webhook_description'))
                             ])
                             ->label(__('general.notifications'))
                             ->icon('heroicon-o-bell'),

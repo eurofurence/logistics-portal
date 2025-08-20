@@ -2,10 +2,14 @@
 
 namespace App\Providers;
 
+use App\Events\BillCreated;
+use App\Events\BillStatusChanged;
+use App\Listeners\SendBillCreatedNotification;
+use App\Listeners\SendBillStatusChangedNotification;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Event;
 
 class EventServiceProvider extends ServiceProvider
 {
@@ -17,6 +21,12 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
+        ],
+        BillCreated::class => [
+            SendBillCreatedNotification::class,
+        ],
+        BillStatusChanged::class => [
+            SendBillStatusChangedNotification::class,
         ],
     ];
 
