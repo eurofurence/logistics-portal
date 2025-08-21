@@ -16,20 +16,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', 'https://identity.eurofurence.org/')->middleware('guest')->name('start');
 
-if (config('auth.auth_ui') == false) {
-    #APP
-    Route::redirect('/app/login', config('auth.auth_direct_url'))->name('login');
-    Route::redirect('/app/register', config('auth.auth_direct_url'))->name('register');
-    Route::redirect('/app/password-reset/reset', config('auth.auth_direct_url'))->name('ResetPassword');
-    Route::redirect('/app/password-reset/request', config('auth.auth_direct_url'))->name('RequestPasswordReset');
-
-    #ADMIN
-    Route::redirect('/admin/login', config('auth.auth_direct_url'))->name('login_admin');
-    Route::redirect('/admin/register', config('auth.auth_direct_url'))->name('register_admin');
-    Route::redirect('/admin/password-reset/reset', config('auth.auth_direct_url'))->name('ResetPassword_admin');
-    Route::redirect('/admin/password-reset/request', config('auth.auth_direct_url'))->name('RequestPasswordReset_admin');
-};
-
 Route::prefix('/auth')->name('auth.')->group(function () {
     Route::get('/callback', [\App\Http\Controllers\AuthController::class,'loginCallback'])->middleware('guest')->name('login.callback');
     Route::post('/logout', [\App\Http\Controllers\AuthController::class,'logout'])->middleware('auth')->name('logout');

@@ -17,7 +17,7 @@ class BillObserver
                 'model_type' => Bill::class,
                 'model_id' => $bill->id,
                 'icon' => 'heroicon-o-plus',
-                'title' => 'timeline.created', // Schlüssel statt Text
+                'title' => 'timeline.created', // Key instead of text
                 'description' => [
                     'key' => 'timeline.bill_was_created',
                 ],
@@ -35,7 +35,7 @@ class BillObserver
                 'model_type' => Bill::class,
                 'model_id' => $bill->id,
                 'icon' => 'heroicon-o-arrow-path',
-                'title' => 'timeline.status_changed', // Schlüssel statt Text
+                'title' => 'timeline.status_changed',
                 'description' => [
                     'key' => 'timeline.from_to',
                     'params' => [

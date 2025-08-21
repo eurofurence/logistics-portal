@@ -6,6 +6,7 @@ use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
 use App\Settings\ThemeSettings;
+use App\Filament\Pages\Auth\Login;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\UserIsLocked;
@@ -19,7 +20,6 @@ use Illuminate\Session\Middleware\StartSession;
 use App\Filament\Admin\Pages\HealthCheckResults;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Awcodes\FilamentQuickCreate\QuickCreatePlugin;
-use DutchCodingCompany\FilamentSocialite\Provider;
 use Filament\Pages\Dashboard as FilamentDashboard;
 use App\Filament\Admin\Resources\WhitelistResource;
 use App\Filament\Admin\Resources\DepartmentResource;
@@ -34,11 +34,8 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Njxqlus\FilamentProgressbar\FilamentProgressbarPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use MartinPetricko\FilamentSentryFeedback\Entities\SentryUser;
 use TomatoPHP\FilamentDeveloperGate\FilamentDeveloperGatePlugin;
-use DutchCodingCompany\FilamentSocialite\FilamentSocialitePlugin;
 use pxlrbt\FilamentEnvironmentIndicator\EnvironmentIndicatorPlugin;
-use MartinPetricko\FilamentSentryFeedback\FilamentSentryFeedbackPlugin;
 use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
 use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
 
@@ -71,10 +68,10 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 Widgets\AccountWidget::class,
             ])
-            ->login()
-            ->passwordReset()
+            ->login(Login::class)
+            //->passwordReset()
             ->profile(EditProfile::class, false)
-            ->emailVerification()
+            //->emailVerification()
             ->unsavedChangesAlerts()
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
