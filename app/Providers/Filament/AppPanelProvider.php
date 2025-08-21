@@ -7,6 +7,7 @@ use Filament\Widgets;
 use Filament\PanelProvider;
 use App\Settings\ThemeSettings;
 use App\Filament\Pages\Dashboard;
+use App\Filament\Pages\Auth\Login;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\UserIsLocked;
@@ -26,7 +27,6 @@ use App\Filament\Admin\Pages\HealthCheckResults;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Filament\App\Resources\OrderEventResource;
 use Awcodes\FilamentQuickCreate\QuickCreatePlugin;
-use DutchCodingCompany\FilamentSocialite\Provider;
 use App\Filament\App\Resources\OrderArticleResource;
 use App\Filament\App\Resources\OrderRequestResource;
 use App\Filament\App\Resources\OrderCategoryResource;
@@ -39,11 +39,8 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Njxqlus\FilamentProgressbar\FilamentProgressbarPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use MartinPetricko\FilamentSentryFeedback\Entities\SentryUser;
 use TomatoPHP\FilamentDeveloperGate\FilamentDeveloperGatePlugin;
-use DutchCodingCompany\FilamentSocialite\FilamentSocialitePlugin;
 use pxlrbt\FilamentEnvironmentIndicator\EnvironmentIndicatorPlugin;
-use MartinPetricko\FilamentSentryFeedback\FilamentSentryFeedbackPlugin;
 use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
 
 class AppPanelProvider extends PanelProvider
@@ -140,9 +137,9 @@ class AppPanelProvider extends PanelProvider
                     ->icon('heroicon-o-chevron-double-left')
                     ->sort(0),
             ])
-            ->login()
-            ->passwordReset()
-            ->emailVerification()
+            ->login(Login::class)
+            //->passwordReset()
+            //->emailVerification()
             //->registration()
             ->profile(EditProfile::class, false)
             ->bootUsing(function () {

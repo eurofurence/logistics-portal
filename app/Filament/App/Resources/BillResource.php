@@ -282,7 +282,7 @@ class BillResource extends Resource
                                                             ->hidden(
                                                                 fn(callable $get) => $get('reimbursement_to_invoice_issuer') === true
                                                             )
-                                                            ->dehydrated(false),
+                                                            ->dehydrated(true),
                                                     ])
                                                     ->columns(1)
                                                     ->columnSpan(1),

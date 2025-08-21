@@ -26,7 +26,7 @@ class OrderObserver
                 'model_type' => Order::class,
                 'model_id' => $order->id,
                 'icon' => 'heroicon-o-arrow-path',
-                'title' => 'timeline.status_changed', // Schlüssel statt Text
+                'title' => 'timeline.status_changed',
                 'description' => [
                     'key' => 'timeline.from_to',
                     'params' => [

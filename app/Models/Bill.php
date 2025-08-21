@@ -102,7 +102,7 @@ class Bill extends Model implements HasMedia
      */
     protected $casts = [
         'value' => 'real',
-        'advance_payment_value' => 'real'
+        'advance_payment_value' => 'real',
     ];
 
     protected static function boot()
