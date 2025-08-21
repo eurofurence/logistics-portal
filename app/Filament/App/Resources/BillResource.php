@@ -142,7 +142,8 @@ class BillResource extends Resource
                                             ->minFiles(1)
                                             ->label(__('general.files'))
                                             ->hint(__('general.bill_scan_preffered'))
-                                            ->imageEditor(),
+                                            ->imageEditor()
+                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: __('general.file_upload_tooltip')),
                                         Section::make()->schema([
                                             Grid::make([
                                                 'default' => 1,
@@ -225,7 +226,8 @@ class BillResource extends Resource
                                                             ->label(__('general.bill_amount'))
                                                             ->step(0.01)
                                                             ->minValue(config('constants.inputs.numeric.min'))
-                                                            ->maxValue(config('constants.inputs.numeric.max')),
+                                                            ->maxValue(config('constants.inputs.numeric.max'))
+                                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: __('general.bill_amount_tooltip')),
                                                         Select::make('currency')
                                                             ->label(__('general.currency'))
                                                             ->options([
@@ -272,7 +274,8 @@ class BillResource extends Resource
                                                     ->schema([
                                                         Checkbox::make('reimbursement_to_invoice_issuer')
                                                             ->label(__('general.reimbursement_to_invoice_issuer'))
-                                                            ->reactive(),
+                                                            ->reactive()
+                                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: __('general.reimbursement_to_invoice_issuer_tooltip')),
                                                         Textarea::make('repayment_method')
                                                             ->label(__('general.repayment_method'))
                                                             ->placeholder(__('general.repayment_method_description'))
@@ -282,7 +285,8 @@ class BillResource extends Resource
                                                             ->hidden(
                                                                 fn(callable $get) => $get('reimbursement_to_invoice_issuer') === true
                                                             )
-                                                            ->dehydrated(true),
+                                                            ->dehydrated(true)
+                                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: __('general.repayment_method_tooltip')),
                                                     ])
                                                     ->columns(1)
                                                     ->columnSpan(1),
@@ -295,7 +299,8 @@ class BillResource extends Resource
                                                             ->columnSpan(1)
                                                             ->step(0.01)
                                                             ->minValue(0)
-                                                            ->maxValue(config('constants.inputs.numeric.max')),
+                                                            ->maxValue(config('constants.inputs.numeric.max'))
+                                                            ->hintIcon('heroicon-m-question-mark-circle', tooltip: __('general.advance_payment_tooltip')),
                                                         TextInput::make('advance_payment_receiver')
                                                             ->nullable()
                                                             ->datalist(User::all(['name'])->pluck('name'))
@@ -346,8 +351,7 @@ class BillResource extends Resource
                             ->schema([
                                 Timeline::make('status_history')
                             ])
-                            ->icon('heroicon-o-clock')
-                            ->visible(!self::isCreate())
+                            ->icon('heroicon-o-clock'),
                     ])->columnSpanFull()
             ]);
     }
