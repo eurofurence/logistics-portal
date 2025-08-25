@@ -3,7 +3,9 @@
 namespace App\Filament\App\Resources\BillResource\Pages;
 
 use Filament\Actions;
+use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Database\Eloquent\Builder;
 use App\Filament\App\Resources\BillResource;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
 use App\Filament\App\Resources\BillResource\Widgets\BillStats;
@@ -27,6 +29,33 @@ class ListBills extends ListRecords
     {
         return [
             BillStats::class
+        ];
+    }
+
+    public function getTabs(): array
+    {
+        return [
+            'all' => Tab::make()
+                ->label(__('general.all')),
+            'open' => Tab::make()
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'open'))
+                ->label(__('general.open'))
+                ->icon('heroicon-o-document-currency-dollar'),
+            'processing' => Tab::make()
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'processing'))
+                ->label(__('general.processing'))
+                ->icon('heroicon-o-arrow-path'),
+            'done' => Tab::make()
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'done'))
+                ->label(__('general.done'))
+                ->icon('heroicon-o-check'),
+            'rejected' => Tab::make()
+                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'rejected'))
+                ->label(__('general.rejected'))
+                ->icon('heroicon-o-x-circle'),
+            'other' => Tab::make()
+                ->modifyQueryUsing(fn(Builder $query) => $query->whereNotIn('status', ['open', 'processing', 'done', 'rejected']))
+                ->label(__('general.other')),
         ];
     }
 }
