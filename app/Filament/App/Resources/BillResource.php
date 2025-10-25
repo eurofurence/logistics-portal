@@ -527,7 +527,12 @@ class BillResource extends Resource
                                     ->unique(),
                             ])
                             ->successRedirectUrl(fn(Model $replica): string => route('filament.app.resources.bills.edit', $replica))
-                            ->successNotificationTitle(__('general.entry_duplicated')),
+                            ->successNotificationTitle(__('general.entry_duplicated'))
+                            ->mutateRecordDataUsing(function (array $data): array {
+                                unset($data['status']);
+
+                                return $data;
+                            }),
                         Tables\Actions\EditAction::make(),
                         Tables\Actions\DeleteAction::make()
                             ->modalHeading(function ($record): string {
