@@ -4,8 +4,6 @@ namespace App\Console;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Console\Scheduling\Schedule;
-use Spatie\Health\Commands\DispatchQueueCheckJobsCommand;
-use Spatie\Health\Commands\ScheduleCheckHeartbeatCommand;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Spatie\ScheduleMonitor\Models\MonitoredScheduledTaskLogItem;
 
@@ -18,8 +16,6 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('schedule-monitor:sync')->everyFifteenMinutes();
         $schedule->command('files:delete-old')->hourly();
-        //$schedule->command(DispatchQueueCheckJobsCommand::class)->everyMinute();
-        //$schedule->command(ScheduleCheckHeartbeatCommand::class)->everyMinute();
         $schedule->command('model:prune', ['--model' => MonitoredScheduledTaskLogItem::class])->daily();
 
         if(config('app.backup_schedule_active')){
@@ -40,14 +36,12 @@ class Kernel extends ConsoleKernel
     }
 
     protected $commands = [
-        // ...
-        \Bugsnag\BugsnagLaravel\Commands\DeployCommand::class
+        // ..
     ];
 
     protected function bootstrappers()
     {
         return array_merge(
-            [\Bugsnag\BugsnagLaravel\OomBootstrapper::class],
             parent::bootstrappers(),
         );
     }

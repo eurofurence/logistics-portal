@@ -1,7 +1,4 @@
 <?php
-
-(new \Bugsnag\BugsnagLaravel\OomBootstrapper())->bootstrap();
-
 /*
 |--------------------------------------------------------------------------
 | Create The Application
