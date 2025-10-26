@@ -19,7 +19,6 @@
         "brickx/maintenance-switch": "^1.0",
         "calebporzio/sushi": "^2.5",
         "charrafimed/global-search-modal": "^3.4",
-        "doctrine/dbal": "^3.8",
         "filament/filament": "^3.2",
         "filament/spatie-laravel-media-library-plugin": "^3.2",
         "filament/spatie-laravel-settings-plugin": "^3.2",
@@ -58,7 +57,7 @@
         "spatie/security-advisories-health-check": "^1.1",
         "symfony/browser-kit": "^7.0",
         "symfony/http-client": "^7.0",
-        "tightenco/ziggy": "^2.0",
+        "tightenco/ziggy": "*",
         "tomatophp/filament-developer-gate": "^1.0"
     },
     "require-dev": {
