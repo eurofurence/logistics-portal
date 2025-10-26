@@ -37,8 +37,8 @@ class ViewBill extends ViewRecord
                 ])
                 ->successRedirectUrl(fn(Model $replica): string => route('filament.app.resources.bills.edit', $replica))
                 ->successNotificationTitle(__('general.entry_duplicated'))
-                ->mutateRecordDataUsing(function (array $data): array {
-                    unset($data['status']);
+                ->mutateFormDataUsing(function (array $data): array {
+                    $data['status'] = 'open';
 
                     return $data;
                 })
