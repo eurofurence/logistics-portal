@@ -29,6 +29,7 @@ class ViewBill extends ViewRecord
             ReplicateAction::make()
                 ->icon('heroicon-o-arrow-up-on-square-stack')
                 ->schema([
+                    #TODO
                     Placeholder::make('duplicate_hint')
                         ->label(__('general.hint'))
                         ->content(__('general.duplicate_note_1')),
@@ -40,8 +41,8 @@ class ViewBill extends ViewRecord
                 ])
                 ->successRedirectUrl(fn(Model $replica): string => route('filament.app.resources.bills.edit', $replica))
                 ->successNotificationTitle(__('general.entry_duplicated'))
-                ->mutateRecordDataUsing(function (array $data): array {
-                    unset($data['status']);
+                ->mutateFormDataUsing(function (array $data): array {
+                    $data['status'] = 'open';
 
                     return $data;
                 })

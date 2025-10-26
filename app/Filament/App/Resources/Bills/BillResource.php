@@ -2,28 +2,6 @@
 
 namespace App\Filament\App\Resources\Bills;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Fieldset;
-use App\Filament\App\Resources\Bills\Pages\CreateBill;
-use Filament\Forms\Components\DatePicker;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\ReplicateAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\ViewAction;
-use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use App\Filament\App\Resources\Bills\Pages\ListBills;
-use App\Filament\App\Resources\Bills\Pages\EditBill;
-use App\Filament\App\Resources\Bills\Pages\ViewBill;
 use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\Bill;
@@ -32,32 +10,55 @@ use Filament\Tables;
 use App\Models\Department;
 use App\Models\OrderEvent;
 use Filament\Tables\Table;
+use Filament\Actions\Action;
+use Filament\Schemas\Schema;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Resource;
+use Filament\Actions\ActionGroup;
 use App\Forms\Components\Timeline;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Grouping\Group;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ReplicateAction;
 use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Tabs;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Section;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Forms\Components\DatePicker;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Contracts\Support\Htmlable;
 use App\Filament\App\Resources\BillResource\Pages;
+use App\Filament\App\Resources\Bills\Pages\EditBill;
+use App\Filament\App\Resources\Bills\Pages\ViewBill;
+use App\Filament\App\Resources\Bills\Pages\ListBills;
+use App\Filament\App\Resources\Bills\Pages\CreateBill;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class BillResource extends Resource
 {
     protected static ?string $model = Bill::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-banknotes';
+    //protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
 
     public static function getNavigationGroup(): string
     {
@@ -541,8 +542,8 @@ class BillResource extends Resource
                             ])
                             ->successRedirectUrl(fn(Model $replica): string => route('filament.app.resources.bills.edit', $replica))
                             ->successNotificationTitle(__('general.entry_duplicated'))
-                            ->mutateRecordDataUsing(function (array $data): array {
-                                unset($data['status']);
+                            ->mutateFormDataUsing(function (array $data): array {
+                                $data['status'] = 'open';
 
                                 return $data;
                             }),
