@@ -1,4 +1,4 @@
-FROM php:8.4-alpine AS base
+FROM php:8.3-bullseye AS base
 WORKDIR /app
 
 ENV COMPOSER_MEMORY_LIMIT=-1
@@ -30,7 +30,7 @@ FROM base AS local
 RUN addgroup -gid 1024 app \
   && adduser -uid 1024 --disabled-password --ingroup app app \
   && adduser www-data app \
-  && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+  && curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
   && apt-get update \
   && apt-get install -y nodejs \
   && apt-get install -y mysql-client \
@@ -48,7 +48,7 @@ RUN COMPOSER_ALLOW_SUPERUSER=1 | rm composer.lock composer.json && composer requ
 ######################################################
 # NodeJS Stage
 ######################################################
-FROM node:25-alpine AS vite
+FROM node:20-buster AS vite
 WORKDIR /app
 COPY package.json package-lock.json vite.config.js ./
 RUN npm install

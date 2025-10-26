@@ -8,7 +8,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.4",
+        "php": "^8.3",
         "althinect/filament-spatie-roles-permissions": "^2.2",
         "archilex/filament-toggle-icon-column": "^3.1",
         "awcodes/filament-quick-create": "^3.3",
