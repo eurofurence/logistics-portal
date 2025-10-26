@@ -37,7 +37,8 @@ FROM base AS vite-vendor-build
 WORKDIR /app
 COPY --from=base /app/composer.json /app/composer.json
 COPY --from=base /app/composer.lock /app/composer.lock
-RUN COMPOSER_ALLOW_SUPERUSER=1 composer require tightenco/ziggy --ignore-platform-reqs
+RUN COMPOSER_ALLOW_SUPERUSER=1
+RUN composer require tightenco/ziggy --ignore-platform-reqs
 
 # NodeJS Stage
 FROM node:25-alpine AS vite
