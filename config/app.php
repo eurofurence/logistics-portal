@@ -161,7 +161,7 @@ return [
         /*
          * Package Service Providers...
          */
-        Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
+
 
         /*
          * Application Service Providers...
@@ -191,7 +191,6 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         'FilamentSpatieRolesPermissions' => Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade::class,
-        'Bugsnag' => Bugsnag\BugsnagLaravel\Facades\Bugsnag::class,
     ])->toArray(),
 
     'backup_schedule_active' => env('BACKUP_SCHEDULE_ACTIVE', false),
