@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Illuminate\Database\Eloquent\Builder;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -16,23 +20,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string|null $data5
  * @property string|null $data6
  * @property string|null $data7
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \Spatie\MediaLibrary\MediaCollections\Models\Media> $media
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read MediaCollection<int, Media> $media
  * @property-read int|null $media_count
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TestModel newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TestModel newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TestModel query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TestModel whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TestModel whereData1($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TestModel whereData2($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TestModel whereData3($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TestModel whereData4($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TestModel whereData5($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TestModel whereData6($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TestModel whereData7($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TestModel whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TestModel whereUpdatedAt($value)
+ * @method static Builder<static>|TestModel newModelQuery()
+ * @method static Builder<static>|TestModel newQuery()
+ * @method static Builder<static>|TestModel query()
+ * @method static Builder<static>|TestModel whereCreatedAt($value)
+ * @method static Builder<static>|TestModel whereData1($value)
+ * @method static Builder<static>|TestModel whereData2($value)
+ * @method static Builder<static>|TestModel whereData3($value)
+ * @method static Builder<static>|TestModel whereData4($value)
+ * @method static Builder<static>|TestModel whereData5($value)
+ * @method static Builder<static>|TestModel whereData6($value)
+ * @method static Builder<static>|TestModel whereData7($value)
+ * @method static Builder<static>|TestModel whereId($value)
+ * @method static Builder<static>|TestModel whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class TestModel extends Model implements HasMedia

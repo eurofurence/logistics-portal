@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Exception;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Maatwebsite\Excel\Concerns\WithTitle;
@@ -173,7 +174,7 @@ class SingleDepartmentSheet implements FromCollection, WithTitle, ShouldAutoSize
     {
         if ($this->data['image'] != null) {
             if (!$imageResource = @imagecreatefromstring(file_get_contents($this->data['image']))) {
-                throw new \Exception('The image URL cannot be converted into an image resource.');
+                throw new Exception('The image URL cannot be converted into an image resource.');
             }
 
             imagealphablending($imageResource, false);

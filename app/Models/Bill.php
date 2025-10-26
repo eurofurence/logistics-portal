@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
+use Illuminate\Database\Eloquent\Builder;
 use App\Models\User;
 use App\Models\Department;
 use App\Models\OrderEvent;
@@ -33,39 +36,39 @@ use Filament\Notifications\Notification as FilamentNotification;
  * @property int $order_event_id
  * @property int $added_by
  * @property int $edited_by
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read User|null $addedBy
  * @property-read Department|null $department
  * @property-read User|null $editedBy
  * @property-read OrderEvent|null $event
- * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read MediaCollection<int, Media> $media
  * @property-read int|null $media_count
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereAddedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereAdvancePaymentReceiver($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereAdvancePaymentValue($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereComment($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereCurrency($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereDepartmentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereEditedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereOrderEventId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereStatus($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereTitle($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereValue($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill withoutTrashed()
+ * @method static Builder<static>|Bill newModelQuery()
+ * @method static Builder<static>|Bill newQuery()
+ * @method static Builder<static>|Bill onlyTrashed()
+ * @method static Builder<static>|Bill query()
+ * @method static Builder<static>|Bill whereAddedBy($value)
+ * @method static Builder<static>|Bill whereAdvancePaymentReceiver($value)
+ * @method static Builder<static>|Bill whereAdvancePaymentValue($value)
+ * @method static Builder<static>|Bill whereComment($value)
+ * @method static Builder<static>|Bill whereCreatedAt($value)
+ * @method static Builder<static>|Bill whereCurrency($value)
+ * @method static Builder<static>|Bill whereDeletedAt($value)
+ * @method static Builder<static>|Bill whereDepartmentId($value)
+ * @method static Builder<static>|Bill whereDescription($value)
+ * @method static Builder<static>|Bill whereEditedBy($value)
+ * @method static Builder<static>|Bill whereId($value)
+ * @method static Builder<static>|Bill whereOrderEventId($value)
+ * @method static Builder<static>|Bill whereStatus($value)
+ * @method static Builder<static>|Bill whereTitle($value)
+ * @method static Builder<static>|Bill whereUpdatedAt($value)
+ * @method static Builder<static>|Bill whereValue($value)
+ * @method static Builder<static>|Bill withTrashed()
+ * @method static Builder<static>|Bill withoutTrashed()
  * @property string|null $repayment_method
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Bill whereRepaymentMethod($value)
+ * @method static Builder<static>|Bill whereRepaymentMethod($value)
  * @mixin \Eloquent
  */
 class Bill extends Model implements HasMedia

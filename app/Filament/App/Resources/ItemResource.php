@@ -2,20 +2,44 @@
 
 namespace App\Filament\App\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Fieldset;
+use App\Filament\App\Resources\ItemResource\Pages\CreateItem;
+use Illuminate\Support\Str;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Filters\Filter;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\Action;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\BulkAction;
+use Filament\Schemas\Components\Wizard\Step;
+use Filament\Schemas\Components\Utilities\Get;
+use Exception;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use App\Filament\App\Resources\ItemResource\Pages\ListItems;
+use App\Filament\App\Resources\ItemResource\Pages\EditItem;
+use App\Filament\App\Resources\ItemResource\Pages\ViewItem;
 use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\Item;
 use Filament\Tables;
 use App\Models\Storage;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
 use App\Models\BaseUnit;
-use Filament\Forms\Form;
 use App\Models\Department;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use App\Models\ItemsOperationSite;
-use Filament\Forms\Components\Tabs;
 use Filament\Tables\Grouping\Group;
 use Illuminate\Support\Facades\Log;
 use App\Models\InventorySubCategory;
@@ -27,22 +51,18 @@ use App\Exports\InventoryItemsExport;
 use App\View\Components\BarcodeInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Wizard\Step;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Forms\Components\CheckboxList;
@@ -51,14 +71,13 @@ use Filament\Forms\Components\DateTimePicker;
 use App\Actions\Inventory\OperationSiteActions;
 use App\Actions\Inventory\SubCategorySiteActions;
 use App\Filament\App\Resources\ItemResource\Pages;
-use Archilex\ToggleIconColumn\Columns\ToggleIconColumn;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class ItemResource extends Resource
 {
     protected static ?string $model = Item::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-list-bullet';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-list-bullet';
 
     protected static $export_column_options = array();
 
@@ -121,18 +140,18 @@ class ItemResource extends Resource
         return request()->route()->getName() === 'filament.app.resources.items.create';
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make()
                     ->schema([
                         Tabs::make('tabs')
                             ->tabs([
-                                Tabs\Tab::make(__('general.general'))
+                                Tab::make(__('general.general'))
                                     ->icon('heroicon-m-bars-3')
                                     ->schema([
-                                        Forms\Components\Grid::make([
+                                        Grid::make([
                                             'default' => 1,
                                             'sm' => 1,
                                             'md' => 2,
@@ -232,10 +251,10 @@ class ItemResource extends Resource
                                                     ->columnSpanFull(),
                                             ]),
                                     ]),
-                                Tabs\Tab::make(__('general.details'))
+                                Tab::make(__('general.details'))
                                     ->icon('heroicon-o-magnifying-glass-circle')
                                     ->schema([
-                                        Forms\Components\Grid::make([
+                                        Grid::make([
                                             'default' => 1,
                                             'sm' => 1,
                                             'md' => 2,
@@ -297,7 +316,7 @@ class ItemResource extends Resource
 
                                         ]),
                                     ]),
-                                Tabs\Tab::make('storage_and_locations')
+                                Tab::make('storage_and_locations')
                                     ->icon('heroicon-o-building-storefront')
                                     ->label(__('general.storage') . '/' . __('general.locations'))
                                     ->schema([
@@ -347,7 +366,7 @@ class ItemResource extends Resource
                                                 }
                                             }),
                                     ]),
-                                Tabs\Tab::make(__('general.more') . '/' . __('general.note'))
+                                Tab::make(__('general.more') . '/' . __('general.note'))
                                     ->icon('heroicon-o-ellipsis-horizontal-circle')
                                     ->schema([
                                         Fieldset::make('note')
@@ -400,9 +419,9 @@ class ItemResource extends Resource
                                                     ->label(__('general.updated_at'))
                                                     ->content(fn(Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
                                             ])
-                                            ->hiddenOn(Pages\CreateItem::class)
+                                            ->hiddenOn(CreateItem::class)
                                     ]),
-                                Tabs\Tab::make(__('general.files'))
+                                Tab::make(__('general.files'))
                                     ->icon('heroicon-o-document')
                                     ->schema([
                                         SpatieMediaLibraryFileUpload::make('files')
@@ -417,18 +436,18 @@ class ItemResource extends Resource
                                             ->previewable()
                                             ->visibility('private'),
                                     ]),
-                                Tabs\Tab::make(__('general.qr_code'))
+                                Tab::make(__('general.qr_code'))
                                     ->icon('heroicon-o-qr-code')
                                     ->schema([
                                         Tabs::make('Tabs')
                                             ->tabs([
-                                                Tabs\Tab::make('generate_code')
+                                                Tab::make('generate_code')
                                                     ->schema([
                                                         Placeholder::make('WIP')
                                                     ])
                                                     ->label(__('general.generate'))
                                                     ->icon('heroicon-o-plus-circle'),
-                                                Tabs\Tab::make('link_code')
+                                                Tab::make('link_code')
                                                     ->schema([
                                                         Placeholder::make('WIP')
                                                     ])
@@ -437,7 +456,7 @@ class ItemResource extends Resource
                                                     ->icon('heroicon-o-link')
                                             ])
                                     ]),
-                                Tabs\Tab::make(__('general.custom_fields'))
+                                Tab::make(__('general.custom_fields'))
                                     ->icon('heroicon-o-table-cells')
                                     ->schema([
                                         KeyValue::make('custom_fields')
@@ -491,7 +510,7 @@ class ItemResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->label(__('general.name'))
-                    ->formatStateUsing(fn(string $state) => \Illuminate\Support\Str::limit($state, 40, '...'))
+                    ->formatStateUsing(fn(string $state) => Str::limit($state, 40, '...'))
                     ->description(function ($record): string {
                         $flags = array_filter([
                             $record->dangerous_good ? __('general.dangerous_good') : null,
@@ -524,6 +543,7 @@ class ItemResource extends Resource
                     ->searchable()
                     ->label(__('general.storage'))
                     ->toggleable(),
+                    /*
                 ToggleIconColumn::make('sorted_out')
                     ->sortable()
                     ->toggleable(true, true)
@@ -538,7 +558,8 @@ class ItemResource extends Resource
                     ->searchable()
                     ->toggleable(true, true)
                     ->label(__('general.serialnumber')),
-                /*
+                    */
+                    /*
                 ToggleIconColumn::make('borrowed_item')
                     ->sortable()
                     ->toggleable(true, true)
@@ -570,14 +591,14 @@ class ItemResource extends Resource
                     ->searchable(),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make()
+                TrashedFilter::make()
                     ->visible(fn(Item $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
-                Tables\Filters\Filter::make('created_at')
-                    ->form([
-                        Forms\Components\DatePicker::make('created_from')
+                Filter::make('created_at')
+                    ->schema([
+                        DatePicker::make('created_from')
                             ->label(__('general.created_from'))
                             ->placeholder(fn($state): string => 'Dec 18, ' . now()->subYear()->format('Y')),
-                        Forms\Components\DatePicker::make('created_until')
+                        DatePicker::make('created_until')
                             ->label(__('general.created_until'))
                             ->placeholder(fn($state): string => now()->format('M d, Y')),
                     ])
@@ -603,12 +624,12 @@ class ItemResource extends Resource
 
                         return $indicators;
                     }),
-                Tables\Filters\Filter::make('due_date')
-                    ->form([
-                        Forms\Components\DatePicker::make('due_date_from')
+                Filter::make('due_date')
+                    ->schema([
+                        DatePicker::make('due_date_from')
                             ->label(__('general.due_date_from'))
                             ->placeholder(fn($state): string => 'Dec 18, ' . now()->subYear()->format('Y')),
-                        Forms\Components\DatePicker::make('due_date_until')
+                        DatePicker::make('due_date_until')
                             ->label(__('general.due_date_until'))
                             ->placeholder(fn($state): string => now()->format('M d, Y')),
                     ])
@@ -740,27 +761,27 @@ class ItemResource extends Resource
                     })
             ])
             ->filtersFormColumns(3)
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
-                    Tables\Actions\Action::make('show_storage_location_action')
+                    Action::make('show_storage_location_action')
                         ->url(function (Model $record) {
                             return route('filament.app.resources.storages.view', $record->storage);
                         }, true)
                         ->visible(fn(Model $record) => (!empty($record->storage) && Gate::allows('view-Storage', $record->storage) && Storage::where('id', $record->storage)->exists()))
                         ->icon('heroicon-o-arrow-top-right-on-square')
                         ->label(__('general.open_storage')),
-                    Tables\Actions\ViewAction::make(),
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make()
+                    ViewAction::make(),
+                    EditAction::make(),
+                    DeleteAction::make()
                         ->modalHeading(function ($record): string {
                             return __('general.delete') . ': ' . $record->name;
                         }),
-                    Tables\Actions\RestoreAction::make(),
-                    Tables\Actions\ForceDeleteAction::make(),
+                    RestoreAction::make(),
+                    ForceDeleteAction::make(),
                 ])
             ])
-            ->bulkActions([
-                Tables\Actions\BulkAction::make('export_selected')
+            ->toolbarActions([
+                BulkAction::make('export_selected')
                     ->label(__('general.export'))
                     ->color('primary')
                     ->icon('heroicon-o-printer')
@@ -963,7 +984,7 @@ class ItemResource extends Resource
                             $exportFormat = $fileType === 'pdf' ? \Maatwebsite\Excel\Excel::MPDF : \Maatwebsite\Excel\Excel::XLSX;
 
                             return Excel::download(new $exportClass(...$config['params']), $filename, $exportFormat);
-                        } catch (\Exception $e) {
+                        } catch (Exception $e) {
                             Notification::make()
                                 ->body($e->getMessage() . ' - ' . __('general.reload_required'))
                                 ->title(__('general.error'))
@@ -973,12 +994,12 @@ class ItemResource extends Resource
                             Log::error('Error: ' . $e->getMessage() . ' - Code: ' . $e->getCode() . ' - File: ' . $e->getFile() . ' - Line: ' . $e->getLine());
                         }
                     }),
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->visible(Gate::check('bulkDelete', Item::class)),
-                    Tables\Actions\RestoreBulkAction::make()
+                    RestoreBulkAction::make()
                         ->visible(Gate::check('bulkRestore', Item::class)),
-                    Tables\Actions\BulkAction::make('setWillBeBroughtToNextEvent')
+                    BulkAction::make('setWillBeBroughtToNextEvent')
                         ->label(__('general.will_be_brought_along'))
                         ->action(function (Collection $records) {
                             $records->each->update(['will_be_brought_to_next_event' => true]);
@@ -989,7 +1010,7 @@ class ItemResource extends Resource
                                 ->send();
                         })
                         ->icon('heroicon-o-check-circle'),
-                    Tables\Actions\BulkAction::make('unsetWillBeBroughtToNextEvent')
+                    BulkAction::make('unsetWillBeBroughtToNextEvent')
                         ->label(__('general.will_not_be_brought_along'))
                         ->action(function (Collection $records) {
                             $records->each->update(['will_be_brought_to_next_event' => false]);
@@ -1056,10 +1077,10 @@ class ItemResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListItems::route('/'),
-            'create' => Pages\CreateItem::route('/create'),
-            'edit' => Pages\EditItem::route('/{record}/edit'),
-            'view' => Pages\ViewItem::route('/{record}'),
+            'index' => ListItems::route('/'),
+            'create' => CreateItem::route('/create'),
+            'edit' => EditItem::route('/{record}/edit'),
+            'view' => ViewItem::route('/{record}'),
         ];
     }
 }

@@ -4,13 +4,13 @@ namespace App\Providers;
 
 use App\Models\Bill;
 use App\Models\Order;
+use App\Observers\BillObserver;
 use App\Observers\OrderObserver;
 use App\Services\AsinDataService;
 use Spatie\Health\Facades\Health;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\URL;
 use App\Http\Responses\LogoutResponse;
-use App\Observers\BillObserver;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Cache\RateLimiting\Limit;
 use Laravel\Socialite\Contracts\Factory;
@@ -23,16 +23,15 @@ use Spatie\Health\Checks\Checks\QueueCheck;
 use Spatie\Health\Checks\Checks\RedisCheck;
 use Spatie\Health\Checks\Checks\HorizonCheck;
 use Spatie\Health\Checks\Checks\ScheduleCheck;
+use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Spatie\Health\Checks\Checks\DebugModeCheck;
 use Spatie\Health\Checks\Checks\EnvironmentCheck;
 use Spatie\Health\Checks\Checks\DatabaseSizeCheck;
-use Spatie\Health\Checks\Checks\UsedDiskSpaceCheck;
 //use Spatie\SecurityAdvisoriesHealthCheck\SecurityAdvisoriesCheck;
+use Spatie\Health\Checks\Checks\UsedDiskSpaceCheck;
 use App\Providers\Socialite\SocialiteIdentityProvider;
-use BezhanSalleh\FilamentLanguageSwitch\LanguageSwitch;
 use Spatie\Health\Checks\Checks\DatabaseConnectionCountCheck;
 use Spatie\SecurityAdvisoriesHealthCheck\SecurityAdvisoriesCheck;
-use Filament\Http\Responses\Auth\Contracts\LogoutResponse as LogoutResponseContract;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -41,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(LogoutResponseContract::class, LogoutResponse::class);
+        $this->app->bind(\Filament\Auth\Http\Responses\Contracts\LogoutResponse::class, LogoutResponse::class);
     }
 
     /**

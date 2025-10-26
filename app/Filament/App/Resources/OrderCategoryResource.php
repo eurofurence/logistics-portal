@@ -2,15 +2,29 @@
 
 namespace App\Filament\App\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ViewAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use App\Filament\App\Resources\OrderCategoryResource\Pages\ListOrderCategories;
+use App\Filament\App\Resources\OrderCategoryResource\Pages\CreateOrderCategory;
+use App\Filament\App\Resources\OrderCategoryResource\Pages\EditOrderCategory;
+use App\Filament\App\Resources\OrderCategoryResource\Pages\ViewOrderCategory;
 use Filament\Tables;
-use Filament\Forms\Form;
 use App\Models\Department;
 use Filament\Tables\Table;
 use App\Models\OrderCategory;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Section;
 use Filament\Support\Enums\FontWeight;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
@@ -23,7 +37,7 @@ class OrderCategoryResource extends Resource
 {
     protected static ?string $model = OrderCategory::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-table-cells';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-table-cells';
 
     public static function getNavigationGroup(): string
     {
@@ -57,10 +71,10 @@ class OrderCategoryResource extends Resource
         return ['name'];
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make(__('general.informations'))
                     ->schema([
                         TextInput::make('name')
@@ -95,26 +109,26 @@ class OrderCategoryResource extends Resource
                     ->toggleable(true, true),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make()
+                TrashedFilter::make()
                     ->visible(fn(OrderCategory $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
             ])
-            ->actions([
-                Tables\Actions\RestoreAction::make(),
-                Tables\Actions\ForceDeleteAction::make(),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
+            ->recordActions([
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
+                EditAction::make(),
+                DeleteAction::make()
                     ->modalHeading(function ($record): string {
                         return __('general.delete') . ': ' . $record->name;
                     }),
-                Tables\Actions\ViewAction::make(),
+                ViewAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->visible(fn(OrderCategory $record): bool => Gate::allows('bulk-delete', $record)),
-                    Tables\Actions\RestoreBulkAction::make()
+                    RestoreBulkAction::make()
                         ->visible(fn(OrderCategory $record): bool => Gate::allows('bulk-restore-OrderCategory', $record)),
-                    Tables\Actions\ForceDeleteBulkAction::make()
+                    ForceDeleteBulkAction::make()
                         ->visible(fn(OrderCategory $record): bool => Gate::allows('bulk-force-delete-OrderCategory', $record))
                 ]),
             ]);
@@ -123,10 +137,10 @@ class OrderCategoryResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListOrderCategories::route('/'),
-            'create' => Pages\CreateOrderCategory::route('/create'),
-            'edit' => Pages\EditOrderCategory::route('/{record}/edit'),
-            'view' => Pages\ViewOrderCategory::route('/{record}'),
+            'index' => ListOrderCategories::route('/'),
+            'create' => CreateOrderCategory::route('/create'),
+            'edit' => EditOrderCategory::route('/{record}/edit'),
+            'view' => ViewOrderCategory::route('/{record}'),
         ];
     }
 }

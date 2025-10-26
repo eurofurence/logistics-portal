@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use App\Models\Whitelist;
 use Illuminate\Console\Command;
 
@@ -37,7 +38,7 @@ class AddToWhitelist extends Command
 
             $this->info("Email {$email} has been added to the whitelist.");
             return Command::SUCCESS;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->error('An error occurred: ' . $e->getMessage());
             return Command::FAILURE;
         }

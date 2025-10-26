@@ -2,13 +2,40 @@
 
 namespace App\Filament\App\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Section;
+use App\Filament\App\Resources\OrderResource\Pages\CreateOrder;
+use Illuminate\Support\Str;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\DatePicker;
+use Filament\Actions\Action;
+use Filament\Support\Enums\Size;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ViewAction;
+use Filament\Actions\BulkAction;
+use Filament\Schemas\Components\Wizard\Step;
+use Exception;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use App\Filament\App\Resources\OrderResource\Pages\ListOrders;
+use App\Filament\App\Resources\OrderResource\Pages\EditOrder;
+use App\Filament\App\Resources\OrderResource\Pages\ViewOrder;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
 use App\Models\Order;
-use Filament\Forms\Get;
-use Filament\Forms\Set;
-use Filament\Forms\Form;
 use App\Models\Department;
 use App\Models\OrderEvent;
 use Filament\Tables\Table;
@@ -19,8 +46,6 @@ use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
 use App\Forms\Components\Timeline;
 use Filament\Support\Colors\Color;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Tabs;
 use Filament\Tables\Grouping\Group;
 use Illuminate\Support\Facades\Log;
 use App\Exports\OrderStandardExport;
@@ -30,31 +55,23 @@ use Illuminate\Support\Facades\Gate;
 use Maatwebsite\Excel\Facades\Excel;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Section;
-use Filament\Support\Enums\ActionSize;
 use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
-use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Wizard\Step;
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Forms\Components\CheckboxList;
-use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextInputColumn;
 use Illuminate\Database\Eloquent\Collection;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Tables\Actions\Action as TableAction;
 use App\Filament\App\Resources\OrderResource\Pages;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use App\Models\StatusHistory;
@@ -63,7 +80,7 @@ class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-shopping-cart';
 
     protected static $export_column_options = array();
 
@@ -141,13 +158,13 @@ class OrderResource extends Resource
         return request()->route()->getName() === 'filament.app.resources.orders.view';
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Tabs::make('tabs')
                     ->tabs([
-                        Tabs\Tab::make(__('general.general'))
+                        Tab::make(__('general.general'))
                             ->icon('heroicon-m-bars-3')
                             ->schema([
                                 Grid::make([
@@ -371,7 +388,7 @@ class OrderResource extends Resource
                                             ])
                                     ]),
                             ]),
-                        Tabs\Tab::make(__('general.status'))
+                        Tab::make(__('general.status'))
                             ->icon('heroicon-o-cog-6-tooth')
                             ->schema([
                                 Select::make('status')
@@ -395,7 +412,7 @@ class OrderResource extends Resource
                                         Timeline::make('status_timeline')
                                     ]),
                             ])->visible(Auth::user()->can('can-change-order-status')),
-                        Tabs\Tab::make(__('general.files'))
+                        Tab::make(__('general.files'))
                             ->icon('heroicon-o-document')
                             ->schema([
                                 SpatieMediaLibraryFileUpload::make('files')
@@ -410,7 +427,7 @@ class OrderResource extends Resource
                                     ->visibility('private')
                                     ->disabled(!Auth::user()->can('can-edit-order-files')),
                             ])->visible(Auth::user()->can('can-see-order-files-tab')),
-                        Tabs\Tab::make(__('general.more'))
+                        Tab::make(__('general.more'))
                             ->icon('heroicon-o-ellipsis-horizontal-circle')
                             ->schema([
                                 Fieldset::make('delivery')
@@ -562,9 +579,9 @@ class OrderResource extends Resource
                                                 return '---';
                                             }),
                                     ])
-                                    ->hiddenOn(Pages\CreateOrder::class)
+                                    ->hiddenOn(CreateOrder::class)
                             ]),
-                        Tabs\Tab::make(__('general.relationships'))
+                        Tab::make(__('general.relationships'))
                             ->icon('heroicon-o-link')
                             ->schema([
                                 Select::make('order_article_id')
@@ -641,7 +658,7 @@ class OrderResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->label(__('general.name'))
-                    ->formatStateUsing(fn(string $state) => \Illuminate\Support\Str::limit($state, 40, '...'))
+                    ->formatStateUsing(fn(string $state) => Str::limit($state, 40, '...'))
                     ->description(function ($record): string {
                         $flags = array_filter([
                             $record->instant_delivery ? __('general.instant_delivery') : null,
@@ -828,14 +845,14 @@ class OrderResource extends Resource
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make()
+                TrashedFilter::make()
                     ->visible(fn(Order $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
-                Tables\Filters\Filter::make('created_at')
-                    ->form([
-                        Forms\Components\DatePicker::make('created_from')
+                Filter::make('created_at')
+                    ->schema([
+                        DatePicker::make('created_from')
                             ->label(__('general.created_from'))
                             ->placeholder(fn($state): string => 'Dec 18, ' . now()->subYear()->format('Y')),
-                        Forms\Components\DatePicker::make('created_until')
+                        DatePicker::make('created_until')
                             ->label(__('general.created_until'))
                             ->placeholder(fn($state): string => now()->format('M d, Y')),
                     ])
@@ -991,8 +1008,8 @@ class OrderResource extends Resource
                     }),
             ], layout: FiltersLayout::Modal)
             ->filtersFormColumns(3)
-            ->actions([
-                TableAction::make('approve')
+            ->recordActions([
+                Action::make('approve')
                     ->label(__('general.approve'))
                     ->action(function (Model $record): void {
                         if ($record->approve() == true) {
@@ -1005,14 +1022,14 @@ class OrderResource extends Resource
                         }
                     })
                     ->icon('heroicon-o-check')
-                    ->size(ActionSize::ExtraLarge)
+                    ->size(Size::ExtraLarge)
                     ->requiresConfirmation()
                     ->color(Color::Green)
                     ->modalHeading(__('general.approve_order'))
                     ->modalIcon('heroicon-o-check')
                     ->modalDescription(__('general.approve_order_description'))
                     ->visible(fn(Model $record): bool => $record->canBeApproved()),
-                TableAction::make('decline')
+                Action::make('decline')
                     ->label('')
                     ->action(function (Model $record): void {
                         if ($record->decline() == true) {
@@ -1027,7 +1044,7 @@ class OrderResource extends Resource
                         };
                     })
                     ->icon('heroicon-o-x-mark')
-                    ->size(ActionSize::ExtraLarge)
+                    ->size(Size::ExtraLarge)
                     ->color(Color::Red)
                     ->requiresConfirmation()
                     ->modalHeading(__('general.decline_order'))
@@ -1035,7 +1052,7 @@ class OrderResource extends Resource
                     ->visible(fn(Model $record): bool => $record->canBeDeclined()),
                 ActionGroup::make([
                     ActionGroup::make([
-                        Tables\Actions\EditAction::make()
+                        EditAction::make()
                             ->visible(function (Model $record): bool {
                                 if (!empty($record->deleted_at)) {
                                     return false;
@@ -1043,18 +1060,18 @@ class OrderResource extends Resource
 
                                 return true;
                             }),
-                        Tables\Actions\DeleteAction::make()
+                        DeleteAction::make()
                             ->modalHeading(function ($record): string {
                                 return __('general.delete') . ': ' . $record->name;
                             }),
-                        Tables\Actions\RestoreAction::make()
+                        RestoreAction::make()
                             ->visible(function (Model $record) {
                                 if ($record->status == 'locked') {
                                     return false;
                                 }
                             }),
-                        Tables\Actions\ForceDeleteAction::make(),
-                        Tables\Actions\ViewAction::make()
+                        ForceDeleteAction::make(),
+                        ViewAction::make()
                             ->visible(function (Model $record): bool {
                                 if (!empty($record->deleted_at)) {
                                     return false;
@@ -1064,13 +1081,13 @@ class OrderResource extends Resource
                             }),
                     ])->dropdown(false),
                     ActionGroup::make([
-                        TableAction::make('set_status')
+                        Action::make('set_status')
                             ->label(__('general.set_status'))
                             ->action(function (Model $record, array $data): void {
                                 $record->update(['status' => $data['status']]);
                             })
                             ->icon('heroicon-o-ellipsis-horizontal-circle')
-                            ->form([
+                            ->schema([
                                 Select::make('status')
                                     ->label(__('general.status'))
                                     ->options([
@@ -1095,13 +1112,13 @@ class OrderResource extends Resource
                             }),
                     ])->dropdown(false),
                     ActionGroup::make([
-                        TableAction::make('user_note')
+                        Action::make('user_note')
                             ->label(__('general.user_note'))
                             ->action(function (Model $record, array $data): void {
                                 $record->update(['user_note' => $data['note']]);
                             })
                             ->icon('heroicon-o-pencil')
-                            ->form([
+                            ->schema([
                                 Textarea::make('note')
                                     ->label(fn(Model $record) => __('general.user_note') . ' - ' . $record->name)
                                     ->default(fn(Model $record) => $record->user_note)
@@ -1110,14 +1127,14 @@ class OrderResource extends Resource
                             ->visible(fn(Model $record) => Gate::allows('view', $record)),
                     ])->dropdown(false),
                     ActionGroup::make([
-                        TableAction::make('article_directory_link')
+                        Action::make('article_directory_link')
                             ->url(function (Model $record) {
                                 return route('filament.app.resources.order-articles.view', $record->order_article_id);
                             }, true)
                             ->visible(fn(Model $record) => (!empty($record->order_article_id) && Gate::allows('view-OrderArticle', $record->order_article_id) && OrderArticle::where('id', $record->order_article_id)->exists()))
                             ->icon('heroicon-o-arrow-top-right-on-square')
                             ->label(__('general.article_directory')),
-                        TableAction::make('order_request_link')
+                        Action::make('order_request_link')
                             ->url(function (Model $record) {
                                 return route('filament.app.resources.order-requests.view', $record->order_request_id);
                             }, true)
@@ -1127,7 +1144,7 @@ class OrderResource extends Resource
                     ])->dropdown(false)
                 ])
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 BulkAction::make('export_selected')
                     ->label(__('general.export'))
                     ->icon('heroicon-o-printer')
@@ -1321,7 +1338,7 @@ class OrderResource extends Resource
                             $exportFormat = $fileType === 'pdf' ? \Maatwebsite\Excel\Excel::MPDF : \Maatwebsite\Excel\Excel::XLSX;
 
                             return Excel::download(new $exportClass(...$config['params']), $filename, $exportFormat);
-                        } catch (\Exception $e) {
+                        } catch (Exception $e) {
                             Notification::make()
                                 ->body($e->getMessage() . ' - ' . __('general.reload_required'))
                                 ->title(__('general.error'))
@@ -1332,9 +1349,9 @@ class OrderResource extends Resource
                         }
                     }),
                 BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+                    DeleteBulkAction::make()
                         ->visible(fn(Order $record): bool => Gate::allows('bulkDelete', [Auth::user(), $record])),
-                    Tables\Actions\RestoreBulkAction::make()
+                    RestoreBulkAction::make()
                         ->visible(fn(Order $record): bool => Gate::allows('bulkRestore', [Auth::user(), $record])),
                     BulkAction::make('set_status')
                         ->label(__('general.set_status'))
@@ -1509,7 +1526,7 @@ class OrderResource extends Resource
                 ]),
             ])
             ->headerActions([
-                Tables\Actions\Action::make('statusDescriptions')
+                Action::make('statusDescriptions')
                     ->label(__('general.status_descriptions_title'))
                     ->action(function () {
                         // This action opens up the modal
@@ -1557,10 +1574,10 @@ class OrderResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListOrders::route('/'),
-            'create' => Pages\CreateOrder::route('/create'),
-            'edit' => Pages\EditOrder::route('/{record}/edit'),
-            'view' => Pages\ViewOrder::route('/{record}')
+            'index' => ListOrders::route('/'),
+            'create' => CreateOrder::route('/create'),
+            'edit' => EditOrder::route('/{record}/edit'),
+            'view' => ViewOrder::route('/{record}')
         ];
     }
 }

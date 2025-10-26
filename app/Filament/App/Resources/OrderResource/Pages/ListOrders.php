@@ -2,8 +2,9 @@
 
 namespace App\Filament\App\Resources\OrderResource\Pages;
 
+use Filament\Actions\CreateAction;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Actions;
-use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\App\Resources\OrderResource;
@@ -19,7 +20,7 @@ class ListOrders extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()
+            CreateAction::make()
                 ->icon('heroicon-o-plus-circle'),
         ];
     }

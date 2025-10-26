@@ -2,15 +2,27 @@
 
 namespace App\Filament\App\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Exception;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use App\Filament\App\Resources\OrderEventResource\Pages\ListOrderEvents;
+use App\Filament\App\Resources\OrderEventResource\Pages\CreateOrderEvent;
+use App\Filament\App\Resources\OrderEventResource\Pages\EditOrderEvent;
 use Carbon\Carbon;
 use Filament\Tables;
-use Filament\Forms\Form;
 use App\Models\OrderEvent;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
@@ -24,7 +36,7 @@ class OrderEventResource extends Resource
 {
     protected static ?string $model = OrderEvent::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-ticket';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-ticket';
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -69,10 +81,10 @@ class OrderEventResource extends Resource
         ];
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make(__('general.informations'))
                     ->schema([
                         TextInput::make('name')
@@ -117,6 +129,16 @@ class OrderEventResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->label(__('general.name')),
+                #TODO
+                    /*
+                IconColumn::make('status')
+    ->icon(fn (string $state): Heroicon => match ($state) {
+        'draft' => Heroicon::OutlinedPencil,
+        'reviewing' => Heroicon::OutlinedClock,
+        'published' => Heroicon::OutlinedCheckCircle,
+    })
+        */
+    /*
                 ToggleIconColumn::make('locked')
                     ->sortable()
                     ->toggleable(true)
@@ -125,6 +147,7 @@ class OrderEventResource extends Resource
                     ->sortable()
                     ->toggleable(true)
                     ->label(__('general.is_active')),
+                    */
                 TextColumn::make('order_deadline')
                     ->sortable()
                     ->searchable()
@@ -138,15 +161,15 @@ class OrderEventResource extends Resource
 
                         try {
                             return Carbon::parse($state)->setTimezone('Europe/Berlin')->format('d.m.Y H:i');
-                        } catch (\Exception $e) {
+                        } catch (Exception $e) {
                             return __('general.not_set');
                         }
                     }),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make()
+                TrashedFilter::make()
                     ->visible(fn(OrderEvent $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
-                Tables\Filters\SelectFilter::make('locked')
+                SelectFilter::make('locked')
                     ->options([
                         '0' => __('general.unlocked'),
                         '1' => __('general.locked'),
@@ -154,19 +177,19 @@ class OrderEventResource extends Resource
                 TernaryFilter::make('is_active')
                     ->label(__('general.is_active'))
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make()
                     ->modalHeading(function ($record): string {
                         return __('general.delete') . ': ' . $record->name;
                     }),
-                Tables\Actions\RestoreAction::make(),
+                RestoreAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->visible(Gate::check('bulkDelete', OrderEvent::class)),
-                    Tables\Actions\RestoreBulkAction::make()
+                    RestoreBulkAction::make()
                         ->visible(Gate::check('bulkRestore', OrderEvent::class)),
                 ]),
             ]);
@@ -182,9 +205,9 @@ class OrderEventResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListOrderEvents::route('/'),
-            'create' => Pages\CreateOrderEvent::route('/create'),
-            'edit' => Pages\EditOrderEvent::route('/{record}/edit'),
+            'index' => ListOrderEvents::route('/'),
+            'create' => CreateOrderEvent::route('/create'),
+            'edit' => EditOrderEvent::route('/{record}/edit'),
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources\StorageResource\Pages;
 
+use Filament\Actions\EditAction;
 use Filament\Actions;
 use App\Filament\App\Resources\StorageResource;
 use Filament\Resources\Pages\ViewRecord;
@@ -14,7 +15,7 @@ class ViewStorage extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\EditAction::make()
+            EditAction::make()
             ->icon('heroicon-o-pencil'),
         ];
     }

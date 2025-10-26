@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,20 +13,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property int $department_id
  * @property int $user_id
  * @property int|null $role_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Department $department
- * @property-read \App\Models\Role|null $role
- * @property-read \App\Models\User $user
- * @method static \Illuminate\Database\Eloquent\Builder<static>|DepartmentMember newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|DepartmentMember newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|DepartmentMember query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|DepartmentMember whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|DepartmentMember whereDepartmentId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|DepartmentMember whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|DepartmentMember whereRoleId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|DepartmentMember whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|DepartmentMember whereUserId($value)
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Department $department
+ * @property-read Role|null $role
+ * @property-read User $user
+ * @method static Builder<static>|DepartmentMember newModelQuery()
+ * @method static Builder<static>|DepartmentMember newQuery()
+ * @method static Builder<static>|DepartmentMember query()
+ * @method static Builder<static>|DepartmentMember whereCreatedAt($value)
+ * @method static Builder<static>|DepartmentMember whereDepartmentId($value)
+ * @method static Builder<static>|DepartmentMember whereId($value)
+ * @method static Builder<static>|DepartmentMember whereRoleId($value)
+ * @method static Builder<static>|DepartmentMember whereUpdatedAt($value)
+ * @method static Builder<static>|DepartmentMember whereUserId($value)
  * @mixin \Eloquent
  */
 class DepartmentMember extends Model

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Exception;
 use Closure;
 use App\Models\Whitelist;
 use Illuminate\Http\Request;
@@ -14,14 +15,14 @@ class CheckWhitelist
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param Closure(Request):Response $next
      */
     public function handle(Request $request, Closure $next): Response
     {
         try {
             // Try to retrieve the whitelist_active property
             $whitelistActive = app(LoginSettings::class)->whitelist_active;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Set default value if an error occurs
             $whitelistActive = true;
         }

@@ -2,27 +2,36 @@
 
 namespace App\Filament\Admin\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use App\Filament\Admin\Resources\IdpRankSyncResource\Pages\ListIdpRankSyncs;
+use App\Filament\Admin\Resources\IdpRankSyncResource\Pages\CreateIdpRankSync;
+use App\Filament\Admin\Resources\IdpRankSyncResource\Pages\EditIdpRankSync;
+use App\Filament\Admin\Resources\IdpRankSyncResource\Pages\ViewIdpRankSync;
 use App\Models\Role;
 use Filament\Tables;
-use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\IdpRankSync;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Section;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\TrashedFilter;
-use Archilex\ToggleIconColumn\Columns\ToggleIconColumn;
 use App\Filament\Admin\Resources\IdpRankSyncResource\Pages;
 
 class IdpRankSyncResource extends Resource
 {
     protected static ?string $model = IdpRankSync::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-arrow-path';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-arrow-path';
 
     public static function getNavigationGroup(): string
     {
@@ -46,10 +55,10 @@ class IdpRankSyncResource extends Resource
         return __('general.idp_rank_syncs');
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make()
                     ->schema([
                         TextInput::make('name')
@@ -89,25 +98,34 @@ class IdpRankSyncResource extends Resource
                     ->label(__('general.local_role')),
                 TextColumn::make('idp_group')
                     ->label(__('general.idp_group')),
-                ToggleIconColumn::make('active')
+                #TODO
+                    /*
+                IconColumn::make('active')
                     ->label(__('general.is_active'))
-                    ->toggleable(true),
+                    ->sortable()
+                    ->boolean()
+    ->icon(fn (string $state): Heroicon => match ($state) {
+        'draft' => Heroicon::OutlinedPencil,
+        'reviewing' => Heroicon::OutlinedClock,
+        'published' => Heroicon::OutlinedCheckCircle,
+    })
+        */
             ])
             ->filters([
                 TrashedFilter::make()
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make()
                     ->modalHeading(function ($record): string {
                         return __('general.delete') . ': ' . $record->name;
                     })
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->visible(Gate::check('bulkDelete', IdpRankSync::class)),
-                    Tables\Actions\RestoreBulkAction::make()
+                    RestoreBulkAction::make()
                         ->visible(Gate::check('bulkRestore', IdpRankSync::class)),
                 ]),
             ]);
@@ -123,10 +141,10 @@ class IdpRankSyncResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListIdpRankSyncs::route('/'),
-            'create' => Pages\CreateIdpRankSync::route('/create'),
-            'edit' => Pages\EditIdpRankSync::route('/{record}/edit'),
-            'view' => Pages\ViewIdpRankSync::route('/{record}'),
+            'index' => ListIdpRankSyncs::route('/'),
+            'create' => CreateIdpRankSync::route('/create'),
+            'edit' => EditIdpRankSync::route('/{record}/edit'),
+            'view' => ViewIdpRankSync::route('/{record}'),
         ];
     }
 }

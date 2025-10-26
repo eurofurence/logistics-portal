@@ -14,7 +14,6 @@ use Filament\Forms\Components\Textarea;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Notifications\Actions\Action as NotificationAction;
 
 class HeaderOrderAction
 {
@@ -25,7 +24,7 @@ class HeaderOrderAction
                 return __('general.make_order') . ': ' . Str::limit($record->name, 25, '...');
             })
             ->icon('heroicon-o-shopping-bag')
-            ->form([
+            ->schema([
                 TextInput::make('quantity')
                     ->label(__('general.quantity'))
                     ->numeric()
@@ -115,7 +114,7 @@ class HeaderOrderAction
                             ->body(__('general.go_to_orders_for_overview'))
                             ->success()
                             ->actions([
-                                NotificationAction::make('view')
+                                Action::make('view')
                                     ->button()
                                     ->label(__('general.overview'))
                                     ->url(route('filament.app.resources.orders.index'), true)
@@ -131,7 +130,7 @@ class HeaderOrderAction
                                 ->body(__('general.added_to_existing_order'))
                                 ->success()
                                 ->actions([
-                                    NotificationAction::make('view')
+                                    Action::make('view')
                                         ->button()
                                         ->label(__('general.overview'))
                                         ->url(route('filament.app.resources.orders.index'), true)

@@ -2,10 +2,10 @@
 
 namespace App\Listeners;
 
+use Filament\Actions\Action;
 use App\Events\BillStatusChanged;
 use Illuminate\Queue\InteractsWithQueue;
 use App\Notifications\GeneralNotification;
-use Filament\Notifications\Actions\Action;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Notification;
 use Filament\Notifications\Notification as FilamentNotification;

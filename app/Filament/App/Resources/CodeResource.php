@@ -2,11 +2,16 @@
 
 namespace App\Filament\App\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Actions\EditAction;
+use Filament\Actions\BulkActionGroup;
+use App\Filament\App\Resources\CodeResource\Pages\ListCodes;
+use App\Filament\App\Resources\CodeResource\Pages\CreateCode;
+use App\Filament\App\Resources\CodeResource\Pages\EditCode;
 use App\Filament\App\Resources\CodeResource\Pages;
 use App\Filament\App\Resources\CodeResource\RelationManagers;
 use App\Models\Code;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -17,7 +22,7 @@ class CodeResource extends Resource
 {
     protected static ?string $model = Code::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-qr-code';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-qr-code';
 
     public static function getNavigationGroup(): string
     {
@@ -26,10 +31,10 @@ class CodeResource extends Resource
         return static::$navigationGroup;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 //
             ]);
     }
@@ -43,11 +48,11 @@ class CodeResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
+            ->recordActions([
+                EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+            ->toolbarActions([
+                BulkActionGroup::make([
                     //Tables\Actions\DeleteBulkAction::make(), #TODO: Permissions
                 ]),
             ]);
@@ -63,9 +68,9 @@ class CodeResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCodes::route('/'),
-            'create' => Pages\CreateCode::route('/create'),
-            'edit' => Pages\EditCode::route('/{record}/edit'),
+            'index' => ListCodes::route('/'),
+            'create' => CreateCode::route('/create'),
+            'edit' => EditCode::route('/{record}/edit'),
         ];
     }
 }

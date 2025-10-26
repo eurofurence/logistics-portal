@@ -2,16 +2,15 @@
 
 namespace App\Filament\Pages\Auth;
 
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Actions\Action;
-use Filament\Pages\Auth\Login as BaseLogin;
 
-class Login extends BaseLogin
+class Login extends \Filament\Auth\Pages\Login
 {
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
 
             ]);
 

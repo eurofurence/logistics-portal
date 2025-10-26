@@ -2,14 +2,22 @@
 
 namespace App\Filament\Admin\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use App\Filament\Admin\Resources\WhitelistResource\Pages\ListWhitelists;
+use App\Filament\Admin\Resources\WhitelistResource\Pages\CreateWhitelist;
+use App\Filament\Admin\Resources\WhitelistResource\Pages\EditWhitelist;
 use Filament\Tables;
-use Filament\Forms\Form;
 use App\Models\Whitelist;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use App\Filament\Admin\Resources\WhitelistResource\Pages;
@@ -18,7 +26,7 @@ class WhitelistResource extends Resource
 {
     protected static ?string $model = Whitelist::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-check';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-check';
 
     protected static ?string $recordTitleAttribute = 'email';
 
@@ -49,10 +57,10 @@ class WhitelistResource extends Resource
         return static::getModel()::count();
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make()
                     ->schema([
                         TextInput::make('email')->required()->unique()->email(),
@@ -71,18 +79,18 @@ class WhitelistResource extends Resource
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make()
                     ->modalHeading(function ($record): string {
                         return __('general.delete') . ': ' . $record->email;
                     }),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->visible(Gate::check('bulkDelete', Whitelist::class)),
-                    Tables\Actions\RestoreBulkAction::make()
+                    RestoreBulkAction::make()
                         ->visible(Gate::check('bulkRestore', Whitelist::class)),
                 ]),
             ]);
@@ -98,9 +106,9 @@ class WhitelistResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListWhitelists::route('/'),
-            'create' => Pages\CreateWhitelist::route('/create'),
-            'edit' => Pages\EditWhitelist::route('/{record}/edit'),
+            'index' => ListWhitelists::route('/'),
+            'create' => CreateWhitelist::route('/create'),
+            'edit' => EditWhitelist::route('/{record}/edit'),
         ];
     }
 

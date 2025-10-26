@@ -9,5 +9,5 @@ class ScanQrCode extends Page
 {
     //protected static string $resource = ScannQrCodeResource::class;
 
-    protected static string $view = 'filament.resources.scann-qr-code-resource.pages.scan-qr-code';
+    protected string $view = 'filament.resources.scann-qr-code-resource.pages.scan-qr-code';
 }

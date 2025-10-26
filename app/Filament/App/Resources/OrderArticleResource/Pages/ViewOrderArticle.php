@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources\OrderArticleResource\Pages;
 
+use Filament\Actions\EditAction;
 use Filament\Actions;
 use Filament\Actions\Action;
 use App\Actions\HeaderOrderAction;
@@ -21,7 +22,7 @@ class ViewOrderArticle extends ViewRecord
                 ->url(url()->previous())
                 ->icon('heroicon-s-arrow-left')
                 ->outlined(),
-            Actions\EditAction::make()
+            EditAction::make()
                 ->color(Color::Amber)
                 ->icon('heroicon-o-pencil'),
             HeaderOrderAction::make()

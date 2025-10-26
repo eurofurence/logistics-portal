@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Exception;
 use Filament\Panel;
 use Filament\Widgets;
 use Filament\PanelProvider;
@@ -9,24 +10,24 @@ use App\Settings\ThemeSettings;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\Auth\Login;
 use Filament\Support\Colors\Color;
+use Filament\Widgets\AccountWidget;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\UserIsLocked;
 use App\Http\Middleware\CheckWhitelist;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
 use BezhanSalleh\PanelSwitch\PanelSwitch;
+use Awcodes\QuickCreate\QuickCreatePlugin;
 use Filament\Http\Middleware\Authenticate;
 use App\Filament\App\Resources\BillResource;
 use App\Filament\App\Resources\ItemResource;
 use App\Filament\App\Resources\OrderResource;
-use Filament\SpatieLaravelTranslatablePlugin;
 use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 use App\Filament\App\Resources\StorageResource;
 use Illuminate\Session\Middleware\StartSession;
 use App\Filament\Admin\Pages\HealthCheckResults;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use App\Filament\App\Resources\OrderEventResource;
-use Awcodes\FilamentQuickCreate\QuickCreatePlugin;
 use App\Filament\App\Resources\OrderArticleResource;
 use App\Filament\App\Resources\OrderRequestResource;
 use App\Filament\App\Resources\OrderCategoryResource;
@@ -34,6 +35,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
+use LaraZeus\SpatieTranslatable\SpatieTranslatablePlugin;
 use CharrafiMed\GlobalSearchModal\GlobalSearchModalPlugin;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -49,7 +51,7 @@ class AppPanelProvider extends PanelProvider
     {
         try {
             $primaryColor = app(ThemeSettings::class)->primary_color;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Set an alternative value if an error occurs
             $primaryColor = '#007bff'; // Example: Standard blue color
         }
@@ -69,7 +71,7 @@ class AppPanelProvider extends PanelProvider
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
             //->viteTheme('resources/css/filament/app/theme.css')
             ->widgets([
-                Widgets\AccountWidget::class,
+                AccountWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -83,7 +85,7 @@ class AppPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
-                SpatieLaravelTranslatablePlugin::make()
+                SpatieTranslatablePlugin::make()
                     ->defaultLocales(['en', 'de']),
                 FilamentProgressbarPlugin::make()->color('#29b'),
                 FilamentSpatieLaravelHealthPlugin::make()

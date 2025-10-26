@@ -2,13 +2,27 @@
 
 namespace App\Filament\App\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\ViewAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Schemas\Components\Flex;
+use App\Filament\App\Resources\OrderRequestResource\Pages\ListOrderRequests;
+use App\Filament\App\Resources\OrderRequestResource\Pages\CreateOrderRequest;
+use App\Filament\App\Resources\OrderRequestResource\Pages\EditOrderRequest;
+use App\Filament\App\Resources\OrderRequestResource\Pages\ViewOrderRequest;
 use Filament\Tables;
-use Filament\Forms\Form;
 use App\Models\Department;
 use App\Models\OrderEvent;
 use Filament\Tables\Table;
 use App\Models\OrderRequest;
-use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
 use Filament\Infolists\Components;
 use Filament\Tables\Grouping\Group;
@@ -16,8 +30,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
@@ -35,7 +47,7 @@ class OrderRequestResource extends Resource
 {
     protected static ?string $model = OrderRequest::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-pencil-square';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-pencil-square';
 
     public static function getNavigationGroup(): string
     {
@@ -109,12 +121,12 @@ class OrderRequestResource extends Resource
         return $query;
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
         $moderation_active = Auth::user()->can('can-moderate-order-request');
 
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make()
                     ->schema([
                         Placeholder::make('')
@@ -309,22 +321,22 @@ class OrderRequestResource extends Resource
                         5 => __('general.rejected'),
                     ])
             ], layout: FiltersLayout::Modal)
-            ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make(),
-                    Tables\Actions\DeleteAction::make()
+            ->recordActions([
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make()
                         ->modalHeading(function ($record): string {
                             return __('general.delete') . ': ' . $record->title;
                         }),
-                    Tables\Actions\RestoreAction::make(),
-                    Tables\Actions\ViewAction::make(),
+                    RestoreAction::make(),
+                    ViewAction::make(),
                 ]),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->visible(Gate::check('bulkDelete', OrderRequest::class)),
-                    Tables\Actions\RestoreBulkAction::make()
+                    RestoreBulkAction::make()
                         ->visible(Gate::check('bulkRestore', OrderRequest::class)),
                 ]),
             ])
@@ -341,21 +353,21 @@ class OrderRequestResource extends Resource
         return fn($record) => $this->getResource()::getUrl('view', ['record' => $record]);
     }
 
-    public static function infolist(Infolist $infolist): Infolist
+    public static function infolist(Schema $schema): Schema
     {
-        return $infolist
-            ->schema([
-                Components\Section::make(__('general.informations'))
+        return $schema
+            ->components([
+                Section::make(__('general.informations'))
                     ->schema([
-                        Components\Group::make([
-                            Components\TextEntry::make('title')
+                        \Filament\Schemas\Components\Group::make([
+                            TextEntry::make('title')
                                 ->label(__('general.title')),
                         ]),
-                        Components\TextEntry::make('message')
+                        TextEntry::make('message')
                             ->label(__('general.message')),
-                        Components\TextEntry::make('quantity')
+                        TextEntry::make('quantity')
                             ->label(__('general.quantity')),
-                        Components\TextEntry::make('url')
+                        TextEntry::make('url')
                             ->label(__('general.url'))
                             ->url(fn($record) => $record->url, true)
                             ->default(__('general.not_set'))
@@ -364,7 +376,7 @@ class OrderRequestResource extends Resource
                                 return $record->url;
                             })
                     ]),
-                Components\Section::make(__('general.moderation'))
+                Section::make(__('general.moderation'))
                     ->schema([
                         TextEntry::make('status')
                             ->label(__('general.status'))
@@ -395,15 +407,15 @@ class OrderRequestResource extends Resource
                                 '5' => __('general.rejected'),
                                 default => 'Unknown Status',
                             }),
-                        Components\TextEntry::make('comment')
+                        TextEntry::make('comment')
                             ->default(__('general.not_set'))
                             ->label(__('general.comment'))
                     ])
                     ->visible(true),
-                Components\Section::make(__('general.other_infos'))
+                Section::make(__('general.other_infos'))
                     ->schema([
-                        Components\Split::make([
-                            Components\Group::make([
+                        Flex::make([
+                            \Filament\Schemas\Components\Group::make([
                                 TextEntry::make('addedBy.name')
                                     ->label(__('general.added_by'))
                                     ->suffix(function ($record): string|null {
@@ -421,7 +433,7 @@ class OrderRequestResource extends Resource
                                 TextEntry::make('editedBy.name')
                                     ->label(__('general.edited_by')),
                             ]),
-                            Components\Group::make([
+                            \Filament\Schemas\Components\Group::make([
                                 TextEntry::make('created_at')
                                     ->label(__('general.created_at'))
                                     ->dateTime(timezone: 'Europe/Berlin'),
@@ -429,7 +441,7 @@ class OrderRequestResource extends Resource
                                     ->label(__('general.updated_at'))
                                     ->dateTime(timezone: 'Europe/Berlin'),
                             ]),
-                            Components\Group::make([
+                            \Filament\Schemas\Components\Group::make([
                                 TextEntry::make('department.name')
                                     ->label(__('general.department')),
                                 TextEntry::make('event.name')
@@ -450,10 +462,10 @@ class OrderRequestResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListOrderRequests::route('/'),
-            'create' => Pages\CreateOrderRequest::route('/create'),
-            'edit' => Pages\EditOrderRequest::route('/{record}/edit'),
-            'view' => Pages\ViewOrderRequest::route('/{record}')
+            'index' => ListOrderRequests::route('/'),
+            'create' => CreateOrderRequest::route('/create'),
+            'edit' => EditOrderRequest::route('/{record}/edit'),
+            'view' => ViewOrderRequest::route('/{record}')
         ];
     }
 }

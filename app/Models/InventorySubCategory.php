@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,19 +15,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property int $department
  * @property int $added_by
  * @property int $edited_by
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Department|null $connected_department
- * @method static \Illuminate\Database\Eloquent\Builder<static>|InventorySubCategory newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|InventorySubCategory newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|InventorySubCategory query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|InventorySubCategory whereAddedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|InventorySubCategory whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|InventorySubCategory whereDepartment($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|InventorySubCategory whereEditedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|InventorySubCategory whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|InventorySubCategory whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|InventorySubCategory whereUpdatedAt($value)
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Department|null $connected_department
+ * @method static Builder<static>|InventorySubCategory newModelQuery()
+ * @method static Builder<static>|InventorySubCategory newQuery()
+ * @method static Builder<static>|InventorySubCategory query()
+ * @method static Builder<static>|InventorySubCategory whereAddedBy($value)
+ * @method static Builder<static>|InventorySubCategory whereCreatedAt($value)
+ * @method static Builder<static>|InventorySubCategory whereDepartment($value)
+ * @method static Builder<static>|InventorySubCategory whereEditedBy($value)
+ * @method static Builder<static>|InventorySubCategory whereId($value)
+ * @method static Builder<static>|InventorySubCategory whereName($value)
+ * @method static Builder<static>|InventorySubCategory whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class InventorySubCategory extends Model

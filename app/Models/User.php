@@ -3,7 +3,13 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-
+use Illuminate\Support\Carbon;
+use Illuminate\Notifications\DatabaseNotificationCollection;
+use Illuminate\Notifications\DatabaseNotification;
+use Spatie\Permission\Models\Permission;
+use Laravel\Sanctum\PersonalAccessToken;
+use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Panel;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
@@ -22,7 +28,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int $id
  * @property string $name
  * @property string $email
- * @property \Illuminate\Support\Carbon|null $email_verified_at
+ * @property Carbon|null $email_verified_at
  * @property string|null $password
  * @property string|null $ex_id
  * @property array<array-key, mixed>|null $ex_groups
@@ -30,55 +36,54 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property int $locked
  * @property string|null $comment
  * @property string|null $remember_token
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $last_login
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $last_login
  * @property bool $separated_rights
  * @property bool $separated_departments
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read Collection<int, \App\Models\DepartmentMember> $departmentMemberships
+ * @property Carbon|null $deleted_at
+ * @property-read Collection<int, DepartmentMember> $departmentMemberships
  * @property-read int|null $department_memberships_count
- * @property-read Collection<int, \App\Models\Department> $departments
+ * @property-read Collection<int, Department> $departments
  * @property-read int|null $departments_count
- * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
+ * @property-read DatabaseNotificationCollection<int, DatabaseNotification> $notifications
  * @property-read int|null $notifications_count
- * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
+ * @property-read Collection<int, Permission> $permissions
  * @property-read int|null $permissions_count
- * @property-read Collection<int, \App\Models\Role> $roles
+ * @property-read Collection<int, Role> $roles
  * @property-read int|null $roles_count
- * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
+ * @property-read Collection<int, PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
- * @method static \Database\Factories\UserFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User permission($permissions, $without = false)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User role($roles, $guard = null, $without = false)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereAvatar($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereComment($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereEmailVerifiedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereExGroups($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereExId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereLastLogin($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereLocked($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User wherePassword($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereRememberToken($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereSeparatedDepartments($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereSeparatedRights($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutPermission($permissions)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutRole($roles, $guard = null)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutTrashed()
+ * @method static UserFactory factory($count = null, $state = [])
+ * @method static Builder<static>|User newModelQuery()
+ * @method static Builder<static>|User newQuery()
+ * @method static Builder<static>|User onlyTrashed()
+ * @method static Builder<static>|User permission($permissions, $without = false)
+ * @method static Builder<static>|User query()
+ * @method static Builder<static>|User role($roles, $guard = null, $without = false)
+ * @method static Builder<static>|User whereAvatar($value)
+ * @method static Builder<static>|User whereComment($value)
+ * @method static Builder<static>|User whereCreatedAt($value)
+ * @method static Builder<static>|User whereDeletedAt($value)
+ * @method static Builder<static>|User whereEmail($value)
+ * @method static Builder<static>|User whereEmailVerifiedAt($value)
+ * @method static Builder<static>|User whereExGroups($value)
+ * @method static Builder<static>|User whereExId($value)
+ * @method static Builder<static>|User whereId($value)
+ * @method static Builder<static>|User whereLastLogin($value)
+ * @method static Builder<static>|User whereLocked($value)
+ * @method static Builder<static>|User whereName($value)
+ * @method static Builder<static>|User wherePassword($value)
+ * @method static Builder<static>|User whereRememberToken($value)
+ * @method static Builder<static>|User whereSeparatedDepartments($value)
+ * @method static Builder<static>|User whereSeparatedRights($value)
+ * @method static Builder<static>|User whereUpdatedAt($value)
+ * @method static Builder<static>|User withTrashed()
+ * @method static Builder<static>|User withoutPermission($permissions)
+ * @method static Builder<static>|User withoutRole($roles, $guard = null)
+ * @method static Builder<static>|User withoutTrashed()
  * @mixin \Eloquent
  */
-
 class User extends Authenticatable implements FilamentUser, HasAvatar
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
@@ -230,7 +235,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     /**
      * Get all departments where the user has at least one role.
      *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * @return Collection
      */
     public function departmentsWithRoles(): Collection
     {

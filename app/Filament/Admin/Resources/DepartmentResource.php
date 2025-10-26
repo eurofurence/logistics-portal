@@ -2,13 +2,24 @@
 
 namespace App\Filament\Admin\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use App\Filament\Admin\Resources\DepartmentResource\Pages\ListDepartments;
+use App\Filament\Admin\Resources\DepartmentResource\Pages\CreateDepartment;
+use App\Filament\Admin\Resources\DepartmentResource\Pages\EditDepartment;
 use Filament\Tables;
-use Filament\Forms\Form;
 use App\Models\Department;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Gate;
-use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,7 +31,7 @@ class DepartmentResource extends Resource
 {
     protected static ?string $model = Department::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-building-office';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-building-office';
 
     public static function getNavigationGroup(): string
     {
@@ -49,10 +60,10 @@ class DepartmentResource extends Resource
         return static::getModel()::count();
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Section::make()
                     ->schema([
                         TextInput::make('name')
@@ -86,22 +97,22 @@ class DepartmentResource extends Resource
                     ->visible(config('app.identity_mode')),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                TrashedFilter::make(),
             ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make()
                     ->modalHeading(function ($record): string {
                         return __('general.delete') . ': ' . $record->name;
                     }),
-                Tables\Actions\ForceDeleteAction::make(),
-                Tables\Actions\RestoreAction::make(),
+                ForceDeleteAction::make(),
+                RestoreAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
                         ->visible(Gate::check('bulkDelete', Department::class)),
-                    Tables\Actions\RestoreBulkAction::make()
+                    RestoreBulkAction::make()
                         ->visible(Gate::check('bulkRestore', Department::class)),
                 ]),
             ]);
@@ -117,9 +128,9 @@ class DepartmentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListDepartments::route('/'),
-            'create' => Pages\CreateDepartment::route('/create'),
-            'edit' => Pages\EditDepartment::route('/{record}/edit'),
+            'index' => ListDepartments::route('/'),
+            'create' => CreateDepartment::route('/create'),
+            'edit' => EditDepartment::route('/{record}/edit'),
         ];
     }
 

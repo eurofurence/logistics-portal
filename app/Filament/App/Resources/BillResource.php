@@ -2,49 +2,62 @@
 
 namespace App\Filament\App\Resources;
 
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Fieldset;
+use App\Filament\App\Resources\BillResource\Pages\CreateBill;
+use Filament\Forms\Components\DatePicker;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\ReplicateAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ViewAction;
+use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\RestoreBulkAction;
+use App\Filament\App\Resources\BillResource\Pages\ListBills;
+use App\Filament\App\Resources\BillResource\Pages\EditBill;
+use App\Filament\App\Resources\BillResource\Pages\ViewBill;
 use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\Bill;
 use App\Models\User;
 use Filament\Tables;
-use Filament\Forms\Form;
 use App\Models\Department;
 use App\Models\OrderEvent;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use App\Forms\Components\Timeline;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Tabs;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Grouping\Group;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Contracts\Support\Htmlable;
-use Filament\Tables\Actions\BulkActionGroup;
 use App\Filament\App\Resources\BillResource\Pages;
-use Filament\Tables\Actions\Action as TableAction;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class BillResource extends Resource
 {
     protected static ?string $model = Bill::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-banknotes';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-banknotes';
 
     public static function getNavigationGroup(): string
     {
@@ -114,13 +127,13 @@ class BillResource extends Resource
         return request()->route()->getName() === 'filament.app.resources.bills.create';
     }
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Tabs::make()
                     ->schema([
-                        Tabs\Tab::make(__('general.general'))
+                        Tab::make(__('general.general'))
                             ->icon('heroicon-o-bars-4')
                             ->schema([
                                 SpatieMediaLibraryFileUpload::make('files')
@@ -345,10 +358,10 @@ class BillResource extends Resource
                                             ->label(__('general.updated_at'))
                                             ->content(fn(Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
                                     ])
-                                    ->hiddenOn(Pages\CreateBill::class)
+                                    ->hiddenOn(CreateBill::class)
                                     ->label(__('general.timestamps_and_users'))
                             ]),
-                        Tabs\Tab::make(__('timeline.status_history'))
+                        Tab::make(__('timeline.status_history'))
                             ->schema([
                                 Timeline::make('status_history')
                             ])
@@ -445,11 +458,11 @@ class BillResource extends Resource
                 TrashedFilter::make()
                     ->visible(fn(Bill $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
                 Filter::make('created_at')
-                    ->form([
-                        Forms\Components\DatePicker::make('created_from')
+                    ->schema([
+                        DatePicker::make('created_from')
                             ->label(__('general.created_from'))
                             ->placeholder(fn($state): string => 'Dec 18, ' . now()->subYear()->format('Y')),
-                        Forms\Components\DatePicker::make('created_until')
+                        DatePicker::make('created_until')
                             ->label(__('general.created_until'))
                             ->placeholder(fn($state): string => now()->format('M d, Y')),
                     ])
@@ -512,11 +525,11 @@ class BillResource extends Resource
                     }),
             ], layout: FiltersLayout::Modal)
             ->filtersFormColumns(2)
-            ->actions([
+            ->recordActions([
                 ActionGroup::make([
                     ActionGroup::make([
-                        Tables\Actions\ReplicateAction::make()
-                            ->form([
+                        ReplicateAction::make()
+                            ->schema([
                                 Placeholder::make('duplicate_hint')
                                     ->label(__('general.hint'))
                                     ->content(__('general.duplicate_note_1')),
@@ -533,23 +546,23 @@ class BillResource extends Resource
 
                                 return $data;
                             }),
-                        Tables\Actions\EditAction::make(),
-                        Tables\Actions\DeleteAction::make()
+                        EditAction::make(),
+                        DeleteAction::make()
                             ->modalHeading(function ($record): string {
                                 return __('general.delete') . ': ' . $record->title;
                             }),
-                        Tables\Actions\RestoreAction::make(),
-                        Tables\Actions\ForceDeleteAction::make(),
-                        Tables\Actions\ViewAction::make(),
+                        RestoreAction::make(),
+                        ForceDeleteAction::make(),
+                        ViewAction::make(),
                     ])->dropdown(false),
                     ActionGroup::make([
-                        TableAction::make('set_status')
+                        Action::make('set_status')
                             ->label(__('general.set_status'))
                             ->action(function (Model $record, array $data): void {
                                 $record->update(['status' => $data['status']]);
                             })
                             ->icon('heroicon-o-ellipsis-horizontal-circle')
-                            ->form([
+                            ->schema([
                                 Select::make('status')
                                     ->label(__('general.status'))
                                     ->options([
@@ -567,11 +580,11 @@ class BillResource extends Resource
                     ])->dropdown(false),
                 ]),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+                    DeleteBulkAction::make()
                         ->visible(fn(Bill $record): bool => Gate::allows('bulkDelete', $record)),
-                    Tables\Actions\RestoreBulkAction::make()
+                    RestoreBulkAction::make()
                         ->visible(fn(Bill $record): bool => Gate::allows('bulkRestore', $record)),
                 ]),
             ])
@@ -606,10 +619,10 @@ class BillResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListBills::route('/'),
-            'create' => Pages\CreateBill::route('/create'),
-            'edit' => Pages\EditBill::route('/{record}/edit'),
-            'view' => Pages\ViewBill::route('/{record}'),
+            'index' => ListBills::route('/'),
+            'create' => CreateBill::route('/create'),
+            'edit' => EditBill::route('/{record}/edit'),
+            'view' => ViewBill::route('/{record}'),
         ];
     }
 }
