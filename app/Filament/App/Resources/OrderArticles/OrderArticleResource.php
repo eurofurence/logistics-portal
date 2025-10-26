@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Resources;
+namespace App\Filament\App\Resources\OrderArticles;
 
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Tabs;
@@ -25,10 +25,10 @@ use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\BulkAction;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Flex;
-use App\Filament\App\Resources\OrderArticleResource\Pages\ListOrderArticles;
-use App\Filament\App\Resources\OrderArticleResource\Pages\CreateOrderArticle;
-use App\Filament\App\Resources\OrderArticleResource\Pages\EditOrderArticle;
-use App\Filament\App\Resources\OrderArticleResource\Pages\ViewOrderArticle;
+use App\Filament\App\Resources\OrderArticles\Pages\ListOrderArticles;
+use App\Filament\App\Resources\OrderArticles\Pages\CreateOrderArticle;
+use App\Filament\App\Resources\OrderArticles\Pages\EditOrderArticle;
+use App\Filament\App\Resources\OrderArticles\Pages\ViewOrderArticle;
 use DateTime;
 use DateTimeZone;
 use Filament\Tables;

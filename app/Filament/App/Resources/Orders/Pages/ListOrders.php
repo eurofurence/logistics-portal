@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\App\Resources\OrderResource\Pages;
+namespace App\Filament\App\Resources\Orders\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\App\Resources\OrderResource;
+use App\Filament\App\Resources\Orders\OrderResource;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
-use App\Filament\App\Resources\OrderResource\Widgets\OrderStats;
+use App\Filament\App\Resources\Orders\Widgets\OrderStats;
 
 class ListOrders extends ListRecords
 {

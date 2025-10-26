@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Resources;
+namespace App\Filament\App\Resources\Orders;
 
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Tabs;
@@ -10,7 +10,7 @@ use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Section;
-use App\Filament\App\Resources\OrderResource\Pages\CreateOrder;
+use App\Filament\App\Resources\Orders\Pages\CreateOrder;
 use Illuminate\Support\Str;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Filters\Filter;
@@ -29,9 +29,9 @@ use Exception;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use App\Filament\App\Resources\OrderResource\Pages\ListOrders;
-use App\Filament\App\Resources\OrderResource\Pages\EditOrder;
-use App\Filament\App\Resources\OrderResource\Pages\ViewOrder;
+use App\Filament\App\Resources\Orders\Pages\ListOrders;
+use App\Filament\App\Resources\Orders\Pages\EditOrder;
+use App\Filament\App\Resources\Orders\Pages\ViewOrder;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Admin\Resources\IdpRankSyncResource\Pages;
+namespace App\Filament\Admin\Resources\IdpRankSyncs\Pages;
 
-use App\Filament\Admin\Resources\IdpRankSyncResource;
+use App\Filament\Admin\Resources\IdpRankSyncs\IdpRankSyncResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 

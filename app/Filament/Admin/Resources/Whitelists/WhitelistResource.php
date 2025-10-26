@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Admin\Resources;
+namespace App\Filament\Admin\Resources\Whitelists;
 
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
@@ -9,9 +9,9 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use App\Filament\Admin\Resources\WhitelistResource\Pages\ListWhitelists;
-use App\Filament\Admin\Resources\WhitelistResource\Pages\CreateWhitelist;
-use App\Filament\Admin\Resources\WhitelistResource\Pages\EditWhitelist;
+use App\Filament\Admin\Resources\Whitelists\Pages\ListWhitelists;
+use App\Filament\Admin\Resources\Whitelists\Pages\CreateWhitelist;
+use App\Filament\Admin\Resources\Whitelists\Pages\EditWhitelist;
 use Filament\Tables;
 use App\Models\Whitelist;
 use Filament\Tables\Table;

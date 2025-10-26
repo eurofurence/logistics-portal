@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Resources;
+namespace App\Filament\App\Resources\OrderEvents;
 
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
@@ -13,9 +13,9 @@ use Filament\Actions\RestoreAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use App\Filament\App\Resources\OrderEventResource\Pages\ListOrderEvents;
-use App\Filament\App\Resources\OrderEventResource\Pages\CreateOrderEvent;
-use App\Filament\App\Resources\OrderEventResource\Pages\EditOrderEvent;
+use App\Filament\App\Resources\OrderEvents\Pages\ListOrderEvents;
+use App\Filament\App\Resources\OrderEvents\Pages\CreateOrderEvent;
+use App\Filament\App\Resources\OrderEvents\Pages\EditOrderEvent;
 use Carbon\Carbon;
 use Filament\Tables;
 use App\Models\OrderEvent;

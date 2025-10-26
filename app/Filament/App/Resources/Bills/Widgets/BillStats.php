@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Filament\App\Resources\BillResource\Widgets;
+namespace App\Filament\App\Resources\Bills\Widgets;
 
 use Filament\Widgets\Widget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
-use App\Filament\App\Resources\BillResource\Pages\ListBills;
+use App\Filament\App\Resources\Bills\Pages\ListBills;
 
 class BillStats extends BaseWidget
 {

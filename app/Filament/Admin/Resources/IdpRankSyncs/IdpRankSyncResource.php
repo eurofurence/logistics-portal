@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Admin\Resources;
+namespace App\Filament\Admin\Resources\IdpRankSyncs;
 
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
@@ -9,10 +9,10 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use App\Filament\Admin\Resources\IdpRankSyncResource\Pages\ListIdpRankSyncs;
-use App\Filament\Admin\Resources\IdpRankSyncResource\Pages\CreateIdpRankSync;
-use App\Filament\Admin\Resources\IdpRankSyncResource\Pages\EditIdpRankSync;
-use App\Filament\Admin\Resources\IdpRankSyncResource\Pages\ViewIdpRankSync;
+use App\Filament\Admin\Resources\IdpRankSyncs\Pages\ListIdpRankSyncs;
+use App\Filament\Admin\Resources\IdpRankSyncs\Pages\CreateIdpRankSync;
+use App\Filament\Admin\Resources\IdpRankSyncs\Pages\EditIdpRankSync;
+use App\Filament\Admin\Resources\IdpRankSyncs\Pages\ViewIdpRankSync;
 use App\Models\Role;
 use Filament\Tables;
 use Filament\Tables\Table;

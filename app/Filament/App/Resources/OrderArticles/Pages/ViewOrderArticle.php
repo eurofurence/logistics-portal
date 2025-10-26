@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Resources\OrderArticleResource\Pages;
+namespace App\Filament\App\Resources\OrderArticles\Pages;
 
 use Filament\Actions\EditAction;
 use Filament\Actions;
@@ -8,7 +8,7 @@ use Filament\Actions\Action;
 use App\Actions\HeaderOrderAction;
 use Filament\Support\Colors\Color;
 use Filament\Resources\Pages\ViewRecord;
-use App\Filament\App\Resources\OrderArticleResource;
+use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
 
 class ViewOrderArticle extends ViewRecord
 {

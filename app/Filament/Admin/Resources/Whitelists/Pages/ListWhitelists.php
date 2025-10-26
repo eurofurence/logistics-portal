@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Admin\Resources\WhitelistResource\Pages;
+namespace App\Filament\Admin\Resources\Whitelists\Pages;
 
 use Filament\Actions\CreateAction;
-use App\Filament\Admin\Resources\WhitelistResource;
+use App\Filament\Admin\Resources\Whitelists\WhitelistResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 

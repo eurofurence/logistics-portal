@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Resources;
+namespace App\Filament\App\Resources\OrderCategories;
 
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
@@ -14,10 +14,10 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ForceDeleteBulkAction;
-use App\Filament\App\Resources\OrderCategoryResource\Pages\ListOrderCategories;
-use App\Filament\App\Resources\OrderCategoryResource\Pages\CreateOrderCategory;
-use App\Filament\App\Resources\OrderCategoryResource\Pages\EditOrderCategory;
-use App\Filament\App\Resources\OrderCategoryResource\Pages\ViewOrderCategory;
+use App\Filament\App\Resources\OrderCategories\Pages\ListOrderCategories;
+use App\Filament\App\Resources\OrderCategories\Pages\CreateOrderCategory;
+use App\Filament\App\Resources\OrderCategories\Pages\EditOrderCategory;
+use App\Filament\App\Resources\OrderCategories\Pages\ViewOrderCategory;
 use Filament\Tables;
 use App\Models\Department;
 use Filament\Tables\Table;

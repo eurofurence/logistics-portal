@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Filament\App\Resources\OrderCategoryResource\Pages;
+namespace App\Filament\App\Resources\OrderCategories\Pages;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
-use App\Filament\App\Resources\OrderCategoryResource;
+use App\Filament\App\Resources\OrderCategories\OrderCategoryResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 

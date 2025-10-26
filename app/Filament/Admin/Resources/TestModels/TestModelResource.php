@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Filament\Admin\Resources;
+namespace App\Filament\Admin\Resources\TestModels;
 
 use Filament\Schemas\Schema;
 use Filament\Actions\EditAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use App\Filament\Admin\Resources\TestModelResource\Pages\ListTestModels;
-use App\Filament\Admin\Resources\TestModelResource\Pages\CreateTestModel;
-use App\Filament\Admin\Resources\TestModelResource\Pages\EditTestModel;
+use App\Filament\Admin\Resources\TestModels\Pages\ListTestModels;
+use App\Filament\Admin\Resources\TestModels\Pages\CreateTestModel;
+use App\Filament\Admin\Resources\TestModels\Pages\EditTestModel;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\TestModel;

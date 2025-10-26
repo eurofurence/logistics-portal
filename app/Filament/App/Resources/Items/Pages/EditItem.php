@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Resources\ItemResource\Pages;
+namespace App\Filament\App\Resources\Items\Pages;
 
 use Filament\Actions\ViewAction;
 use Filament\Actions\DeleteAction;
@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Forms\Components\Placeholder;
-use App\Filament\App\Resources\ItemResource;
+use App\Filament\App\Resources\Items\ItemResource;
 
 class EditItem extends EditRecord
 {

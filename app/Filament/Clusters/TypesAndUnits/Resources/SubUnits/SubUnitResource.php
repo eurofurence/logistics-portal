@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Clusters\TypesAndUnits\Resources;
+namespace App\Filament\Clusters\TypesAndUnits\Resources\SubUnits;
 
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
@@ -10,9 +10,9 @@ use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use App\Filament\Clusters\TypesAndUnits\Resources\SubUnitResource\Pages\ListSubUnits;
-use App\Filament\Clusters\TypesAndUnits\Resources\SubUnitResource\Pages\CreateSubUnit;
-use App\Filament\Clusters\TypesAndUnits\Resources\SubUnitResource\Pages\EditSubUnit;
+use App\Filament\Clusters\TypesAndUnits\Resources\SubUnits\Pages\ListSubUnits;
+use App\Filament\Clusters\TypesAndUnits\Resources\SubUnits\Pages\CreateSubUnit;
+use App\Filament\Clusters\TypesAndUnits\Resources\SubUnits\Pages\EditSubUnit;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\SubUnit;
@@ -20,7 +20,7 @@ use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Database\Eloquent\Model;
-use App\Filament\Clusters\TypesAndUnits;
+use App\Filament\Clusters\TypesAndUnits\TypesAndUnitsCluster;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Support\Htmlable;
@@ -34,7 +34,7 @@ class SubUnitResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-cube';
 
-    protected static ?string $cluster = TypesAndUnits::class;
+    protected static ?string $cluster = TypesAndUnitsCluster::class;
 
     public static function getNavigationLabel(): string
     {

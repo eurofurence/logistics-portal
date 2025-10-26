@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Resources;
+namespace App\Filament\App\Resources\OrderRequests;
 
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
@@ -14,10 +14,10 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Schemas\Components\Flex;
-use App\Filament\App\Resources\OrderRequestResource\Pages\ListOrderRequests;
-use App\Filament\App\Resources\OrderRequestResource\Pages\CreateOrderRequest;
-use App\Filament\App\Resources\OrderRequestResource\Pages\EditOrderRequest;
-use App\Filament\App\Resources\OrderRequestResource\Pages\ViewOrderRequest;
+use App\Filament\App\Resources\OrderRequests\Pages\ListOrderRequests;
+use App\Filament\App\Resources\OrderRequests\Pages\CreateOrderRequest;
+use App\Filament\App\Resources\OrderRequests\Pages\EditOrderRequest;
+use App\Filament\App\Resources\OrderRequests\Pages\ViewOrderRequest;
 use Filament\Tables;
 use App\Models\Department;
 use App\Models\OrderEvent;

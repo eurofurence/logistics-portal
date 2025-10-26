@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Admin\Resources\IdpRankSyncResource\Pages;
+namespace App\Filament\Admin\Resources\IdpRankSyncs\Pages;
 
 use Filament\Actions\CreateAction;
-use App\Filament\Admin\Resources\IdpRankSyncResource;
+use App\Filament\Admin\Resources\IdpRankSyncs\IdpRankSyncResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 

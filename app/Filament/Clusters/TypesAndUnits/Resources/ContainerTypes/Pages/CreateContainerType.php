@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypeResource\Pages;
+namespace App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypes\Pages;
 
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
-use App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypeResource;
+use App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypes\ContainerTypeResource;
 
 class CreateContainerType extends CreateRecord
 {

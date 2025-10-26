@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Resources;
+namespace App\Filament\App\Resources\Items;
 
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
@@ -9,7 +9,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Fieldset;
-use App\Filament\App\Resources\ItemResource\Pages\CreateItem;
+use App\Filament\App\Resources\Items\Pages\CreateItem;
 use Illuminate\Support\Str;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Filters\Filter;
@@ -27,9 +27,9 @@ use Exception;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use App\Filament\App\Resources\ItemResource\Pages\ListItems;
-use App\Filament\App\Resources\ItemResource\Pages\EditItem;
-use App\Filament\App\Resources\ItemResource\Pages\ViewItem;
+use App\Filament\App\Resources\Items\Pages\ListItems;
+use App\Filament\App\Resources\Items\Pages\EditItem;
+use App\Filament\App\Resources\Items\Pages\ViewItem;
 use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\Item;

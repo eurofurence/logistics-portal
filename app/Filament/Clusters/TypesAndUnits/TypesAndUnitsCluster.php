@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Filament\Clusters;
+namespace App\Filament\Clusters\TypesAndUnits;
 
 use Filament\Clusters\Cluster;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-class TypesAndUnits extends Cluster
+class TypesAndUnitsCluster extends Cluster
 {
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-squares-2x2';
 

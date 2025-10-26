@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Filament\App\Resources\OrderResource\Pages;
+namespace App\Filament\App\Resources\Orders\Pages;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
-use App\Filament\App\Resources\OrderResource;
+use App\Filament\App\Resources\Orders\OrderResource;
 
 class EditOrder extends EditRecord
 {

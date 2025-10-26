@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Filament\Admin\Resources\UserResource\Pages;
+namespace App\Filament\Admin\Resources\Users\Pages;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
-use App\Filament\Admin\Resources\UserResource;
+use App\Filament\Admin\Resources\Users\UserResource;
 
 class EditUser extends EditRecord
 {

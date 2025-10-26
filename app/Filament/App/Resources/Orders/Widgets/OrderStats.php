@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Filament\App\Resources\OrderResource\Widgets;
+namespace App\Filament\App\Resources\Orders\Widgets;
 
 use App\Models\Order;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
-use App\Filament\App\Resources\OrderResource\Pages\ListOrders;
+use App\Filament\App\Resources\Orders\Pages\ListOrders;
 
 class OrderStats extends BaseWidget
 {

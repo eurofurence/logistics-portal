@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Filament\App\Resources\BillResource\Pages;
+namespace App\Filament\App\Resources\Bills\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\App\Resources\BillResource;
+use App\Filament\App\Resources\Bills\BillResource;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
-use App\Filament\App\Resources\BillResource\Widgets\BillStats;
+use App\Filament\App\Resources\Bills\Widgets\BillStats;
 
 class ListBills extends ListRecords
 {

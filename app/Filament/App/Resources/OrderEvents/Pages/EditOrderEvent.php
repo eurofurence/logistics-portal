@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\App\Resources\OrderEventResource\Pages;
+namespace App\Filament\App\Resources\OrderEvents\Pages;
 
 use Filament\Actions\DeleteAction;
-use App\Filament\App\Resources\OrderEventResource;
+use App\Filament\App\Resources\OrderEvents\OrderEventResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 

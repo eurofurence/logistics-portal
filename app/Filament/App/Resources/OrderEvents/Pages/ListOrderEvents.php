@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Filament\App\Resources\OrderEventResource\Pages;
+namespace App\Filament\App\Resources\OrderEvents\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
-use App\Filament\App\Resources\OrderEventResource;
+use App\Filament\App\Resources\OrderEvents\OrderEventResource;
 
 class ListOrderEvents extends ListRecords
 {

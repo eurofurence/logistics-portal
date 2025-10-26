@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Filament\App\Resources\BillResource\Pages;
+namespace App\Filament\App\Resources\Bills\Pages;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
-use App\Filament\App\Resources\BillResource;
+use App\Filament\App\Resources\Bills\BillResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 

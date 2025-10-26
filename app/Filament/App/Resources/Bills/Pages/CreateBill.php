@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Filament\App\Resources\BillResource\Pages;
+namespace App\Filament\App\Resources\Bills\Pages;
 
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Contracts\Support\Htmlable;
-use App\Filament\App\Resources\BillResource;
+use App\Filament\App\Resources\Bills\BillResource;
 
 class CreateBill extends CreateRecord
 {

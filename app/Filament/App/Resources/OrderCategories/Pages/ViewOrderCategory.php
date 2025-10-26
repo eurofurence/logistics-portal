@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Filament\App\Resources\OrderCategoryResource\Pages;
+namespace App\Filament\App\Resources\OrderCategories\Pages;
 
 use Filament\Actions\EditAction;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
-use App\Filament\App\Resources\OrderCategoryResource;
+use App\Filament\App\Resources\OrderCategories\OrderCategoryResource;
 
 class ViewOrderCategory extends ViewRecord
 {

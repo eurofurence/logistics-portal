@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\App\Resources\StorageResource\Pages;
+namespace App\Filament\App\Resources\Storages\Pages;
 
-use App\Filament\App\Resources\StorageResource;
+use App\Filament\App\Resources\Storages\StorageResource;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Resources\BillResource\Pages;
+namespace App\Filament\App\Resources\Bills\Pages;
 
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Forms\Components\Placeholder;
-use App\Filament\App\Resources\BillResource;
+use App\Filament\App\Resources\Bills\BillResource;
 
 class ViewBill extends ViewRecord
 {

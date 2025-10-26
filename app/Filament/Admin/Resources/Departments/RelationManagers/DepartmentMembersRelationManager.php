@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Admin\Resources\DepartmentResource\RelationManagers;
+namespace App\Filament\Admin\Resources\Departments\RelationManagers;
 
 use Filament\Schemas\Schema;
 use Filament\Actions\CreateAction;

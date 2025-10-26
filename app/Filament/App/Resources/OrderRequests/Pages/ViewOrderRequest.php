@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Resources\OrderRequestResource\Pages;
+namespace App\Filament\App\Resources\OrderRequests\Pages;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
-use App\Filament\App\Resources\OrderRequestResource;
+use App\Filament\App\Resources\OrderRequests\OrderRequestResource;
 
 class ViewOrderRequest extends ViewRecord
 {

@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Filament\App\Resources;
+namespace App\Filament\App\Resources\Codes;
 
 use Filament\Schemas\Schema;
 use Filament\Actions\EditAction;
 use Filament\Actions\BulkActionGroup;
-use App\Filament\App\Resources\CodeResource\Pages\ListCodes;
-use App\Filament\App\Resources\CodeResource\Pages\CreateCode;
-use App\Filament\App\Resources\CodeResource\Pages\EditCode;
+use App\Filament\App\Resources\Codes\Pages\ListCodes;
+use App\Filament\App\Resources\Codes\Pages\CreateCode;
+use App\Filament\App\Resources\Codes\Pages\EditCode;
 use App\Filament\App\Resources\CodeResource\Pages;
 use App\Filament\App\Resources\CodeResource\RelationManagers;
 use App\Models\Code;

@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Filament\Clusters\TypesAndUnits\Resources\SubUnitResource\Pages;
+namespace App\Filament\Clusters\TypesAndUnits\Resources\SubUnits\Pages;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
-use App\Filament\Clusters\TypesAndUnits\Resources\SubUnitResource;
+use App\Filament\Clusters\TypesAndUnits\Resources\SubUnits\SubUnitResource;
 
 class EditSubUnit extends EditRecord
 {

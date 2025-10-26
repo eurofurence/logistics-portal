@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Resources;
+namespace App\Filament\App\Resources\Bills;
 
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Tabs;
@@ -8,7 +8,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Fieldset;
-use App\Filament\App\Resources\BillResource\Pages\CreateBill;
+use App\Filament\App\Resources\Bills\Pages\CreateBill;
 use Filament\Forms\Components\DatePicker;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\ReplicateAction;
@@ -21,9 +21,9 @@ use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use App\Filament\App\Resources\BillResource\Pages\ListBills;
-use App\Filament\App\Resources\BillResource\Pages\EditBill;
-use App\Filament\App\Resources\BillResource\Pages\ViewBill;
+use App\Filament\App\Resources\Bills\Pages\ListBills;
+use App\Filament\App\Resources\Bills\Pages\EditBill;
+use App\Filament\App\Resources\Bills\Pages\ViewBill;
 use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\Bill;

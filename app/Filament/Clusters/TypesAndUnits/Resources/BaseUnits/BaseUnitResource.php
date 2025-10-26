@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Clusters\TypesAndUnits\Resources;
+namespace App\Filament\Clusters\TypesAndUnits\Resources\BaseUnits;
 
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
@@ -9,9 +9,9 @@ use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use App\Filament\Clusters\TypesAndUnits\Resources\BaseUnitResource\Pages\ListBaseUnits;
-use App\Filament\Clusters\TypesAndUnits\Resources\BaseUnitResource\Pages\CreateBaseUnit;
-use App\Filament\Clusters\TypesAndUnits\Resources\BaseUnitResource\Pages\EditBaseUnit;
+use App\Filament\Clusters\TypesAndUnits\Resources\BaseUnits\Pages\ListBaseUnits;
+use App\Filament\Clusters\TypesAndUnits\Resources\BaseUnits\Pages\CreateBaseUnit;
+use App\Filament\Clusters\TypesAndUnits\Resources\BaseUnits\Pages\EditBaseUnit;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\SubUnit;
@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Select;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
-use App\Filament\Clusters\TypesAndUnits;
+use App\Filament\Clusters\TypesAndUnits\TypesAndUnitsCluster;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Support\Htmlable;
@@ -36,7 +36,7 @@ class BaseUnitResource extends Resource
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-cube-transparent';
 
-    protected static ?string $cluster = TypesAndUnits::class;
+    protected static ?string $cluster = TypesAndUnitsCluster::class;
 
     public static function getNavigationGroup(): string
     {

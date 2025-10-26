@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Admin\Resources\TestModelResource\Pages;
+namespace App\Filament\Admin\Resources\TestModels\Pages;
 
 use Filament\Actions\DeleteAction;
-use App\Filament\Admin\Resources\TestModelResource;
+use App\Filament\Admin\Resources\TestModels\TestModelResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 

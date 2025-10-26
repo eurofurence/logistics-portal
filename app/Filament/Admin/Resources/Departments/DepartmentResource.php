@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Admin\Resources;
+namespace App\Filament\Admin\Resources\Departments;
 
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
@@ -12,9 +12,9 @@ use Filament\Actions\RestoreAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use App\Filament\Admin\Resources\DepartmentResource\Pages\ListDepartments;
-use App\Filament\Admin\Resources\DepartmentResource\Pages\CreateDepartment;
-use App\Filament\Admin\Resources\DepartmentResource\Pages\EditDepartment;
+use App\Filament\Admin\Resources\Departments\Pages\ListDepartments;
+use App\Filament\Admin\Resources\Departments\Pages\CreateDepartment;
+use App\Filament\Admin\Resources\Departments\Pages\EditDepartment;
 use Filament\Tables;
 use App\Models\Department;
 use Filament\Tables\Table;
@@ -25,7 +25,7 @@ use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Admin\Resources\DepartmentResource\Pages;
-use App\Filament\Admin\Resources\DepartmentResource\RelationManagers\DepartmentMembersRelationManager;
+use App\Filament\Admin\Resources\Departments\RelationManagers\DepartmentMembersRelationManager;
 
 class DepartmentResource extends Resource
 {

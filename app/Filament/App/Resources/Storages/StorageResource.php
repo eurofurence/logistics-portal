@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\App\Resources;
+namespace App\Filament\App\Resources\Storages;
 
 use Filament\Panel;
 use Filament\Schemas\Schema;
@@ -16,10 +16,10 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use App\Filament\App\Resources\StorageResource\Pages\ListStorages;
-use App\Filament\App\Resources\StorageResource\Pages\CreateStorage;
-use App\Filament\App\Resources\StorageResource\Pages\EditStorage;
-use App\Filament\App\Resources\StorageResource\Pages\ViewStorage;
+use App\Filament\App\Resources\Storages\Pages\ListStorages;
+use App\Filament\App\Resources\Storages\Pages\CreateStorage;
+use App\Filament\App\Resources\Storages\Pages\EditStorage;
+use App\Filament\App\Resources\Storages\Pages\ViewStorage;
 use Filament\Tables;
 use App\Models\Storage;
 use App\Models\Department;
