@@ -52,6 +52,7 @@ FROM node:20-buster AS vite
 WORKDIR /app
 COPY package.json package-lock.json vite.config.js ./
 RUN npm install
+COPY --from=base /app/vendor /app/vendor
 COPY ./resources /app/resources
 COPY --from=vite-vendor-build /app/vendor/tightenco/ziggy /app/vendor/tightenco/ziggy
 RUN npm run build
