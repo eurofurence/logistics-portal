@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a2104552004e87bfefe3bd340cce4d45",
+    "content-hash": "b94ffcb0c25360c6eaba612f1222aacb",
     "packages": [
         {
             "name": "althinect/filament-spatie-roles-permissions",
@@ -6213,63 +6213,6 @@
                 "source": "https://github.com/jmespath/jmespath.php/tree/2.8.0"
             },
             "time": "2024-09-04T18:46:31+00:00"
-        },
-        {
-            "name": "mvenghaus/filament-plugin-schedule-monitor",
-            "version": "3.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mvenghaus/filament-plugin-schedule-monitor.git",
-                "reference": "748a217cde5a02e91040d4d107648e0de4dbfc35"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mvenghaus/filament-plugin-schedule-monitor/zipball/748a217cde5a02e91040d4d107648e0de4dbfc35",
-                "reference": "748a217cde5a02e91040d4d107648e0de4dbfc35",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^8.2",
-                "spatie/laravel-schedule-monitor": "^3.5.0"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "Mvenghaus\\FilamentScheduleMonitor\\ServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Mvenghaus\\FilamentScheduleMonitor\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Marcus Venghaus",
-                    "email": "marcus.venghaus@inklammern.de",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Filament Plugin for Spatie's Schedule Monitor",
-            "homepage": "https://github.com/mvenghaus/filament-plugin-schedule-monitor",
-            "keywords": [
-                "filament",
-                "laravel",
-                "monitor",
-                "mvenghaus",
-                "schedule"
-            ],
-            "support": {
-                "issues": "https://github.com/hofstein/filament-plugin-schedule-monitor/issues",
-                "source": "https://github.com/hofstein/filament-plugin-schedule-monitor"
-            },
-            "time": "2024-02-04T14:30:05+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -18559,5 +18502,5 @@
         "php": "^8.4"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }

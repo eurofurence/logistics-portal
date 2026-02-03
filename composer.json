@@ -37,7 +37,6 @@
         "maatwebsite/excel": "^3.1",
         "martinpetricko/filament-sentry-feedback": "^2.0",
         "mpdf/mpdf": "^8.2",
-        "mvenghaus/filament-plugin-schedule-monitor": "^3.0",
         "njxqlus/filament-lightbox": "^3.0",
         "njxqlus/filament-progressbar": "^2.0",
         "parfaitementweb/filament-country-field": "^2.0",

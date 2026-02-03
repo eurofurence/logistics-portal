@@ -23,7 +23,6 @@ use App\Filament\Admin\Pages\HealthCheckResults;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Filament\Pages\Dashboard as FilamentDashboard;
 use Illuminate\Routing\Middleware\SubstituteBindings;
-use Mvenghaus\FilamentScheduleMonitor\FilamentPlugin;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -100,7 +99,6 @@ class AdminPanelProvider extends PanelProvider
                 FilamentProgressbarPlugin::make()->color('#29b'),
                 SpatieTranslatablePlugin::make()
                     ->defaultLocales(['en', 'de']),
-                FilamentPlugin::make(),
                 FilamentSpatieLaravelHealthPlugin::make()
                     ->usingPage(HealthCheckResults::class),
                 QuickCreatePlugin::make()
