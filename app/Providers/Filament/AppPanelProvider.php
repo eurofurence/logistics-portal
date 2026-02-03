@@ -19,21 +19,17 @@ use App\Filament\Pages\Auth\EditProfile;
 use BezhanSalleh\PanelSwitch\PanelSwitch;
 use Awcodes\QuickCreate\QuickCreatePlugin;
 use Filament\Http\Middleware\Authenticate;
-use App\Filament\App\Resources\Bills\BillResource;
-use App\Filament\App\Resources\Items\ItemResource;
-use App\Filament\App\Resources\Orders\OrderResource;
 use pxlrbt\FilamentSpotlight\SpotlightPlugin;
-use App\Filament\App\Resources\Storages\StorageResource;
 use Illuminate\Session\Middleware\StartSession;
 use App\Filament\Admin\Pages\HealthCheckResults;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use App\Filament\App\Resources\OrderEvents\OrderEventResource;
-use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
-use App\Filament\App\Resources\OrderRequests\OrderRequestResource;
-use App\Filament\App\Resources\OrderCategories\OrderCategoryResource;
+use App\Filament\App\Resources\Bills\BillResource;
+use App\Filament\App\Resources\Items\ItemResource;
+use App\Filament\App\Resources\Orders\OrderResource;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Filament\App\Resources\Storages\StorageResource;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use LaraZeus\SpatieTranslatable\SpatieTranslatablePlugin;
 use CharrafiMed\GlobalSearchModal\GlobalSearchModalPlugin;
@@ -41,8 +37,12 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Njxqlus\FilamentProgressbar\FilamentProgressbarPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use App\Filament\App\Resources\OrderEvents\OrderEventResource;
 use TomatoPHP\FilamentDeveloperGate\FilamentDeveloperGatePlugin;
-use pxlrbt\FilamentEnvironmentIndicator\EnvironmentIndicatorPlugin;
+use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
+use App\Filament\App\Resources\OrderRequests\OrderRequestResource;
+use App\Filament\App\Resources\OrderCategories\OrderCategoryResource;
+use CraftForge\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
 use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
 
 class AppPanelProvider extends PanelProvider
@@ -69,7 +69,7 @@ class AppPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
-            //->viteTheme('resources/css/filament/app/theme.css')
+            ->viteTheme('resources/css/filament/app/theme.css')
             ->widgets([
                 AccountWidget::class,
             ])
@@ -85,8 +85,11 @@ class AppPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
-                SpatieTranslatablePlugin::make()
-                    ->defaultLocales(['en', 'de']),
+                FilamentLanguageSwitcherPlugin::make()
+                    ->locales([
+                        ['code' => 'en', 'flag' => 'us'],
+                        ['code' => 'de'],
+                    ]),
                 FilamentProgressbarPlugin::make()->color('#29b'),
                 FilamentSpatieLaravelHealthPlugin::make()
                     ->usingPage(HealthCheckResults::class),
@@ -101,18 +104,6 @@ class AppPanelProvider extends PanelProvider
                         StorageResource::class,
                         ItemResource::class,
                     ]),
-                EnvironmentIndicatorPlugin::make()
-                    ->visible(fn() => match (config('app.env')) {
-                        'production' => false,
-                        'local' => true,
-                        'testing' => true,
-                    })
-                    ->color(fn() => match (config('app.env')) {
-                        'production' => null,
-                        'local' => Color::Pink,
-                        'testing' => Color::Orange,
-                        default => Color::Blue,
-                    }),
                 SpotlightPlugin::make(),
                 GlobalSearchModalPlugin::make(),
                 FilamentDeveloperGatePlugin::make()

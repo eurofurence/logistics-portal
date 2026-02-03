@@ -22,9 +22,6 @@ use Illuminate\Session\Middleware\StartSession;
 use App\Filament\Admin\Pages\HealthCheckResults;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Filament\Pages\Dashboard as FilamentDashboard;
-use App\Filament\Admin\Resources\Whitelists\WhitelistResource;
-use App\Filament\Admin\Resources\Departments\DepartmentResource;
-use App\Filament\Admin\Resources\IdpRankSyncs\IdpRankSyncResource;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Mvenghaus\FilamentScheduleMonitor\FilamentPlugin;
 use Illuminate\Session\Middleware\AuthenticateSession;
@@ -36,9 +33,12 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Njxqlus\FilamentProgressbar\FilamentProgressbarPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use App\Filament\Admin\Resources\Whitelists\WhitelistResource;
+use App\Filament\Admin\Resources\Departments\DepartmentResource;
 use TomatoPHP\FilamentDeveloperGate\FilamentDeveloperGatePlugin;
-use pxlrbt\FilamentEnvironmentIndicator\EnvironmentIndicatorPlugin;
+use App\Filament\Admin\Resources\IdpRankSyncs\IdpRankSyncResource;
 use Althinect\FilamentSpatieRolesPermissions\Resources\RoleResource;
+use CraftForge\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
 use Althinect\FilamentSpatieRolesPermissions\Resources\PermissionResource;
 use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
 use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
@@ -58,7 +58,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->favicon(asset('favicon.ico'))
-            //->viteTheme('resources/css/filament/admin/theme.css')
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([
                 'primary' => $primaryColor,
             ])
@@ -92,6 +92,11 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
+                FilamentLanguageSwitcherPlugin::make()
+                    ->locales([
+                        ['code' => 'en', 'flag' => 'us'],
+                        ['code' => 'de'],
+                    ]),
                 FilamentProgressbarPlugin::make()->color('#29b'),
                 SpatieTranslatablePlugin::make()
                     ->defaultLocales(['en', 'de']),
@@ -106,18 +111,6 @@ class AdminPanelProvider extends PanelProvider
                         PermissionResource::class,
                         RoleResource::class,
                     ]),
-                EnvironmentIndicatorPlugin::make()
-                    ->visible(fn() => match (config('app.env')) {
-                        'production' => false,
-                        'local' => true,
-                        'testing' => true,
-                    })
-                    ->color(fn() => match (config('app.env')) {
-                        'production' => null,
-                        'local' => Color::Pink,
-                        'testing' => Color::Orange,
-                        default => Color::Blue,
-                    }),
                 //FilamentUserActivityPlugin::make(),
                 SpotlightPlugin::make(),
                 GlobalSearchModalPlugin::make(),

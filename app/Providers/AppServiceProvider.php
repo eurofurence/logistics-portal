@@ -23,7 +23,6 @@ use Spatie\Health\Checks\Checks\QueueCheck;
 use Spatie\Health\Checks\Checks\RedisCheck;
 use Spatie\Health\Checks\Checks\HorizonCheck;
 use Spatie\Health\Checks\Checks\ScheduleCheck;
-use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Spatie\Health\Checks\Checks\DebugModeCheck;
 use Spatie\Health\Checks\Checks\EnvironmentCheck;
 use Spatie\Health\Checks\Checks\DatabaseSizeCheck;
@@ -85,18 +84,6 @@ class AppServiceProvider extends ServiceProvider
                 ->failWhenMoreConnectionsThan(100),
             //QueueCheck::new(),
         ]);
-
-
-        LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
-            $switch
-                ->locales(['de', 'en'])
-                ->visible(outsidePanels: true)
-                ->flags([
-                    'de' => asset('images/icons/flags/germany.svg'),
-                    'en' => asset('images/icons/flags/american.svg'),
-                ])
-                ->circular();
-        });
 
         $socialite = $this->app->make(Factory::class);
         $socialite->extend('identity', function () use ($socialite) {

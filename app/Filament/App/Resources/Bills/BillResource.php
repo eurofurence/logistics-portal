@@ -62,7 +62,7 @@ class BillResource extends Resource
 
     public static function getNavigationGroup(): string
     {
-        static::$navigationGroup = __('general.billing') . ' (BETA)';
+        static::$navigationGroup = __('general.billing');
 
         return static::$navigationGroup;
     }
