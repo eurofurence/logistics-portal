@@ -44,7 +44,6 @@ use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Contracts\Support\Htmlable;
 use App\Filament\App\Resources\BillResource\Pages;
@@ -53,12 +52,13 @@ use App\Filament\App\Resources\Bills\Pages\ViewBill;
 use App\Filament\App\Resources\Bills\Pages\ListBills;
 use App\Filament\App\Resources\Bills\Pages\CreateBill;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Infolists\Components\TextEntry;
 
 class BillResource extends Resource
 {
     protected static ?string $model = Bill::class;
 
-    //protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedBanknotes;
 
     public static function getNavigationGroup(): string
     {
@@ -346,18 +346,18 @@ class BillResource extends Resource
                                     ->columns(2),
                                 Fieldset::make('')
                                     ->schema([
-                                        Placeholder::make('added_by')
+                                        TextEntry::make('added_by')
                                             ->label(__('general.added_by'))
-                                            ->content(fn(Model $record) => $record->addedBy->name),
-                                        Placeholder::make('edited_by')
+                                            ->state(fn(Model $record) => $record->addedBy->name),
+                                        TextEntry::make('edited_by')
                                             ->label(__('general.edited_by'))
-                                            ->content(fn(Model $record) => $record->editedBy->name),
-                                        Placeholder::make('created_at')
+                                            ->state(fn(Model $record) => $record->editedBy->name),
+                                        TextEntry::make('created_at')
                                             ->label(__('general.created_at'))
-                                            ->content(fn(Model $record) => Carbon::parse($record->created_at)->timezone('Europe/Berlin')),
-                                        Placeholder::make('updated_at')
+                                            ->state(fn(Model $record) => Carbon::parse($record->created_at)->timezone('Europe/Berlin')),
+                                        TextEntry::make('updated_at')
                                             ->label(__('general.updated_at'))
-                                            ->content(fn(Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
+                                            ->state(fn(Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
                                     ])
                                     ->hiddenOn(CreateBill::class)
                                     ->label(__('general.timestamps_and_users'))
@@ -453,11 +453,16 @@ class BillResource extends Resource
                         return $priceFormatted . ' ' . $symbol;
                     })
                     ->sortable()
+                    ->toggleable(),
+                TextColumn::make('created_at')
+                    ->label(__('general.created_at'))
+                    ->sortable()
+                    ->date()
                     ->toggleable()
             ])
             ->filters([
                 TrashedFilter::make()
-                    ->visible(fn(Bill $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
+                    ->visible(fn(): bool => Gate::allows('restore', Bill::class) || Gate::allows('forceDelete', Bill::class) || Gate::allows('bulkForceDelete', Bill::class) || Gate::allows('bulkRestore', Bill::class)),
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
@@ -531,22 +536,21 @@ class BillResource extends Resource
                     ActionGroup::make([
                         ReplicateAction::make()
                             ->schema([
-                                Placeholder::make('duplicate_hint')
+                                TextEntry::make('duplicate_hint')
                                     ->label(__('general.hint'))
-                                    ->content(__('general.duplicate_note_1')),
+                                    ->state(__('general.duplicate_note_1')),
                                 TextInput::make('title')
                                     ->label(__('general.title'))
                                     ->required()
                                     ->maxLength(64)
                                     ->unique(),
                             ])
+                            ->beforeReplicaSaved(function (Model $replica, array $data): void {
+                                $replica->fill($data);
+                                $replica->status = 'open';
+                            })
                             ->successRedirectUrl(fn(Model $replica): string => route('filament.app.resources.bills.edit', $replica))
-                            ->successNotificationTitle(__('general.entry_duplicated'))
-                            ->mutateFormDataUsing(function (array $data): array {
-                                $data['status'] = 'open';
-
-                                return $data;
-                            }),
+                            ->successNotificationTitle(__('general.entry_duplicated')),
                         EditAction::make(),
                         DeleteAction::make()
                             ->modalHeading(function ($record): string {
@@ -584,9 +588,9 @@ class BillResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn(Bill $record): bool => Gate::allows('bulkDelete', $record)),
+                        ->visible(fn(): bool => Gate::allows('bulkDelete', Bill::class)),
                     RestoreBulkAction::make()
-                        ->visible(fn(Bill $record): bool => Gate::allows('bulkRestore', $record)),
+                        ->visible(fn(): bool => Gate::allows('bulkRestore', Bill::class)),
                 ]),
             ])
             ->groups([

@@ -83,7 +83,7 @@ class ItemResource extends Resource
 
     public static function getNavigationGroup(): string
     {
-        static::$navigationGroup = __('general.inventory') . ' (BETA)';
+        static::$navigationGroup = __('general.inventory');
 
         return static::$navigationGroup;
     }
