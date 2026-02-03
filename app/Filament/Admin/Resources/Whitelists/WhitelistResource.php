@@ -12,7 +12,6 @@ use Filament\Actions\RestoreBulkAction;
 use App\Filament\Admin\Resources\Whitelists\Pages\ListWhitelists;
 use App\Filament\Admin\Resources\Whitelists\Pages\CreateWhitelist;
 use App\Filament\Admin\Resources\Whitelists\Pages\EditWhitelist;
-use Filament\Tables;
 use App\Models\Whitelist;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -20,13 +19,13 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
-use App\Filament\Admin\Resources\WhitelistResource\Pages;
+use Filament\Support\Icons\Heroicon;
 
 class WhitelistResource extends Resource
 {
     protected static ?string $model = Whitelist::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-check';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedCheck;
 
     protected static ?string $recordTitleAttribute = 'email';
 

@@ -31,14 +31,12 @@ use App\Filament\App\Resources\OrderArticles\Pages\EditOrderArticle;
 use App\Filament\App\Resources\OrderArticles\Pages\ViewOrderArticle;
 use DateTime;
 use DateTimeZone;
-use Filament\Tables;
 use Filament\Tables\Table;
 use App\Models\OrderArticle;
 use App\Models\OrderCategory;
 use Filament\Resources\Resource;
 use App\Actions\TableOrderAction;
 use App\Services\AsinDataService;
-use Filament\Infolists\Components;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Facades\Bus;
@@ -61,12 +59,11 @@ use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\Placeholder;
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Infolists\Components\TextEntry;
 use Illuminate\Database\Eloquent\Collection;
 use Filament\Forms\Components\DateTimePicker;
-use App\Filament\App\Resources\OrderArticleResource\Pages;
+use Filament\Support\Icons\Heroicon;
 use Njxqlus\Filament\Components\Infolists\LightboxImageEntry;
 
 class OrderArticleResource extends Resource
@@ -74,7 +71,7 @@ class OrderArticleResource extends Resource
 
     protected static ?string $model = OrderArticle::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-list-bullet';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedListBullet;
 
     public static function getNavigationGroup(): string
     {
@@ -203,8 +200,8 @@ class OrderArticleResource extends Resource
                                             ->default(0),
                                         Section::make(__('general.description'))
                                             ->schema([
-                                                Placeholder::make('price_description')
-                                                    ->content(__('general.price_calculation_description'))
+                                                TextEntry::make('price_description')
+                                                    ->state(__('general.price_calculation_description'))
                                                     ->columnSpanFull()
                                                     ->hiddenLabel(true),
                                                 Toggle::make('auto_calculate')
@@ -230,8 +227,8 @@ class OrderArticleResource extends Resource
                                             ->color('info')
                                             ->requiresConfirmation()
                                             ->schema([
-                                                Placeholder::make(__('general.hint'))
-                                                    ->content(new HtmlString('<b><label style="color: orange">' . __('general.selected_fields_will_be_overwritten') . '</label></b>'))
+                                                TextEntry::make(__('general.hint'))
+                                                    ->state(new HtmlString('<b><label style="color: orange">' . __('general.selected_fields_will_be_overwritten') . '</label></b>'))
                                                     ->extraAttributes(['class' => 'text-red-500'])
                                                     ->columnSpanFull(),
                                                 Select::make('fields')
@@ -419,7 +416,7 @@ class OrderArticleResource extends Resource
             ->columns([
                 Split::make([
                     ImageColumn::make('picture')
-                        ->size(100)
+                        ->imageSize(100)
                         ->grow(false),
                     Stack::make([
                         TextColumn::make('name')
@@ -459,7 +456,7 @@ class OrderArticleResource extends Resource
             ])
             ->filters([
                 TrashedFilter::make()
-                    ->visible(fn(OrderArticle $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
+                    ->visible(fn(): bool => Gate::allows('restore', OrderArticle::class) || Gate::allows('forceDelete', OrderArticle::class) || Gate::allows('bulkForceDelete', OrderArticle::class) || Gate::allows('bulkRestore', OrderArticle::class)),
                 SelectFilter::make('category')
                     ->label(__('general.category'))
                     ->options(OrderCategory::all()->pluck('name', 'id'))
@@ -587,9 +584,9 @@ class OrderArticleResource extends Resource
                         ->label(__('general.get_amazon_data'))
                         ->icon('heroicon-o-arrow-path-rounded-square')
                         ->visible(Auth::user()->can('can-use-article-directory-special-functions'))
-                        ->form([
-                            Placeholder::make(__('general.hint'))
-                                ->content(new HtmlString('<b><label style="color: orange">' . __('general.selected_fields_will_be_overwritten') . '</label></b>'))
+                        ->schema([
+                            TextEntry::make(__('general.hint'))
+                                ->state(new HtmlString('<b><label style="color: orange">' . __('general.selected_fields_will_be_overwritten') . '</label></b>'))
                                 ->extraAttributes(['class' => 'text-red-500'])
                                 ->columnSpanFull(),
                             Select::make('fields')
@@ -658,7 +655,7 @@ class OrderArticleResource extends Resource
                         ->label(__('general.set_deadline'))
                         ->icon('heroicon-o-calendar-days')
                         ->visible(Gate::allows('bulkEditDeadline'))
-                        ->form([
+                        ->schema([
                             DateTimePicker::make('deadline')
                                 ->label(__('general.date_and_time'))
                                 ->timezone('Europe/Berlin')
@@ -736,7 +733,7 @@ class OrderArticleResource extends Resource
                             ->visible(function (Model $record) {
                                 return $record->picture;
                             })
-                            ->size(255)
+                            ->imageSize(255)
                             ->slideHeight('100%')
                             ->slideWidth('100%'),
                         Group::make([
@@ -799,7 +796,8 @@ class OrderArticleResource extends Resource
                                     return $record->description;
                                 }),
                         ])
-                    ]),
+                    ])
+                    ->columnSpanFull(),
                 Section::make(__('general.comment'))
                     ->schema([
                         TextEntry::make('comment')
@@ -813,10 +811,12 @@ class OrderArticleResource extends Resource
                     ->schema([
                         Flex::make([
                             Group::make([
-                                TextEntry::make('added_by.name')
-                                    ->label(__('general.added_by')),
-                                TextEntry::make('edited_by.name')
+                                TextEntry::make('added_by')
+                                    ->label(__('general.added_by'))
+                                    ->state(fn(Model $record) => $record->addedBy->name),
+                                TextEntry::make('edited_by')
                                     ->label(__('general.edited_by'))
+                                    ->state(fn(Model $record) => $record->editedBy->name),
                             ]),
                             Group::make([
                                 TextEntry::make('created_at')

@@ -18,13 +18,12 @@ use App\Filament\App\Resources\OrderRequests\Pages\ListOrderRequests;
 use App\Filament\App\Resources\OrderRequests\Pages\CreateOrderRequest;
 use App\Filament\App\Resources\OrderRequests\Pages\EditOrderRequest;
 use App\Filament\App\Resources\OrderRequests\Pages\ViewOrderRequest;
-use Filament\Tables;
 use App\Models\Department;
+use App\Models\Order;
 use App\Models\OrderEvent;
 use Filament\Tables\Table;
 use App\Models\OrderRequest;
 use Filament\Resources\Resource;
-use Filament\Infolists\Components;
 use Filament\Tables\Grouping\Group;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -37,17 +36,16 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Infolists\Components\TextEntry;
-use App\Filament\App\Resources\OrderRequestResource\Pages;
+use Filament\Support\Icons\Heroicon;
 
 class OrderRequestResource extends Resource
 {
     protected static ?string $model = OrderRequest::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-pencil-square';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedPencilSquare;
 
     public static function getNavigationGroup(): string
     {
@@ -129,8 +127,8 @@ class OrderRequestResource extends Resource
             ->components([
                 Section::make()
                     ->schema([
-                        Placeholder::make('')
-                            ->content(__('general.order_request_create_decription')),
+                        TextEntry::make('')
+                            ->state(__('general.order_request_create_decription')),
                         TextInput::make('title')
                             ->label(__('general.title'))
                             ->maxLength(250)
@@ -291,7 +289,7 @@ class OrderRequestResource extends Resource
             ])
             ->filters([
                 TrashedFilter::make()
-                    ->visible(fn(OrderRequest $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
+                    ->visible(fn(): bool => Gate::allows('restore', OrderRequest::class) || Gate::allows('forceDelete', OrderRequest::class) || Gate::allows('bulkForceDelete', OrderRequest::class) || Gate::allows('bulkRestore', OrderRequest::class)),
                 SelectFilter::make('order_event_id')
                     ->label(__('general.order_event'))
                     ->options(OrderEvent::all(['id', 'name'])->pluck('name', 'id'))

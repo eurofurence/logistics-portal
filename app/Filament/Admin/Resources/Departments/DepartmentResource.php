@@ -15,7 +15,6 @@ use Filament\Actions\RestoreBulkAction;
 use App\Filament\Admin\Resources\Departments\Pages\ListDepartments;
 use App\Filament\Admin\Resources\Departments\Pages\CreateDepartment;
 use App\Filament\Admin\Resources\Departments\Pages\EditDepartment;
-use Filament\Tables;
 use App\Models\Department;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -24,14 +23,14 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Admin\Resources\DepartmentResource\Pages;
 use App\Filament\Admin\Resources\Departments\RelationManagers\DepartmentMembersRelationManager;
+use Filament\Support\Icons\Heroicon;
 
 class DepartmentResource extends Resource
 {
     protected static ?string $model = Department::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-building-office';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedBuildingOffice;
 
     public static function getNavigationGroup(): string
     {

@@ -20,7 +20,6 @@ use App\Filament\App\Resources\Storages\Pages\ListStorages;
 use App\Filament\App\Resources\Storages\Pages\CreateStorage;
 use App\Filament\App\Resources\Storages\Pages\EditStorage;
 use App\Filament\App\Resources\Storages\Pages\ViewStorage;
-use Filament\Tables;
 use App\Models\Storage;
 use App\Models\Department;
 use Filament\Tables\Table;
@@ -29,31 +28,29 @@ use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TrashedFilter;
 use Illuminate\Contracts\Support\Htmlable;
-use App\Filament\App\Resources\StorageResource\Pages;
 use Parfaitementweb\FilamentCountryField\Forms\Components\Country;
 
 class StorageResource extends Resource
 {
     protected static ?string $model = Storage::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-building-storefront';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedBuildingStorefront;
 
     public static function getNavigationGroup(): string
     {
-        static::$navigationGroup = __('general.inventory') . ' (BETA)';
+        static::$navigationGroup = __('general.inventory');
 
         return static::$navigationGroup;
     }

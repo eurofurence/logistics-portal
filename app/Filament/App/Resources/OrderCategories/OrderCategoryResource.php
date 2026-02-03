@@ -18,26 +18,23 @@ use App\Filament\App\Resources\OrderCategories\Pages\ListOrderCategories;
 use App\Filament\App\Resources\OrderCategories\Pages\CreateOrderCategory;
 use App\Filament\App\Resources\OrderCategories\Pages\EditOrderCategory;
 use App\Filament\App\Resources\OrderCategories\Pages\ViewOrderCategory;
-use Filament\Tables;
-use App\Models\Department;
 use Filament\Tables\Table;
 use App\Models\OrderCategory;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Gate;
-use Filament\Forms\Components\Select;
 use Filament\Support\Enums\FontWeight;
 use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\Support\Htmlable;
-use App\Filament\App\Resources\OrderCategoryResource\Pages;
+use Filament\Support\Icons\Heroicon;
 
 class OrderCategoryResource extends Resource
 {
     protected static ?string $model = OrderCategory::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-table-cells';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedTableCells;
 
     public static function getNavigationGroup(): string
     {
@@ -110,7 +107,7 @@ class OrderCategoryResource extends Resource
             ])
             ->filters([
                 TrashedFilter::make()
-                    ->visible(fn(OrderCategory $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
+                    ->visible(fn(): bool => Gate::allows('restore', OrderCategory::class) || Gate::allows('forceDelete', OrderCategory::class) || Gate::allows('bulkForceDelete', OrderCategory::class) || Gate::allows('bulkRestore', OrderCategory::class)),
             ])
             ->recordActions([
                 RestoreAction::make(),
@@ -125,11 +122,11 @@ class OrderCategoryResource extends Resource
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn(OrderCategory $record): bool => Gate::allows('bulk-delete', $record)),
+                        ->visible(fn(): bool => Gate::allows('bulk-delete', OrderCategory::class)),
                     RestoreBulkAction::make()
-                        ->visible(fn(OrderCategory $record): bool => Gate::allows('bulk-restore-OrderCategory', $record)),
+                        ->visible(fn(): bool => Gate::allows('bulk-restore-OrderCategory', OrderCategory::class)),
                     ForceDeleteBulkAction::make()
-                        ->visible(fn(OrderCategory $record): bool => Gate::allows('bulk-force-delete-OrderCategory', $record))
+                        ->visible(fn(): bool => Gate::allows('bulk-force-delete-OrderCategory', OrderCategory::class))
                 ]),
             ]);
     }

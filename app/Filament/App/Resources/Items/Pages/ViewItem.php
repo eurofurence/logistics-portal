@@ -2,14 +2,14 @@
 
 namespace App\Filament\App\Resources\Items\Pages;
 
+use Filament\Actions;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ReplicateAction;
-use Filament\Actions;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ViewRecord;
-use Filament\Forms\Components\Placeholder;
+use Filament\Infolists\Components\TextEntry;
 use App\Filament\App\Resources\Items\ItemResource;
 
 class ViewItem extends ViewRecord
@@ -30,9 +30,9 @@ class ViewItem extends ViewRecord
             ReplicateAction::make()
                 ->icon('heroicon-o-arrow-up-on-square-stack')
                 ->schema([
-                    Placeholder::make('duplicate_hint')
+                    TextEntry::make('duplicate_hint')
                         ->label(__('general.hint'))
-                        ->content(__('general.duplicate_note_1')),
+                        ->state(__('general.duplicate_note_1')),
                     TextInput::make('name')
                         ->label(__('general.name'))
                         ->required()

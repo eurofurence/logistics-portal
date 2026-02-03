@@ -26,12 +26,13 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\TrashedFilter;
 use App\Filament\Admin\Resources\IdpRankSyncResource\Pages;
+use Filament\Support\Icons\Heroicon;
 
 class IdpRankSyncResource extends Resource
 {
     protected static ?string $model = IdpRankSync::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-arrow-path';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedArrowPath;
 
     public static function getNavigationGroup(): string
     {

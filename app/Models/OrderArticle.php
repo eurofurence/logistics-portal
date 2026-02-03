@@ -167,12 +167,12 @@ class OrderArticle extends Model
         });
     }
 
-    public function added_by(): HasOne
+    public function addedBy(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'added_by');
     }
 
-    public function edited_by(): HasOne
+    public function editedBy(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'edited_by');
     }

@@ -17,7 +17,6 @@ use App\Filament\App\Resources\OrderEvents\Pages\ListOrderEvents;
 use App\Filament\App\Resources\OrderEvents\Pages\CreateOrderEvent;
 use App\Filament\App\Resources\OrderEvents\Pages\EditOrderEvent;
 use Carbon\Carbon;
-use Filament\Tables;
 use App\Models\OrderEvent;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -29,14 +28,13 @@ use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Forms\Components\DateTimePicker;
-use Archilex\ToggleIconColumn\Columns\ToggleIconColumn;
-use App\Filament\App\Resources\OrderEventResource\Pages;
+use Filament\Support\Icons\Heroicon;
 
 class OrderEventResource extends Resource
 {
     protected static ?string $model = OrderEvent::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-ticket';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedTicket;
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -168,7 +166,7 @@ class OrderEventResource extends Resource
             ])
             ->filters([
                 TrashedFilter::make()
-                    ->visible(fn(OrderEvent $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
+                    ->visible(fn(): bool => Gate::allows('restore', OrderEvent::class) || Gate::allows('forceDelete', OrderEvent::class) || Gate::allows('bulkForceDelete', OrderEvent::class) || Gate::allows('bulkRestore', OrderEvent::class)),
                 SelectFilter::make('locked')
                     ->options([
                         '0' => __('general.unlocked'),

@@ -13,6 +13,7 @@ use App\Filament\App\Resources\CodeResource\RelationManagers;
 use App\Models\Code;
 use Filament\Forms;
 use Filament\Resources\Resource;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,7 +23,7 @@ class CodeResource extends Resource
 {
     protected static ?string $model = Code::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-qr-code';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedQrCode;
 
     public static function getNavigationGroup(): string
     {

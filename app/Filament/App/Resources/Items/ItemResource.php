@@ -62,7 +62,6 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Filters\TernaryFilter;
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Forms\Components\CheckboxList;
@@ -72,12 +71,14 @@ use App\Actions\Inventory\OperationSiteActions;
 use App\Actions\Inventory\SubCategorySiteActions;
 use App\Filament\App\Resources\ItemResource\Pages;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Support\Icons\Heroicon;
 
 class ItemResource extends Resource
 {
     protected static ?string $model = Item::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-list-bullet';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedListBullet;
 
     protected static $export_column_options = array();
 
@@ -406,18 +407,18 @@ class ItemResource extends Resource
                                             ->label(__('general.note')),
                                         Fieldset::make('')
                                             ->schema([
-                                                Placeholder::make('added_by')
+                                                TextEntry::make('added_by')
                                                     ->label(__('general.added_by'))
-                                                    ->content(fn(Model $record) => $record->addedBy->name),
-                                                Placeholder::make('edited_by')
+                                                    ->state(fn(Model $record) => $record->addedBy->name),
+                                                TextEntry::make('edited_by')
                                                     ->label(__('general.edited_by'))
-                                                    ->content(fn(Model $record) => $record->editedBy->name),
-                                                Placeholder::make('created_at')
+                                                    ->state(fn(Model $record) => $record->editedBy->name),
+                                                TextEntry::make('created_at')
                                                     ->label(__('general.created_at'))
-                                                    ->content(fn(Model $record) => Carbon::parse($record->created_at)->timezone('Europe/Berlin')),
-                                                Placeholder::make('updated_at')
+                                                    ->state(fn(Model $record) => Carbon::parse($record->created_at)->timezone('Europe/Berlin')),
+                                                TextEntry::make('updated_at')
                                                     ->label(__('general.updated_at'))
-                                                    ->content(fn(Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
+                                                    ->state(fn(Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
                                             ])
                                             ->hiddenOn(CreateItem::class)
                                     ]),
@@ -443,13 +444,13 @@ class ItemResource extends Resource
                                             ->tabs([
                                                 Tab::make('generate_code')
                                                     ->schema([
-                                                        Placeholder::make('WIP')
+                                                        //Placeholder::make('WIP')
                                                     ])
                                                     ->label(__('general.generate'))
                                                     ->icon('heroicon-o-plus-circle'),
                                                 Tab::make('link_code')
                                                     ->schema([
-                                                        Placeholder::make('WIP')
+                                                        //Placeholder::make('WIP')
                                                     ])
                                                     ->label(__('general.connect'))
                                                     ->disabled()
@@ -592,7 +593,7 @@ class ItemResource extends Resource
             ])
             ->filters([
                 TrashedFilter::make()
-                    ->visible(fn(Item $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
+                    ->visible(fn(): bool => Gate::allows('restore', Item::class) || Gate::allows('forceDelete', Item::class) || Gate::allows('bulkForceDelete', Item::class) || Gate::allows('bulkRestore', Item::class)),
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
@@ -831,7 +832,7 @@ class ItemResource extends Resource
                                     })
                                     ->description(__('general.select_columns')),
                                 Section::make([
-                                    Placeholder::make(__('general.no_options_available'))
+                                    TextEntry::make(__('general.no_options_available'))
                                 ])
                                     ->visible(function (Get $get) {
                                         return $get('export_type') != 'standard';
@@ -850,8 +851,6 @@ class ItemResource extends Resource
                                         ->maxSize(50000)
                                         ->imageEditor()
                                         ->imageEditorMode(1)
-                                        ->imageResizeMode('force')
-                                        ->imageCropAspectRatio('16:9')
                                         ->avatar()
                                         ->storeFiles(true)
                                         ->imageEditorEmptyFillColor('#000000')
@@ -911,7 +910,7 @@ class ItemResource extends Resource
 
                                 #When no option is available
                                 Section::make([
-                                    Placeholder::make(__('general.no_options_available'))
+                                    TextEntry::make(__('general.no_options_available'))
                                 ])
                                     ->visible(function (Get $get) {
                                         return $get('export_type') == 'metro_list';

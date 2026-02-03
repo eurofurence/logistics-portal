@@ -32,9 +32,7 @@ use Filament\Actions\RestoreBulkAction;
 use App\Filament\App\Resources\Orders\Pages\ListOrders;
 use App\Filament\App\Resources\Orders\Pages\EditOrder;
 use App\Filament\App\Resources\Orders\Pages\ViewOrder;
-use Filament\Forms;
 use App\Models\User;
-use Filament\Tables;
 use App\Models\Order;
 use App\Models\Department;
 use App\Models\OrderEvent;
@@ -66,21 +64,20 @@ use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\FileUpload;
 use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Forms\Components\Placeholder;
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Tables\Columns\TextInputColumn;
 use Illuminate\Database\Eloquent\Collection;
 use Filament\Forms\Components\DateTimePicker;
-use App\Filament\App\Resources\OrderResource\Pages;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use App\Models\StatusHistory;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Support\Icons\Heroicon;
 
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedShoppingCart;
 
     protected static $export_column_options = array();
 
@@ -325,8 +322,8 @@ class OrderResource extends Resource
                                                     ->hint(__('general.whole_order')),
                                                 Section::make(__('general.description'))
                                                     ->schema([
-                                                        Placeholder::make('price_description')
-                                                            ->content(__('general.price_calculation_description'))
+                                                        TextEntry::make('price_description')
+                                                            ->state(__('general.price_calculation_description'))
                                                             ->columnSpanFull()
                                                             ->hiddenLabel(true),
                                                         Toggle::make('auto_calculate')
@@ -548,30 +545,30 @@ class OrderResource extends Resource
                                     ->label(__('general.special')),
                                 Fieldset::make('')
                                     ->schema([
-                                        Placeholder::make('added_by')
+                                        TextEntry::make('added_by')
                                             ->label(__('general.added_by'))
-                                            ->content(fn(Model $record) => $record->addedBy->name),
-                                        Placeholder::make('edited_by')
+                                            ->state(fn(Model $record) => $record->addedBy->name),
+                                        TextEntry::make('edited_by')
                                             ->label(__('general.edited_by'))
-                                            ->content(fn(Model $record) => $record->editedBy->name),
-                                        Placeholder::make('created_at')
+                                            ->state(fn(Model $record) => $record->editedBy->name),
+                                        TextEntry::make('created_at')
                                             ->label(__('general.created_at'))
-                                            ->content(fn(Model $record) => Carbon::parse($record->created_at)->timezone('Europe/Berlin')),
-                                        Placeholder::make('updated_at')
+                                            ->state(fn(Model $record) => Carbon::parse($record->created_at)->timezone('Europe/Berlin')),
+                                        TextEntry::make('updated_at')
                                             ->label(__('general.updated_at'))
-                                            ->content(fn(Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
-                                        Placeholder::make('approved_at')
+                                            ->state(fn(Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
+                                        TextEntry::make('approved_at')
                                             ->label(__('general.approved_at'))
-                                            ->content(function (Model $record) {
+                                            ->state(function (Model $record) {
                                                 if (!empty($record->approved_at)) {
                                                     return Carbon::parse($record->approved_at)->timezone('Europe/Berlin');
                                                 }
 
                                                 return '---';
                                             }),
-                                        Placeholder::make('approved_by')
+                                        TextEntry::make('approved_by')
                                             ->label(__('general.approved_by'))
-                                            ->content(function (Model $record) {
+                                            ->state(function (Model $record) {
                                                 if (!empty($record->approvedBy)) {
                                                     return $record->approvedBy->name;
                                                 }
@@ -846,7 +843,7 @@ class OrderResource extends Resource
             ])
             ->filters([
                 TrashedFilter::make()
-                    ->visible(fn(Order $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
+                    ->visible(fn(): bool => Gate::allows('restore', Order::class) || Gate::allows('forceDelete', Order::class) || Gate::allows('bulkForceDelete', Order::class) || Gate::allows('bulkRestore', Order::class)),
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
@@ -1185,17 +1182,39 @@ class OrderResource extends Resource
                                     CheckboxList::make('columns')
                                         ->label('')
                                         ->options(static::$export_column_options)
-                                        ->default(['id', 'name'])
                                         ->columns(3)
                                         ->required()
-                                        ->disableOptionWhen(fn(string $value): bool => in_array($value, ['id', 'name'])),
+                                        ->default(['id', 'name'])
+                                        ->rules([
+                                            function () {
+                                                return function (string $attribute, $value, \Closure $fail) {
+                                                    $required = ['id', 'name'];
+                                                    $missing = array_diff($required, (array) $value);
+
+                                                    $translatedMissing = array_map(
+                                                        fn($key) => static::$export_column_options[$key] ?? $key,
+                                                        $missing
+                                                    );
+
+                                                    if (count($missing) === 1) {
+                                                        $fail(__('middleware.export_field_required', [
+                                                            'fields' => implode('', $translatedMissing)
+                                                        ]));
+                                                    } else if (count($missing) > 1) {
+                                                        $fail(__('middleware.export_fields_required', [
+                                                            'fields' => implode(', ', $translatedMissing)
+                                                        ]));
+                                                    }
+                                                };
+                                            },
+                                        ])
                                 ])
                                     ->visible(function (Get $get) {
                                         return $get('export_type') == 'standard';
                                     })
                                     ->description(__('general.select_columns')),
                                 Section::make([
-                                    Placeholder::make(__('general.no_options_available'))
+                                    TextEntry::make(__('general.no_options_available'))
                                 ])
                                     ->visible(function (Get $get) {
                                         return $get('export_type') != 'standard';
@@ -1204,6 +1223,7 @@ class OrderResource extends Resource
                         Step::make(__('general.options'))
                             ->schema([
                                 #Option for standard export
+                                /*
                                 Section::make([
                                     FileUpload::make('image')
                                         ->label('')
@@ -1214,8 +1234,6 @@ class OrderResource extends Resource
                                         ->maxSize(50000)
                                         ->imageEditor()
                                         ->imageEditorMode(1)
-                                        ->imageResizeMode('force')
-                                        ->imageCropAspectRatio('16:9')
                                         ->avatar()
                                         ->storeFiles(true)
                                         ->imageEditorEmptyFillColor('#000000')
@@ -1225,6 +1243,7 @@ class OrderResource extends Resource
                                     ->visible(function (Get $get) {
                                         return $get('export_type') == 'standard';
                                     }),
+                                */
 
                                 #Options for standard export
                                 Section::make([
@@ -1268,7 +1287,7 @@ class OrderResource extends Resource
 
                                 #When no option is available
                                 Section::make([
-                                    Placeholder::make(__('general.no_options_available'))
+                                    TextEntry::make(__('general.no_options_available'))
                                 ])
                                     ->visible(function (Get $get) {
                                         return $get('export_type') == 'metro_list';
@@ -1350,9 +1369,9 @@ class OrderResource extends Resource
                     }),
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn(Order $record): bool => Gate::allows('bulkDelete', [Auth::user(), $record])),
+                        ->visible(fn(): bool => Gate::allows('bulkDelete', [Auth::user(), Order::class])),
                     RestoreBulkAction::make()
-                        ->visible(fn(Order $record): bool => Gate::allows('bulkRestore', [Auth::user(), $record])),
+                        ->visible(fn(): bool => Gate::allows('bulkRestore', [Auth::user(), Order::class])),
                     BulkAction::make('set_status')
                         ->label(__('general.set_status'))
                         ->action(function (Collection $records, array $data): void {
@@ -1361,7 +1380,7 @@ class OrderResource extends Resource
                             }
                         })
                         ->icon('heroicon-o-ellipsis-horizontal-circle')
-                        ->form([
+                        ->schema([
                             Select::make('status')
                                 ->label(__('general.status'))
                                 ->options([
@@ -1394,7 +1413,7 @@ class OrderResource extends Resource
                                 ->send();
                         })
                         ->icon('heroicon-o-home')
-                        ->form([
+                        ->schema([
                             TextArea::make('delivery_destination')
                                 ->label(__('general.delivery_destination'))
                                 ->rows(7)

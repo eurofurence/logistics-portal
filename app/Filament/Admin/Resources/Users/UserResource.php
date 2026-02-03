@@ -20,7 +20,6 @@ use App\Filament\Admin\Resources\Users\Pages\EditUser;
 use App\Filament\Admin\Resources\Users\Pages\ViewUser;
 use App\Models\Role;
 use App\Models\User;
-use Filament\Tables;
 use App\Models\Department;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -34,7 +33,7 @@ use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Contracts\Support\Htmlable;
 use Filament\Forms\Components\DateTimePicker;
-use App\Filament\Admin\Resources\UserResource\Pages;
+use Filament\Support\Icons\Heroicon;
 
 class UserResource extends Resource
 {
@@ -42,7 +41,7 @@ class UserResource extends Resource
 
     protected static ?string $model = User::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-user';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedUser;
 
     protected static ?string $recordTitleAttribute = 'name';
 

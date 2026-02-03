@@ -2,14 +2,14 @@
 
 namespace App\Filament\App\Resources\Bills\Pages;
 
+use Filament\Actions;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ReplicateAction;
-use Filament\Actions;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Pages\ViewRecord;
-use Filament\Forms\Components\Placeholder;
+use Filament\Infolists\Components\TextEntry;
 use App\Filament\App\Resources\Bills\BillResource;
 
 class ViewBill extends ViewRecord
@@ -29,10 +29,9 @@ class ViewBill extends ViewRecord
             ReplicateAction::make()
                 ->icon('heroicon-o-arrow-up-on-square-stack')
                 ->schema([
-                    #TODO
-                    Placeholder::make('duplicate_hint')
+                    TextEntry::make('duplicate_hint')
                         ->label(__('general.hint'))
-                        ->content(__('general.duplicate_note_1')),
+                        ->state(__('general.duplicate_note_1')),
                     TextInput::make('title')
                         ->label(__('general.title'))
                         ->required()
@@ -41,10 +40,9 @@ class ViewBill extends ViewRecord
                 ])
                 ->successRedirectUrl(fn(Model $replica): string => route('filament.app.resources.bills.edit', $replica))
                 ->successNotificationTitle(__('general.entry_duplicated'))
-                ->mutateFormDataUsing(function (array $data): array {
-                    $data['status'] = 'open';
-
-                    return $data;
+                ->beforeReplicaSaved(function (Model $replica, array $data): void {
+                    $replica->fill($data);
+                    $replica->status = 'open';
                 })
         ];
     }

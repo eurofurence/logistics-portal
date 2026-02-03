@@ -51,7 +51,7 @@ class OrderArticlePolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, OrderArticle $orderarticle): bool
+    public function restore(User $user): bool
     {
         return $user->checkPermissionTo('restore-OrderArticle');
     }
@@ -59,7 +59,7 @@ class OrderArticlePolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, OrderArticle $orderarticle): bool
+    public function forceDelete(User $user): bool
     {
         return $user->checkPermissionTo('force-delete-OrderArticle');
     }

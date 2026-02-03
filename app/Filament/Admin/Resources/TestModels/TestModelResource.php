@@ -9,8 +9,6 @@ use Filament\Actions\DeleteBulkAction;
 use App\Filament\Admin\Resources\TestModels\Pages\ListTestModels;
 use App\Filament\Admin\Resources\TestModels\Pages\CreateTestModel;
 use App\Filament\Admin\Resources\TestModels\Pages\EditTestModel;
-use Filament\Forms;
-use Filament\Tables;
 use App\Models\TestModel;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
@@ -18,16 +16,13 @@ use App\View\Components\BarcodeInput;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Admin\Resources\TestModelResource\Pages;
-use App\Filament\Admin\Resources\TestModelResource\RelationManagers;
+use Filament\Support\Icons\Heroicon;
 
 class TestModelResource extends Resource
 {
     protected static ?string $model = TestModel::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function getNavigationGroup(): string
     {
@@ -67,7 +62,7 @@ class TestModelResource extends Resource
                 TextColumn::make('updated_at'),
             ])
             ->filters([
-                
+
             ])
             ->recordActions([
                 EditAction::make(),
