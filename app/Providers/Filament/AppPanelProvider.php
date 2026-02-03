@@ -135,6 +135,7 @@ class AppPanelProvider extends PanelProvider
             //->emailVerification()
             //->registration()
             ->profile(EditProfile::class, false)
+            ->default()
             ->bootUsing(function () {
                 PanelSwitch::configureUsing(function (PanelSwitch $panelSwitch) {
                     $panelSwitch
