@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Collection;
+use Database\Factories\DepartmentFactory;
+use Illuminate\Database\Eloquent\Builder;
 use InvalidArgumentException;
 use App\Models\ItemsOperationSite;
 use App\Models\InventorySubCategory;
@@ -19,36 +23,36 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property string|null $idp_group_id
  * @property int $added_by
  * @property int $edited_by
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\DepartmentMember> $members
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, DepartmentMember> $members
  * @property-read int|null $members_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Order> $orders
+ * @property-read Collection<int, Order> $orders
  * @property-read int|null $orders_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Role> $roles
+ * @property-read Collection<int, Role> $roles
  * @property-read int|null $roles_count
- * @method static \Database\Factories\DepartmentFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Department newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Department newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Department onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Department query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Department whereAddedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Department whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Department whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Department whereEditedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Department whereIcon($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Department whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Department whereIdpGroupId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Department whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Department whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Department withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Department withoutTrashed()
- * @property-read \Illuminate\Database\Eloquent\Collection<int, InventorySubCategory> $inventory_sub_categories
+ * @method static DepartmentFactory factory($count = null, $state = [])
+ * @method static Builder<static>|Department newModelQuery()
+ * @method static Builder<static>|Department newQuery()
+ * @method static Builder<static>|Department onlyTrashed()
+ * @method static Builder<static>|Department query()
+ * @method static Builder<static>|Department whereAddedBy($value)
+ * @method static Builder<static>|Department whereCreatedAt($value)
+ * @method static Builder<static>|Department whereDeletedAt($value)
+ * @method static Builder<static>|Department whereEditedBy($value)
+ * @method static Builder<static>|Department whereIcon($value)
+ * @method static Builder<static>|Department whereId($value)
+ * @method static Builder<static>|Department whereIdpGroupId($value)
+ * @method static Builder<static>|Department whereName($value)
+ * @method static Builder<static>|Department whereUpdatedAt($value)
+ * @method static Builder<static>|Department withTrashed()
+ * @method static Builder<static>|Department withoutTrashed()
+ * @property-read Collection<int, InventorySubCategory> $inventory_sub_categories
  * @property-read int|null $inventory_sub_categories_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, ItemsOperationSite> $items_operation_sites
+ * @property-read Collection<int, ItemsOperationSite> $items_operation_sites
  * @property-read int|null $items_operation_sites_count
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Storage> $storages
+ * @property-read Collection<int, Storage> $storages
  * @property-read int|null $storages_count
  * @mixin \Eloquent
  */

@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Collection;
+use Database\Factories\OrderEventFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,32 +16,32 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property int $id
  * @property string $name
  * @property int $locked
- * @property \Illuminate\Support\Carbon|null $order_deadline
+ * @property Carbon|null $order_deadline
  * @property int $is_active
  * @property int $added_by
  * @property int $edited_by
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Order> $orders
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Collection<int, Order> $orders
  * @property-read int|null $orders_count
- * @method static \Database\Factories\OrderEventFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereAddedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereEditedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereIsActive($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereLocked($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereOrderDeadline($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderEvent withoutTrashed()
+ * @method static OrderEventFactory factory($count = null, $state = [])
+ * @method static Builder<static>|OrderEvent newModelQuery()
+ * @method static Builder<static>|OrderEvent newQuery()
+ * @method static Builder<static>|OrderEvent onlyTrashed()
+ * @method static Builder<static>|OrderEvent query()
+ * @method static Builder<static>|OrderEvent whereAddedBy($value)
+ * @method static Builder<static>|OrderEvent whereCreatedAt($value)
+ * @method static Builder<static>|OrderEvent whereDeletedAt($value)
+ * @method static Builder<static>|OrderEvent whereEditedBy($value)
+ * @method static Builder<static>|OrderEvent whereId($value)
+ * @method static Builder<static>|OrderEvent whereIsActive($value)
+ * @method static Builder<static>|OrderEvent whereLocked($value)
+ * @method static Builder<static>|OrderEvent whereName($value)
+ * @method static Builder<static>|OrderEvent whereOrderDeadline($value)
+ * @method static Builder<static>|OrderEvent whereUpdatedAt($value)
+ * @method static Builder<static>|OrderEvent withTrashed()
+ * @method static Builder<static>|OrderEvent withoutTrashed()
  * @mixin \Eloquent
  */
 class OrderEvent extends Model

@@ -2,21 +2,21 @@
 
 namespace App\Filament\Pages\Auth;
 
-use Filament\Forms\Form;
-use Filament\Forms\Components\Tabs;
-use Filament\Forms\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\TextInput;
-use Filament\Pages\Auth\EditProfile as BaseEditProfile;
 
-class EditProfile extends BaseEditProfile
+class EditProfile extends \Filament\Auth\Pages\EditProfile
 {
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 Tabs::make('Tabs')
                     ->tabs([
-                        Tabs\Tab::make('Tab 1')
+                        Tab::make('Tab 1')
                             ->schema([
                                 Section::make(__('general.notification_email'))
                                     ->schema([

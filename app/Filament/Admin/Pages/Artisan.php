@@ -2,6 +2,8 @@
 
 namespace App\Filament\Admin\Pages;
 
+use Gate;
+use Exception;
 use Filament\Panel;
 use App\Models\Command;
 use Filament\Pages\Page;
@@ -27,9 +29,9 @@ class Artisan extends Page implements HasTable, HasActions
     use InteractsWithTable;
     use InteractsWithActions;
 
-    protected static ?string $navigationIcon = 'heroicon-o-command-line';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-command-line';
 
-    protected static string $view = 'filament.admin.pages.artisan.index';
+    protected string $view = 'filament.admin.pages.artisan.index';
 
     public static function getRouteMiddleware(Panel $panel): string|array
     {
@@ -81,7 +83,7 @@ class Artisan extends Page implements HasTable, HasActions
             Action::make('output')
                 ->icon('heroicon-s-computer-desktop')
                 ->color('warning')
-                ->form(fn(array $arguments = []) => [
+                ->schema(fn(array $arguments = []) => [
                     Textarea::make('output')
                         ->autosize()
                         ->default($arguments ? $arguments['output'] : session()->get('terminal_output'))
@@ -120,7 +122,7 @@ class Artisan extends Page implements HasTable, HasActions
             ->requiresConfirmation()
             ->view('filament.admin.pages.artisan.actions.run')
             ->viewData(['item' => $item])
-            ->form(function (array $arguments = []) {
+            ->schema(function (array $arguments = []) {
                 $form = [];
                 $commandArguments = $arguments['item']['arguments'] != 'null' ? json_decode($arguments['item']['arguments']) : [];
                 $commandOptions = $arguments['item']['options'] != 'null' ? json_decode($arguments['item']['options']) : [];
@@ -235,7 +237,7 @@ class Artisan extends Page implements HasTable, HasActions
             $permissions = config('filament-artisan.permissions', []);
 
             if (count($permissions)) {
-                if (in_array($command->getName(), array_keys($permissions)) && !\Gate::check($permissions[$command->getName()])) {
+                if (in_array($command->getName(), array_keys($permissions)) && !Gate::check($permissions[$command->getName()])) {
                     abort(403);
                 }
             }
@@ -270,7 +272,7 @@ class Artisan extends Page implements HasTable, HasActions
                 ->send();
 
             return $output;
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             session()->forget('terminal_output');
             session()->put('terminal_output', $exception->getMessage());
 

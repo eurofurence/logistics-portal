@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -12,26 +14,26 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property int $id
  * @property string $name
  * @property int|null $sub_unit
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \App\Models\User|null $added_by
- * @property \App\Models\User|null $edited_by
- * @property-read \App\Models\SubUnit|null $subUnit
- * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseUnit newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseUnit newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseUnit onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseUnit query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseUnit whereAddedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseUnit whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseUnit whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseUnit whereEditedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseUnit whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseUnit whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseUnit whereSubUnit($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseUnit whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseUnit withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|BaseUnit withoutTrashed()
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property User|null $added_by
+ * @property User|null $edited_by
+ * @property-read SubUnit|null $subUnit
+ * @method static Builder<static>|BaseUnit newModelQuery()
+ * @method static Builder<static>|BaseUnit newQuery()
+ * @method static Builder<static>|BaseUnit onlyTrashed()
+ * @method static Builder<static>|BaseUnit query()
+ * @method static Builder<static>|BaseUnit whereAddedBy($value)
+ * @method static Builder<static>|BaseUnit whereCreatedAt($value)
+ * @method static Builder<static>|BaseUnit whereDeletedAt($value)
+ * @method static Builder<static>|BaseUnit whereEditedBy($value)
+ * @method static Builder<static>|BaseUnit whereId($value)
+ * @method static Builder<static>|BaseUnit whereName($value)
+ * @method static Builder<static>|BaseUnit whereSubUnit($value)
+ * @method static Builder<static>|BaseUnit whereUpdatedAt($value)
+ * @method static Builder<static>|BaseUnit withTrashed()
+ * @method static Builder<static>|BaseUnit withoutTrashed()
  * @mixin \Eloquent
  */
 class BaseUnit extends Model

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Throwable;
 use Illuminate\Console\Command;
 use Spatie\Backup\Config\Config;
 use Illuminate\Support\Facades\File;
@@ -76,7 +77,7 @@ class BackupWithS3 extends Command
             }
 
             $this->info('Completed');
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             $this->error('Error: ' . $th->getMessage());
         }
     }

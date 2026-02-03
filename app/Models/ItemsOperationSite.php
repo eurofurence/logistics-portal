@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use App\Models\Department;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
@@ -14,19 +16,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $department
  * @property int $added_by
  * @property int $edited_by
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  * @property-read Department|null $connected_department
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemsOperationSite newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemsOperationSite newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemsOperationSite query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemsOperationSite whereAddedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemsOperationSite whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemsOperationSite whereDepartment($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemsOperationSite whereEditedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemsOperationSite whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemsOperationSite whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ItemsOperationSite whereUpdatedAt($value)
+ * @method static Builder<static>|ItemsOperationSite newModelQuery()
+ * @method static Builder<static>|ItemsOperationSite newQuery()
+ * @method static Builder<static>|ItemsOperationSite query()
+ * @method static Builder<static>|ItemsOperationSite whereAddedBy($value)
+ * @method static Builder<static>|ItemsOperationSite whereCreatedAt($value)
+ * @method static Builder<static>|ItemsOperationSite whereDepartment($value)
+ * @method static Builder<static>|ItemsOperationSite whereEditedBy($value)
+ * @method static Builder<static>|ItemsOperationSite whereId($value)
+ * @method static Builder<static>|ItemsOperationSite whereName($value)
+ * @method static Builder<static>|ItemsOperationSite whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class ItemsOperationSite extends Model

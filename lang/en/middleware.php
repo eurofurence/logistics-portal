@@ -8,5 +8,6 @@ return array (
   'superuser_needed' => 'Superuser account is needed',
   'account_deleted' => 'Account has been deleted',
   'no_permission_order_status' => 'You do not have permission to set the order status',
-  
+  'export_field_required' => "The field ':fields' is required and cannot be removed.",
+  'export_fields_required' => "The fields ':fields' are required and cannot be removed.",
 );

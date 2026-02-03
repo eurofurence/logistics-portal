@@ -159,14 +159,8 @@ class OrderPolicy
     /**
      * Determine whether the user can restore the model. (Many models at once)
      */
-    public function bulkRestore(User $user, Order $order): bool
+    public function bulkRestore(User $user): bool
     {
-        $result = false;
-
-        if (!empty($order->department)) {
-            $user->hasDepartmentRoleWithPermissionTo('bulk-restore-Order', $order->department->id);
-        }
-
-        return $result || $user->checkPermissionTo('bulk-restore-Order');
+        return $user->checkPermissionTo('bulk-restore-Order');
     }
 }

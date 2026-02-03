@@ -2,13 +2,13 @@
 
 namespace App\Actions\Inventory;
 
-use Filament\Forms\Get;
-use Filament\Forms\Set;
+use Filament\Actions\Action;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Utilities\Get;
 use App\Models\InventorySubCategory;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Forms\Components\Actions\Action;
 
 final class SubCategorySiteActions
 {
@@ -50,7 +50,7 @@ final class SubCategorySiteActions
                     }
                 }
             })
-            ->form(function ($record, Get $get) {
+            ->schema(function ($record, Get $get) {
                 $department = $record->connected_department();
                 return [
                     TextInput::make('name')
@@ -92,7 +92,7 @@ final class SubCategorySiteActions
                     ->success()
                     ->send();
             })
-            ->form(function ($record) {
+            ->schema(function ($record) {
                 $department = $record->connected_department();
                 return [
                     TextInput::make('name')
