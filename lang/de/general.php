@@ -459,7 +459,8 @@ return array(
     'discord_webhook_description' => 'Sende eine Kopie deiner Benachrichtigungen an einen Discord Webhook',
     'reimbursement_to_invoice_issuer' => 'Erstattung an Rechnungssteller',
     'reimbursement_to_invoice_issuer_tooltip' => 'Der Erstattungsbetrag soll an die Angaben in der Rechnung gesendet werden. Durch das Setzten dieser Option wird das Feld für Rückzahlungsmodalitäten deaktiviert und muss nicht länger ausgefüllt werden.',
-    'file_upload_tooltip' => 'Maximal 5 Dateien mit je einer maximalen Größe von 10MB.'
+    'file_upload_tooltip' => 'Maximal 5 Dateien mit je einer maximalen Größe von 10MB.',
+    'app' => 'App',
 );
 
 

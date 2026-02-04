@@ -461,5 +461,6 @@ return array(
     'discord_webhook_description' => 'Send a copy of your notifications to a Discord webhook',
     'reimbursement_to_invoice_issuer' => 'Reimbursement to biller',
     'reimbursement_to_invoice_issuer_tooltip' => 'The refund amount should be sent to the details in the invoice. By setting this option, the field for repayment modalities is deactivated and no longer needs to be filled in.',
-    'file_upload_tooltip' => 'Maximum 5 files with a maximum size of 10MB each'
+    'file_upload_tooltip' => 'Maximum 5 files with a maximum size of 10MB each',
+    'app' => 'App',
 );

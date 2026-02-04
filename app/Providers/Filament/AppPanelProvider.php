@@ -4,44 +4,30 @@ namespace App\Providers\Filament;
 
 use Exception;
 use Filament\Panel;
-use Filament\Widgets;
 use Filament\PanelProvider;
 use App\Settings\ThemeSettings;
 use App\Filament\Pages\Dashboard;
 use App\Filament\Pages\Auth\Login;
-use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\UserIsLocked;
 use App\Http\Middleware\CheckWhitelist;
 use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
-use BezhanSalleh\PanelSwitch\PanelSwitch;
-use Awcodes\QuickCreate\QuickCreatePlugin;
 use Filament\Http\Middleware\Authenticate;
 use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 use Illuminate\Session\Middleware\StartSession;
 use App\Filament\Admin\Pages\HealthCheckResults;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use App\Filament\App\Resources\Bills\BillResource;
-use App\Filament\App\Resources\Items\ItemResource;
-use App\Filament\App\Resources\Orders\OrderResource;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use App\Filament\App\Resources\Storages\StorageResource;
 use Filament\Http\Middleware\DisableBladeIconComponents;
-use LaraZeus\SpatieTranslatable\SpatieTranslatablePlugin;
 use CharrafiMed\GlobalSearchModal\GlobalSearchModalPlugin;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Njxqlus\FilamentProgressbar\FilamentProgressbarPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use App\Filament\App\Resources\OrderEvents\OrderEventResource;
 use TomatoPHP\FilamentDeveloperGate\FilamentDeveloperGatePlugin;
-use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
-use App\Filament\App\Resources\OrderRequests\OrderRequestResource;
-use App\Filament\App\Resources\OrderCategories\OrderCategoryResource;
 use CraftForge\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
 use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
 
@@ -69,7 +55,7 @@ class AppPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
-            ->viteTheme('resources/css/filament/app/theme.css')
+            //->viteTheme('resources/css/filament/app/theme.css')
             ->widgets([
                 AccountWidget::class,
             ])
@@ -93,17 +79,6 @@ class AppPanelProvider extends PanelProvider
                 FilamentProgressbarPlugin::make()->color('#29b'),
                 FilamentSpatieLaravelHealthPlugin::make()
                     ->usingPage(HealthCheckResults::class),
-                QuickCreatePlugin::make()
-                    ->includes([
-                        OrderArticleResource::class,
-                        OrderEventResource::class,
-                        OrderCategoryResource::class,
-                        OrderResource::class,
-                        OrderRequestResource::class,
-                        BillResource::class,
-                        StorageResource::class,
-                        ItemResource::class,
-                    ]),
                 SpotlightPlugin::make(),
                 GlobalSearchModalPlugin::make(),
                 FilamentDeveloperGatePlugin::make()
@@ -129,44 +104,19 @@ class AppPanelProvider extends PanelProvider
                     ->url('https://identity.eurofurence.org', shouldOpenInNewTab: false)
                     ->icon('heroicon-o-chevron-double-left')
                     ->sort(0),
+                NavigationItem::make('admin_panel')
+                    ->label(__('general.admin_panel'))
+                    ->url('/admin') // Pfad zu deinem Admin-Panel
+                    ->icon('heroicon-o-cog')
+                    // Der Button wird nur angezeigt, wenn der User die Berechtigung hat
+                    ->visible(fn(): bool => auth()->user()?->can('access-adminpanel') ?? false)
+                    ->sort(100), // Ganz nach unten in der Liste
             ])
             ->login(Login::class)
             //->passwordReset()
             //->emailVerification()
             //->registration()
             ->profile(EditProfile::class, false)
-            ->default()
-            ->bootUsing(function () {
-                PanelSwitch::configureUsing(function (PanelSwitch $panelSwitch) {
-                    $panelSwitch
-                        ->modalHeading(__('general.application'))
-                        ->labels([
-                            'admin' => __('general.admin_panel'),
-                            'app' => __('general.logistics'),
-                        ])
-                        ->icons([
-                            'admin' => 'heroicon-o-cog',
-                            'app' => 'heroicon-o-truck',
-                        ], $asImage = false)
-                        ->panels(function (): array {
-                            $result = array();
-
-                            $result[] = 'app';
-
-                            if (Auth::user()) {
-                                if (Auth::user()->can('access-adminpanel')) {
-                                    $result[] = 'admin';
-                                }
-                            }
-
-                            return $result;
-                        })
-                        ->visible(function () {
-                            if (auth()) {
-                                return Auth::user()->can('access-adminpanel');
-                            }
-                        });
-                });
-            });
+            ->default();
     }
 }

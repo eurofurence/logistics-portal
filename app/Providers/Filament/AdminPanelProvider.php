@@ -4,18 +4,14 @@ namespace App\Providers\Filament;
 
 use Exception;
 use Filament\Panel;
-use Filament\Widgets;
 use Filament\PanelProvider;
 use App\Settings\ThemeSettings;
 use App\Filament\Pages\Auth\Login;
-use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Middleware\UserIsLocked;
 use App\Http\Middleware\CheckWhitelist;
+use Filament\Navigation\NavigationItem;
 use App\Filament\Pages\Auth\EditProfile;
-use BezhanSalleh\PanelSwitch\PanelSwitch;
-use Awcodes\QuickCreate\QuickCreatePlugin;
 use Filament\Http\Middleware\Authenticate;
 use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 use Illuminate\Session\Middleware\StartSession;
@@ -32,13 +28,8 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Njxqlus\FilamentProgressbar\FilamentProgressbarPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use App\Filament\Admin\Resources\Whitelists\WhitelistResource;
-use App\Filament\Admin\Resources\Departments\DepartmentResource;
 use TomatoPHP\FilamentDeveloperGate\FilamentDeveloperGatePlugin;
-use App\Filament\Admin\Resources\IdpRankSyncs\IdpRankSyncResource;
-use Althinect\FilamentSpatieRolesPermissions\Resources\RoleResource;
 use CraftForge\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
-use Althinect\FilamentSpatieRolesPermissions\Resources\PermissionResource;
 use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
 use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugin;
 
@@ -57,7 +48,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->favicon(asset('favicon.ico'))
-            ->viteTheme('resources/css/filament/admin/theme.css')
+            //->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([
                 'primary' => $primaryColor,
             ])
@@ -101,56 +92,23 @@ class AdminPanelProvider extends PanelProvider
                     ->defaultLocales(['en', 'de']),
                 FilamentSpatieLaravelHealthPlugin::make()
                     ->usingPage(HealthCheckResults::class),
-                QuickCreatePlugin::make()
-                    ->includes([
-                        DepartmentResource::class,
-                        WhitelistResource::class,
-                        IdpRankSyncResource::class,
-                        PermissionResource::class,
-                        RoleResource::class,
-                    ]),
                 //FilamentUserActivityPlugin::make(),
                 SpotlightPlugin::make(),
                 GlobalSearchModalPlugin::make(),
                 FilamentDeveloperGatePlugin::make(),
+            ])
+            ->navigationItems([
+                NavigationItem::make('app')
+                    ->label(__('general.app'))
+                    ->url('/app', shouldOpenInNewTab: false)
+                    ->icon('heroicon-o-chevron-double-left')
+                    ->sort(0),
             ])
             ->plugin(FilamentSpatieRolesPermissionsPlugin::make())
             ->authMiddleware([
                 Authenticate::class,
                 UserIsLocked::class,
                 CheckWhitelist::class,
-            ])
-            ->bootUsing(function (Panel $panel) {
-                PanelSwitch::configureUsing(function (PanelSwitch $panelSwitch) {
-                    $panelSwitch
-                        ->modalHeading(__('general.application'))
-                        ->labels([
-                            'admin' => __('general.admin_panel'),
-                            'app' => __('general.logistics'),
-                        ])
-                        ->icons([
-                            'admin' => 'heroicon-o-cog',
-                            'app' => 'heroicon-o-truck',
-                        ], $asImage = false)
-                        ->panels(function (): array {
-                            $result = array();
-
-                            $result[] = 'app';
-
-                            if (Auth::user()) {
-                                if (Auth::user()->can('access-adminpanel')) {
-                                    $result[] = 'admin';
-                                }
-                            }
-
-                            return $result;
-                        })
-                        ->visible(function () {
-                            if (auth()) {
-                                return Auth::user()->can('access-adminpanel');
-                            }
-                        });
-                });
-            });
+            ]);
     }
 }

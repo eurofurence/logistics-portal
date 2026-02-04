@@ -10,10 +10,8 @@
     "require": {
         "php": "^8.4",
         "althinect/filament-spatie-roles-permissions": "3.x-dev",
-        "awcodes/filament-quick-create": "^4.0",
         "awcodes/shout": "^3.0",
         "aws/aws-sdk-php": "^3.320",
-        "bezhansalleh/filament-panel-switch": "^2.0",
         "calebporzio/sushi": "^2.5",
         "charrafimed/global-search-modal": "^4.0",
         "craft-forge/filament-language-switcher": "*",
