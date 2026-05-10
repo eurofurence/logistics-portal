@@ -2,36 +2,31 @@
 
 namespace App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypes;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TrashedFilter;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypes\Pages\ListContainerTypes;
 use App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypes\Pages\CreateContainerType;
 use App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypes\Pages\EditContainerType;
-use Filament\Forms;
-use Filament\Tables;
-use Filament\Tables\Table;
-use App\Models\ContainerType;
-use Filament\Resources\Resource;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Database\Eloquent\Model;
+use App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypes\Pages\ListContainerTypes;
 use App\Filament\Clusters\TypesAndUnits\TypesAndUnitsCluster;
+use App\Models\ContainerType;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypeResource\Pages;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
 
 class ContainerTypeResource extends Resource
 {
     protected static ?string $model = ContainerType::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-viewfinder-circle';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-viewfinder-circle';
 
     protected static ?string $cluster = TypesAndUnitsCluster::class;
 
@@ -78,7 +73,7 @@ class ContainerTypeResource extends Resource
                             ->required()
                             ->maxLength(64)
                             ->label(__('general.name')),
-                    ])
+                    ]),
             ]);
     }
 
@@ -97,7 +92,7 @@ class ContainerTypeResource extends Resource
             ])
             ->filters([
                 TrashedFilter::make()
-                    ->visible(fn (ContainerType $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
+                    ->visible(fn (): bool => Gate::allows('restore', ContainerType::class) || Gate::allows('forceDelete', ContainerType::class) || Gate::allows('bulkForceDelete', ContainerType::class) || Gate::allows('bulkRestore', ContainerType::class)),
             ])
             ->recordActions([
                 EditAction::make(),

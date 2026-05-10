@@ -2,39 +2,33 @@
 
 namespace App\Filament\Clusters\TypesAndUnits\Resources\BaseUnits;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Tables\Filters\TrashedFilter;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use App\Filament\Clusters\TypesAndUnits\Resources\BaseUnits\Pages\ListBaseUnits;
 use App\Filament\Clusters\TypesAndUnits\Resources\BaseUnits\Pages\CreateBaseUnit;
 use App\Filament\Clusters\TypesAndUnits\Resources\BaseUnits\Pages\EditBaseUnit;
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\SubUnit;
-use App\Models\BaseUnit;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Illuminate\Support\Facades\Gate;
-use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
+use App\Filament\Clusters\TypesAndUnits\Resources\BaseUnits\Pages\ListBaseUnits;
 use App\Filament\Clusters\TypesAndUnits\TypesAndUnitsCluster;
+use App\Models\BaseUnit;
+use App\Models\SubUnit;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Clusters\TypesAndUnits\Resources\BaseUnitResource\Pages;
-use App\Filament\Clusters\TypesAndUnits\Resources\BaseUnitResource\RelationManagers;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
 
 class BaseUnitResource extends Resource
 {
     protected static ?string $model = BaseUnit::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-cube-transparent';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cube-transparent';
 
     protected static ?string $cluster = TypesAndUnitsCluster::class;
 
@@ -74,7 +68,7 @@ class BaseUnitResource extends Resource
     {
         return [
             __('general.name') => $record->name,
-            __('general.sub_unit') => $record->subUnit->name
+            __('general.sub_unit') => $record->subUnit->name,
         ];
     }
 
@@ -95,8 +89,8 @@ class BaseUnitResource extends Resource
                                 SubUnit::all(['id', 'name'])->pluck('name', 'id')
                             )
                             ->exists(table: SubUnit::class, column: 'id')
-                            ->label(__('general.sub_unit'))
-                    ])
+                            ->label(__('general.sub_unit')),
+                    ]),
             ]);
     }
 
@@ -116,11 +110,11 @@ class BaseUnitResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->toggleable()
-                    ->label(__('general.sub_unit'))
+                    ->label(__('general.sub_unit')),
             ])
             ->filters([
                 TrashedFilter::make()
-                    ->visible(fn (BaseUnit $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
+                    ->visible(fn (): bool => Gate::allows('restore', BaseUnit::class) || Gate::allows('forceDelete', BaseUnit::class) || Gate::allows('bulkForceDelete', BaseUnit::class) || Gate::allows('bulkRestore', BaseUnit::class)),
             ])
             ->recordActions([
                 EditAction::make(),

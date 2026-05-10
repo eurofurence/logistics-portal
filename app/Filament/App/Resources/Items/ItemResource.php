@@ -54,6 +54,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Textarea;
+use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
@@ -467,7 +468,7 @@ class ItemResource extends Resource
                             ])
                             ->persistTabInQueryString()
                             ->contained(false)
-                    ])
+                    ])->columnSpanFull()
             ]);
     }
 
@@ -506,6 +507,10 @@ class ItemResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->label(__('general.id'))
+                    ->toggleable(),
+                SpatieMediaLibraryImageColumn::make('main_image')
+                    ->collection('inventory_main_image')
+                    ->label(__('general.picture'))
                     ->toggleable(),
                 TextColumn::make('name')
                     ->sortable()

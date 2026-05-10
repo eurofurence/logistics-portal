@@ -2,37 +2,31 @@
 
 namespace App\Filament\Clusters\TypesAndUnits\Resources\SubUnits;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TrashedFilter;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use App\Filament\Clusters\TypesAndUnits\Resources\SubUnits\Pages\ListSubUnits;
 use App\Filament\Clusters\TypesAndUnits\Resources\SubUnits\Pages\CreateSubUnit;
 use App\Filament\Clusters\TypesAndUnits\Resources\SubUnits\Pages\EditSubUnit;
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\SubUnit;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Database\Eloquent\Model;
+use App\Filament\Clusters\TypesAndUnits\Resources\SubUnits\Pages\ListSubUnits;
 use App\Filament\Clusters\TypesAndUnits\TypesAndUnitsCluster;
+use App\Models\SubUnit;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\App\Resources\SubUnitResource\RelationManagers;
-use App\Filament\Clusters\TypesAndUnits\Resources\SubUnitResource\Pages;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Gate;
 
 class SubUnitResource extends Resource
 {
     protected static ?string $model = SubUnit::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-cube';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cube';
 
     protected static ?string $cluster = TypesAndUnitsCluster::class;
 
@@ -72,7 +66,7 @@ class SubUnitResource extends Resource
     {
         return [
             __('general.name') => $record->name,
-            __('general.value') => $record->value
+            __('general.value') => $record->value,
         ];
     }
 
@@ -87,8 +81,8 @@ class SubUnitResource extends Resource
                             ->required()
                             ->maxLength(64),
                         TextInput::make('value')
-                            ->required()
-                    ])
+                            ->required(),
+                    ]),
             ]);
     }
 
@@ -108,15 +102,15 @@ class SubUnitResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->toggleable()
-                    ->label(__('general.value'))
+                    ->label(__('general.value')),
             ])
             ->filters([
                 TrashedFilter::make()
-                    ->visible(fn (SubUnit $record): bool => Gate::allows('restore', $record) || Gate::allows('forceDelete', $record) || Gate::allows('bulkForceDelete', $record) || Gate::allows('bulkRestore', $record)),
+                    ->visible(fn (): bool => Gate::allows('restore', SubUnit::class) || Gate::allows('forceDelete', SubUnit::class) || Gate::allows('bulkForceDelete', SubUnit::class) || Gate::allows('bulkRestore', SubUnit::class)),
             ])
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make()
+                DeleteAction::make(),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
