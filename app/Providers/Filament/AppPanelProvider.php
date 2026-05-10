@@ -61,7 +61,7 @@ class AppPanelProvider extends PanelProvider
             ->viteTheme('resources/css/filament/app/theme.css')
             ->widgets([
                 AccountWidget::class,
-                JokesWidget::make(),
+                //JokesWidget::make(),
                 VersionsWidget::class,
             ])
             ->middleware([
@@ -79,10 +79,8 @@ class AppPanelProvider extends PanelProvider
                 VersionsPlugin::make()
                     ->widgetSort(1),
                 FilamentLanguageSwitcherPlugin::make()
-                    ->locales([
-                        ['code' => 'en', 'flag' => 'us'],
-                        ['code' => 'de'],
-                    ]),
+                    ->rememberLocale(days: 30)
+                    ->locales(['en', 'de']),
                 FilamentProgressbarPlugin::make()->color('#29b'),
                 FilamentSpatieLaravelHealthPlugin::make()
                     ->usingPage(HealthCheckResults::class),
@@ -116,13 +114,13 @@ class AppPanelProvider extends PanelProvider
                     ->url('/admin') // Pfad zu deinem Admin-Panel
                     ->icon('heroicon-o-cog')
                     // Der Button wird nur angezeigt, wenn der User die Berechtigung hat
-                    ->visible(fn(): bool => auth()->user()?->can('access-adminpanel') ?? false)
+                    ->visible(fn (): bool => auth()->user()?->can('access-adminpanel') ?? false)
                     ->sort(100), // Ganz nach unten in der Liste
             ])
             ->login(Login::class)
-            //->passwordReset()
-            //->emailVerification()
-            //->registration()
+            // ->passwordReset()
+            // ->emailVerification()
+            // ->registration()
             ->profile(EditProfile::class, false)
             ->default();
     }

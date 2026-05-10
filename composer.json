@@ -15,7 +15,7 @@
         "aws/aws-sdk-php": "^3.320",
         "calebporzio/sushi": "^2.5",
         "charrafimed/global-search-modal": "^4.0",
-        "craft-forge/filament-language-switcher": "*",
+        "craft-forge/filament-language-switcher": "^1.2",
         "doctrine/dbal": "^3.8",
         "filament/filament": "^4.0",
         "filament/spatie-laravel-media-library-plugin": "^4.0",

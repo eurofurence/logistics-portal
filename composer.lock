@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2a8715a5e82d3c0158c2464795b9e2dd",
+    "content-hash": "aad402104b84b1a1e2fcda13c4d7e399",
     "packages": [
         {
             "name": "althinect/filament-spatie-roles-permissions",
@@ -1132,16 +1132,16 @@
         },
         {
             "name": "craft-forge/filament-language-switcher",
-            "version": "v1.1.0",
+            "version": "v1.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/craft-forge/filament-language-switcher.git",
-                "reference": "083b31b8f9042dc8de54dc5d112f056b8b706085"
+                "reference": "235421f4b8ce7cd89b3c16af3c9f54e464c3ca53"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/craft-forge/filament-language-switcher/zipball/083b31b8f9042dc8de54dc5d112f056b8b706085",
-                "reference": "083b31b8f9042dc8de54dc5d112f056b8b706085",
+                "url": "https://api.github.com/repos/craft-forge/filament-language-switcher/zipball/235421f4b8ce7cd89b3c16af3c9f54e464c3ca53",
+                "reference": "235421f4b8ce7cd89b3c16af3c9f54e464c3ca53",
                 "shasum": ""
             },
             "require": {
@@ -1149,6 +1149,10 @@
                 "php": "^8.1",
                 "spatie/laravel-package-tools": "^1.16",
                 "stijnvanouplines/blade-country-flags": "^1.0.6"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^9.0",
+                "phpunit/phpunit": "^11.5.3"
             },
             "type": "library",
             "extra": {
@@ -1189,7 +1193,7 @@
                 "issues": "https://github.com/craft-forge/filament-language-switcher/issues",
                 "source": "https://github.com/craft-forge/filament-language-switcher"
             },
-            "time": "2026-01-26T22:02:26+00:00"
+            "time": "2026-03-04T15:40:02+00:00"
         },
         {
             "name": "danharrin/date-format-converter",
