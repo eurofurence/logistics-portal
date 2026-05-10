@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use Throwable;
 use Illuminate\Console\Command;
-use Spatie\Backup\Config\Config;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Backup\Config\Config;
 use Spatie\Backup\Tasks\Backup\BackupJobFactory;
+use Throwable;
 
 class BackupWithS3 extends Command
 {
@@ -49,21 +49,20 @@ class BackupWithS3 extends Command
                 $localBackupPath = storage_path('app/backup-s3'); // Temporary storage location
                 File::ensureDirectoryExists($localBackupPath);
 
-                foreach ($s3Files as $file) {
-                    $this->info("Download file {$file} from S3...");
+                $this->withProgressBar($s3Files, function ($file) use ($localBackupPath) {
                     $contents = Storage::disk('s3')->get($file);
 
                     // Retain the folder structure
                     $localFilePath = "{$localBackupPath}/{$file}";
                     File::ensureDirectoryExists(dirname($localFilePath)); // Create the directories
                     File::put($localFilePath, $contents);
-                    $this->info("File {$file} downloaded successfully.");
-                }
+                });
+                $this->newLine(2);
 
                 $this->info('S3 files were downloaded locally and the folder structure was retained');
             }
 
-            if (!$onlyDownload) {
+            if (! $onlyDownload) {
                 // 2. Load the backup configuration as a Config object
                 $backupConfig = Config::fromArray(config('backup'));
 
@@ -78,7 +77,7 @@ class BackupWithS3 extends Command
 
             $this->info('Completed');
         } catch (Throwable $th) {
-            $this->error('Error: ' . $th->getMessage());
+            $this->error('Error: '.$th->getMessage());
         }
     }
 }
