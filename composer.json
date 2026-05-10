@@ -9,7 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
-        "althinect/filament-spatie-roles-permissions": "3.x-dev",
+        "althinect/filament-spatie-roles-permissions": "^3.3",
         "awcodes/filament-versions": "*",
         "awcodes/shout": "^3.0",
         "aws/aws-sdk-php": "^3.320",
