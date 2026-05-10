@@ -2,78 +2,78 @@
 
 namespace App\Filament\App\Resources\Items;
 
-use Filament\Schemas\Schema;
+use App\Actions\Inventory\OperationSiteActions;
+use App\Actions\Inventory\SubCategorySiteActions;
+use App\Exports\InventoryItemsExport;
+use App\Filament\App\Resources\ItemResource\Pages;
+use App\Filament\App\Resources\Items\Pages\CreateItem;
+use App\Filament\App\Resources\Items\Pages\EditItem;
+use App\Filament\App\Resources\Items\Pages\ListItems;
+use App\Filament\App\Resources\Items\Pages\ViewItem;
+use App\Models\BaseUnit;
+use App\Models\Department;
+use App\Models\InventorySubCategory;
+use App\Models\Item;
+use App\Models\ItemsOperationSite;
+use App\Models\Storage;
+use App\View\Components\BarcodeInput;
+use Carbon\Carbon;
+use Exception;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Utilities\Set;
-use Filament\Schemas\Components\Fieldset;
-use App\Filament\App\Resources\Items\Pages\CreateItem;
-use Illuminate\Support\Str;
-use Filament\Tables\Filters\TrashedFilter;
-use Filament\Tables\Filters\Filter;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\Action;
-use Filament\Actions\ViewAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\BulkAction;
-use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Components\Utilities\Get;
-use Exception;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use App\Filament\App\Resources\Items\Pages\ListItems;
-use App\Filament\App\Resources\Items\Pages\EditItem;
-use App\Filament\App\Resources\Items\Pages\ViewItem;
-use Carbon\Carbon;
-use Filament\Forms;
-use App\Models\Item;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Components\Wizard\Step;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
-use App\Models\Storage;
-use App\Models\BaseUnit;
-use App\Models\Department;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use App\Models\ItemsOperationSite;
-use Filament\Tables\Grouping\Group;
-use Illuminate\Support\Facades\Log;
-use App\Models\InventorySubCategory;
-use Filament\Forms\Components\Radio;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\InventoryItemsExport;
-use App\View\Components\BarcodeInput;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\KeyValue;
-use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Grouping\Group;
+use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
-use Filament\Forms\Components\CheckboxList;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Filament\Forms\Components\DateTimePicker;
-use App\Actions\Inventory\OperationSiteActions;
-use App\Actions\Inventory\SubCategorySiteActions;
-use App\Filament\App\Resources\ItemResource\Pages;
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ItemResource extends Resource
 {
@@ -440,6 +440,7 @@ class ItemResource extends Resource
                                     ]),
                                 Tab::make(__('general.qr_code'))
                                     ->icon('heroicon-o-qr-code')
+                                    ->visible(auth()->user()->isSuperAdmin())
                                     ->schema([
                                         Tabs::make('Tabs')
                                             ->tabs([
@@ -511,6 +512,8 @@ class ItemResource extends Resource
                 SpatieMediaLibraryImageColumn::make('main_image')
                     ->collection('inventory_main_image')
                     ->label(__('general.picture'))
+                    ->width(100)
+                    ->imageHeight(100)
                     ->toggleable(),
                 TextColumn::make('name')
                     ->sortable()
