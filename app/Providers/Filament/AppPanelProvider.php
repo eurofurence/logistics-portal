@@ -2,34 +2,37 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Admin\Pages\HealthCheckResults;
+use App\Filament\Pages\Auth\EditProfile;
+use App\Filament\Pages\Auth\Login;
+use App\Filament\Pages\Dashboard;
+use App\Http\Middleware\CheckWhitelist;
+use App\Http\Middleware\UserIsLocked;
+use App\Settings\ThemeSettings;
+use Awcodes\Versions\VersionsPlugin;
+use Awcodes\Versions\VersionsWidget;
+use CharrafiMed\GlobalSearchModal\GlobalSearchModalPlugin;
+use CraftForge\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
 use Exception;
+use Filament\Http\Middleware\Authenticate;
+use Filament\Http\Middleware\DisableBladeIconComponents;
+use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
-use App\Settings\ThemeSettings;
-use App\Filament\Pages\Dashboard;
-use App\Filament\Pages\Auth\Login;
 use Filament\Widgets\AccountWidget;
-use App\Http\Middleware\UserIsLocked;
-use App\Http\Middleware\CheckWhitelist;
-use Filament\Navigation\NavigationItem;
-use App\Filament\Pages\Auth\EditProfile;
-use Filament\Http\Middleware\Authenticate;
-use pxlrbt\FilamentSpotlight\SpotlightPlugin;
-use Illuminate\Session\Middleware\StartSession;
-use App\Filament\Admin\Pages\HealthCheckResults;
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
+use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Filament\Http\Middleware\DisableBladeIconComponents;
-use CharrafiMed\GlobalSearchModal\GlobalSearchModalPlugin;
-use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Njxqlus\FilamentProgressbar\FilamentProgressbarPlugin;
-use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use TomatoPHP\FilamentDeveloperGate\FilamentDeveloperGatePlugin;
-use CraftForge\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
+use pxlrbt\FilamentSpotlight\SpotlightPlugin;
+use SalmanAlmajali\JokesWidget\JokesWidget;
 use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
+use TomatoPHP\FilamentDeveloperGate\FilamentDeveloperGatePlugin;
 
 class AppPanelProvider extends PanelProvider
 {
@@ -55,9 +58,11 @@ class AppPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
-            //->viteTheme('resources/css/filament/app/theme.css')
+            ->viteTheme('resources/css/filament/app/theme.css')
             ->widgets([
                 AccountWidget::class,
+                JokesWidget::make(),
+                VersionsWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -71,6 +76,8 @@ class AppPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
+                VersionsPlugin::make()
+                    ->widgetSort(1),
                 FilamentLanguageSwitcherPlugin::make()
                     ->locales([
                         ['code' => 'en', 'flag' => 'us'],
@@ -81,7 +88,7 @@ class AppPanelProvider extends PanelProvider
                     ->usingPage(HealthCheckResults::class),
                 SpotlightPlugin::make(),
                 GlobalSearchModalPlugin::make(),
-                FilamentDeveloperGatePlugin::make()
+                FilamentDeveloperGatePlugin::make(),
                 /*
                 FilamentSentryFeedbackPlugin::make()
                     ->sentryUser(function (): ?SentryUser {

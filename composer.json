@@ -10,6 +10,7 @@
     "require": {
         "php": "^8.4",
         "althinect/filament-spatie-roles-permissions": "3.x-dev",
+        "awcodes/filament-versions": "*",
         "awcodes/shout": "^3.0",
         "aws/aws-sdk-php": "^3.320",
         "calebporzio/sushi": "^2.5",
@@ -40,6 +41,7 @@
         "parfaitementweb/filament-country-field": "^2.0",
         "predis/predis": "^2.2",
         "pxlrbt/filament-spotlight": "^2.0",
+        "salmanalmajali/jokes-widget": "^1.0",
         "sentry/sentry-laravel": "^4.15",
         "shuvroroy/filament-spatie-laravel-health": "^3.0",
         "spatie/cpu-load-health-check": "^1.0",

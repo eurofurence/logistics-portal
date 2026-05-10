@@ -4,3 +4,5 @@
 @source '../../../../app/Filament/Admin/**/*';
 @source '../../../../resources/views/filament/admin/**/*';
 @source '../../../../vendor/bezhansalleh/filament-panel-switch/resources/views/**/*.blade.php';
+@source '../../../../vendor/awcodes/filament-versions/resources/**/*.blade.php';
+

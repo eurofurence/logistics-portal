@@ -142,6 +142,20 @@ class ItemResource extends Resource
         return request()->route()->getName() === 'filament.app.resources.items.create';
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $user = Auth::user();
+        $query = parent::getEloquentQuery();
+
+        if ($user->isSuperAdmin() || $user->can('can-see-all_items')) {
+            return $query;
+        }
+
+        $accessibleDepartmentIds = $user->getDepartmentsWithPermission('view-Item')->pluck('id')->toArray();
+
+        return $query->whereIn('department', $accessibleDepartmentIds);
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema
