@@ -1316,6 +1316,8 @@ class OrderResource extends Resource
                     ])
                     ->action(function (Collection $records, array $data, $table) {
                         try {
+                            $data['image'] = $data['image'] ?? null;
+
                             if (! empty($data['image'])) {
                                 try {
                                     // Explizit 's3' ansprechen, da der FileUpload ->disk('s3') nutzt

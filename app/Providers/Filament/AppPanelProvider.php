@@ -75,8 +75,6 @@ class AppPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->plugins([
-                VersionsPlugin::make()
-                    ->widgetSort(1),
                 FilamentLanguageSwitcherPlugin::make()
                     ->rememberLocale(days: 30)
                     ->locales(['en', 'de']),

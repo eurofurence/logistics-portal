@@ -2,44 +2,45 @@
 
 namespace App\Filament\App\Resources\OrderRequests;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Fieldset;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\ViewAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use Filament\Schemas\Components\Flex;
-use App\Filament\App\Resources\OrderRequests\Pages\ListOrderRequests;
 use App\Filament\App\Resources\OrderRequests\Pages\CreateOrderRequest;
 use App\Filament\App\Resources\OrderRequests\Pages\EditOrderRequest;
+use App\Filament\App\Resources\OrderRequests\Pages\ListOrderRequests;
 use App\Filament\App\Resources\OrderRequests\Pages\ViewOrderRequest;
 use App\Models\Department;
 use App\Models\Order;
 use App\Models\OrderEvent;
-use Filament\Tables\Table;
 use App\Models\OrderRequest;
-use Filament\Resources\Resource;
-use Filament\Tables\Grouping\Group;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Flex;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Grouping\Group;
+use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class OrderRequestResource extends Resource
 {
@@ -328,6 +329,27 @@ class OrderRequestResource extends Resource
                         }),
                     RestoreAction::make(),
                     ViewAction::make(),
+                    Action::make('open_linked_order_single')
+                        ->label(__('general.open_linked_order'))
+                        ->icon('heroicon-o-arrow-top-right-on-square')
+                        ->visible(fn(Model $record) => Order::where('order_request_id', $record->id)->count() === 1)
+                        ->url(fn(Model $record) => route('filament.app.resources.orders.view', Order::where('order_request_id', $record->id)->first()->id)),
+                    Action::make('open_linked_order_multiple')
+                        ->label(__('general.open_linked_order'))
+                        ->icon('heroicon-o-arrow-top-right-on-square')
+                        ->visible(fn(Model $record) => Order::where('order_request_id', $record->id)->count() > 1)
+                        ->schema([
+                            Select::make('order_id')
+                                ->label(__('general.order'))
+                                ->options(fn(Model $record) => Order::where('order_request_id', $record->id)->pluck('name', 'id'))
+                                ->searchable()
+                                ->required(),
+                        ])
+                        ->action(function (array $data) {
+                            return redirect(route('filament.app.resources.orders.view', $data['order_id']));
+                        })
+                        ->modalHeading(__('general.open_linked_order'))
+                        ->modalSubmitActionLabel(__('general.show')),
                 ]),
             ])
             ->toolbarActions([

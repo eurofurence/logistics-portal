@@ -2,21 +2,19 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\OrderEvent;
 use App\Models\OrderRequest;
+use App\Models\User;
 
 class OrderRequestPolicy
 {
-
-    #TODO: $user->isSuperAdmin() überall einbauen
-    #TODO: Bug mit ANY Permission? Wie Delete oder Restore?
+    // TODO: $user->isSuperAdmin() überall einbauen
+    // TODO: Bug mit ANY Permission? Wie Delete oder Restore?
 
     public function viewAny(User $user): bool
     {
         return $user->checkPermissionTo('view-any-OrderRequest') || $user->hasAnyDepartmentRoleWithPermissionTo('view-any-OrderRequest');
     }
-
 
     public function view(User $user, OrderRequest $orderRequest): bool
     {
@@ -36,7 +34,6 @@ class OrderRequestPolicy
 
         return $hasRequiredPermission;
     }
-
 
     public function create(User $user): bool
     {
@@ -68,15 +65,14 @@ class OrderRequestPolicy
         return $result;
     }
 
-
     public function update(User $user, OrderRequest $orderRequest): bool
     {
         // Initialize the result to false
         $result = false;
 
         // Check if the order request can be updated based on its event status
-        $canUpdateOrderRequest = !$orderRequest->event->locked &&
-            $orderRequest->event->order_deadline < now() &&
+        $canUpdateOrderRequest = ! $orderRequest->event->locked &&
+            (empty($orderRequest->event->order_deadline) || $orderRequest->event->order_deadline > now()) &&
             $orderRequest->status == 0;
 
         // Check if the user has permission to always edit order requests
@@ -96,15 +92,14 @@ class OrderRequestPolicy
         return ($hasRequiredPermission || $canEditAllOrderRequests) && $result;
     }
 
-
     public function delete(User $user, OrderRequest $orderRequest): bool
     {
         // Initialize the result to false
         $result = false;
 
         // Check if the order request can be deleted based on its event status
-        $canDeleteOrderRequest = !$orderRequest->event->locked &&
-            $orderRequest->event->order_deadline < now() &&
+        $canDeleteOrderRequest = ! $orderRequest->event->locked &&
+            (empty($orderRequest->event->order_deadline) || $orderRequest->event->order_deadline > now()) &&
             $orderRequest->status == 0;
 
         // Check if the user has permission to always delete order requests
@@ -128,7 +123,6 @@ class OrderRequestPolicy
     {
         return $user->hasAnyDepartmentRoleWithPermissionTo('restore-OrderRequest');
     }
-
 
     /**
      * Determine whether the user can permanently delete the model.
