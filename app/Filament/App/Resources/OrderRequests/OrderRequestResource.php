@@ -12,6 +12,7 @@ use App\Models\OrderEvent;
 use App\Models\OrderRequest;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -358,6 +359,29 @@ class OrderRequestResource extends Resource
                         ->visible(Gate::check('bulkDelete', OrderRequest::class)),
                     RestoreBulkAction::make()
                         ->visible(Gate::check('bulkRestore', OrderRequest::class)),
+                    BulkAction::make('set_status')
+                        ->label(__('general.set_status'))
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data): void {
+                            foreach ($records as $record) {
+                                $record->update(['status' => $data['status']]);
+                            }
+                        })
+                        ->icon('heroicon-o-ellipsis-horizontal-circle')
+                        ->schema([
+                            Select::make('status')
+                                ->label(__('general.status'))
+                                ->options([
+                                    0 => __('general.open'),
+                                    1 => __('general.finished'),
+                                    2 => __('general.processing'),
+                                    3 => __('general.note'),
+                                    4 => __('general.checking'),
+                                    5 => __('general.rejected'),
+                                ])
+                                ->prefixIcon('heroicon-o-ellipsis-horizontal-circle')
+                                ->required(),
+                        ])
+                        ->visible(fn () => Auth::user()->can('can-moderate-order-request')),
                 ]),
             ])
             ->groups([
