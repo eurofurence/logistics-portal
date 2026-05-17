@@ -82,6 +82,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @method static Builder<static>|User withoutPermission($permissions)
  * @method static Builder<static>|User withoutRole($roles, $guard = null)
  * @method static Builder<static>|User withoutTrashed()
+ * @property-read string $notification_email_or_fallback
  * @mixin \Eloquent
  */
 class User extends Authenticatable implements FilamentUser, HasAvatar

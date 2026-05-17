@@ -69,6 +69,8 @@ use Filament\Notifications\Notification as FilamentNotification;
  * @method static Builder<static>|Bill withoutTrashed()
  * @property string|null $repayment_method
  * @method static Builder<static>|Bill whereRepaymentMethod($value)
+ * @property-read Department|null $connected_department
+ * @property-read OrderEvent|null $connected_event
  * @mixin \Eloquent
  */
 class Bill extends Model implements HasMedia

@@ -2,84 +2,83 @@
 
 namespace App\Filament\App\Resources\Orders;
 
-use Filament\Schemas\Schema;
+use App\Exports\MetroExport;
+use App\Exports\OrderStandardExport;
+use App\Filament\App\Resources\Orders\Pages\CreateOrder;
+use App\Filament\App\Resources\Orders\Pages\EditOrder;
+use App\Filament\App\Resources\Orders\Pages\ListOrders;
+use App\Filament\App\Resources\Orders\Pages\ViewOrder;
+use App\Forms\Components\Timeline;
+use App\Models\Department;
+use App\Models\Order;
+use App\Models\OrderArticle;
+use App\Models\OrderEvent;
+use App\Models\OrderRequest;
+use App\Models\User;
+use Exception;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Fieldset;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Section;
-use App\Filament\App\Resources\Orders\Pages\CreateOrder;
-use Illuminate\Support\Str;
-use Filament\Tables\Filters\TrashedFilter;
-use Filament\Tables\Filters\Filter;
-use Filament\Forms\Components\DatePicker;
-use Filament\Actions\Action;
-use Filament\Support\Enums\Size;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\ViewAction;
-use Filament\Actions\BulkAction;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Wizard\Step;
-use Exception;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use App\Filament\App\Resources\Orders\Pages\ListOrders;
-use App\Filament\App\Resources\Orders\Pages\EditOrder;
-use App\Filament\App\Resources\Orders\Pages\ViewOrder;
-use App\Models\User;
-use App\Models\Order;
-use App\Models\Department;
-use App\Models\OrderEvent;
-use Filament\Tables\Table;
-use App\Exports\MetroExport;
-use App\Models\OrderArticle;
-use App\Models\OrderRequest;
-use Illuminate\Support\Carbon;
-use Filament\Resources\Resource;
-use App\Forms\Components\Timeline;
+use Filament\Schemas\Schema;
 use Filament\Support\Colors\Color;
+use Filament\Support\Enums\Size;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Grouping\Group;
-use Illuminate\Support\Facades\Log;
-use App\Exports\OrderStandardExport;
-use Filament\Forms\Components\Radio;
+use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Maatwebsite\Excel\Facades\Excel;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
-use Filament\Tables\Enums\FiltersLayout;
-use Filament\Forms\Components\FileUpload;
-use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Contracts\Support\Htmlable;
-use Filament\Forms\Components\CheckboxList;
-use Filament\Tables\Columns\TextInputColumn;
-use Illuminate\Database\Eloquent\Collection;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use Filament\Infolists\Components\TextEntry;
-use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedShoppingCart;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingCart;
 
-    protected static $export_column_options = array();
+    protected static $export_column_options = [];
 
     protected function getTableQuery()
     {
@@ -126,7 +125,7 @@ class OrderResource extends Resource
     {
         return [
             __('general.department') => $record->department->name,
-            __('general.order_event') => $record->event->name
+            __('general.order_event') => $record->event->name,
         ];
     }
 
@@ -135,7 +134,7 @@ class OrderResource extends Resource
         $query = parent::getEloquentQuery();
         $user = Auth::user();
 
-        $query->when(!$user->can('can-see-all-orders'), function ($query) use ($user) {
+        $query->when(! $user->can('can-see-all-orders'), function ($query) use ($user) {
             return $query->whereIn('department_id', $user->getDepartmentsWithPermission('view-Order')->pluck('id'));
         });
 
@@ -198,13 +197,13 @@ class OrderResource extends Resource
                                                 $options = Auth::user()->can('can-always-order')
                                                     ? OrderEvent::withoutTrashed()->pluck('name', 'id')->toArray()
                                                     : OrderEvent::where('locked', false)
-                                                    ->where(function ($query) {
-                                                        $query->whereNull('order_deadline')
-                                                            ->orWhere('order_deadline', '>', now());
-                                                    })
-                                                    ->withoutTrashed()
-                                                    ->pluck('name', 'id')
-                                                    ->toArray();
+                                                        ->where(function ($query) {
+                                                            $query->whereNull('order_deadline')
+                                                                ->orWhere('order_deadline', '>', now());
+                                                        })
+                                                        ->withoutTrashed()
+                                                        ->pluck('name', 'id')
+                                                        ->toArray();
 
                                                 return $options;
                                             })
@@ -212,13 +211,13 @@ class OrderResource extends Resource
                                                 $options = Auth::user()->can('can-always-order')
                                                     ? OrderEvent::withoutTrashed()->pluck('id')->toArray()
                                                     : OrderEvent::where('locked', false)
-                                                    ->where(function ($query) {
-                                                        $query->whereNull('order_deadline')
-                                                            ->orWhere('order_deadline', '>', now());
-                                                    })
-                                                    ->withoutTrashed()
-                                                    ->pluck('id')
-                                                    ->toArray();
+                                                        ->where(function ($query) {
+                                                            $query->whereNull('order_deadline')
+                                                                ->orWhere('order_deadline', '>', now());
+                                                        })
+                                                        ->withoutTrashed()
+                                                        ->pluck('id')
+                                                        ->toArray();
 
                                                 return count($options) === 1 ? $options[0] : null;
                                             }),
@@ -297,7 +296,7 @@ class OrderResource extends Resource
                                                     ->minValue(0)
                                                     ->step(0.01)
                                                     ->maxValue(config('constants.inputs.numeric.max'))
-                                                    ->hint(__('general.per_item') . ', ' . __('general.gross'))
+                                                    ->hint(__('general.per_item').', '.__('general.gross'))
                                                     ->default(0)
                                                     ->required(),
                                                 TextInput::make('discount_net')
@@ -310,7 +309,7 @@ class OrderResource extends Resource
                                                             return 0;
                                                         }
 
-                                                        (float)$max_discount = $get('price_net') * $get('amount');
+                                                        (float) $max_discount = $get('price_net') * $get('amount');
 
                                                         if ($max_discount > config('constants.inputs.numeric.max')) {
                                                             return config('constants.inputs.numeric.max');
@@ -331,7 +330,7 @@ class OrderResource extends Resource
                                                             ->default(true),
                                                     ])
                                                     ->collapsed()
-                                                    ->columnSpanFull()
+                                                    ->columnSpanFull(),
                                             ])
                                             ->label(__('general.price_and_amount'))
                                             ->columnSpanFull()
@@ -386,7 +385,7 @@ class OrderResource extends Resource
                                                     ->maxLength(100000)
                                                     ->columnSpan(2),
                                             ])
-                                            ->columnSpanFull()
+                                            ->columnSpanFull(),
                                     ]),
                             ]),
                         Tab::make(__('general.status'))
@@ -405,12 +404,12 @@ class OrderResource extends Resource
                                         'rejected' => __('general.rejected'),
                                         'locked' => __('general.locked'),
                                         'refunded' => __('general.refunded'),
-                                        'awaiting_approval' => __('general.awaiting_approval')
+                                        'awaiting_approval' => __('general.awaiting_approval'),
                                     ])
                                     ->default('open'),
                                 Section::make(__('timeline.status_history'))
                                     ->schema([
-                                        Timeline::make('status_timeline')
+                                        Timeline::make('status_timeline'),
                                     ]),
                             ])->visible(Auth::user()->can('can-change-order-status')),
                         Tab::make(__('general.files'))
@@ -426,7 +425,7 @@ class OrderResource extends Resource
                                     ->maxSize(50000)
                                     ->downloadable()
                                     ->visibility('private')
-                                    ->disabled(!Auth::user()->can('can-edit-order-files')),
+                                    ->disabled(! Auth::user()->can('can-edit-order-files')),
                             ])->visible(Auth::user()->can('can-see-order-files-tab')),
                         Tab::make(__('general.more'))
                             ->icon('heroicon-o-ellipsis-horizontal-circle')
@@ -456,7 +455,7 @@ class OrderResource extends Resource
                                                 'XXXLutz',
                                                 'Segmüller',
                                                 'Hagebau',
-                                                'Bauhaus'
+                                                'Bauhaus',
                                             ]),
                                         TextInput::make('delivery_by')
                                             ->label(__('general.delivery_by'))
@@ -472,7 +471,7 @@ class OrderResource extends Resource
                                                 'Deutsche Post',
                                                 'GO! Express & Logistics',
                                                 'TNT',
-                                                'Trans-o-flex'
+                                                'Trans-o-flex',
                                             ]),
                                         TextInput::make('delivery_costs')
                                             ->label(__('general.delivery_costs'))
@@ -493,7 +492,7 @@ class OrderResource extends Resource
                                             ->label(__('general.delivery_destination'))
                                             ->maxLength(10000)
                                             ->autosize()
-                                            ->visible(fn() => Auth::user()->can('can-view-order-delivery-address')),
+                                            ->visible(fn () => Auth::user()->can('can-view-order-delivery-address')),
                                         TextInput::make('tracking_number')
                                             ->label(__('general.tracking_number'))
                                             ->maxLength(254),
@@ -506,7 +505,7 @@ class OrderResource extends Resource
                                             ->label(__('general.instant_delivery'))
                                             ->default(false)
                                             ->inline(false)
-                                            ->helperText(__('general.delivery_needed_immediate'))
+                                            ->helperText(__('general.delivery_needed_immediate')),
                                     ])
                                     ->label(__('general.delivery'))
                                     ->columns(2),
@@ -519,7 +518,7 @@ class OrderResource extends Resource
                                         Toggle::make('booked_to_inventory')
                                             ->label(__('general.booked_to_inventory'))
                                             ->default(false)
-                                            ->inline(false)
+                                            ->inline(false),
                                     ])
                                     ->label(__('general.inventory'))
                                     ->visible(Auth::user()->can('update-Item')),
@@ -544,27 +543,27 @@ class OrderResource extends Resource
                                             ->inline(false),
                                         TextInput::make('special_flag_text')
                                             ->label(__('general.special_flag_text'))
-                                            ->maxLength(250)
+                                            ->maxLength(250),
                                     ])
                                     ->label(__('general.special')),
                                 Fieldset::make('')
                                     ->schema([
                                         TextEntry::make('added_by')
                                             ->label(__('general.added_by'))
-                                            ->state(fn(Model $record) => $record->addedBy->name),
+                                            ->state(fn (Model $record) => $record->addedBy->name),
                                         TextEntry::make('edited_by')
                                             ->label(__('general.edited_by'))
-                                            ->state(fn(Model $record) => $record->editedBy->name),
+                                            ->state(fn (Model $record) => $record->editedBy->name),
                                         TextEntry::make('created_at')
                                             ->label(__('general.created_at'))
-                                            ->state(fn(Model $record) => Carbon::parse($record->created_at)->timezone('Europe/Berlin')),
+                                            ->state(fn (Model $record) => Carbon::parse($record->created_at)->timezone('Europe/Berlin')),
                                         TextEntry::make('updated_at')
                                             ->label(__('general.updated_at'))
-                                            ->state(fn(Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
+                                            ->state(fn (Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
                                         TextEntry::make('approved_at')
                                             ->label(__('general.approved_at'))
                                             ->state(function (Model $record) {
-                                                if (!empty($record->approved_at)) {
+                                                if (! empty($record->approved_at)) {
                                                     return Carbon::parse($record->approved_at)->timezone('Europe/Berlin');
                                                 }
 
@@ -573,34 +572,34 @@ class OrderResource extends Resource
                                         TextEntry::make('approved_by')
                                             ->label(__('general.approved_by'))
                                             ->state(function (Model $record) {
-                                                if (!empty($record->approvedBy)) {
+                                                if (! empty($record->approvedBy)) {
                                                     return $record->approvedBy->name;
                                                 }
 
                                                 return '---';
                                             }),
                                     ])
-                                    ->hiddenOn(CreateOrder::class)
+                                    ->hiddenOn(CreateOrder::class),
                             ]),
                         Tab::make(__('general.relationships'))
                             ->icon('heroicon-o-link')
                             ->schema([
                                 Select::make('order_article_id')
-                                    ->relationship('directoryArticle', 'name', fn(Builder $query) => $query->withTrashed())
+                                    ->relationship('directoryArticle', 'name', fn (Builder $query) => $query->withTrashed())
                                     ->label(__('general.article_directory'))
                                     ->searchable(['id', 'name'])
                                     ->hint(__('general.search_for_name_or_id')),
                                 Select::make('order_request_id')
-                                    ->relationship('orderRequest', 'title', fn(Builder $query) => $query->withTrashed())
+                                    ->relationship('orderRequest', 'title', fn (Builder $query) => $query->withTrashed())
                                     ->label(__('general.order_request'))
                                     ->searchable(['id', 'title'])
                                     ->hint(__('general.search_for_name_or_id')),
                             ])
                             ->visible(Auth::user()->can('can-manage-order-relationships'))
-                            ->disabled(!Auth::user()->can('can-manage-order-relationships')),
+                            ->disabled(! Auth::user()->can('can-manage-order-relationships')),
                     ])
                     ->columnSpanFull()
-                    ->persistTab()
+                    ->persistTab(),
             ]);
     }
 
@@ -634,7 +633,7 @@ class OrderResource extends Resource
             'created_at' => __('general.created_at'),
             'updated_at' => __('general.updated_at'),
             'user_note' => __('general.user_note'),
-            'returning_deposit' => __('general.returning_deposit') . ' (' . __('general.single') . ')',
+            'returning_deposit' => __('general.returning_deposit').' ('.__('general.single').')',
             'article_number' => __('general.article_number'),
             'order_number' => __('general.order_number'),
             'approved_at' => __('general.approved_at'),
@@ -659,7 +658,7 @@ class OrderResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->label(__('general.name'))
-                    ->formatStateUsing(fn(string $state) => Str::limit($state, 40, '...'))
+                    ->formatStateUsing(fn (string $state) => Str::limit($state, 40, '...'))
                     ->description(function ($record): string {
                         $flags = array_filter([
                             $record->instant_delivery ? __('general.instant_delivery') : null,
@@ -684,7 +683,7 @@ class OrderResource extends Resource
                     ->label(__('general.status'))
                     ->sortable()
                     ->toggleable()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'on_hold' => 'gray',
                         'checking' => 'checking',
                         'processing' => 'warning',
@@ -698,7 +697,7 @@ class OrderResource extends Resource
                         'refunded' => 'danger',
                         'awaiting_approval' => 'checking',
                     })
-                    ->icon(fn(string $state): string => match ($state) {
+                    ->icon(fn (string $state): string => match ($state) {
                         'on_hold' => 'heroicon-o-clock',
                         'checking' => 'heroicon-o-arrow-path',
                         'processing' => 'heroicon-o-arrow-path',
@@ -728,16 +727,16 @@ class OrderResource extends Resource
                         }
 
                         if ($record->department) {
-                            if (!Auth::user()->hasDepartmentRoleWithPermissionTo('can-change-amount-order-table', $record->department->id)) {
-                                if (!Auth::user()->can('can-change-amount-order-table-all')) {
+                            if (! Auth::user()->hasDepartmentRoleWithPermissionTo('can-change-amount-order-table', $record->department->id)) {
+                                if (! Auth::user()->can('can-change-amount-order-table-all')) {
                                     return true;
                                 }
                             }
 
                             if (Auth::user()->can('can-see-all-orders')) {
                                 $userDepartments = Auth::user()->getDepartmentsWithPermission('can-change-amount-order-table')->pluck('id')->toArray();
-                                if (!in_array($record->department->id, $userDepartments)) {
-                                    if (!Auth::user()->can('can-change-amount-order-table-all')) {
+                                if (! in_array($record->department->id, $userDepartments)) {
+                                    if (! Auth::user()->can('can-change-amount-order-table-all')) {
                                         return true;
                                     }
                                 }
@@ -746,7 +745,7 @@ class OrderResource extends Resource
                             return true;
                         }
 
-                        if (($record->status == 'open' || $record->status == 'awaiting_approval')  && !$record->event->locked) {
+                        if (($record->status == 'open' || $record->status == 'awaiting_approval') && ! $record->event->locked) {
                             return false;
                         } else {
                             if (Auth::user()->can('can-always-edit-orders')) {
@@ -757,15 +756,15 @@ class OrderResource extends Resource
                         return true;
                     }),
                 TextColumn::make('price_net')
-                    ->label(__('general.total') . ' (' . __('general.net') . ')')
+                    ->label(__('general.total').' ('.__('general.net').')')
                     ->formatStateUsing(function ($record) {
                         $calculatedPrice = 0;
                         if ($record->price_net) {
-                            $calculatedPrice += (float)$record->price_net * (float)$record->amount;
+                            $calculatedPrice += (float) $record->price_net * (float) $record->amount;
                         }
 
                         if ($record->discount_net > 0) {
-                            $calculatedPrice -= (float)$record->discount_net;
+                            $calculatedPrice -= (float) $record->discount_net;
                         }
 
                         $priceFormatted = number_format($calculatedPrice, 2, ',', '.');
@@ -776,20 +775,20 @@ class OrderResource extends Resource
                             default => '€',
                         };
 
-                        return $priceFormatted . ' ' . $symbol;
+                        return $priceFormatted.' '.$symbol;
                     })
                     ->toggleable()
                     ->sortable(),
                 TextColumn::make('price_gross')
-                    ->label(__('general.total') . ' (' . __('general.gross') . ')')
+                    ->label(__('general.total').' ('.__('general.gross').')')
                     ->formatStateUsing(function ($record) {
                         $calculatedPrice = 0;
                         if ($record->price_gross) {
-                            $calculatedPrice += (float)$record->price_gross * (float)$record->amount;
+                            $calculatedPrice += (float) $record->price_gross * (float) $record->amount;
                         }
 
                         if ($record->discount_net > 0) {
-                            $calculatedPrice -= (float)$record->discount_net * (1 + ((float)$record->tax_rate / 100));
+                            $calculatedPrice -= (float) $record->discount_net * (1 + ((float) $record->tax_rate / 100));
                         }
 
                         $priceFormatted = number_format($calculatedPrice, 2, ',', '.');
@@ -800,12 +799,12 @@ class OrderResource extends Resource
                             default => '€',
                         };
 
-                        return $priceFormatted . ' ' . $symbol;
+                        return $priceFormatted.' '.$symbol;
                     })
                     ->toggleable(true, true)
                     ->sortable(),
                 TextColumn::make('returning_deposit')
-                    ->label(__('general.single') . ' (' . __('general.returning_deposit') . ')')
+                    ->label(__('general.single').' ('.__('general.returning_deposit').')')
                     ->formatStateUsing(function ($record) {
                         $priceFormatted = number_format($record->returning_deposit, 2, ',', '.');
 
@@ -815,16 +814,16 @@ class OrderResource extends Resource
                             default => '€',
                         };
 
-                        return $priceFormatted . ' ' . $symbol;
+                        return $priceFormatted.' '.$symbol;
                     })
                     ->toggleable(true, true)
                     ->sortable(),
                 TextColumn::make('returning_deposit')
-                    ->label(__('general.total') . ' (' . __('general.returning_deposit') . ')')
+                    ->label(__('general.total').' ('.__('general.returning_deposit').')')
                     ->formatStateUsing(function ($record) {
                         $calculatedPrice = 0;
                         if ($record->price_gross) {
-                            $calculatedPrice += (float)$record->returning_deposit * (float)$record->amount;
+                            $calculatedPrice += (float) $record->returning_deposit * (float) $record->amount;
                         }
 
                         $priceFormatted = number_format($calculatedPrice, 2, ',', '.');
@@ -835,7 +834,7 @@ class OrderResource extends Resource
                             default => '€',
                         };
 
-                        return $priceFormatted . ' ' . $symbol;
+                        return $priceFormatted.' '.$symbol;
                     })
                     ->toggleable(true, true)
                     ->sortable(),
@@ -847,34 +846,34 @@ class OrderResource extends Resource
             ])
             ->filters([
                 TrashedFilter::make()
-                    ->visible(fn(): bool => Gate::allows('restore', Order::class) || Gate::allows('forceDelete', Order::class) || Gate::allows('bulkForceDelete', Order::class) || Gate::allows('bulkRestore', Order::class)),
+                    ->visible(fn (): bool => Gate::allows('restore', Order::class) || Gate::allows('forceDelete', Order::class) || Gate::allows('bulkForceDelete', Order::class) || Gate::allows('bulkRestore', Order::class)),
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
                             ->label(__('general.created_from'))
-                            ->placeholder(fn($state): string => 'Dec 18, ' . now()->subYear()->format('Y')),
+                            ->placeholder(fn ($state): string => 'Dec 18, '.now()->subYear()->format('Y')),
                         DatePicker::make('created_until')
                             ->label(__('general.created_until'))
-                            ->placeholder(fn($state): string => now()->format('M d, Y')),
+                            ->placeholder(fn ($state): string => now()->format('M d, Y')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
                                 $data['created_from'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
                             )
                             ->when(
                                 $data['created_until'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
                         if ($data['created_from'] ?? null) {
-                            $indicators['created_from'] = __('general.created_from') . ' ' . Carbon::parse($data['created_from'])->toFormattedDateString();
+                            $indicators['created_from'] = __('general.created_from').' '.Carbon::parse($data['created_from'])->toFormattedDateString();
                         }
                         if ($data['created_until'] ?? null) {
-                            $indicators['created_until'] = __('general.created_until') . ' ' . Carbon::parse($data['created_until'])->toFormattedDateString();
+                            $indicators['created_until'] = __('general.created_until').' '.Carbon::parse($data['created_until'])->toFormattedDateString();
                         }
 
                         return $indicators;
@@ -912,7 +911,7 @@ class OrderResource extends Resource
                         'rejected' => __('general.rejected'),
                         'locked' => __('general.locked'),
                         'refunded' => __('general.refunded'),
-                        'awaiting_approval' => __('general.awaiting_approval')
+                        'awaiting_approval' => __('general.awaiting_approval'),
                     ]),
                 SelectFilter::make('order_request_id')
                     ->label(__('general.linked_request'))
@@ -958,7 +957,7 @@ class OrderResource extends Resource
                         'hornbach' => __('general.hornbach'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (!empty($data['values'])) {
+                        if (! empty($data['values'])) {
                             $query->where(function ($query) use ($data) {
                                 foreach ($data['values'] as $value) {
                                     if ($value === 'frog_store') {
@@ -980,7 +979,6 @@ class OrderResource extends Resource
                                 }
                             });
                         }
-
 
                         return $query;
                     }),
@@ -1029,7 +1027,7 @@ class OrderResource extends Resource
                     ->modalHeading(__('general.approve_order'))
                     ->modalIcon('heroicon-o-check')
                     ->modalDescription(__('general.approve_order_description'))
-                    ->visible(fn(Model $record): bool => $record->canBeApproved()),
+                    ->visible(fn (Model $record): bool => $record->canBeApproved()),
                 Action::make('decline')
                     ->label('')
                     ->action(function (Model $record): void {
@@ -1042,7 +1040,7 @@ class OrderResource extends Resource
                                 ->iconColor('success')
                                 ->duration(20000)
                                 ->send();
-                        };
+                        }
                     })
                     ->icon('heroicon-o-x-mark')
                     ->size(Size::ExtraLarge)
@@ -1050,12 +1048,12 @@ class OrderResource extends Resource
                     ->requiresConfirmation()
                     ->modalHeading(__('general.decline_order'))
                     ->modalIcon('heroicon-o-exclamation-triangle')
-                    ->visible(fn(Model $record): bool => $record->canBeDeclined()),
+                    ->visible(fn (Model $record): bool => $record->canBeDeclined()),
                 ActionGroup::make([
                     ActionGroup::make([
                         EditAction::make()
                             ->visible(function (Model $record): bool {
-                                if (!empty($record->deleted_at)) {
+                                if (! empty($record->deleted_at)) {
                                     return false;
                                 }
 
@@ -1063,7 +1061,7 @@ class OrderResource extends Resource
                             }),
                         DeleteAction::make()
                             ->modalHeading(function ($record): string {
-                                return __('general.delete') . ': ' . $record->name;
+                                return __('general.delete').': '.$record->name;
                             }),
                         RestoreAction::make()
                             ->visible(function (Model $record) {
@@ -1074,7 +1072,7 @@ class OrderResource extends Resource
                         ForceDeleteAction::make(),
                         ViewAction::make()
                             ->visible(function (Model $record): bool {
-                                if (!empty($record->deleted_at)) {
+                                if (! empty($record->deleted_at)) {
                                     return false;
                                 }
 
@@ -1103,7 +1101,7 @@ class OrderResource extends Resource
                                         'rejected' => __('general.rejected'),
                                         'locked' => __('general.locked'),
                                         'refunded' => __('general.refunded'),
-                                        'awaiting_approval' => __('general.awaiting_approval')
+                                        'awaiting_approval' => __('general.awaiting_approval'),
                                     ])
                                     ->prefixIcon('heroicon-o-ellipsis-horizontal-circle')
                                     ->required(),
@@ -1121,29 +1119,29 @@ class OrderResource extends Resource
                             ->icon('heroicon-o-pencil')
                             ->schema([
                                 Textarea::make('note')
-                                    ->label(fn(Model $record) => __('general.user_note') . ' - ' . $record->name)
-                                    ->default(fn(Model $record) => $record->user_note)
+                                    ->label(fn (Model $record) => __('general.user_note').' - '.$record->name)
+                                    ->default(fn (Model $record) => $record->user_note)
                                     ->autosize(),
                             ])
-                            ->visible(fn(Model $record) => Gate::allows('view', $record)),
+                            ->visible(fn (Model $record) => Gate::allows('view', $record)),
                     ])->dropdown(false),
                     ActionGroup::make([
                         Action::make('article_directory_link')
                             ->url(function (Model $record) {
                                 return route('filament.app.resources.order-articles.view', $record->order_article_id);
                             }, true)
-                            ->visible(fn(Model $record) => (!empty($record->order_article_id) && Gate::allows('view-OrderArticle', $record->order_article_id) && OrderArticle::where('id', $record->order_article_id)->exists()))
+                            ->visible(fn (Model $record) => (! empty($record->order_article_id) && Gate::allows('view-OrderArticle', $record->order_article_id) && OrderArticle::where('id', $record->order_article_id)->exists()))
                             ->icon('heroicon-o-arrow-top-right-on-square')
                             ->label(__('general.article_directory')),
                         Action::make('order_request_link')
                             ->url(function (Model $record) {
                                 return route('filament.app.resources.order-requests.view', $record->order_request_id);
                             }, true)
-                            ->visible(fn(Model $record) => (!empty($record->order_request_id) && Gate::allows('view-OrderRequest', $record->order_request_id) && OrderRequest::where('id', $record->order_request_id)->exists()))
+                            ->visible(fn (Model $record) => (! empty($record->order_request_id) && Gate::allows('view-OrderRequest', $record->order_request_id) && OrderRequest::where('id', $record->order_request_id)->exists()))
                             ->icon('heroicon-o-arrow-top-right-on-square')
                             ->label(__('general.order_request')),
-                    ])->dropdown(false)
-                ])
+                    ])->dropdown(false),
+                ]),
             ])
             ->toolbarActions([
                 BulkAction::make('export_selected')
@@ -1160,9 +1158,9 @@ class OrderResource extends Resource
                                             'metro_list' => __('general.metro_list_description'),
                                         ])
                                         ->required()
-                                        ->label('')
+                                        ->label(''),
                                 ])
-                                    ->description(__('general.type'))
+                                    ->description(__('general.type')),
                             ])
                             ->icon('heroicon-o-document'),
                         Step::make('select_columns')
@@ -1196,37 +1194,37 @@ class OrderResource extends Resource
                                                     $missing = array_diff($required, (array) $value);
 
                                                     $translatedMissing = array_map(
-                                                        fn($key) => static::$export_column_options[$key] ?? $key,
+                                                        fn ($key) => static::$export_column_options[$key] ?? $key,
                                                         $missing
                                                     );
 
                                                     if (count($missing) === 1) {
                                                         $fail(__('middleware.export_field_required', [
-                                                            'fields' => implode('', $translatedMissing)
+                                                            'fields' => implode('', $translatedMissing),
                                                         ]));
-                                                    } else if (count($missing) > 1) {
+                                                    } elseif (count($missing) > 1) {
                                                         $fail(__('middleware.export_fields_required', [
-                                                            'fields' => implode(', ', $translatedMissing)
+                                                            'fields' => implode(', ', $translatedMissing),
                                                         ]));
                                                     }
                                                 };
                                             },
-                                        ])
+                                        ]),
                                 ])
                                     ->visible(function (Get $get) {
                                         return $get('export_type') == 'standard';
                                     })
                                     ->description(__('general.select_columns')),
                                 Section::make([
-                                    TextEntry::make(__('general.no_options_available'))
+                                    TextEntry::make(__('general.no_options_available')),
                                 ])
                                     ->visible(function (Get $get) {
                                         return $get('export_type') != 'standard';
-                                    })
+                                    }),
                             ]),
                         Step::make(__('general.options'))
                             ->schema([
-                                #Option for standard export
+                                // Option for standard export
                                 /*
                                 Section::make([
                                     FileUpload::make('image')
@@ -1249,7 +1247,7 @@ class OrderResource extends Resource
                                     }),
                                 */
 
-                                #Options for standard export
+                                // Options for standard export
                                 Section::make([
                                     Checkbox::make('calculate_total_net')
                                         ->inline()
@@ -1267,12 +1265,12 @@ class OrderResource extends Resource
                                         ->inline()
                                         ->label(__('general.show_who_approved_order')),
                                 ])
-                                    ->description(__('general.special_fields') . ' - (' . __('general.per_row') . ')')
+                                    ->description(__('general.special_fields').' - ('.__('general.per_row').')')
                                     ->visible(function (Get $get) {
                                         return $get('export_type') == 'standard';
                                     }),
 
-                                #Option for standard export
+                                // Option for standard export
                                 Section::make([
                                     Radio::make('orientation')
                                         ->label('')
@@ -1289,13 +1287,13 @@ class OrderResource extends Resource
                                         return $get('export_type') == 'standard';
                                     }),
 
-                                #When no option is available
+                                // When no option is available
                                 Section::make([
-                                    TextEntry::make(__('general.no_options_available'))
+                                    TextEntry::make(__('general.no_options_available')),
                                 ])
                                     ->visible(function (Get $get) {
                                         return $get('export_type') == 'metro_list';
-                                    })
+                                    }),
                             ])
                             ->icon('heroicon-o-puzzle-piece'),
                         Step::make(__('general.file_type'))
@@ -1308,31 +1306,38 @@ class OrderResource extends Resource
                                         ])
                                         ->descriptions([
                                             'xlsx' => __('general.excel_table'),
-                                            'pdf' => __('general.pdf_file')
+                                            'pdf' => __('general.pdf_file'),
                                         ])
                                         ->required()
-                                        ->label('')
-                                ])->description(__('general.file_type'))
+                                        ->label(''),
+                                ])->description(__('general.file_type')),
                             ])
                             ->icon('heroicon-o-cog-6-tooth'),
                     ])
                     ->action(function (Collection $records, array $data, $table) {
                         try {
-                            if (!empty($data['image'])) {
-                                $data['image'] = Storage::temporaryUrl($data['image'], now()->addMinutes(30));
+                            if (! empty($data['image'])) {
+                                try {
+                                    // Explizit 's3' ansprechen, da der FileUpload ->disk('s3') nutzt
+                                    $data['image'] = Storage::disk('s3')->temporaryUrl($data['image'], now()->addMinutes(30));
+                                } catch (\Throwable $e) {
+                                    // Fallback für lokale Treiber, die keine temporären URLs unterstützen
+                                    $data['image'] = Storage::disk(config('filesystems.default'))->path($data['image']);
+                                }
                             }
 
-                            $data['records'] = $records->filter(fn($record) => $record->status !== 'locked');
+                            $data['records'] = $records->filter(fn ($record) => $record->status !== 'locked');
 
                             if ($data['records']->count() < 1) {
                                 Notification::make()
                                     ->body(__('general.no_entries'))
                                     ->warning()
                                     ->send();
+
                                 return;
                             }
 
-                            //dd($data);
+                            // dd($data);
 
                             $timestamp = Carbon::now('Europe/Berlin')->format('Y_m_d_H_i_s');
                             $exportType = $data['export_type'] ?? 'standard';
@@ -1341,17 +1346,17 @@ class OrderResource extends Resource
                             $exportConfig = [
                                 'metro_list' => [
                                     'class' => MetroExport::class,
-                                    'filename' => __('general.metro_list') . ' - ' . __('general.orders'),
+                                    'filename' => __('general.metro_list').' - '.__('general.orders'),
                                     'params' => [$data['records']],
                                 ],
                                 'standard' => [
                                     'class' => OrderStandardExport::class,
-                                    'filename' => __('general.standard') . ' - ' . __('general.orders'),
+                                    'filename' => __('general.standard').' - '.__('general.orders'),
                                     'params' => [$data, 92, 92, ['dangerous_good', 'big_size', 'needs_truck', 'booked_to_inventory', 'instant_delivery']],
                                 ],
                             ];
 
-                            if (!isset($exportConfig[$exportType])) {
+                            if (! isset($exportConfig[$exportType])) {
                                 return response()->json(['error' => 'Invalid export type'], 400);
                             }
 
@@ -1363,19 +1368,19 @@ class OrderResource extends Resource
                             return Excel::download(new $exportClass(...$config['params']), $filename, $exportFormat);
                         } catch (Exception $e) {
                             Notification::make()
-                                ->body($e->getMessage() . ' - ' . __('general.reload_required'))
+                                ->body($e->getMessage().' - '.__('general.reload_required'))
                                 ->title(__('general.error'))
                                 ->danger()
                                 ->persistent()
                                 ->send();
-                            Log::error('Error: ' . $e->getMessage() . ' - Code: ' . $e->getCode() . ' - File: ' . $e->getFile() . ' - Line: ' . $e->getLine());
+                            Log::error('Error: '.$e->getMessage().' - Code: '.$e->getCode().' - File: '.$e->getFile().' - Line: '.$e->getLine());
                         }
                     }),
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->visible(fn(): bool => Gate::allows('bulkDelete', [Auth::user(), Order::class])),
+                        ->visible(fn (): bool => Gate::allows('bulkDelete', [Auth::user(), Order::class])),
                     RestoreBulkAction::make()
-                        ->visible(fn(): bool => Gate::allows('bulkRestore', [Auth::user(), Order::class])),
+                        ->visible(fn (): bool => Gate::allows('bulkRestore', [Auth::user(), Order::class])),
                     BulkAction::make('set_status')
                         ->label(__('general.set_status'))
                         ->action(function (Collection $records, array $data): void {
@@ -1399,7 +1404,7 @@ class OrderResource extends Resource
                                     'rejected' => __('general.rejected'),
                                     'locked' => __('general.locked'),
                                     'refunded' => __('general.refunded'),
-                                    'awaiting_approval' => __('general.awaiting_approval')
+                                    'awaiting_approval' => __('general.awaiting_approval'),
                                 ])
                                 ->prefixIcon('heroicon-o-ellipsis-horizontal-circle')
                                 ->required(),
@@ -1418,7 +1423,7 @@ class OrderResource extends Resource
                         })
                         ->icon('heroicon-o-home')
                         ->schema([
-                            TextArea::make('delivery_destination')
+                            Textarea::make('delivery_destination')
                                 ->label(__('general.delivery_destination'))
                                 ->rows(7)
                                 ->required(),
@@ -1486,7 +1491,7 @@ class OrderResource extends Resource
 
                                 if ($approved_elements_counter > 0) {
                                     Notification::make()
-                                        ->body($approved_elements_counter . ' ' . __('general.approved'))
+                                        ->body($approved_elements_counter.' '.__('general.approved'))
                                         ->success()
                                         ->icon('heroicon-o-check')
                                         ->iconColor('success')
@@ -1523,7 +1528,7 @@ class OrderResource extends Resource
 
                                 if ($declined_elements_counter > 0) {
                                     Notification::make()
-                                        ->title($declined_elements_counter . ' ' .  __('general.declined'))
+                                        ->title($declined_elements_counter.' '.__('general.declined'))
                                         ->body(__('general.moved_to_deleted_elements'))
                                         ->success()
                                         ->icon('heroicon-o-check')
@@ -1543,7 +1548,7 @@ class OrderResource extends Resource
                             })
                             ->visible(function (): bool {
                                 return Auth::user()->hasAnyDepartmentRoleWithPermissionTo('can-decline-orders') || Auth::user()->can('can-decline-orders-for-other-departments');
-                            })
+                            }),
                     ])
                         ->dropdown(false),
                 ]),
@@ -1560,10 +1565,10 @@ class OrderResource extends Resource
                     ->modalHeading(__('general.status_descriptions_title'))
                     ->icon('heroicon-o-question-mark-circle')
                     ->modalSubmitAction(false)
-                    ->modalCancelAction(fn($action) => $action->label(__('general.close'))),
+                    ->modalCancelAction(fn ($action) => $action->label(__('general.close'))),
             ])
             ->checkIfRecordIsSelectableUsing(
-                fn(Model $record): bool => $record->status != 'locked',
+                fn (Model $record): bool => $record->status != 'locked',
             )
             ->groups([
                 Group::make('name')
@@ -1584,7 +1589,7 @@ class OrderResource extends Resource
             ->deferLoading()
             ->searchDebounce('750ms')
             ->persistSortInSession();
-        //->persistFiltersInSession();
+        // ->persistFiltersInSession();
     }
 
     public static function getRelations(): array
@@ -1600,7 +1605,7 @@ class OrderResource extends Resource
             'index' => ListOrders::route('/'),
             'create' => CreateOrder::route('/create'),
             'edit' => EditOrder::route('/{record}/edit'),
-            'view' => ViewOrder::route('/{record}')
+            'view' => ViewOrder::route('/{record}'),
         ];
     }
 }

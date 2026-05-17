@@ -75,6 +75,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @method static Builder<static>|OrderArticle whereUrl($value)
  * @method static Builder<static>|OrderArticle withTrashed()
  * @method static Builder<static>|OrderArticle withoutTrashed()
+ * @property-read \App\Models\User|null $addedBy
+ * @property-read \App\Models\User|null $editedBy
  * @mixin \Eloquent
  */
 class OrderArticle extends Model

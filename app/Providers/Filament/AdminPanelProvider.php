@@ -50,7 +50,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->favicon(asset('favicon.ico'))
-            ->viteTheme('resources/css/filament/admin/theme.css')
+            //->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([
                 'primary' => $primaryColor,
             ])
@@ -63,7 +63,6 @@ class AdminPanelProvider extends PanelProvider
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
             ->widgets([
                 AccountWidget::class,
-                VersionsWidget::class,
             ])
             ->login(Login::class)
             //->passwordReset()
