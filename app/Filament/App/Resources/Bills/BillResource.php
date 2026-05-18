@@ -535,6 +535,7 @@ class BillResource extends Resource
                 ActionGroup::make([
                     ActionGroup::make([
                         ReplicateAction::make()
+                            ->excludeAttributes(['status'])
                             ->schema([
                                 TextEntry::make('duplicate_hint')
                                     ->label(__('general.hint'))
