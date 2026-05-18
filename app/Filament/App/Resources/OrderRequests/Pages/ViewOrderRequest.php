@@ -2,17 +2,18 @@
 
 namespace App\Filament\App\Resources\OrderRequests\Pages;
 
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
+use App\Filament\App\Resources\OrderRequests\OrderRequestResource;
 use App\Models\Order;
 use Filament\Actions;
 use Filament\Actions\Action;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Database\Eloquent\Model;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
-use App\Filament\App\Resources\OrderRequests\OrderRequestResource;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class ViewOrderRequest extends ViewRecord
 {
@@ -33,20 +34,7 @@ class ViewOrderRequest extends ViewRecord
                 }),
             EditAction::make()
                 ->icon('heroicon-o-pencil'),
-            Action::make('openLink')
-                ->label(__('general.open_linked_order'))
-                ->url(function (): string {
-                    if ($this->existing_order) {
-                        #TODO: Add the option to select/link more then just one order per request
-                        return route('filament.app.resources.orders.view', $this->existing_order->id);
-                    }
-
-                    return '';
-                })
-                ->openUrlInNewTab()
-                ->icon('heroicon-o-arrow-top-right-on-square')
-                ->outlined()
-                ->visible(fn() => $this->existing_order && Auth::user()->can('view-Order')),
+                
             Action::make('create_order_from_request')
                 ->label(__('general.create_order'))
                 ->icon('heroicon-o-arrow-top-right-on-square')
@@ -111,7 +99,29 @@ class ViewOrderRequest extends ViewRecord
                     }
                 })
                 ->outlined()
-                ->requiresConfirmation()
+                ->requiresConfirmation(),
+            Action::make('open_linked_order_single')
+                ->label(__('general.open_linked_order'))
+                ->icon('heroicon-o-arrow-top-right-on-square')
+                ->visible(fn(Model $record) => Order::where('order_request_id', $record->id)->count() === 1)
+                ->url(fn(Model $record) => route('filament.app.resources.orders.view', Order::where('order_request_id', $record->id)->first()->id)),
+
+            Action::make('open_linked_order_multiple')
+                ->label(__('general.open_linked_order'))
+                ->icon('heroicon-o-arrow-top-right-on-square')
+                ->visible(fn(Model $record) => Order::where('order_request_id', $record->id)->count() > 1)
+                ->schema([
+                    Select::make('order_id')
+                        ->label(__('general.order'))
+                        ->options(fn(Model $record) => Order::where('order_request_id', $record->id)->pluck('name', 'id'))
+                        ->searchable()
+                        ->required(),
+                ])
+                ->action(function (array $data) {
+                    return redirect(route('filament.app.resources.orders.view', $data['order_id']));
+                })
+                ->modalHeading(__('general.open_linked_order'))
+                ->modalSubmitActionLabel(__('general.show')),
         ];
     }
 
