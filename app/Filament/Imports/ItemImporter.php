@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Select;
 use App\Models\Department;
 use App\Models\Storage;
+use Filament\Forms\Components\Radio;
 
 class ItemImporter extends Importer
 {
@@ -102,6 +103,19 @@ class ItemImporter extends Importer
     public static function getOptionsFormComponents(): array
     {
         return [
+            Radio::make('import_mode')
+                ->label(__('general.import_mode'))
+                ->options([
+                    'update' => __('general.import_mode_update'),
+                    'create' => __('general.import_mode_create'),
+                ])
+                ->descriptions([
+                    'update' => __('general.import_behavior_info'),
+                    'create' => __('general.import_mode_create_description'),
+                ])
+                ->default('update')
+                ->required(),
+
             Select::make('department_id')
                 ->label(__('general.department'))
                 ->options(function () {
@@ -121,11 +135,30 @@ class ItemImporter extends Importer
 
     public function resolveRecord(): ?Item
     {
-        // Checks whether an item with the same name already exists (for updates),
-        // otherwise, a new object is instantiated.
-        $item = Item::firstOrNew([
-            'name' => $this->data['name'],
-        ]);
+        $mode = $this->options['import_mode'] ?? 'update';
+        $name = $this->data['name'];
+
+        if ($mode === 'update') {
+            $item = Item::firstOrNew([
+                'name' => $name,
+            ]);
+        } else {
+            $originalName = $name;
+            $counter = 1;
+
+            // If the name already exists, we append (1), (2), etc., just like in Windows.
+            while (Item::where('name', $name)->exists()) {
+                $suffix = ' (' . $counter . ')';
+                // Trim the original name if we exceed the 64-character limit of the database
+                $name = mb_substr($originalName, 0, 64 - mb_strlen($suffix)) . $suffix;
+                $counter++;
+            }
+
+            // Important: Overwrite the name in the import data so that Filament saves this new name
+            $this->data['name'] = $name;
+
+            $item = new Item();
+        }
 
         // Set the department selected from the dropdown menu
         // Note: Adjust 'department_id' if the database column in your item model is named 'department'
@@ -133,8 +166,8 @@ class ItemImporter extends Importer
         $item->storage = $this->options['storage_id'] ?? null;
 
         // Automatically set the meta-user columns when creating or updating
-        // Da der Import über Queues im Hintergrund läuft, ist Auth::id() hier null.
-        // Stattdessen nutzen wir die user_id direkt aus dem laufenden Import-Prozess.
+        // Since the import runs in the background via queues, Auth::id() is null here.
+        // Instead, we use the user_id directly from the running import process.
         if (! $item->exists) {
             $item->added_by = $this->import->user_id ?? 1;
         }
@@ -145,7 +178,7 @@ class ItemImporter extends Importer
 
     public static function getCompletedNotificationBody(Import $import): string
     {
-        $body =  __('general.import_completed') . '. ' . number_format($import->successful_rows) . ' ' . __('general.row_where_imported') . '.';
+        $body =  number_format($import->successful_rows) . ' ' . __('general.row_where_imported') . '.';
 
         if ($failedRowsCount = $import->getFailedRowsCount()) {
             $body .= ' ' . number_format($failedRowsCount) . ' ' . __('general.row_where_failed') . '.';

@@ -466,6 +466,9 @@ return array(
     'import_failed' => 'Import fehlgeschlagen',
     'row_where_imported' => 'Zeilen wurden importiert',
     'row_where_failed' => 'Zeilen konnten nicht importiert werden',
+    'import_behavior_info' => 'Hinweis zum Import: Wenn ein Artikel mit dem exakt gleichen Namen bereits existiert, wird dieser durch die Daten aus dem Import aktualisiert. Ist der Name neu, wird ein neuer Artikel erstellt.',
+    'import_mode' => 'Import-Modus',
+    'import_mode_update' => 'Bestehende aktualisieren (Standard)',
+    'import_mode_create' => 'Immer neu anlegen',
+    'import_mode_create_description' => 'Jede Zeile wird als neuer Artikel importiert. Beachte, dass dies zu Duplikaten führen kann.',
 );
-
-

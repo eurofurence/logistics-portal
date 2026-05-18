@@ -468,4 +468,9 @@ return array(
     'import_failed' => 'Import failed',
     'row_where_imported' => 'Rows were imported',
     'row_where_failed' => 'Rows could not be imported',
+    'import_behavior_info' => 'Import Note: If an item with the exact same name already exists, it will be updated with the data from the import. If the name is new, a new item will be created.',
+    'import_mode' => 'Import Mode',
+    'import_mode_update' => 'Update Existing (Default)',
+    'import_mode_create' => 'Always Create New',
+    'import_mode_create_description' => 'Each row will be imported as a new item. Note that this may lead to duplicates.',
 );
