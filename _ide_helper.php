@@ -5285,7 +5285,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function lock($name, $seconds = 0, $owner = null)
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
+            /** @var \Illuminate\Cache\FileStore $instance */
             return $instance->lock($name, $seconds, $owner);
         }
 
@@ -5299,21 +5299,8 @@ namespace Illuminate\Support\Facades {
          */
         public static function restoreLock($name, $owner)
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
+            /** @var \Illuminate\Cache\FileStore $instance */
             return $instance->restoreLock($name, $owner);
-        }
-
-        /**
-         * Remove an item from the cache if it is expired.
-         *
-         * @param string $key
-         * @return bool
-         * @static
-         */
-        public static function forgetIfExpired($key)
-        {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
-            return $instance->forgetIfExpired($key);
         }
 
         /**
@@ -5324,58 +5311,71 @@ namespace Illuminate\Support\Facades {
          */
         public static function flush()
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
+            /** @var \Illuminate\Cache\FileStore $instance */
             return $instance->flush();
         }
 
         /**
-         * Get the underlying database connection.
+         * Get the full path for the given cache key.
          *
-         * @return \Illuminate\Database\MySqlConnection
+         * @param string $key
+         * @return string
          * @static
          */
-        public static function getConnection()
+        public static function path($key)
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
-            return $instance->getConnection();
+            /** @var \Illuminate\Cache\FileStore $instance */
+            return $instance->path($key);
         }
 
         /**
-         * Set the underlying database connection.
+         * Get the Filesystem instance.
          *
-         * @param \Illuminate\Database\ConnectionInterface $connection
-         * @return \Illuminate\Cache\DatabaseStore
+         * @return \Illuminate\Filesystem\Filesystem
          * @static
          */
-        public static function setConnection($connection)
+        public static function getFilesystem()
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
-            return $instance->setConnection($connection);
+            /** @var \Illuminate\Cache\FileStore $instance */
+            return $instance->getFilesystem();
         }
 
         /**
-         * Get the connection used to manage locks.
+         * Get the working directory of the cache.
          *
-         * @return \Illuminate\Database\MySqlConnection
+         * @return string
          * @static
          */
-        public static function getLockConnection()
+        public static function getDirectory()
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
-            return $instance->getLockConnection();
+            /** @var \Illuminate\Cache\FileStore $instance */
+            return $instance->getDirectory();
         }
 
         /**
-         * Specify the connection that should be used to manage locks.
+         * Set the working directory of the cache.
          *
-         * @param \Illuminate\Database\ConnectionInterface $connection
-         * @return \Illuminate\Cache\DatabaseStore
+         * @param string $directory
+         * @return \Illuminate\Cache\FileStore
          * @static
          */
-        public static function setLockConnection($connection)
+        public static function setDirectory($directory)
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
-            return $instance->setLockConnection($connection);
+            /** @var \Illuminate\Cache\FileStore $instance */
+            return $instance->setDirectory($directory);
+        }
+
+        /**
+         * Set the cache directory where locks should be stored.
+         *
+         * @param string|null $lockDirectory
+         * @return \Illuminate\Cache\FileStore
+         * @static
+         */
+        public static function setLockDirectory($lockDirectory)
+        {
+            /** @var \Illuminate\Cache\FileStore $instance */
+            return $instance->setLockDirectory($lockDirectory);
         }
 
         /**
@@ -5386,21 +5386,8 @@ namespace Illuminate\Support\Facades {
          */
         public static function getPrefix()
         {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
+            /** @var \Illuminate\Cache\FileStore $instance */
             return $instance->getPrefix();
-        }
-
-        /**
-         * Set the cache key prefix.
-         *
-         * @param string $prefix
-         * @return void
-         * @static
-         */
-        public static function setPrefix($prefix)
-        {
-            /** @var \Illuminate\Cache\DatabaseStore $instance */
-            $instance->setPrefix($prefix);
         }
 
             }
@@ -13501,89 +13488,6 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
-         * Release a reserved job back onto the queue after (n) seconds.
-         *
-         * @param string $queue
-         * @param \Illuminate\Queue\Jobs\DatabaseJobRecord $job
-         * @param int $delay
-         * @return mixed
-         * @static
-         */
-        public static function release($queue, $job, $delay)
-        {
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
-            return $instance->release($queue, $job, $delay);
-        }
-
-        /**
-         * Delete a reserved job from the queue.
-         *
-         * @param string $queue
-         * @param string $id
-         * @return void
-         * @throws \Throwable
-         * @static
-         */
-        public static function deleteReserved($queue, $id)
-        {
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
-            $instance->deleteReserved($queue, $id);
-        }
-
-        /**
-         * Delete a reserved job from the reserved queue and release it.
-         *
-         * @param string $queue
-         * @param \Illuminate\Queue\Jobs\DatabaseJob $job
-         * @param int $delay
-         * @return void
-         * @static
-         */
-        public static function deleteAndRelease($queue, $job, $delay)
-        {
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
-            $instance->deleteAndRelease($queue, $job, $delay);
-        }
-
-        /**
-         * Delete all of the jobs from the queue.
-         *
-         * @param string $queue
-         * @return int
-         * @static
-         */
-        public static function clear($queue)
-        {
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
-            return $instance->clear($queue);
-        }
-
-        /**
-         * Get the queue or return the default.
-         *
-         * @param string|null $queue
-         * @return string
-         * @static
-         */
-        public static function getQueue($queue)
-        {
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
-            return $instance->getQueue($queue);
-        }
-
-        /**
-         * Get the underlying database instance.
-         *
-         * @return \Illuminate\Database\Connection
-         * @static
-         */
-        public static function getDatabase()
-        {
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
-            return $instance->getDatabase();
-        }
-
-        /**
          * Get the maximum number of attempts for an object-based queue handler.
          *
          * @param mixed $job
@@ -13593,7 +13497,7 @@ namespace Illuminate\Support\Facades {
         public static function getJobTries($job)
         {
             //Method inherited from \Illuminate\Queue\Queue 
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
+            /** @var \Illuminate\Queue\SyncQueue $instance */
             return $instance->getJobTries($job);
         }
 
@@ -13607,7 +13511,7 @@ namespace Illuminate\Support\Facades {
         public static function getJobBackoff($job)
         {
             //Method inherited from \Illuminate\Queue\Queue 
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
+            /** @var \Illuminate\Queue\SyncQueue $instance */
             return $instance->getJobBackoff($job);
         }
 
@@ -13621,7 +13525,7 @@ namespace Illuminate\Support\Facades {
         public static function getJobExpiration($job)
         {
             //Method inherited from \Illuminate\Queue\Queue 
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
+            /** @var \Illuminate\Queue\SyncQueue $instance */
             return $instance->getJobExpiration($job);
         }
 
@@ -13635,7 +13539,7 @@ namespace Illuminate\Support\Facades {
         public static function createPayloadUsing($callback)
         {
             //Method inherited from \Illuminate\Queue\Queue 
-            \Illuminate\Queue\DatabaseQueue::createPayloadUsing($callback);
+            \Illuminate\Queue\SyncQueue::createPayloadUsing($callback);
         }
 
         /**
@@ -13647,7 +13551,7 @@ namespace Illuminate\Support\Facades {
         public static function getConfig()
         {
             //Method inherited from \Illuminate\Queue\Queue 
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
+            /** @var \Illuminate\Queue\SyncQueue $instance */
             return $instance->getConfig();
         }
 
@@ -13655,13 +13559,13 @@ namespace Illuminate\Support\Facades {
          * Set the queue configuration array.
          *
          * @param array $config
-         * @return \Illuminate\Queue\DatabaseQueue
+         * @return \Illuminate\Queue\SyncQueue
          * @static
          */
         public static function setConfig($config)
         {
             //Method inherited from \Illuminate\Queue\Queue 
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
+            /** @var \Illuminate\Queue\SyncQueue $instance */
             return $instance->setConfig($config);
         }
 
@@ -13674,7 +13578,7 @@ namespace Illuminate\Support\Facades {
         public static function getContainer()
         {
             //Method inherited from \Illuminate\Queue\Queue 
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
+            /** @var \Illuminate\Queue\SyncQueue $instance */
             return $instance->getContainer();
         }
 
@@ -13688,7 +13592,7 @@ namespace Illuminate\Support\Facades {
         public static function setContainer($container)
         {
             //Method inherited from \Illuminate\Queue\Queue 
-            /** @var \Illuminate\Queue\DatabaseQueue $instance */
+            /** @var \Illuminate\Queue\SyncQueue $instance */
             $instance->setContainer($container);
         }
 
@@ -20180,7 +20084,7 @@ namespace Illuminate\Support\Facades {
          * Get a filesystem instance.
          *
          * @param string|null $name
-         * @return \Illuminate\Filesystem\LocalFilesystemAdapter
+         * @return \Illuminate\Filesystem\AwsS3V3Adapter
          * @static
          */
         public static function drive($name = null)
@@ -20193,7 +20097,7 @@ namespace Illuminate\Support\Facades {
          * Get a filesystem instance.
          *
          * @param \UnitEnum|string|null $name
-         * @return \Illuminate\Filesystem\LocalFilesystemAdapter
+         * @return \Illuminate\Filesystem\AwsS3V3Adapter
          * @static
          */
         public static function disk($name = null)
@@ -20218,7 +20122,7 @@ namespace Illuminate\Support\Facades {
          * Build an on-demand disk.
          *
          * @param string|array $config
-         * @return \Illuminate\Filesystem\LocalFilesystemAdapter
+         * @return \Illuminate\Filesystem\AwsS3V3Adapter
          * @static
          */
         public static function build($config)
@@ -20232,7 +20136,7 @@ namespace Illuminate\Support\Facades {
          *
          * @param array $config
          * @param string $name
-         * @return \Illuminate\Filesystem\LocalFilesystemAdapter
+         * @return \Illuminate\Filesystem\AwsS3V3Adapter
          * @static
          */
         public static function createLocalDriver($config, $name = 'local')
@@ -20245,7 +20149,7 @@ namespace Illuminate\Support\Facades {
          * Create an instance of the ftp driver.
          *
          * @param array $config
-         * @return \Illuminate\Filesystem\LocalFilesystemAdapter
+         * @return \Illuminate\Filesystem\AwsS3V3Adapter
          * @static
          */
         public static function createFtpDriver($config)
@@ -20258,7 +20162,7 @@ namespace Illuminate\Support\Facades {
          * Create an instance of the sftp driver.
          *
          * @param array $config
-         * @return \Illuminate\Filesystem\LocalFilesystemAdapter
+         * @return \Illuminate\Filesystem\AwsS3V3Adapter
          * @static
          */
         public static function createSftpDriver($config)
@@ -20284,7 +20188,7 @@ namespace Illuminate\Support\Facades {
          * Create a scoped driver.
          *
          * @param array $config
-         * @return \Illuminate\Filesystem\LocalFilesystemAdapter
+         * @return \Illuminate\Filesystem\AwsS3V3Adapter
          * @throws \InvalidArgumentException
          * @static
          */
@@ -20386,6 +20290,20 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
+         * Get the URL for the file at the given path.
+         *
+         * @param string $path
+         * @return string
+         * @throws \RuntimeException
+         * @static
+         */
+        public static function url($path)
+        {
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
+            return $instance->url($path);
+        }
+
+        /**
          * Determine if temporary URLs can be generated.
          *
          * @return bool
@@ -20393,20 +20311,8 @@ namespace Illuminate\Support\Facades {
          */
         public static function providesTemporaryUrls()
         {
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->providesTemporaryUrls();
-        }
-
-        /**
-         * Determine if temporary upload URLs can be generated.
-         *
-         * @return bool
-         * @static
-         */
-        public static function providesTemporaryUploadUrls()
-        {
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
-            return $instance->providesTemporaryUploadUrls();
         }
 
         /**
@@ -20420,7 +20326,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function temporaryUrl($path, $expiration, $options = [])
         {
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->temporaryUrl($path, $expiration, $options);
         }
 
@@ -20435,35 +20341,20 @@ namespace Illuminate\Support\Facades {
          */
         public static function temporaryUploadUrl($path, $expiration, $options = [])
         {
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->temporaryUploadUrl($path, $expiration, $options);
         }
 
         /**
-         * Specify the name of the disk the adapter is managing.
+         * Get the underlying S3 client.
          *
-         * @param string $disk
-         * @return \Illuminate\Filesystem\LocalFilesystemAdapter
+         * @return \Aws\S3\S3Client
          * @static
          */
-        public static function diskName($disk)
+        public static function getClient()
         {
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
-            return $instance->diskName($disk);
-        }
-
-        /**
-         * Indicate that signed URLs should serve the corresponding files.
-         *
-         * @param bool $serve
-         * @param \Closure|null $urlGeneratorResolver
-         * @return \Illuminate\Filesystem\LocalFilesystemAdapter
-         * @static
-         */
-        public static function shouldServeSignedUrls($serve = true, $urlGeneratorResolver = null)
-        {
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
-            return $instance->shouldServeSignedUrls($serve, $urlGeneratorResolver);
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
+            return $instance->getClient();
         }
 
         /**
@@ -20471,13 +20362,13 @@ namespace Illuminate\Support\Facades {
          *
          * @param string|array $path
          * @param string|null $content
-         * @return \Illuminate\Filesystem\LocalFilesystemAdapter
+         * @return \Illuminate\Filesystem\AwsS3V3Adapter
          * @static
          */
         public static function assertExists($path, $content = null)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->assertExists($path, $content);
         }
 
@@ -20487,13 +20378,13 @@ namespace Illuminate\Support\Facades {
          * @param string $path
          * @param int $count
          * @param bool $recursive
-         * @return \Illuminate\Filesystem\LocalFilesystemAdapter
+         * @return \Illuminate\Filesystem\AwsS3V3Adapter
          * @static
          */
         public static function assertCount($path, $count, $recursive = false)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->assertCount($path, $count, $recursive);
         }
 
@@ -20501,13 +20392,13 @@ namespace Illuminate\Support\Facades {
          * Assert that the given file or directory does not exist.
          *
          * @param string|array $path
-         * @return \Illuminate\Filesystem\LocalFilesystemAdapter
+         * @return \Illuminate\Filesystem\AwsS3V3Adapter
          * @static
          */
         public static function assertMissing($path)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->assertMissing($path);
         }
 
@@ -20515,13 +20406,13 @@ namespace Illuminate\Support\Facades {
          * Assert that the given directory is empty.
          *
          * @param string $path
-         * @return \Illuminate\Filesystem\LocalFilesystemAdapter
+         * @return \Illuminate\Filesystem\AwsS3V3Adapter
          * @static
          */
         public static function assertDirectoryEmpty($path)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->assertDirectoryEmpty($path);
         }
 
@@ -20535,7 +20426,7 @@ namespace Illuminate\Support\Facades {
         public static function exists($path)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->exists($path);
         }
 
@@ -20549,7 +20440,7 @@ namespace Illuminate\Support\Facades {
         public static function missing($path)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->missing($path);
         }
 
@@ -20563,7 +20454,7 @@ namespace Illuminate\Support\Facades {
         public static function fileExists($path)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->fileExists($path);
         }
 
@@ -20577,7 +20468,7 @@ namespace Illuminate\Support\Facades {
         public static function fileMissing($path)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->fileMissing($path);
         }
 
@@ -20591,7 +20482,7 @@ namespace Illuminate\Support\Facades {
         public static function directoryExists($path)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->directoryExists($path);
         }
 
@@ -20605,7 +20496,7 @@ namespace Illuminate\Support\Facades {
         public static function directoryMissing($path)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->directoryMissing($path);
         }
 
@@ -20619,7 +20510,7 @@ namespace Illuminate\Support\Facades {
         public static function path($path)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->path($path);
         }
 
@@ -20633,7 +20524,7 @@ namespace Illuminate\Support\Facades {
         public static function get($path)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->get($path);
         }
 
@@ -20648,7 +20539,7 @@ namespace Illuminate\Support\Facades {
         public static function json($path, $flags = 0)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->json($path, $flags);
         }
 
@@ -20666,7 +20557,7 @@ namespace Illuminate\Support\Facades {
         public static function response($path, $name = null, $headers = [], $disposition = 'inline')
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->response($path, $name, $headers, $disposition);
         }
 
@@ -20684,7 +20575,7 @@ namespace Illuminate\Support\Facades {
         public static function serve($request, $path, $name = null, $headers = [])
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->serve($request, $path, $name, $headers);
         }
 
@@ -20701,7 +20592,7 @@ namespace Illuminate\Support\Facades {
         public static function download($path, $name = null, $headers = [])
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->download($path, $name, $headers);
         }
 
@@ -20717,7 +20608,7 @@ namespace Illuminate\Support\Facades {
         public static function put($path, $contents, $options = [])
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->put($path, $contents, $options);
         }
 
@@ -20733,7 +20624,7 @@ namespace Illuminate\Support\Facades {
         public static function putFile($path, $file = null, $options = [])
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->putFile($path, $file, $options);
         }
 
@@ -20750,7 +20641,7 @@ namespace Illuminate\Support\Facades {
         public static function putFileAs($path, $file, $name = null, $options = [])
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->putFileAs($path, $file, $name, $options);
         }
 
@@ -20764,7 +20655,7 @@ namespace Illuminate\Support\Facades {
         public static function getVisibility($path)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->getVisibility($path);
         }
 
@@ -20779,7 +20670,7 @@ namespace Illuminate\Support\Facades {
         public static function setVisibility($path, $visibility)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->setVisibility($path, $visibility);
         }
 
@@ -20796,7 +20687,7 @@ namespace Illuminate\Support\Facades {
 ')
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->prepend($path, $data, $separator);
         }
 
@@ -20813,7 +20704,7 @@ namespace Illuminate\Support\Facades {
 ')
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->append($path, $data, $separator);
         }
 
@@ -20827,7 +20718,7 @@ namespace Illuminate\Support\Facades {
         public static function delete($paths)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->delete($paths);
         }
 
@@ -20842,7 +20733,7 @@ namespace Illuminate\Support\Facades {
         public static function copy($from, $to)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->copy($from, $to);
         }
 
@@ -20857,7 +20748,7 @@ namespace Illuminate\Support\Facades {
         public static function move($from, $to)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->move($from, $to);
         }
 
@@ -20871,7 +20762,7 @@ namespace Illuminate\Support\Facades {
         public static function size($path)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->size($path);
         }
 
@@ -20885,7 +20776,7 @@ namespace Illuminate\Support\Facades {
         public static function checksum($path, $options = [])
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->checksum($path, $options);
         }
 
@@ -20900,7 +20791,7 @@ namespace Illuminate\Support\Facades {
         public static function mimeType($path)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->mimeType($path);
         }
 
@@ -20914,7 +20805,7 @@ namespace Illuminate\Support\Facades {
         public static function lastModified($path)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->lastModified($path);
         }
 
@@ -20928,7 +20819,7 @@ namespace Illuminate\Support\Facades {
         public static function readStream($path)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->readStream($path);
         }
 
@@ -20944,23 +20835,21 @@ namespace Illuminate\Support\Facades {
         public static function writeStream($path, $resource, $options = [])
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->writeStream($path, $resource, $options);
         }
 
         /**
-         * Get the URL for the file at the given path.
+         * Determine if temporary upload URLs can be generated.
          *
-         * @param string $path
-         * @return string
-         * @throws \RuntimeException
+         * @return bool
          * @static
          */
-        public static function url($path)
+        public static function providesTemporaryUploadUrls()
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
-            return $instance->url($path);
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
+            return $instance->providesTemporaryUploadUrls();
         }
 
         /**
@@ -20974,7 +20863,7 @@ namespace Illuminate\Support\Facades {
         public static function files($directory = null, $recursive = false)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->files($directory, $recursive);
         }
 
@@ -20988,7 +20877,7 @@ namespace Illuminate\Support\Facades {
         public static function allFiles($directory = null)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->allFiles($directory);
         }
 
@@ -21003,7 +20892,7 @@ namespace Illuminate\Support\Facades {
         public static function directories($directory = null, $recursive = false)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->directories($directory, $recursive);
         }
 
@@ -21017,7 +20906,7 @@ namespace Illuminate\Support\Facades {
         public static function allDirectories($directory = null)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->allDirectories($directory);
         }
 
@@ -21031,7 +20920,7 @@ namespace Illuminate\Support\Facades {
         public static function makeDirectory($path)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->makeDirectory($path);
         }
 
@@ -21045,7 +20934,7 @@ namespace Illuminate\Support\Facades {
         public static function deleteDirectory($directory)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->deleteDirectory($directory);
         }
 
@@ -21058,7 +20947,7 @@ namespace Illuminate\Support\Facades {
         public static function getDriver()
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->getDriver();
         }
 
@@ -21071,7 +20960,7 @@ namespace Illuminate\Support\Facades {
         public static function getAdapter()
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->getAdapter();
         }
 
@@ -21084,7 +20973,7 @@ namespace Illuminate\Support\Facades {
         public static function getConfig()
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->getConfig();
         }
 
@@ -21098,7 +20987,7 @@ namespace Illuminate\Support\Facades {
         public static function serveUsing($callback)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             $instance->serveUsing($callback);
         }
 
@@ -21112,7 +21001,7 @@ namespace Illuminate\Support\Facades {
         public static function buildTemporaryUrlsUsing($callback)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             $instance->buildTemporaryUrlsUsing($callback);
         }
 
@@ -21126,7 +21015,7 @@ namespace Illuminate\Support\Facades {
         public static function buildTemporaryUploadUrlsUsing($callback)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             $instance->buildTemporaryUploadUrlsUsing($callback);
         }
 
@@ -21143,7 +21032,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function when($value = null, $callback = null, $default = null)
         {
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->when($value, $callback, $default);
         }
 
@@ -21160,7 +21049,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function unless($value = null, $callback = null, $default = null)
         {
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->unless($value, $callback, $default);
         }
 
@@ -21176,7 +21065,7 @@ namespace Illuminate\Support\Facades {
         public static function macro($name, $macro)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            \Illuminate\Filesystem\LocalFilesystemAdapter::macro($name, $macro);
+            \Illuminate\Filesystem\AwsS3V3Adapter::macro($name, $macro);
         }
 
         /**
@@ -21191,7 +21080,7 @@ namespace Illuminate\Support\Facades {
         public static function mixin($mixin, $replace = true)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            \Illuminate\Filesystem\LocalFilesystemAdapter::mixin($mixin, $replace);
+            \Illuminate\Filesystem\AwsS3V3Adapter::mixin($mixin, $replace);
         }
 
         /**
@@ -21204,7 +21093,7 @@ namespace Illuminate\Support\Facades {
         public static function hasMacro($name)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            return \Illuminate\Filesystem\LocalFilesystemAdapter::hasMacro($name);
+            return \Illuminate\Filesystem\AwsS3V3Adapter::hasMacro($name);
         }
 
         /**
@@ -21216,7 +21105,7 @@ namespace Illuminate\Support\Facades {
         public static function flushMacros()
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            \Illuminate\Filesystem\LocalFilesystemAdapter::flushMacros();
+            \Illuminate\Filesystem\AwsS3V3Adapter::flushMacros();
         }
 
         /**
@@ -21231,7 +21120,7 @@ namespace Illuminate\Support\Facades {
         public static function macroCall($method, $parameters)
         {
             //Method inherited from \Illuminate\Filesystem\FilesystemAdapter 
-            /** @var \Illuminate\Filesystem\LocalFilesystemAdapter $instance */
+            /** @var \Illuminate\Filesystem\AwsS3V3Adapter $instance */
             return $instance->macroCall($method, $parameters);
         }
 
@@ -25352,21 +25241,6 @@ namespace Spatie\SignalAwareCommand\Facades {
 
 namespace Illuminate\Support {
     /**
-     */
-    class Str {
-        /**
-         * @see \Filament\Support\SupportServiceProvider::packageBooted()
-         * @param string $html
-         * @return string
-         * @static
-         */
-        public static function sanitizeHtml($html)
-        {
-            return \Illuminate\Support\Str::sanitizeHtml($html);
-        }
-
-            }
-    /**
      * @template TKey of array-key
      * @template-covariant TValue
      * @implements \ArrayAccess<TKey, TValue>
@@ -25397,6 +25271,21 @@ namespace Illuminate\Support {
         public static function storeExcel($filePath, $disk = null, $writerType = null, $withHeadings = false)
         {
             return \Illuminate\Support\Collection::storeExcel($filePath, $disk, $writerType, $withHeadings);
+        }
+
+            }
+    /**
+     */
+    class Str {
+        /**
+         * @see \Filament\Support\SupportServiceProvider::packageBooted()
+         * @param string $html
+         * @return string
+         * @static
+         */
+        public static function sanitizeHtml($html)
+        {
+            return \Illuminate\Support\Str::sanitizeHtml($html);
         }
 
             }
@@ -34353,6 +34242,11 @@ namespace  {
 }
 
 
+namespace Facades\Livewire\Features\SupportFileUploads {
+    /**
+     * @mixin \Livewire\Features\SupportFileUploads\GenerateSignedUploadUrl     */
+    class GenerateSignedUploadUrl extends \Livewire\Features\SupportFileUploads\GenerateSignedUploadUrl {}
+}
 
 
 

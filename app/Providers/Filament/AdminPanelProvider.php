@@ -65,7 +65,7 @@ class AdminPanelProvider extends PanelProvider
                 AccountWidget::class,
             ])
             ->login(Login::class)
-            //->passwordReset()
+            ->passwordReset()
             ->profile(EditProfile::class, false)
             //->emailVerification()
             ->unsavedChangesAlerts()

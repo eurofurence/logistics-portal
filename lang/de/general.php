@@ -461,6 +461,11 @@ return array(
     'reimbursement_to_invoice_issuer_tooltip' => 'Der Erstattungsbetrag soll an die Angaben in der Rechnung gesendet werden. Durch das Setzten dieser Option wird das Feld für Rückzahlungsmodalitäten deaktiviert und muss nicht länger ausgefüllt werden.',
     'file_upload_tooltip' => 'Maximal 5 Dateien mit je einer maximalen Größe von 10MB.',
     'app' => 'App',
+    'import' => 'Importieren',
+    'import_completed' => 'Import abgeschlossen',
+    'import_failed' => 'Import fehlgeschlagen',
+    'row_where_imported' => 'Zeilen wurden importiert',
+    'row_where_failed' => 'Zeilen konnten nicht importiert werden',
 );
 
 

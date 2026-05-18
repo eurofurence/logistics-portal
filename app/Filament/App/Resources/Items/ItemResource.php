@@ -266,6 +266,22 @@ class ItemResource extends Resource
                                                     ->maxLength(100000)
                                                     ->columnSpanFull(),
                                             ]),
+                                            Fieldset::make('')
+                                    ->schema([
+                                        TextEntry::make('added_by')
+                                            ->label(__('general.added_by'))
+                                            ->state(fn (Model $record) => $record->addedBy->name),
+                                        TextEntry::make('edited_by')
+                                            ->label(__('general.edited_by'))
+                                            ->state(fn (Model $record) => $record->editedBy->name),
+                                        TextEntry::make('created_at')
+                                            ->label(__('general.created_at'))
+                                            ->state(fn (Model $record) => Carbon::parse($record->created_at)->timezone('Europe/Berlin')),
+                                        TextEntry::make('updated_at')
+                                            ->label(__('general.updated_at'))
+                                            ->state(fn (Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
+                                    ])
+                                    ->hiddenOn(CreateItem::class),
                                     ]),
                                 Tab::make(__('general.details'))
                                     ->icon('heroicon-o-magnifying-glass-circle')

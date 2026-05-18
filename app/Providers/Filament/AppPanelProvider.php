@@ -115,7 +115,7 @@ class AppPanelProvider extends PanelProvider
                     ->sort(100), // Ganz nach unten in der Liste
             ])
             ->login(Login::class)
-            // ->passwordReset()
+            ->passwordReset()
             // ->emailVerification()
             // ->registration()
             ->profile(EditProfile::class, false)

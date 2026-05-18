@@ -2,9 +2,11 @@
 
 namespace App\Filament\App\Resources\Items\Pages;
 
-use Filament\Actions\CreateAction;
 use App\Filament\App\Resources\Items\ItemResource;
+use App\Filament\Imports\ItemImporter;
 use Filament\Actions;
+use Filament\Actions\CreateAction;
+use Filament\Actions\ImportAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListItems extends ListRecords
@@ -14,6 +16,12 @@ class ListItems extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            ImportAction::make()
+                ->importer(ItemImporter::class)
+                ->label(__('general.import') ?? 'Importieren')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('gray'),
+
             CreateAction::make()
                 ->icon('heroicon-o-plus-circle'),
         ];
