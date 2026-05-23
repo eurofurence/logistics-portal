@@ -13,6 +13,7 @@ use Filament\Forms\Components\Select;
 use App\Models\Department;
 use App\Models\Storage;
 use Filament\Forms\Components\Radio;
+use Filament\Schemas\Components\Utilities\Get;
 
 class ItemImporter extends Importer
 {
@@ -144,12 +145,39 @@ class ItemImporter extends Importer
                         return Auth::user()->getDepartmentsWithPermission('create-Item')->pluck('name', 'id')->toArray();
                     }
                 })
+                ->live()
                 ->required(),
 
             Select::make('storage_id')
                 ->label(__('general.storage'))
-                ->options(Storage::pluck('name', 'id'))
-                ->searchable(),
+                ->options(function (Get $get) {
+                    $user = Auth::user();
+                    $departmentId = $get('department_id');
+
+                    $query = Storage::query();
+
+                    $query->where(function ($q) use ($departmentId) {
+                        $q->where('type', 1); // Global storages
+
+                        if ($departmentId) {
+                            $q->orWhere(function ($q2) use ($departmentId) {
+                                $q2->where('type', 2) // Department specific
+                                  ->where(function ($subQ) use ($departmentId) {
+                                      $subQ->where('managing_department', $departmentId)
+                                          ->orWhereHas('departments', function ($deptQuery) use ($departmentId) {
+                                              $deptQuery->where('department', $departmentId);
+                                          });
+                                  });
+                            });
+                        }
+                    });
+
+                    return $query->pluck('name', 'id')->toArray();
+                })
+                ->searchable()
+                ->disabled(function (Get $get) {
+                    return !$get('department_id');
+                }),
         ];
     }
 
