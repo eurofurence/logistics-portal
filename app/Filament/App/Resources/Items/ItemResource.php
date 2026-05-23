@@ -254,10 +254,19 @@ class ItemResource extends Resource
                                                     ->disabled(function (Get $get) {
                                                         return self::isView() || self::isCreate() || !$get('department');
                                                     })
-                                                    ->hint(function () {
+                                                    ->hint(function (Get $get) {
+                                                        if (!$get('department')) {
+                                                            return __('general.please_select_department_first');
+                                                        }
                                                         if (self::isCreate()) {
                                                             return __('general.sub_category_create_note_1');
                                                         }
+                                                    })
+                                                    ->hintIcon(function (Get $get) {
+                                                        if (!$get('department')) {
+                                                            return 'heroicon-o-exclamation-triangle';
+                                                        }
+                                                        return null;
                                                     }),
                                                 Textarea::make('description')
                                                     ->label(__('general.description'))
@@ -343,30 +352,41 @@ class ItemResource extends Resource
                                             ->label(__('general.storage'))
                                             ->options(function (Get $get): array {
                                                 $user = Auth::user();
-
-                                                if ($user->isSuperAdmin()) {
-                                                    return Storage::all(['id', 'name'])->pluck('name', 'id')->toArray();
-                                                }
-
-                                                $query = Storage::query()
-                                                    ->where('type', 1); // type 1 is usually global
-
                                                 $departmentId = $get('department');
-                                                if ($departmentId) {
-                                                    $query->orWhere(function ($q) use ($departmentId) {
-                                                        $q->where('type', 2)
-                                                          ->where(function ($subQ) use ($departmentId) {
-                                                              $subQ->where('managing_department', $departmentId)
-                                                                  ->orWhereHas('departments', function ($deptQuery) use ($departmentId) {
-                                                                      $deptQuery->where('department', $departmentId);
-                                                                  });
-                                                          });
-                                                    });
-                                                }
+
+                                                $query = Storage::query();
+
+                                                $query->where(function ($q) use ($departmentId) {
+                                                    $q->where('type', 1); // Global storages
+
+                                                    if ($departmentId) {
+                                                        $q->orWhere(function ($q2) use ($departmentId) {
+                                                            $q2->where('type', 2) // Department specific
+                                                              ->where(function ($subQ) use ($departmentId) {
+                                                                  $subQ->where('managing_department', $departmentId)
+                                                                      ->orWhereHas('departments', function ($deptQuery) use ($departmentId) {
+                                                                          $deptQuery->where('department', $departmentId);
+                                                                      });
+                                                              });
+                                                        });
+                                                    }
+                                                });
 
                                                 return $query->pluck('name', 'id')->toArray();
                                             })
                                             ->searchable(['name'])
+                                            ->hint(function (Get $get) {
+                                                if (!$get('department')) {
+                                                    return __('general.storage_department_hint');
+                                                }
+                                                return null;
+                                            })
+                                            ->hintIcon(function (Get $get) {
+                                                if (!$get('department')) {
+                                                    return 'heroicon-o-exclamation-triangle';
+                                                }
+                                                return null;
+                                            })
                                             ->suffixIcon('heroicon-o-building-storefront'),
                                         Select::make('operation_site')
                                             ->label(__('general.operation_site'))
@@ -395,12 +415,21 @@ class ItemResource extends Resource
                                             ->disabled(function (Get $get) {
                                                 return self::isView() || self::isCreate() || !$get('department');
                                             })
-                                            ->hint(function () {
+                                            ->hint(function (Get $get) {
+                                                if (!$get('department')) {
+                                                    return __('general.please_select_department_first');
+                                                }
                                                 if (self::isEdit()) {
                                                     return __('general.operation_site_create_note_2');
                                                 } elseif (self::isCreate()) {
                                                     return __('general.operation_site_create_note_1');
                                                 }
+                                            })
+                                            ->hintIcon(function (Get $get) {
+                                                if (!$get('department')) {
+                                                    return 'heroicon-o-exclamation-triangle';
+                                                }
+                                                return null;
                                             }),
                                     ]),
                                 Tab::make(__('general.more') . '/' . __('general.note'))

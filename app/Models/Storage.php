@@ -92,7 +92,7 @@ class Storage extends Model
      */
     public function departments(): HasMany
     {
-        return $this->hasMany(StorageDepartmentAccess::class, 'storage', 'department');
+        return $this->hasMany(StorageDepartmentAccess::class, 'storage', 'id');
     }
 
     /**

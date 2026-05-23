@@ -478,4 +478,6 @@ return array(
     'import_mode_create_description' => 'Jede Zeile wird als neuer Artikel importiert. Beachte, dass dies zu Duplikaten führen kann.',
     'beta' => 'Beta',
     'invert' => 'Invertieren (Außer)',
+    'please_select_department_first' => 'Bitte wähle zuerst eine Abteilung aus',
+    'storage_department_hint' => 'Abteilungsspezifische Lager werden erst angezeigt, wenn eine Abteilung ausgewählt wurde',
 );

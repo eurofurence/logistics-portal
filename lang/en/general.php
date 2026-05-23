@@ -480,4 +480,6 @@ return array(
     'label' => 'Bezeichnung',
     'phone' => 'Telefon',
     'default' => 'Standard',
+    'please_select_department_first' => 'Please select a department first',
+    'storage_department_hint' => 'Department specific storages will not be shown until a department is selected',
 );
