@@ -65,11 +65,31 @@ class Addressbook extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'label',
         'name',
-
+        'street',
+        'zip',
+        'city',
+        'country',
+        'phone',
+        'email',
+        'default',
+        'locked',
+        'comment',
         'added_by',
         'edited_by',
-        'comment',
+    ];
+
+    protected $casts = [
+        'default' => 'boolean',
+        'locked' => 'boolean',
+        'name' => 'encrypted',
+        'street' => 'encrypted',
+        'zip' => 'encrypted',
+        'city' => 'encrypted',
+        'country' => 'encrypted',
+        'phone' => 'encrypted',
+        'email' => 'encrypted',
     ];
 
     public static function boot()
@@ -86,12 +106,12 @@ class Addressbook extends Model
         });
     }
 
-    public function added_by(): HasOne
+    public function addedBy(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'added_by');
     }
 
-    public function edited_by(): HasOne
+    public function editedBy(): HasOne
     {
         return $this->hasOne(User::class, 'id', 'edited_by');
     }

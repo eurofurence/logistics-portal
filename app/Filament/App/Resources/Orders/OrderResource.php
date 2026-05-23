@@ -9,6 +9,7 @@ use App\Filament\App\Resources\Orders\Pages\EditOrder;
 use App\Filament\App\Resources\Orders\Pages\ListOrders;
 use App\Filament\App\Resources\Orders\Pages\ViewOrder;
 use App\Forms\Components\Timeline;
+use App\Models\Addressbook;
 use App\Models\Department;
 use App\Models\Order;
 use App\Models\OrderArticle;
@@ -491,8 +492,7 @@ class OrderResource extends Resource
                                         Textarea::make('delivery_destination')
                                             ->label(__('general.delivery_destination'))
                                             ->maxLength(10000)
-                                            ->autosize()
-                                            ->visible(fn () => Auth::user()->can('can-view-order-delivery-address')),
+                                            ->autosize(),
                                         TextInput::make('tracking_number')
                                             ->label(__('general.tracking_number'))
                                             ->maxLength(254),
@@ -1440,7 +1440,6 @@ class OrderResource extends Resource
                             Textarea::make('delivery_destination')
                                 ->label(__('general.delivery_destination'))
                                 ->rows(7)
-                                ->required(),
                         ])
                         ->visible(Auth::user()->can('update-Order')),
                     BulkAction::make('article_number_sync')

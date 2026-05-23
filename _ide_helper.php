@@ -5,7 +5,7 @@
 
 /**
  * A helper file for Laravel, to provide autocomplete information to your IDE
- * Generated for Laravel 12.59.0.
+ * Generated for Laravel 12.60.2.
  *
  * This file should not be included in your code, only analyzed by your IDE!
  *
@@ -25288,6 +25288,18 @@ namespace Illuminate\Support {
             return \Illuminate\Support\Str::sanitizeHtml($html);
         }
 
+        /**
+         * @see \Filament\Support\SupportServiceProvider::packageBooted()
+         * @param string|null $url
+         * @param array $allowedSchemes
+         * @return string|null
+         * @static
+         */
+        public static function sanitizeUrl($url, $allowedSchemes = [])
+        {
+            return \Illuminate\Support\Str::sanitizeUrl($url, $allowedSchemes);
+        }
+
             }
     /**
      */
@@ -25300,6 +25312,17 @@ namespace Illuminate\Support {
         public static function sanitizeHtml()
         {
             return \Illuminate\Support\Stringable::sanitizeHtml();
+        }
+
+        /**
+         * @see \Filament\Support\SupportServiceProvider::packageBooted()
+         * @param array $allowedSchemes
+         * @return \Illuminate\Support\Stringable
+         * @static
+         */
+        public static function sanitizeUrl($allowedSchemes = [])
+        {
+            return \Illuminate\Support\Stringable::sanitizeUrl($allowedSchemes);
         }
 
             }
