@@ -20,6 +20,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -33,6 +34,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Grouping\Group;
@@ -40,6 +42,7 @@ use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
@@ -292,35 +295,132 @@ class OrderRequestResource extends Resource
             ->filters([
                 TrashedFilter::make()
                     ->visible(fn(): bool => Gate::allows('restore', OrderRequest::class) || Gate::allows('forceDelete', OrderRequest::class) || Gate::allows('bulkForceDelete', OrderRequest::class) || Gate::allows('bulkRestore', OrderRequest::class)),
-                SelectFilter::make('order_event_id')
-                    ->label(__('general.order_event'))
-                    ->options(OrderEvent::all(['id', 'name'])->pluck('name', 'id'))
-                    ->default(function () {
-                        $activeOrderEvent = OrderEvent::where('is_active', true)->first();
-
-                        return $activeOrderEvent ? $activeOrderEvent->id : null;
-                    }),
-                SelectFilter::make('department_id')
-                    ->multiple()
-                    ->label(__('general.department'))
-                    ->options(function (): array {
-                        if (Auth::user()->can('can-see-all-orderRequests')) {
-                            return Department::all()->pluck('name', 'id')->toArray();
-                        } else {
-                            return Auth::user()->departmentsWithRoles()->pluck('name', 'id')->toArray();
-                        }
-                    }),
-                SelectFilter::make('status')
-                    ->label(__('general.status'))
-                    ->options([
-                        0 => __('general.open'),
-                        1 => __('general.finished'),
-                        2 => __('general.processing'),
-                        3 => __('general.note'),
-                        4 => __('general.checking'),
-                        5 => __('general.rejected'),
+                Filter::make('created_at')
+                    ->schema([
+                        DatePicker::make('created_from')
+                            ->label(__('general.created_from'))
+                            ->placeholder(fn ($state): string => 'Dec 18, '.now()->subYear()->format('Y')),
+                        DatePicker::make('created_until')
+                            ->label(__('general.created_until'))
+                            ->placeholder(fn ($state): string => now()->format('M d, Y')),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
                     ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        $from = $data['created_from'] ?? null;
+                        $until = $data['created_until'] ?? null;
+                        $invert = $data['invert'] ?? false;
+
+                        if (!$from && !$until) {
+                            return $query;
+                        }
+
+                        return $query->where(function (Builder $query) use ($from, $until, $invert) {
+                            if ($invert) {
+                                if ($from) {
+                                    $query->orWhereDate('created_at', '<', $from);
+                                }
+                                if ($until) {
+                                    $query->orWhereDate('created_at', '>', $until);
+                                }
+                            } else {
+                                if ($from) {
+                                    $query->whereDate('created_at', '>=', $from);
+                                }
+                                if ($until) {
+                                    $query->whereDate('created_at', '<=', $until);
+                                }
+                            }
+                        });
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        $invertText = ($data['invert'] ?? false) ? ' ('.__('general.invert').')' : '';
+                        if ($data['created_from'] ?? null) {
+                            $indicators['created_from'] = __('general.created_from').' '.Carbon::parse($data['created_from'])->toFormattedDateString().$invertText;
+                        }
+                        if ($data['created_until'] ?? null) {
+                            $indicators['created_until'] = __('general.created_until').' '.Carbon::parse($data['created_until'])->toFormattedDateString().$invertText;
+                        }
+
+                        return $indicators;
+                    }),
+                Filter::make('order_event_id')
+                    ->schema([
+                        Select::make('value')
+                            ->label(__('general.order_event'))
+                            ->options(OrderEvent::all(['id', 'name'])->pluck('name', 'id'))
+                            ->default(fn () => OrderEvent::where('is_active', true)->first()?->id),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['value'])) return $query;
+                        return ($data['invert'] ?? false)
+                            ? $query->where('order_event_id', '!=', $data['value'])
+                            : $query->where('order_event_id', $data['value']);
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        if (empty($data['value'])) return [];
+                        $indicator = __('general.order_event') . ': ' . (OrderEvent::find($data['value'])?->name ?? $data['value']);
+                        if ($data['invert'] ?? false) $indicator .= ' (' . __('general.invert') . ')';
+                        return [$indicator];
+                    }),
+                Filter::make('department_id')
+                    ->schema([
+                        Select::make('values')
+                            ->multiple()
+                            ->label(__('general.department'))
+                            ->options(function (): array {
+                                return Auth::user()->can('can-see-all-orderRequests')
+                                    ? Department::all()->pluck('name', 'id')->toArray()
+                                    : Auth::user()->departmentsWithRoles()->pluck('name', 'id')->toArray();
+                            }),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['values'])) return $query;
+                        return ($data['invert'] ?? false)
+                            ? $query->whereNotIn('department_id', $data['values'])
+                            : $query->whereIn('department_id', $data['values']);
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        if (empty($data['values'])) return [];
+                        $indicator = __('general.department') . ': ' . count($data['values']);
+                        if ($data['invert'] ?? false) $indicator .= ' (' . __('general.invert') . ')';
+                        return [$indicator];
+                    }),
+                Filter::make('status')
+                    ->schema([
+                        Select::make('values')
+                            ->multiple()
+                            ->label(__('general.status'))
+                            ->options([
+                                0 => __('general.open'),
+                                1 => __('general.finished'),
+                                2 => __('general.processing'),
+                                3 => __('general.note'),
+                                4 => __('general.checking'),
+                                5 => __('general.rejected'),
+                            ]),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['values'])) return $query;
+                        return ($data['invert'] ?? false)
+                            ? $query->whereNotIn('status', $data['values'])
+                            : $query->whereIn('status', $data['values']);
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        if (empty($data['values'])) return [];
+                        $indicator = __('general.status') . ': ' . count($data['values']);
+                        if ($data['invert'] ?? false) $indicator .= ' (' . __('general.invert') . ')';
+                        return [$indicator];
+                    }),
             ], layout: FiltersLayout::Modal)
+            ->filtersFormColumns(2)
             ->recordActions([
                 ActionGroup::make([
                     EditAction::make(),

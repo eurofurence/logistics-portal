@@ -867,64 +867,170 @@ class OrderResource extends Resource
                         DatePicker::make('created_until')
                             ->label(__('general.created_until'))
                             ->placeholder(fn ($state): string => now()->format('M d, Y')),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['created_from'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                            )
-                            ->when(
-                                $data['created_until'] ?? null,
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                            );
+                        $from = $data['created_from'] ?? null;
+                        $until = $data['created_until'] ?? null;
+                        $invert = $data['invert'] ?? false;
+
+                        if (!$from && !$until) {
+                            return $query;
+                        }
+
+                        return $query->where(function (Builder $query) use ($from, $until, $invert) {
+                            if ($invert) {
+                                if ($from) {
+                                    $query->orWhereDate('created_at', '<', $from);
+                                }
+                                if ($until) {
+                                    $query->orWhereDate('created_at', '>', $until);
+                                }
+                            } else {
+                                if ($from) {
+                                    $query->whereDate('created_at', '>=', $from);
+                                }
+                                if ($until) {
+                                    $query->whereDate('created_at', '<=', $until);
+                                }
+                            }
+                        });
                     })
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
+                        $invertText = ($data['invert'] ?? false) ? ' ('.__('general.invert').')' : '';
                         if ($data['created_from'] ?? null) {
-                            $indicators['created_from'] = __('general.created_from').' '.Carbon::parse($data['created_from'])->toFormattedDateString();
+                            $indicators['created_from'] = __('general.created_from').' '.Carbon::parse($data['created_from'])->toFormattedDateString().$invertText;
                         }
                         if ($data['created_until'] ?? null) {
-                            $indicators['created_until'] = __('general.created_until').' '.Carbon::parse($data['created_until'])->toFormattedDateString();
+                            $indicators['created_until'] = __('general.created_until').' '.Carbon::parse($data['created_until'])->toFormattedDateString().$invertText;
                         }
 
                         return $indicators;
                     }),
-                SelectFilter::make('order_event_id')
-                    ->label(__('general.order_event'))
-                    ->options(OrderEvent::all(['id', 'name'])->pluck('name', 'id'))
-                    ->default(function () {
-                        $activeOrderEvent = OrderEvent::where('is_active', true)->first();
+                Filter::make('order_event_id')
+                    ->form([
+                        Select::make('value')
+                            ->label(__('general.order_event'))
+                            ->options(OrderEvent::all(['id', 'name'])->pluck('name', 'id'))
+                            ->default(function () {
+                                $activeOrderEvent = OrderEvent::where('is_active', true)->first();
 
-                        return $activeOrderEvent ? $activeOrderEvent->id : null;
-                    }),
-                SelectFilter::make('department_id')
-                    ->multiple()
-                    ->label(__('general.department'))
-                    ->options(function (): array {
-                        if (Auth::user()->can('can-see-all-orders')) {
-                            return Department::all()->pluck('name', 'id')->toArray();
-                        } else {
-                            return Auth::user()->getDepartmentsWithPermission('view-Order')->pluck('name', 'department_id')->toArray();
+                                return $activeOrderEvent ? $activeOrderEvent->id : null;
+                            }),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['value'])) {
+                            return $query;
                         }
+
+                        if ($data['invert'] ?? false) {
+                            return $query->where('order_event_id', '!=', $data['value']);
+                        }
+
+                        return $query->where('order_event_id', $data['value']);
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        if (empty($data['value'])) {
+                            return [];
+                        }
+
+                        $indicator = __('general.order_event') . ': ' . (OrderEvent::find($data['value'])?->name ?? $data['value']);
+
+                        if ($data['invert'] ?? false) {
+                            $indicator .= ' (' . __('general.invert') . ')';
+                        }
+
+                        return [$indicator];
                     }),
-                SelectFilter::make('status')
-                    ->multiple()
-                    ->label(__('general.status'))
-                    ->options([
-                        'on_hold' => __('general.on_hold'),
-                        'checking' => __('general.checking'),
-                        'processing' => __('general.processing'),
-                        'open' => __('general.open'),
-                        'ordered' => __('general.ordered'),
-                        'delivered' => __('general.delivered'),
-                        'partially_received' => __('general.partially_received'),
-                        'received' => __('general.received'),
-                        'rejected' => __('general.rejected'),
-                        'locked' => __('general.locked'),
-                        'refunded' => __('general.refunded'),
-                        'awaiting_approval' => __('general.awaiting_approval'),
-                    ]),
+                Filter::make('department_id')
+                    ->form([
+                        Select::make('values')
+                            ->multiple()
+                            ->label(__('general.department'))
+                            ->options(function (): array {
+                                if (Auth::user()->can('can-see-all-orders')) {
+                                    return Department::all()->pluck('name', 'id')->toArray();
+                                } else {
+                                    return Auth::user()->getDepartmentsWithPermission('view-Order')->pluck('name', 'department_id')->toArray();
+                                }
+                            }),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['values'])) {
+                            return $query;
+                        }
+
+                        if ($data['invert'] ?? false) {
+                            return $query->whereNotIn('department_id', $data['values']);
+                        }
+
+                        return $query->whereIn('department_id', $data['values']);
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        if (empty($data['values'])) {
+                            return [];
+                        }
+
+                        $indicator = __('general.department') . ': ' . count($data['values']);
+
+                        if ($data['invert'] ?? false) {
+                            $indicator .= ' (' . __('general.invert') . ')';
+                        }
+
+                        return [$indicator];
+                    }),
+                Filter::make('status')
+                    ->form([
+                        Select::make('values')
+                            ->multiple()
+                            ->label(__('general.status'))
+                            ->options([
+                                'on_hold' => __('general.on_hold'),
+                                'checking' => __('general.checking'),
+                                'processing' => __('general.processing'),
+                                'open' => __('general.open'),
+                                'ordered' => __('general.ordered'),
+                                'delivered' => __('general.delivered'),
+                                'partially_received' => __('general.partially_received'),
+                                'received' => __('general.received'),
+                                'rejected' => __('general.rejected'),
+                                'locked' => __('general.locked'),
+                                'refunded' => __('general.refunded'),
+                                'awaiting_approval' => __('general.awaiting_approval'),
+                            ]),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['values'])) {
+                            return $query;
+                        }
+
+                        if ($data['invert'] ?? false) {
+                            return $query->whereNotIn('status', $data['values']);
+                        }
+
+                        return $query->whereIn('status', $data['values']);
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        if (empty($data['values'])) {
+                            return [];
+                        }
+
+                        $indicator = __('general.status') . ': ' . count($data['values']);
+
+                        if ($data['invert'] ?? false) {
+                            $indicator .= ' (' . __('general.invert') . ')';
+                        }
+
+                        return [$indicator];
+                    }),
                 SelectFilter::make('order_request_id')
                     ->label(__('general.linked_request'))
                     ->options([
@@ -959,40 +1065,60 @@ class OrderResource extends Resource
 
                         return $query;
                     }),
-                SelectFilter::make('url')
-                    ->label(__('general.marketplace'))
-                    ->multiple()
-                    ->options([
-                        'frog_store' => __('general.frog_store'),
-                        'metro' => __('general.metro'),
-                        'amazon' => __('general.amazon'),
-                        'hornbach' => __('general.hornbach'),
+                Filter::make('url')
+                    ->form([
+                        Select::make('values')
+                            ->label(__('general.marketplace'))
+                            ->multiple()
+                            ->options([
+                                'frog_store' => __('general.frog_store'),
+                                'metro' => __('general.metro'),
+                                'amazon' => __('general.amazon'),
+                                'hornbach' => __('general.hornbach'),
+                            ]),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (! empty($data['values'])) {
-                            $query->where(function ($query) use ($data) {
-                                foreach ($data['values'] as $value) {
-                                    if ($value === 'frog_store') {
-                                        $query->orWhere('url', 'like', '%frog_store.%');
-                                    }
-
-                                    if ($value === 'metro') {
-                                        $query->orWhere('url', 'like', '%metro.%');
-                                    }
-
-                                    if ($value === 'amazon') {
-                                        $query->orWhere('url', 'like', '%amazon.%')
-                                            ->orWhere('url', 'like', '%amzn.%');
-                                    }
-
-                                    if ($value === 'hornbach') {
-                                        $query->orWhere('url', 'like', '%hornbach.%');
-                                    }
-                                }
-                            });
+                        if (empty($data['values'])) {
+                            return $query;
                         }
 
-                        return $query;
+                        $invert = $data['invert'] ?? false;
+
+                        return $query->where(function ($query) use ($data, $invert) {
+                            foreach ($data['values'] as $value) {
+                                if ($value === 'frog_store') {
+                                    $invert ? $query->where('url', 'not like', '%frog_store.%') : $query->orWhere('url', 'like', '%frog_store.%');
+                                }
+
+                                if ($value === 'metro') {
+                                    $invert ? $query->where('url', 'not like', '%metro.%') : $query->orWhere('url', 'like', '%metro.%');
+                                }
+
+                                if ($value === 'amazon') {
+                                    if ($invert) {
+                                        $query->where('url', 'not like', '%amazon.%')->where('url', 'not like', '%amzn.%');
+                                    } else {
+                                        $query->orWhere('url', 'like', '%amazon.%')->orWhere('url', 'like', '%amzn.%');
+                                    }
+                                }
+
+                                if ($value === 'hornbach') {
+                                    $invert ? $query->where('url', 'not like', '%hornbach.%') : $query->orWhere('url', 'like', '%hornbach.%');
+                                }
+                            }
+                        });
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        if (empty($data['values'])) {
+                            return [];
+                        }
+                        $indicator = __('general.marketplace') . ': ' . count($data['values']);
+                        if ($data['invert'] ?? false) {
+                            $indicator .= ' (' . __('general.invert') . ')';
+                        }
+                        return [$indicator];
                     }),
                 SelectFilter::make('user_note')
                     ->label(__('general.user_note'))
@@ -1011,11 +1137,37 @@ class OrderResource extends Resource
 
                         return $query;
                     }),
-                SelectFilter::make('added_by')
-                    ->multiple()
-                    ->label(__('general.added_by'))
-                    ->options(function (): array {
-                        return User::all()->pluck('name', 'id')->toArray();
+                Filter::make('added_by')
+                    ->form([
+                        Select::make('values')
+                            ->multiple()
+                            ->label(__('general.added_by'))
+                            ->options(function (): array {
+                                return User::all()->pluck('name', 'id')->toArray();
+                            }),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['values'])) {
+                            return $query;
+                        }
+
+                        if ($data['invert'] ?? false) {
+                            return $query->whereNotIn('added_by', $data['values']);
+                        }
+
+                        return $query->whereIn('added_by', $data['values']);
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        if (empty($data['values'])) {
+                            return [];
+                        }
+                        $indicator = __('general.added_by') . ': ' . count($data['values']);
+                        if ($data['invert'] ?? false) {
+                            $indicator .= ' (' . __('general.invert') . ')';
+                        }
+                        return [$indicator];
                     }),
             ], layout: FiltersLayout::Modal)
             ->filtersFormColumns(3)
