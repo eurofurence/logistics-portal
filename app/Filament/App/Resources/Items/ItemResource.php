@@ -209,6 +209,12 @@ class ItemResource extends Resource
                                                             return Auth::user()->getDepartmentsWithPermission('view-Item')->pluck('name', 'id')->toArray();
                                                         }
                                                     })
+                                                    ->live()
+                                                    ->afterStateUpdated(function (Set $set) {
+                                                        $set('storage', null);
+                                                        $set('sub_category', null);
+                                                        $set('operation_site', null);
+                                                    })
                                                     ->disabled(function () {
                                                         if (self::isEdit() || self::isView()) {
                                                             return true;
@@ -223,12 +229,13 @@ class ItemResource extends Resource
                                                     }),
                                                 Select::make('sub_category')
                                                     ->label(__('general.department_sub_category'))
-                                                    ->options(function ($record) {
-                                                        if (!empty($record->connected_department->inventory_sub_categories)) {
-                                                            return $record->connected_department->inventory_sub_categories->mapWithKeys(function ($subCategory) {
-                                                                $departmentName = $subCategory->connected_department ? $subCategory->connected_department->name : __('general.no_department');
-                                                                return [$subCategory->id => __('general.id') . ": {$subCategory->id} - {$subCategory->name} ({$departmentName})"];
-                                                            })->toArray();
+                                                    ->options(function (Get $get) {
+                                                        $departmentId = $get('department');
+                                                        if ($departmentId) {
+                                                            $department = Department::find($departmentId);
+                                                            if ($department) {
+                                                                return $department->inventory_sub_categories->pluck('name', 'id')->toArray();
+                                                            }
                                                         }
                                                         return [];
                                                     })
@@ -241,15 +248,11 @@ class ItemResource extends Resource
                                                         $set('current_selected_sub_category_id', $subCategory ? $subCategory->id : null);
                                                         $set('current_selected_sub_category_name', $subCategory ? $subCategory->name : null);
                                                     })
-                                                    ->suffixAction(SubCategorySiteActions::getEditAction())
-                                                    ->suffixAction(SubCategorySiteActions::getAddAction())
-                                                    ->suffixAction(SubCategorySiteActions::getDeleteAction())
-                                                    ->disabled(function () {
-                                                        if (self::isView() || self::isCreate()) {
-                                                            return true;
-                                                        }
-
-                                                        return false;
+                                                    ->suffixAction(fn (Get $get) => SubCategorySiteActions::getAddAction($get('department')))
+                                                    ->suffixAction(fn (Get $get) => SubCategorySiteActions::getEditAction($get('department')))
+                                                    ->suffixAction(fn (Get $get) => SubCategorySiteActions::getDeleteAction($get('department')))
+                                                    ->disabled(function (Get $get) {
+                                                        return self::isView() || self::isCreate() || !$get('department');
                                                     })
                                                     ->hint(function () {
                                                         if (self::isCreate()) {
@@ -338,22 +341,44 @@ class ItemResource extends Resource
                                     ->schema([
                                         Select::make('storage')
                                             ->label(__('general.storage'))
-                                            ->options(function (): array {
-                                                $options = Storage::all(['id', 'name'])->pluck('name', 'id')->toArray();
+                                            ->options(function (Get $get): array {
+                                                $user = Auth::user();
 
-                                                return $options;
+                                                if ($user->isSuperAdmin()) {
+                                                    return Storage::all(['id', 'name'])->pluck('name', 'id')->toArray();
+                                                }
+
+                                                $query = Storage::query()
+                                                    ->where('type', 1); // type 1 is usually global
+
+                                                $departmentId = $get('department');
+                                                if ($departmentId) {
+                                                    $query->orWhere(function ($q) use ($departmentId) {
+                                                        $q->where('type', 2)
+                                                          ->where(function ($subQ) use ($departmentId) {
+                                                              $subQ->where('managing_department', $departmentId)
+                                                                  ->orWhereHas('departments', function ($deptQuery) use ($departmentId) {
+                                                                      $deptQuery->where('department', $departmentId);
+                                                                  });
+                                                          });
+                                                    });
+                                                }
+
+                                                return $query->pluck('name', 'id')->toArray();
                                             })
                                             ->searchable(['name'])
                                             ->suffixIcon('heroicon-o-building-storefront'),
                                         Select::make('operation_site')
                                             ->label(__('general.operation_site'))
-                                            ->options(function ($record): array {
-                                                if (empty($record->connected_department)) {
-                                                    return [];
+                                            ->options(function (Get $get): array {
+                                                $departmentId = $get('department');
+                                                if ($departmentId) {
+                                                    $department = Department::find($departmentId);
+                                                    if ($department) {
+                                                        return $department->items_operation_sites->pluck('name', 'id')->toArray();
+                                                    }
                                                 }
-                                                return $record->connected_department->items_operation_sites->mapWithKeys(function ($operationSite) {
-                                                    return [$operationSite->id => __('general.id') . ": {$operationSite->id} - {$operationSite->name} ({$operationSite->connected_department->name})"];
-                                                })->toArray();
+                                                return [];
                                             })
                                             ->searchable(['name'])
                                             ->live()
@@ -364,15 +389,11 @@ class ItemResource extends Resource
                                                 $set('current_selected_operation_site_id', $operationSite ? $operationSite->id : null);
                                                 $set('current_selected_operation_site_name', $operationSite ? $operationSite->name : null);
                                             })
-                                            ->suffixAction(OperationSiteActions::getEditAction())
-                                            ->suffixAction(OperationSiteActions::getAddAction())
-                                            ->suffixAction(OperationSiteActions::getDeleteAction())
-                                            ->disabled(function () {
-                                                if (self::isView() || self::isCreate()) {
-                                                    return true;
-                                                }
-
-                                                return false;
+                                            ->suffixAction(fn (Get $get) => OperationSiteActions::getAddAction($get('department')))
+                                            ->suffixAction(fn (Get $get) => OperationSiteActions::getEditAction($get('department')))
+                                            ->suffixAction(fn (Get $get) => OperationSiteActions::getDeleteAction($get('department')))
+                                            ->disabled(function (Get $get) {
+                                                return self::isView() || self::isCreate() || !$get('department');
                                             })
                                             ->hint(function () {
                                                 if (self::isEdit()) {
