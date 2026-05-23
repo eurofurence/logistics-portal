@@ -624,87 +624,173 @@ class ItemResource extends Resource
                         DatePicker::make('created_until')
                             ->label(__('general.created_until'))
                             ->placeholder(fn($state): string => now()->format('M d, Y')),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['created_from'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                            )
-                            ->when(
-                                $data['created_until'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                            );
+                        $from = $data['created_from'] ?? null;
+                        $until = $data['created_until'] ?? null;
+                        $invert = $data['invert'] ?? false;
+
+                        if (!$from && !$until) {
+                            return $query;
+                        }
+
+                        return $query->where(function (Builder $query) use ($from, $until, $invert) {
+                            if ($invert) {
+                                if ($from) {
+                                    $query->orWhereDate('created_at', '<', $from);
+                                }
+                                if ($until) {
+                                    $query->orWhereDate('created_at', '>', $until);
+                                }
+                            } else {
+                                if ($from) {
+                                    $query->whereDate('created_at', '>=', $from);
+                                }
+                                if ($until) {
+                                    $query->whereDate('created_at', '<=', $until);
+                                }
+                            }
+                        });
                     })
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
+                        $invertText = ($data['invert'] ?? false) ? ' (' . __('general.invert') . ')' : '';
                         if ($data['created_from'] ?? null) {
-                            $indicators['created_from'] = __('general.created_from') . ' ' . Carbon::parse($data['created_from'])->toFormattedDateString();
+                            $indicators['created_from'] = __('general.created_from') . ' ' . Carbon::parse($data['created_from'])->toFormattedDateString() . $invertText;
                         }
                         if ($data['created_until'] ?? null) {
-                            $indicators['created_until'] = __('general.created_until') . ' ' . Carbon::parse($data['created_until'])->toFormattedDateString();
+                            $indicators['created_until'] = __('general.created_until') . ' ' . Carbon::parse($data['created_until'])->toFormattedDateString() . $invertText;
                         }
 
                         return $indicators;
                     }),
                 Filter::make('due_date')
-                    ->schema([
+                    ->form([
                         DatePicker::make('due_date_from')
                             ->label(__('general.due_date_from'))
                             ->placeholder(fn($state): string => 'Dec 18, ' . now()->subYear()->format('Y')),
                         DatePicker::make('due_date_until')
                             ->label(__('general.due_date_until'))
                             ->placeholder(fn($state): string => now()->format('M d, Y')),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['due_date_from'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('due_date', '>=', $date),
-                            )
-                            ->when(
-                                $data['due_date_until'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('due_date', '<=', $date),
-                            );
+                        $from = $data['due_date_from'] ?? null;
+                        $until = $data['due_date_until'] ?? null;
+                        $invert = $data['invert'] ?? false;
+
+                        if (!$from && !$until) {
+                            return $query;
+                        }
+
+                        return $query->where(function (Builder $query) use ($from, $until, $invert) {
+                            if ($invert) {
+                                if ($from) {
+                                    $query->orWhereDate('due_date', '<', $from);
+                                }
+                                if ($until) {
+                                    $query->orWhereDate('due_date', '>', $until);
+                                }
+                            } else {
+                                if ($from) {
+                                    $query->whereDate('due_date', '>=', $from);
+                                }
+                                if ($until) {
+                                    $query->whereDate('due_date', '<=', $until);
+                                }
+                            }
+                        });
                     })
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
+                        $invertText = ($data['invert'] ?? false) ? ' (' . __('general.invert') . ')' : '';
                         if ($data['due_date_from'] ?? null) {
-                            $indicators['due_date_from'] = __('general.due_date_from') . ' ' . Carbon::parse($data['due_date_from'])->toFormattedDateString();
+                            $indicators['due_date_from'] = __('general.due_date_from') . ' ' . Carbon::parse($data['due_date_from'])->toFormattedDateString() . $invertText;
                         }
                         if ($data['due_date_until'] ?? null) {
-                            $indicators['due_date_until'] = __('general.due_date_until') . ' ' . Carbon::parse($data['due_date_until'])->toFormattedDateString();
+                            $indicators['due_date_until'] = __('general.due_date_until') . ' ' . Carbon::parse($data['due_date_until'])->toFormattedDateString() . $invertText;
                         }
 
                         return $indicators;
                     }),
-                SelectFilter::make('department')
-                    ->multiple()
-                    ->label(__('general.department'))
-                    ->options(function (): array {
-                        if (Auth::user()->can('can-choose-all-departments') || Auth::user()->can('can-see-all-departments')) {
-                            return Department::all()->pluck('name', 'id')->toArray();
-                        } else {
-                            return Auth::user()->departments()->pluck('name', 'department_id')->toArray();
+                Filter::make('department')
+                    ->form([
+                        Select::make('values')
+                            ->multiple()
+                            ->label(__('general.department'))
+                            ->options(function (): array {
+                                if (Auth::user()->can('can-choose-all-departments') || Auth::user()->can('can-see-all-departments')) {
+                                    return Department::all()->pluck('name', 'id')->toArray();
+                                } else {
+                                    return Auth::user()->departments()->pluck('name', 'department_id')->toArray();
+                                }
+                            }),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['values'])) {
+                            return $query;
                         }
+                        if ($data['invert'] ?? false) {
+                            return $query->whereNotIn('department', $data['values']);
+                        }
+                        return $query->whereIn('department', $data['values']);
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        if (empty($data['values'])) {
+                            return [];
+                        }
+                        $indicator = __('general.department') . ': ' . count($data['values']);
+                        if ($data['invert'] ?? false) {
+                            $indicator .= ' (' . __('general.invert') . ')';
+                        }
+                        return [$indicator];
                     }),
-                SelectFilter::make('storage')
-                    ->multiple()
-                    ->label(__('general.storage'))
-                    ->options(function (): array {
-                        if (Auth::user()->can('can-see-all-storages')) {
-                            return Storage::all()->pluck('name', 'id')->toArray();
-                        } else {
-                            // Get the departments to which the user has access
-                            $accessibleDepartments = Auth::user()->departments;
+                Filter::make('storage')
+                    ->form([
+                        Select::make('values')
+                            ->multiple()
+                            ->label(__('general.storage'))
+                            ->options(function (): array {
+                                if (Auth::user()->can('can-see-all-storages')) {
+                                    return Storage::all()->pluck('name', 'id')->toArray();
+                                } else {
+                                    // Get the departments to which the user has access
+                                    $accessibleDepartments = Auth::user()->departments;
 
-                            // Get the storages that belong to these departments
-                            $accessibleStorages = Storage::whereHas('managing_department', function ($query) use ($accessibleDepartments) {
-                                $query->whereIn('id', $accessibleDepartments->pluck('id'));
-                            })->pluck('name', 'id')->toArray();
+                                    // Get the storages that belong to these departments
+                                    $accessibleStorages = Storage::whereHas('managing_department', function ($query) use ($accessibleDepartments) {
+                                        $query->whereIn('id', $accessibleDepartments->pluck('id'));
+                                    })->pluck('name', 'id')->toArray();
 
-                            return $accessibleStorages;
+                                    return $accessibleStorages;
+                                }
+                            }),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['values'])) {
+                            return $query;
                         }
+                        if ($data['invert'] ?? false) {
+                            return $query->whereNotIn('storage', $data['values']);
+                        }
+                        return $query->whereIn('storage', $data['values']);
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        if (empty($data['values'])) {
+                            return [];
+                        }
+                        $indicator = __('general.storage') . ': ' . count($data['values']);
+                        if ($data['invert'] ?? false) {
+                            $indicator .= ' (' . __('general.invert') . ')';
+                        }
+                        return [$indicator];
                     }),
                 TernaryFilter::make('sorted_out')
                     ->nullable()
@@ -730,57 +816,105 @@ class ItemResource extends Resource
                 TernaryFilter::make('stackable')
                     ->nullable()
                     ->label(__('general.stackable')),
-                SelectFilter::make('operation_site')
-                    ->label(__('general.operation_site'))
-                    ->multiple()
-                    ->searchable()
-                    ->preload()
-                    ->options(function (): array {
-                        $options = array();
+                Filter::make('operation_site')
+                    ->form([
+                        Select::make('values')
+                            ->label(__('general.operation_site'))
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->options(function (): array {
+                                $options = array();
 
-                        if (Auth::user()->isSuperAdmin()) {
-                            $options = ItemsOperationSite::all()->mapWithKeys(function ($site) {
-                                return [$site->id => "ID: {$site->id} - {$site->name} ({$site->connected_department->name})"];
-                            })->toArray();
-                        } else {
-                            $options = [];
-                            foreach (Auth::user()->getDepartmentsWithPermission_Array('view-Item') as $department) {
-                                $o_sites = ItemsOperationSite::where('department', $department['id'])->get();
-                                if ($o_sites->isNotEmpty()) {
-                                    foreach ($o_sites as $site) {
-                                        $options[$site->id] = "ID: {$site->id} - {$site->name} ({$site->connected_department->name})";
+                                if (Auth::user()->isSuperAdmin()) {
+                                    $options = ItemsOperationSite::all()->mapWithKeys(function ($site) {
+                                        return [$site->id => "ID: {$site->id} - {$site->name} ({$site->connected_department->name})"];
+                                    })->toArray();
+                                } else {
+                                    $options = [];
+                                    foreach (Auth::user()->getDepartmentsWithPermission_Array('view-Item') as $department) {
+                                        $o_sites = ItemsOperationSite::where('department', $department['id'])->get();
+                                        if ($o_sites->isNotEmpty()) {
+                                            foreach ($o_sites as $site) {
+                                                $options[$site->id] = "ID: {$site->id} - {$site->name} ({$site->connected_department->name})";
+                                            }
+                                        }
                                     }
                                 }
-                            }
-                        }
 
-                        return $options;
+                                return $options;
+                            }),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['values'])) {
+                            return $query;
+                        }
+                        if ($data['invert'] ?? false) {
+                            return $query->whereNotIn('operation_site', $data['values']);
+                        }
+                        return $query->whereIn('operation_site', $data['values']);
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        if (empty($data['values'])) {
+                            return [];
+                        }
+                        $indicator = __('general.operation_site') . ': ' . count($data['values']);
+                        if ($data['invert'] ?? false) {
+                            $indicator .= ' (' . __('general.invert') . ')';
+                        }
+                        return [$indicator];
                     }),
-                SelectFilter::make('sub_category')
-                    ->label(__('general.sub_category'))
-                    ->multiple()
-                    ->searchable()
-                    ->preload()
-                    ->options(function (): array {
-                        if (Auth::user()->isSuperAdmin()) {
-                            // Hole alle Sub-Kategorien und formatiere sie für SuperAdmins
-                            $options = InventorySubCategory::all()->mapWithKeys(function ($subCategory) {
-                                $departmentName = $subCategory->connected_department ? $subCategory->connected_department->name : 'No Department';
-                                return [$subCategory->id => "ID: {$subCategory->id} - {$subCategory->name} ({$departmentName})"];
-                            })->toArray();
-                        } else {
-                            $options = [];
-                            foreach (Auth::user()->getDepartmentsWithPermission_Array('view-Item') as $department) {
-                                $subCategories = InventorySubCategory::where('department', $department['id'])->get();
-                                if ($subCategories->isNotEmpty()) {
-                                    foreach ($subCategories as $subCategory) {
+                Filter::make('sub_category')
+                    ->form([
+                        Select::make('values')
+                            ->label(__('general.sub_category'))
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->options(function (): array {
+                                if (Auth::user()->isSuperAdmin()) {
+                                    // Hole alle Sub-Kategorien und formatiere sie für SuperAdmins
+                                    $options = InventorySubCategory::all()->mapWithKeys(function ($subCategory) {
                                         $departmentName = $subCategory->connected_department ? $subCategory->connected_department->name : 'No Department';
-                                        $options[$subCategory->id] = "ID: {$subCategory->id} - {$subCategory->name} ({$departmentName})";
+                                        return [$subCategory->id => "ID: {$subCategory->id} - {$subCategory->name} ({$departmentName})"];
+                                    })->toArray();
+                                } else {
+                                    $options = [];
+                                    foreach (Auth::user()->getDepartmentsWithPermission_Array('view-Item') as $department) {
+                                        $subCategories = InventorySubCategory::where('department', $department['id'])->get();
+                                        if ($subCategories->isNotEmpty()) {
+                                            foreach ($subCategories as $subCategory) {
+                                                $departmentName = $subCategory->connected_department ? $subCategory->connected_department->name : 'No Department';
+                                                $options[$subCategory->id] = "ID: {$subCategory->id} - {$subCategory->name} ({$departmentName})";
+                                            }
+                                        }
                                     }
                                 }
-                            }
+                                return $options;
+                            }),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['values'])) {
+                            return $query;
                         }
-                        return $options;
+                        if ($data['invert'] ?? false) {
+                            return $query->whereNotIn('sub_category', $data['values']);
+                        }
+                        return $query->whereIn('sub_category', $data['values']);
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        if (empty($data['values'])) {
+                            return [];
+                        }
+                        $indicator = __('general.sub_category') . ': ' . count($data['values']);
+                        if ($data['invert'] ?? false) {
+                            $indicator .= ' (' . __('general.invert') . ')';
+                        }
+                        return [$indicator];
                     })
             ])
             ->filtersFormColumns(3)

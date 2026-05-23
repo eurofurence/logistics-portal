@@ -473,4 +473,6 @@ return array(
     'import_mode_update' => 'Update Existing (Default)',
     'import_mode_create' => 'Always Create New',
     'import_mode_create_description' => 'Each row will be imported as a new item. Note that this may lead to duplicates.',
+    'beta' => 'Beta',
+    'invert' => 'Invert (Except)',
 );

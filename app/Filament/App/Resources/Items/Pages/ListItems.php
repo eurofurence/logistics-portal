@@ -18,7 +18,7 @@ class ListItems extends ListRecords
         return [
             ImportAction::make()
                 ->importer(ItemImporter::class)
-                ->label(__('general.import') ?? 'Importieren')
+                ->label(__('general.import') . ' (' . __('general.beta') . ')')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('gray'),
 

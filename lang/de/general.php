@@ -471,4 +471,6 @@ return array(
     'import_mode_update' => 'Bestehende aktualisieren (Standard)',
     'import_mode_create' => 'Immer neu anlegen',
     'import_mode_create_description' => 'Jede Zeile wird als neuer Artikel importiert. Beachte, dass dies zu Duplikaten führen kann.',
+    'beta' => 'Beta',
+    'invert' => 'Invertieren (Außer)',
 );
