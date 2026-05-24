@@ -7,18 +7,14 @@ use Filament\Actions\Action;
 
 class Login extends \Filament\Auth\Pages\Login
 {
-    // Nutzt wieder 'Schema', um mit der Basisklasse kompatibel zu sein
-    public function form(Schema $schema): Schema
+   public function form(Schema $schema): Schema
     {
         return parent::form($schema);
     }
 
-    // In deiner Filament-Version überschreiben wir die Actions über diese Methode
-    protected function getActions(): array
+    protected function getFormActions(): array
     {
-        // Holt die Standard-Actions (falls vorhanden)
-        // Falls 'parent::getActions()' auch einen Fehler wirft, kannst du es durch '$actions = [];' ersetzen
-        $actions = method_exists(parent::class, 'getActions') ? parent::getActions() : [];
+        $actions = parent::getFormActions();
 
         if (config('app.identity_mode')) {
             $actions[] = Action::make('sso_login')
