@@ -61,6 +61,6 @@ class AddressbookPolicy
      */
     public function forceDelete(User $user, Addressbook $addressbook): bool
     {
-        //
+        return $user->can('force-delete-Addressbook') && $user->isSuperAdmin();
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -13,23 +15,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string|null $description
  * @property int $added_by
  * @property int $edited_by
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCategory newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCategory newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCategory onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCategory query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCategory whereAddedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCategory whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCategory whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCategory whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCategory whereEditedBy($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCategory whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCategory whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCategory whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCategory withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrderCategory withoutTrashed()
+ * @property Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @method static Builder<static>|OrderCategory newModelQuery()
+ * @method static Builder<static>|OrderCategory newQuery()
+ * @method static Builder<static>|OrderCategory onlyTrashed()
+ * @method static Builder<static>|OrderCategory query()
+ * @method static Builder<static>|OrderCategory whereAddedBy($value)
+ * @method static Builder<static>|OrderCategory whereCreatedAt($value)
+ * @method static Builder<static>|OrderCategory whereDeletedAt($value)
+ * @method static Builder<static>|OrderCategory whereDescription($value)
+ * @method static Builder<static>|OrderCategory whereEditedBy($value)
+ * @method static Builder<static>|OrderCategory whereId($value)
+ * @method static Builder<static>|OrderCategory whereName($value)
+ * @method static Builder<static>|OrderCategory whereUpdatedAt($value)
+ * @method static Builder<static>|OrderCategory withTrashed()
+ * @method static Builder<static>|OrderCategory withoutTrashed()
  * @mixin \Eloquent
  */
 class OrderCategory extends Model

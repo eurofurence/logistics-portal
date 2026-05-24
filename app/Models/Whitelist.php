@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,17 +12,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * @property int $id
  * @property string $email
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\User|null $user
- * @property-read \App\Models\User|null $users
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Whitelist newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Whitelist newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Whitelist query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Whitelist whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Whitelist whereEmail($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Whitelist whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Whitelist whereUpdatedAt($value)
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User|null $user
+ * @property-read User|null $users
+ * @method static Builder<static>|Whitelist newModelQuery()
+ * @method static Builder<static>|Whitelist newQuery()
+ * @method static Builder<static>|Whitelist query()
+ * @method static Builder<static>|Whitelist whereCreatedAt($value)
+ * @method static Builder<static>|Whitelist whereEmail($value)
+ * @method static Builder<static>|Whitelist whereId($value)
+ * @method static Builder<static>|Whitelist whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Whitelist extends Model

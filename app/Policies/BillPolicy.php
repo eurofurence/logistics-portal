@@ -110,7 +110,7 @@ class BillPolicy
         if ($user->isSuperAdmin()) {
             return true;
         }
-        
+
         return $user->hasAnyDepartmentRoleWithPermissionTo('replicate-Bill');
     }
 
@@ -125,7 +125,7 @@ class BillPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Bill $bill): bool
+    public function forceDelete(User $user): bool
     {
         return $user->isSuperAdmin();
     }
@@ -138,7 +138,7 @@ class BillPolicy
         return $user->isSuperAdmin();
     }
 
-    public function bulkForceDelete(User $user, Bill $bill): bool
+    public function bulkForceDelete(User $user): bool
     {
         return $user->isSuperAdmin();
     }
@@ -146,7 +146,7 @@ class BillPolicy
     /**
      * Determine whether the user can delete the model. (Many models at once)
      */
-    public function bulkDelete(User $user, Bill $bill): bool
+    public function bulkDelete(User $user): bool
     {
         return $user->isSuperAdmin();
     }
@@ -154,7 +154,7 @@ class BillPolicy
     /**
      * Determine whether the user can restore the model. (Many models at once)
      */
-    public function bulkRestore(User $user, Bill $bill): bool
+    public function bulkRestore(User $user): bool
     {
         return $user->isSuperAdmin();
     }

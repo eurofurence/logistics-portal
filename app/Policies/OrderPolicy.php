@@ -2,13 +2,13 @@
 
 namespace App\Policies;
 
-use App\Models\User;
 use App\Models\Order;
 use App\Models\OrderEvent;
+use App\Models\User;
 
 class OrderPolicy
 {
-    #TODO: $user->isSuperAdmin() überall einbauen
+    // TODO: $user->isSuperAdmin() überall einbauen
     /**
      * Determine whether the user can view any models.
      */
@@ -70,7 +70,6 @@ class OrderPolicy
         return $result;
     }
 
-
     /**
      * Determine whether the user can update the model.
      */
@@ -81,7 +80,7 @@ class OrderPolicy
 
         // Check whether the order can be processed
         if (($order->event->locked == false &&
-                $order->event->order_deadline < now() &&
+                (empty($order->event->order_deadline) || $order->event->order_deadline > now()) &&
                 $order->status == 'open' &&
                 $order->status != 'locked') &&
             $order->status != 'awaiting_approval' ||
@@ -117,7 +116,6 @@ class OrderPolicy
         return $canAccessDepartment && $result;
     }
 
-
     /**
      * Determine whether the user can restore the model.
      */
@@ -139,7 +137,7 @@ class OrderPolicy
      */
     public function bulkForceDelete(User $user): bool
     {
-       return $user->checkPermissionTo('bulk-force-delete-Order');
+        return $user->checkPermissionTo('bulk-force-delete-Order');
     }
 
     /**
@@ -149,8 +147,8 @@ class OrderPolicy
     {
         $result = false;
 
-        if (!empty($order->department)) {
-            $user->hasDepartmentRoleWithPermissionTo('bulk-delete-Order', $order->department->id);
+        if (! empty($order->department)) {
+            $result = $user->hasDepartmentRoleWithPermissionTo('bulk-delete-Order', $order->department->id);
         }
 
         return $result || $user->checkPermissionTo('bulk-delete-Order');
@@ -159,14 +157,8 @@ class OrderPolicy
     /**
      * Determine whether the user can restore the model. (Many models at once)
      */
-    public function bulkRestore(User $user, Order $order): bool
+    public function bulkRestore(User $user): bool
     {
-        $result = false;
-
-        if (!empty($order->department)) {
-            $user->hasDepartmentRoleWithPermissionTo('bulk-restore-Order', $order->department->id);
-        }
-
-        return $result || $user->checkPermissionTo('bulk-restore-Order');
+        return $user->checkPermissionTo('bulk-restore-Order');
     }
 }

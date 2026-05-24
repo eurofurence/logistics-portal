@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use Spatie\Permission\PermissionRegistrar;
+use Throwable;
 use Illuminate\Console\Command;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Artisan;
@@ -32,7 +34,7 @@ class UpdateRoles extends Command
             $this->warn('All manually made changes that was made to the table will be deleted!');
             if ($this->confirm('Do you wish to continue?', true) == true) {
                 Artisan::call('down');
-                app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+                app()[PermissionRegistrar::class]->forgetCachedPermissions();
                 $all_ranks = Role::all();
                 if ($all_ranks != null or []){
                     $selected = [];
@@ -83,7 +85,7 @@ class UpdateRoles extends Command
                 return Command::SUCCESS;
             }
             return Command::INVALID;
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             Artisan::call('up');
             return $this->error('Error: ' . $th->getMessage());
             return Command::FAILURE;

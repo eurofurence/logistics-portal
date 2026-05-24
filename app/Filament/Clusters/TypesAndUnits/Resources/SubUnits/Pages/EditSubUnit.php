@@ -1,0 +1,20 @@
+<?php
+
+namespace App\Filament\Clusters\TypesAndUnits\Resources\SubUnits\Pages;
+
+use Filament\Actions\DeleteAction;
+use Filament\Actions;
+use Filament\Resources\Pages\EditRecord;
+use App\Filament\Clusters\TypesAndUnits\Resources\SubUnits\SubUnitResource;
+
+class EditSubUnit extends EditRecord
+{
+    protected static string $resource = SubUnitResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            DeleteAction::make(),
+        ];
+    }
+}

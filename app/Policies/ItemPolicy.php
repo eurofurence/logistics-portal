@@ -7,7 +7,7 @@ use App\Models\User;
 
 class ItemPolicy
 {
-    #TODO: $user->isSuperAdmin() überall einbauen
+    // TODO: $user->isSuperAdmin() überall einbauen
     /**
      * Determine whether the user can view any models.
      */
@@ -29,7 +29,7 @@ class ItemPolicy
      */
     public function create(User $user): bool
     {
-        #TODO: Permission for create for other departments
+        // TODO: Permission for create for other departments
         return $user->isSuperAdmin() || $user->hasAnyDepartmentRoleWithPermissionTo('create-Item');
     }
 
@@ -46,7 +46,7 @@ class ItemPolicy
      */
     public function delete(User $user, Item $item): bool
     {
-        return $user->isSuperAdmin() || $user->hasDepartmentRoleWithPermissionTo('delete-Storage', $item->department);
+        return $user->isSuperAdmin() || $user->hasDepartmentRoleWithPermissionTo('delete-Item', $item->department);
     }
 
     /**
@@ -74,7 +74,7 @@ class ItemPolicy
      */
     public function forceDelete(User $user): bool
     {
-        return $user->isSuperAdmin();//$user->checkPermissionTo('force-delete-Item');
+        return $user->isSuperAdmin(); // $user->checkPermissionTo('force-delete-Item');
     }
 
     /**
@@ -82,7 +82,7 @@ class ItemPolicy
      */
     public function bulkForceDelete(User $user): bool
     {
-        return $user->isSuperAdmin(); //$user->checkPermissionTo('bulk-force-delete-Item');
+        return $user->isSuperAdmin(); // $user->checkPermissionTo('bulk-force-delete-Item');
     }
 
     /**
@@ -90,7 +90,7 @@ class ItemPolicy
      */
     public function bulkDelete(User $user): bool
     {
-        return $user->isSuperAdmin(); //$user->checkPermissionTo('bulk-delete-Item');
+        return $user->isSuperAdmin(); // $user->checkPermissionTo('bulk-delete-Item');
     }
 
     /**
@@ -98,6 +98,6 @@ class ItemPolicy
      */
     public function bulkRestore(User $user): bool
     {
-        return $user->isSuperAdmin(); //$user->checkPermissionTo('bulk-restore-Item');
+        return $user->isSuperAdmin(); // $user->checkPermissionTo('bulk-restore-Item');
     }
 }

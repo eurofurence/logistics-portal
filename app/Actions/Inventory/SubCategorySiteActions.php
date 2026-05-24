@@ -2,13 +2,14 @@
 
 namespace App\Actions\Inventory;
 
-use Filament\Forms\Get;
-use Filament\Forms\Set;
+use App\Models\Department;
 use App\Models\InventorySubCategory;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Forms\Components\Actions\Action;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 
 final class SubCategorySiteActions
 {
@@ -27,14 +28,14 @@ final class SubCategorySiteActions
         return request()->route()->getName() === 'filament.app.resources.items.create';
     }
 
-    public static function getEditAction(): Action
+    public static function getEditAction($departmentId = null): Action
     {
         return Action::make('edit_sub_category')
             ->icon('heroicon-o-pencil')
             ->label(__('general.edit_sub_category'))
             ->action(function ($record, array $data, Set $set, Get $get) {
                 $current_id = $get('current_selected_sub_category_id');
-                if ($current_id != null) {
+                if ($current_id !== null) {
                     $subCategory = InventorySubCategory::find($current_id);
                     if ($subCategory) {
                         $subCategory->update([
@@ -50,23 +51,29 @@ final class SubCategorySiteActions
                     }
                 }
             })
-            ->form(function ($record, Get $get) {
-                $department = $record->connected_department();
+            ->schema(function ($record, Get $get) use ($departmentId) {
+                $department = null;
+                if ($departmentId) {
+                    $department = Department::where('id', $departmentId)->get();
+                } elseif ($record) {
+                    $department = $record->connected_department();
+                }
+
                 return [
                     TextInput::make('name')
                         ->required()
                         ->default($get('current_selected_sub_category_name'))
-                        ->maxlength(64),
+                        ->maxLength(64),
                     Select::make('department')
                         ->exists('departments', 'id')
-                        ->options($department->pluck('name', 'id')->toArray())
-                        ->default($department->value('id'))
+                        ->options($department ? $department->pluck('name', 'id')->toArray() : [])
+                        ->default($department ? $department->value('id') : null)
                         ->required()
-                        ->selectablePlaceholder(false)
+                        ->selectablePlaceholder(false),
                 ];
             })
             ->disabled(function (Get $get): bool {
-                if (self::isView() || self::isCreate() || ($get('current_selected_sub_category_id') == null)) {
+                if (self::isView() || self::isCreate() || ($get('current_selected_sub_category_id') === null)) {
                     return true;
                 }
 
@@ -74,7 +81,7 @@ final class SubCategorySiteActions
             });
     }
 
-    public static function getAddAction(): Action
+    public static function getAddAction($departmentId = null): Action
     {
         return Action::make('add_sub_category')
             ->icon('heroicon-o-plus')
@@ -92,41 +99,46 @@ final class SubCategorySiteActions
                     ->success()
                     ->send();
             })
-            ->form(function ($record) {
-                $department = $record->connected_department();
+            ->schema(function ($record) use ($departmentId) {
+                $department = null;
+                if ($departmentId) {
+                    $department = Department::where('id', $departmentId)->get();
+                } elseif ($record) {
+                    $department = $record->connected_department();
+                }
+
                 return [
                     TextInput::make('name')
                         ->required()
-                        ->maxlength(64),
+                        ->maxLength(64),
                     Select::make('department')
                         ->exists('departments', 'id')
-                        ->options($department->pluck('name', 'id')->toArray())
-                        ->default($department->value('id'))
+                        ->options($department ? $department->pluck('name', 'id')->toArray() : [])
+                        ->default($department ? $department->value('id') : null)
                         ->required()
-                        ->selectablePlaceholder(false)
+                        ->selectablePlaceholder(false),
                 ];
             })
-            ->disabled(function (): bool {
-                if (self::isCreate() || self::isView()) {
+            ->disabled(function () use ($departmentId): bool {
+                if (self::isCreate() && ! $departmentId) {
                     return true;
                 }
-                return false;
+
+                return self::isView();
             });
     }
 
-    public static function getDeleteAction(): Action
+    public static function getDeleteAction($departmentId = null): Action
     {
         return Action::make('delete_sub_category')
             ->icon('heroicon-o-trash')
             ->requiresConfirmation()
             ->label(__('general.delete_sub_category'))
-            ->modalHeading(function (Get $get) {
-                return __('general.delete') . ': ' . $get('current_selected_sub_category_name');
-            })
+            ->modalHeading(fn (Get $get) => __('general.delete').': '.$get('current_selected_sub_category_name'))
             ->color('danger')
             ->action(function (Set $set, Get $get) {
                 $current_id = $get('current_selected_sub_category_id');
-                if ($current_id != null) {
+                if ($current_id !== null) {
                     $subCategory = InventorySubCategory::find($current_id);
                     if ($subCategory) {
                         $subCategory->delete();
@@ -140,8 +152,6 @@ final class SubCategorySiteActions
                     }
                 }
             })
-            ->disabled(function (Get $get): bool {
-                return self::isCreate() || self::isView() || ($get('current_selected_sub_category_id') == null);
-            });
+            ->disabled(fn (Get $get): bool => self::isCreate() || self::isView() || ($get('current_selected_sub_category_id') === null));
     }
 }

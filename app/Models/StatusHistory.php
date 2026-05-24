@@ -4,6 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property-read Model|\Eloquent $model
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StatusHistory newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StatusHistory newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StatusHistory query()
+ * @mixin \Eloquent
+ */
 class StatusHistory extends Model
 {
     protected $fillable = [

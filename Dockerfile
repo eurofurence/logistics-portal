@@ -1,4 +1,4 @@
-FROM php:8.3-bullseye AS base
+FROM php:8.4-bullseye AS base
 WORKDIR /app
 
 ENV COMPOSER_MEMORY_LIMIT=-1
@@ -30,7 +30,7 @@ FROM base AS local
 RUN addgroup -gid 1024 app \
   && adduser -uid 1024 --disabled-password --ingroup app app \
   && adduser www-data app \
-  && curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
+  && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
   && apt-get update \
   && apt-get install -y nodejs \
   && apt-get install -y mysql-client \
@@ -52,6 +52,7 @@ FROM node:20-buster AS vite
 WORKDIR /app
 COPY package.json package-lock.json vite.config.js ./
 RUN npm install
+COPY --from=base /app/vendor /app/vendor
 COPY ./resources /app/resources
 COPY --from=vite-vendor-build /app/vendor/tightenco/ziggy /app/vendor/tightenco/ziggy
 RUN npm run build
