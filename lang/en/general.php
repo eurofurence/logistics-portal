@@ -482,4 +482,9 @@ return array(
     'default' => 'Standard',
     'please_select_department_first' => 'Please select a department first',
     'storage_department_hint' => 'Department specific storages will not be shown until a department is selected',
+    'wishlist' => 'Wishlist',
+    'wishlists' => 'Wishlists',
+    'add_to_wishlist' => 'Add to wishlist',
+    'added_to_wishlist' => 'Item was added to wishlist',
+    'is_public' => 'Public',
 );

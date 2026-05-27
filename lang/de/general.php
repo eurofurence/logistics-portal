@@ -480,4 +480,9 @@ return array(
     'invert' => 'Invertieren (Außer)',
     'please_select_department_first' => 'Bitte wähle zuerst eine Abteilung aus',
     'storage_department_hint' => 'Abteilungsspezifische Lager werden erst angezeigt, wenn eine Abteilung ausgewählt wurde',
+    'wishlist' => 'Merkliste',
+    'wishlists' => 'Merklisten',
+    'add_to_wishlist' => 'Zur Merkliste hinzufügen',
+    'added_to_wishlist' => 'Artikel wurde zur Merkliste hinzugefügt',
+    'is_public' => 'Öffentlich',
 );

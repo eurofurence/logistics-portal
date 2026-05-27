@@ -176,6 +176,16 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return $this->belongsToMany(Department::class, 'department_user', 'user_id', 'department_id');
     }
 
+    public function wishlists()
+    {
+        return $this->hasMany(\App\Models\Wishlist::class);
+    }
+
+    public function sharedWishlists()
+    {
+        return $this->belongsToMany(\App\Models\Wishlist::class, 'wishlist_user');
+    }
+
     protected static function boot()
     {
         parent::boot();
