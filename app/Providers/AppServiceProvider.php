@@ -4,9 +4,11 @@ namespace App\Providers;
 
 use App\Models\Bill;
 use App\Models\Order;
+use App\Models\PersonalAccessToken;
 use App\Observers\BillObserver;
 use App\Observers\OrderObserver;
 use App\Services\AsinDataService;
+use Laravel\Sanctum\Sanctum;
 use Spatie\Health\Facades\Health;
 use Filament\Support\Colors\Color;
 use Illuminate\Support\Facades\URL;
@@ -101,5 +103,7 @@ class AppServiceProvider extends ServiceProvider
         // Observers
         Order::observe(OrderObserver::class);
         Bill::observe(BillObserver::class);
+
+        Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
     }
 }

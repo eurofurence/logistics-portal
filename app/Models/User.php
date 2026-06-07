@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\DatabaseNotification;
@@ -176,12 +177,12 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         return $this->belongsToMany(Department::class, 'department_user', 'user_id', 'department_id');
     }
 
-    public function wishlists()
+    public function wishlists(): HasMany
     {
         return $this->hasMany(\App\Models\Wishlist::class);
     }
 
-    public function sharedWishlists()
+    public function sharedWishlists(): BelongsToMany
     {
         return $this->belongsToMany(\App\Models\Wishlist::class, 'wishlist_user');
     }
@@ -255,7 +256,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         })->get();
     }
 
-    public function departmentMemberships()
+    public function departmentMemberships(): User|Builder|HasMany
     {
         return $this->hasMany(DepartmentMember::class, 'user_id');
     }
@@ -304,7 +305,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
      *
      * @return \Illuminate\Support\Collection
      */
-    public function getDepartmentsWithPermission(string $permission)
+    public function getDepartmentsWithPermission(string $permission): \Illuminate\Support\Collection
     {
         return $this->departmentMemberships()
             ->whereHas('role.permissions', function ($query) use ($permission) {
