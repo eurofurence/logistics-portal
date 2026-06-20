@@ -9,7 +9,6 @@ use App\Filament\App\Resources\Orders\Pages\EditOrder;
 use App\Filament\App\Resources\Orders\Pages\ListOrders;
 use App\Filament\App\Resources\Orders\Pages\ViewOrder;
 use App\Forms\Components\Timeline;
-use App\Models\Addressbook;
 use App\Models\Department;
 use App\Models\Order;
 use App\Models\OrderArticle;
@@ -875,7 +874,7 @@ class OrderResource extends Resource
                         $until = $data['created_until'] ?? null;
                         $invert = $data['invert'] ?? false;
 
-                        if (!$from && !$until) {
+                        if (! $from && ! $until) {
                             return $query;
                         }
 
@@ -910,7 +909,7 @@ class OrderResource extends Resource
                         return $indicators;
                     }),
                 Filter::make('order_event_id')
-                    ->form([
+                    ->schema([
                         Select::make('value')
                             ->label(__('general.order_event'))
                             ->options(OrderEvent::all(['id', 'name'])->pluck('name', 'id'))
@@ -938,16 +937,16 @@ class OrderResource extends Resource
                             return [];
                         }
 
-                        $indicator = __('general.order_event') . ': ' . (OrderEvent::find($data['value'])?->name ?? $data['value']);
+                        $indicator = __('general.order_event').': '.(OrderEvent::find($data['value'])?->name ?? $data['value']);
 
                         if ($data['invert'] ?? false) {
-                            $indicator .= ' (' . __('general.invert') . ')';
+                            $indicator .= ' ('.__('general.invert').')';
                         }
 
                         return [$indicator];
                     }),
                 Filter::make('department_id')
-                    ->form([
+                    ->schema([
                         Select::make('values')
                             ->multiple()
                             ->label(__('general.department'))
@@ -977,16 +976,16 @@ class OrderResource extends Resource
                             return [];
                         }
 
-                        $indicator = __('general.department') . ': ' . count($data['values']);
+                        $indicator = __('general.department').': '.count($data['values']);
 
                         if ($data['invert'] ?? false) {
-                            $indicator .= ' (' . __('general.invert') . ')';
+                            $indicator .= ' ('.__('general.invert').')';
                         }
 
                         return [$indicator];
                     }),
                 Filter::make('status')
-                    ->form([
+                    ->schema([
                         Select::make('values')
                             ->multiple()
                             ->label(__('general.status'))
@@ -1023,10 +1022,10 @@ class OrderResource extends Resource
                             return [];
                         }
 
-                        $indicator = __('general.status') . ': ' . count($data['values']);
+                        $indicator = __('general.status').': '.count($data['values']);
 
                         if ($data['invert'] ?? false) {
-                            $indicator .= ' (' . __('general.invert') . ')';
+                            $indicator .= ' ('.__('general.invert').')';
                         }
 
                         return [$indicator];
@@ -1065,8 +1064,8 @@ class OrderResource extends Resource
 
                         return $query;
                     }),
-                Filter::make('url')
-                    ->form([
+                Filter::make('marketplace')
+                    ->schema([
                         Select::make('values')
                             ->label(__('general.marketplace'))
                             ->multiple()
@@ -1098,9 +1097,13 @@ class OrderResource extends Resource
 
                                 if ($value === 'amazon') {
                                     if ($invert) {
-                                        $query->where('url', 'not like', '%amazon.%')->where('url', 'not like', '%amzn.%');
+                                        $query->where('url', 'not like', '%amazon.%')
+                                            ->where('url', 'not like', '%amzn.%')
+                                            ->where('url', 'not like', '%amzn.eu%');
                                     } else {
-                                        $query->orWhere('url', 'like', '%amazon.%')->orWhere('url', 'like', '%amzn.%');
+                                        $query->orWhere('url', 'like', '%amazon.%')
+                                            ->orWhere('url', 'like', '%amzn.%')
+                                            ->orWhere('url', 'like', '%amzn.eu%');
                                     }
                                 }
 
@@ -1114,10 +1117,11 @@ class OrderResource extends Resource
                         if (empty($data['values'])) {
                             return [];
                         }
-                        $indicator = __('general.marketplace') . ': ' . count($data['values']);
+                        $indicator = __('general.marketplace').': '.count($data['values']);
                         if ($data['invert'] ?? false) {
-                            $indicator .= ' (' . __('general.invert') . ')';
+                            $indicator .= ' ('.__('general.invert').')';
                         }
+
                         return [$indicator];
                     }),
                 SelectFilter::make('user_note')
@@ -1138,7 +1142,7 @@ class OrderResource extends Resource
                         return $query;
                     }),
                 Filter::make('added_by')
-                    ->form([
+                    ->schema([
                         Select::make('values')
                             ->multiple()
                             ->label(__('general.added_by'))
@@ -1163,11 +1167,38 @@ class OrderResource extends Resource
                         if (empty($data['values'])) {
                             return [];
                         }
-                        $indicator = __('general.added_by') . ': ' . count($data['values']);
+                        $indicator = __('general.added_by').': '.count($data['values']);
                         if ($data['invert'] ?? false) {
-                            $indicator .= ' (' . __('general.invert') . ')';
+                            $indicator .= ' ('.__('general.invert').')';
                         }
+
                         return [$indicator];
+                    }),
+                Filter::make('url')
+                    ->schema([
+                        TextInput::make('url')
+                            ->label(__('general.url')),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['url'])) {
+                            return $query;
+                        }
+
+                        $invert = $data['invert'] ?? false;
+
+                        return $invert
+                            ? $query->where('url', 'not like', '%'.$data['url'].'%')
+                            : $query->where('url', 'like', '%'.$data['url'].'%');
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if (! empty($data['url'])) {
+                            $indicators['url'] = __('general.url').': '.$data['url'].(($data['invert'] ?? false) ? ' ('.__('general.invert').')' : '');
+                        }
+
+                        return $indicators;
                     }),
             ], layout: FiltersLayout::Modal)
             ->filtersFormColumns(3)
@@ -1591,7 +1622,7 @@ class OrderResource extends Resource
                         ->schema([
                             Textarea::make('delivery_destination')
                                 ->label(__('general.delivery_destination'))
-                                ->rows(7)
+                                ->rows(7),
                         ])
                         ->visible(Auth::user()->can('update-Order')),
                     BulkAction::make('article_number_sync')
