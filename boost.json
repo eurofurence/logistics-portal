@@ -1,16 +1,20 @@
 {
     "agents": [
-        "gemini",
-        "copilot"
+        "junie"
     ],
+    "cloud": false,
     "guidelines": true,
-    "herd_mcp": false,
-    "mcp": false,
+    "mcp": true,
+    "nightwatch": false,
     "packages": [
         "filament/filament"
     ],
     "sail": true,
     "skills": [
+        "laravel-best-practices",
+        "configuring-horizon",
+        "octane-development",
+        "socialite-development",
         "pest-testing",
         "inertia-vue-development",
         "tailwindcss-development"
