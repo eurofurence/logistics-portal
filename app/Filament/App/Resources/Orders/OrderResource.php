@@ -406,6 +406,7 @@ class OrderResource extends Resource
                                         'locked' => __('general.locked'),
                                         'refunded' => __('general.refunded'),
                                         'awaiting_approval' => __('general.awaiting_approval'),
+                                        'ready_for_pickup' => __('general.ready_for_pickup'),
                                     ])
                                     ->default('open'),
                                 Section::make(__('timeline.status_history'))
@@ -708,6 +709,7 @@ class OrderResource extends Resource
                         'locked' => 'danger',
                         'refunded' => 'danger',
                         'awaiting_approval' => 'checking',
+                        'ready_for_pickup' => 'info',
                     })
                     ->icon(fn (string $state): string => match ($state) {
                         'on_hold' => 'heroicon-o-clock',
@@ -721,7 +723,8 @@ class OrderResource extends Resource
                         'rejected' => 'heroicon-o-x-circle',
                         'locked' => 'heroicon-o-lock-closed',
                         'refunded' => 'heroicon-o-arrow-uturn-left',
-                        'awaiting_approval' => 'heroicon-o-shield-exclamation'
+                        'awaiting_approval' => 'heroicon-o-shield-exclamation',
+                        'ready_for_pickup' => 'heroicon-o-shopping-bag'
                     })
                     ->extraAttributes(['class' => 'cursor-pointer'])
                     ->formatStateUsing(function ($state) {
@@ -1004,6 +1007,7 @@ class OrderResource extends Resource
                                 'locked' => __('general.locked'),
                                 'refunded' => __('general.refunded'),
                                 'awaiting_approval' => __('general.awaiting_approval'),
+                                'ready_for_pickup' => __('general.ready_for_pickup'),
                             ]),
                         Toggle::make('invert')
                             ->label(__('general.invert')),
@@ -1037,6 +1041,7 @@ class OrderResource extends Resource
                             'locked' => __('general.locked'),
                             'refunded' => __('general.refunded'),
                             'awaiting_approval' => __('general.awaiting_approval'),
+                            'ready_for_pickup' => __('general.ready_for_pickup'),
                         ];
 
                         $names = collect($data['values'])->map(fn ($value) => $options[$value] ?? $value)->implode(', ');
@@ -1340,6 +1345,7 @@ class OrderResource extends Resource
                                         'locked' => __('general.locked'),
                                         'refunded' => __('general.refunded'),
                                         'awaiting_approval' => __('general.awaiting_approval'),
+                                        'ready_for_pickup' => __('general.ready_for_pickup'),
                                     ])
                                     ->prefixIcon('heroicon-o-ellipsis-horizontal-circle')
                                     ->required(),
@@ -1645,6 +1651,7 @@ class OrderResource extends Resource
                                     'locked' => __('general.locked'),
                                     'refunded' => __('general.refunded'),
                                     'awaiting_approval' => __('general.awaiting_approval'),
+                                    'ready_for_pickup' => __('general.ready_for_pickup'),
                                 ])
                                 ->prefixIcon('heroicon-o-ellipsis-horizontal-circle')
                                 ->required(),

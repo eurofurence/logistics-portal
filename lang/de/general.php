@@ -127,6 +127,7 @@ return [
     'ordered' => 'Bestellt',
     'delivered' => 'Geliefert',
     'received' => 'Erhalten',
+    'ready_for_pickup' => 'Abholbereit',
     'rejected' => 'Abgelehnt',
     'other' => 'Anderes',
     'on_hold' => 'Verzögerung',
