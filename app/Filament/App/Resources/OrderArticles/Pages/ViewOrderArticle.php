@@ -60,11 +60,6 @@ class ViewOrderArticle extends ViewRecord
                         ->success()
                         ->send();
                 }),
-            Action::make('back')
-                ->label(__('general.back'))
-                ->url(url()->previous())
-                ->icon('heroicon-s-arrow-left')
-                ->outlined(),
             EditAction::make()
                 ->color(Color::Amber)
                 ->icon('heroicon-o-pencil'),
