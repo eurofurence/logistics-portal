@@ -1,11 +1,11 @@
 <?php
 
 use App\Models\Code;
-use App\Models\User;
 use App\Models\Storage;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -21,7 +21,6 @@ return new class extends Migration
             $table->text('comment')->nullable();
             $table->foreignIdFor(User::class, 'added_by');
             $table->foreignIdFor(User::class, 'edited_by');
-            $table->foreignIdFor(Code::class, 'qr_code')->nullable()->unique();
             $table->softDeletes();
             $table->timestamps();
         });

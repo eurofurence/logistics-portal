@@ -2,18 +2,18 @@
 
 namespace App\Models;
 
-use Filament\Actions\Action;
-use Illuminate\Support\Carbon;
-use Database\Factories\OrderRequestFactory;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Model;
 use App\Notifications\GeneralNotification;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Database\Factories\OrderRequestFactory;
+use Filament\Actions\Action;
 use Filament\Notifications\Notification as FilamentNotification;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 
 /**
  * @property int $id
@@ -35,6 +35,7 @@ use Filament\Notifications\Notification as FilamentNotification;
  * @property-read Department|null $department
  * @property-read User|null $editedBy
  * @property-read OrderEvent|null $event
+ *
  * @method static OrderRequestFactory factory($count = null, $state = [])
  * @method static Builder<static>|OrderRequest newModelQuery()
  * @method static Builder<static>|OrderRequest newQuery()
@@ -57,6 +58,7 @@ use Filament\Notifications\Notification as FilamentNotification;
  * @method static Builder<static>|OrderRequest whereUrl($value)
  * @method static Builder<static>|OrderRequest withTrashed()
  * @method static Builder<static>|OrderRequest withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class OrderRequest extends Model
@@ -79,7 +81,7 @@ class OrderRequest extends Model
         'order_event_id',
         'department_id',
         'status_notifications',
-        'quantity'
+        'quantity',
     ];
 
     protected static function boot()
@@ -92,8 +94,8 @@ class OrderRequest extends Model
             $model->edited_by = $user_id;
 
             // Checking the authorization to change moderation values
-            if (!empty($model->status) || !empty($model->comment)) {
-                if (!Auth::user()->can('can-moderate-order-request')) {
+            if (! empty($model->status) || ! empty($model->comment)) {
+                if (! Auth::user()->can('can-moderate-order-request')) {
                     abort(403);
                 }
             }
@@ -104,7 +106,7 @@ class OrderRequest extends Model
             $model->edited_by = $user->id;
 
             if ($model->isDirty('status') || $model->isDirty('comment')) {
-                if (!$user->can('can-moderate-order-request')) {
+                if (! $user->can('can-moderate-order-request')) {
                     abort(403);
                 }
 
@@ -113,13 +115,13 @@ class OrderRequest extends Model
                     $model_link = route('filament.app.resources.order-requests.view', $model);
 
                     if ($model->status_notifications == true) {
-                        //Send email
-                        Notification::send($model->addedBy, new GeneralNotification($model->addedBy->name, __('general.order_request', [], 'en') . ' #' . $model->id . ' - ' . $model->title, __('general.status_has_changed', [], 'en'), __('general.status_has_changed_order_requested', [], 'en'), $model->title, null, $model->comment, $model_link, __('general.show', [], 'en')));
+                        // Send email
+                        Notification::send($model->addedBy, new GeneralNotification($model->addedBy->name, __('general.order_request', [], 'en').' #'.$model->id.' - '.$model->title, __('general.status_has_changed', [], 'en'), __('general.status_has_changed_order_requested', [], 'en'), $model->title, null, $model->comment, $model_link, __('general.show', [], 'en')));
 
-                        //Send database notification
+                        // Send database notification
                         FilamentNotification::make()
                             ->title(__('general.order_request'))
-                            ->body(__('general.status_has_changed') . ': ' . $model->title)
+                            ->body(__('general.status_has_changed').': '.$model->title)
                             ->icon('heroicon-o-chat-bubble-left-ellipsis')
                             ->iconColor('info')
                             ->actions([
@@ -129,7 +131,7 @@ class OrderRequest extends Model
                                     ->markAsRead(),
                                 Action::make(__('general.show'))
                                     ->url(route('filament.app.resources.order-requests.view', $model))
-                                    ->button()
+                                    ->button(),
                             ])
                             ->sendToDatabase($model->addedBy);
                     }

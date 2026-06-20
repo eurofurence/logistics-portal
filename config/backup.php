@@ -1,6 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Storage;
+use Spatie\Backup\Notifications\Notifiable;
+use Spatie\Backup\Notifications\Notifications\BackupHasFailedNotification;
+use Spatie\Backup\Notifications\Notifications\BackupWasSuccessfulNotification;
+use Spatie\Backup\Notifications\Notifications\CleanupHasFailedNotification;
+use Spatie\Backup\Notifications\Notifications\CleanupWasSuccessfulNotification;
+use Spatie\Backup\Notifications\Notifications\HealthyBackupWasFoundNotification;
+use Spatie\Backup\Notifications\Notifications\UnhealthyBackupWasFoundNotification;
+use Spatie\Backup\Tasks\Cleanup\Strategies\DefaultStrategy;
+use Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumAgeInDays;
+use Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumStorageInMegabytes;
 
 return [
 
@@ -147,13 +156,13 @@ return [
             /*
              * The filename prefix used for the backup zip file.
              */
-            'filename_prefix' => config('app.env') . '-',
+            'filename_prefix' => config('app.env').'-',
 
             /*
              * The disk names on which the backups will be stored.
              */
             'disks' => [
-                'sftp'
+                'sftp',
             ],
         ],
 
@@ -198,19 +207,19 @@ return [
      */
     'notifications' => [
         'notifications' => [
-            \Spatie\Backup\Notifications\Notifications\BackupHasFailedNotification::class => ['mail', 'discord'],
-            \Spatie\Backup\Notifications\Notifications\UnhealthyBackupWasFoundNotification::class => ['mail', 'discord'],
-            \Spatie\Backup\Notifications\Notifications\CleanupHasFailedNotification::class => ['mail', 'discord'],
-            \Spatie\Backup\Notifications\Notifications\BackupWasSuccessfulNotification::class => ['discord'],
-            \Spatie\Backup\Notifications\Notifications\HealthyBackupWasFoundNotification::class => ['discord'],
-            \Spatie\Backup\Notifications\Notifications\CleanupWasSuccessfulNotification::class => ['discord'],
+            BackupHasFailedNotification::class => ['mail', 'discord'],
+            UnhealthyBackupWasFoundNotification::class => ['mail', 'discord'],
+            CleanupHasFailedNotification::class => ['mail', 'discord'],
+            BackupWasSuccessfulNotification::class => ['discord'],
+            HealthyBackupWasFoundNotification::class => ['discord'],
+            CleanupWasSuccessfulNotification::class => ['discord'],
         ],
 
         /*
          * Here you can specify the notifiable to which the notifications should be sent. The default
          * notifiable will use the variables specified in this config file.
          */
-        'notifiable' => \Spatie\Backup\Notifications\Notifiable::class,
+        'notifiable' => Notifiable::class,
 
         'mail' => [
             'to' => config('app.admin_mail'),
@@ -259,8 +268,8 @@ return [
             'name' => env('APP_NAME', 'laravel-backup'),
             'disks' => ['sftp'],
             'health_checks' => [
-                \Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumAgeInDays::class => 1,
-                \Spatie\Backup\Tasks\Monitor\HealthChecks\MaximumStorageInMegabytes::class => 5000,
+                MaximumAgeInDays::class => 1,
+                MaximumStorageInMegabytes::class => 5000,
             ],
         ],
 
@@ -286,7 +295,7 @@ return [
          * No matter how you configure it the default strategy will never
          * delete the newest backup.
          */
-        'strategy' => \Spatie\Backup\Tasks\Cleanup\Strategies\DefaultStrategy::class,
+        'strategy' => DefaultStrategy::class,
 
         'default_strategy' => [
             /*

@@ -2,11 +2,10 @@
 
 namespace App\Filament\Admin\Resources\Users\Pages;
 
+use App\Filament\Admin\Resources\Users\UserResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
-use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
-use App\Filament\Admin\Resources\Users\UserResource;
 
 class ViewUser extends ViewRecord
 {
@@ -17,7 +16,7 @@ class ViewUser extends ViewRecord
         return [
             DeleteAction::make()
                 ->modalHeading(function ($record): string {
-                    return __('general.delete') . ': ' . $record->name;
+                    return __('general.delete').': '.$record->name;
                 }),
             EditAction::make(),
         ];

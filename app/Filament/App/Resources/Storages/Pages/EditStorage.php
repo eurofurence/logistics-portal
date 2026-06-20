@@ -2,9 +2,8 @@
 
 namespace App\Filament\App\Resources\Storages\Pages;
 
-use Filament\Actions\DeleteAction;
 use App\Filament\App\Resources\Storages\StorageResource;
-use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditStorage extends EditRecord
@@ -17,7 +16,7 @@ class EditStorage extends EditRecord
             DeleteAction::make()
                 ->icon('heroicon-o-trash')
                 ->modalHeading(function ($record): string {
-                    return __('general.delete') . ': ' . $record->name;
+                    return __('general.delete').': '.$record->name;
                 }),
         ];
     }

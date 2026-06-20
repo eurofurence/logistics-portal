@@ -1,7 +1,17 @@
 <?php
 
+use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade;
+use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsServiceProvider;
+use App\Providers\AppServiceProvider;
+use App\Providers\AuthServiceProvider;
+use App\Providers\EventServiceProvider;
+use App\Providers\Filament\AdminPanelProvider;
+use App\Providers\Filament\AppPanelProvider;
+use App\Providers\HorizonServiceProvider;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Permission\PermissionServiceProvider;
 
 return [
 
@@ -162,20 +172,19 @@ return [
          * Package Service Providers...
          */
 
-
         /*
          * Application Service Providers...
          */
-        App\Providers\AppServiceProvider::class,
-        App\Providers\AuthServiceProvider::class,
+        AppServiceProvider::class,
+        AuthServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\HorizonServiceProvider::class,
-        App\Providers\Filament\AdminPanelProvider::class,
-        App\Providers\Filament\AppPanelProvider::class,
-        App\Providers\RouteServiceProvider::class,
-        Spatie\Permission\PermissionServiceProvider::class,
-        Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsServiceProvider::class,
+        EventServiceProvider::class,
+        HorizonServiceProvider::class,
+        AdminPanelProvider::class,
+        AppPanelProvider::class,
+        RouteServiceProvider::class,
+        PermissionServiceProvider::class,
+        FilamentSpatieRolesPermissionsServiceProvider::class,
     ])->toArray(),
 
     /*
@@ -190,7 +199,7 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        'FilamentSpatieRolesPermissions' => Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsFacade::class,
+        'FilamentSpatieRolesPermissions' => FilamentSpatieRolesPermissionsFacade::class,
     ])->toArray(),
 
     'backup_schedule_active' => env('BACKUP_SCHEDULE_ACTIVE', false),

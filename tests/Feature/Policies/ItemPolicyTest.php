@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Policies\ItemPolicy;
 
 beforeEach(function () {
-    $this->policy = new ItemPolicy();
+    $this->policy = new ItemPolicy;
 });
 
 it('allows super admin to view any item', function () {
@@ -48,7 +48,7 @@ it('allows user with correct permission to view specific item', function () {
 
 it('allows user with correct department role to view specific item', function () {
     $user = Mockery::mock(User::class);
-    $department = new Department();
+    $department = new Department;
     $item = Mockery::mock(Item::class);
     $item->department = $department;
 
@@ -88,7 +88,7 @@ it('allows super admin to update item', function () {
 
 it('allows user with correct department role to update item', function () {
     $user = Mockery::mock(User::class);
-    $department = new Department();
+    $department = new Department;
     $item = Mockery::mock(Item::class);
     $item->department = $department;
 
@@ -110,7 +110,7 @@ it('allows super admin to delete item', function () {
 
 it('allows user with correct department role to delete item', function () {
     $user = Mockery::mock(User::class);
-    $department = new Department();
+    $department = new Department;
     $item = Mockery::mock(Item::class);
     $item->department = $department;
 
@@ -149,7 +149,7 @@ it('allows super admin to replicate item', function () {
 
 it('allows user with correct department role to replicate item', function () {
     $user = Mockery::mock(User::class);
-    $department = new Department();
+    $department = new Department;
     $item = Mockery::mock(Item::class);
     $item->department = $department;
 

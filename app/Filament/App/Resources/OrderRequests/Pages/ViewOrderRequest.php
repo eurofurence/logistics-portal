@@ -4,7 +4,6 @@ namespace App\Filament\App\Resources\OrderRequests\Pages;
 
 use App\Filament\App\Resources\OrderRequests\OrderRequestResource;
 use App\Models\Order;
-use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -23,22 +22,22 @@ class ViewOrderRequest extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        #TODO: Add the option to select/link more then just one order per request
+        // TODO: Add the option to select/link more then just one order per request
         $this->existing_order = Order::where('order_request_id', $this->record->id)->withoutTrashed()->first();
 
         return [
             DeleteAction::make()
                 ->icon('heroicon-o-trash')
                 ->modalHeading(function ($record): string {
-                    return __('general.delete') . ': ' . $record->title;
+                    return __('general.delete').': '.$record->title;
                 }),
             EditAction::make()
                 ->icon('heroicon-o-pencil'),
-                
+
             Action::make('create_order_from_request')
                 ->label(__('general.create_order'))
                 ->icon('heroicon-o-arrow-top-right-on-square')
-                ->visible(fn() => Gate::allows('create', Order::class) && !$this->hasLinkedOrder())
+                ->visible(fn () => Gate::allows('create', Order::class) && ! $this->hasLinkedOrder())
                 ->action(function (Model $record) {
                     if (Order::where('order_request_id', $record->id)->exists()) {
                         Notification::make()
@@ -50,9 +49,10 @@ class ViewOrderRequest extends ViewRecord
                             ->color('warning')
                             ->persistent()
                             ->send();
+
                         return false;
                     } else {
-                        $order = new Order();
+                        $order = new Order;
 
                         $order->name = $record->title;
                         $order->order_event_id = $record->order_event_id;
@@ -83,7 +83,7 @@ class ViewOrderRequest extends ViewRecord
                                         ->button()
                                         ->icon('heroicon-o-arrow-top-right-on-square')
                                         ->url(route('filament.app.resources.orders.edit', $new_order_id), true)
-                                        ->visible(Gate::allows('update', Order::class))
+                                        ->visible(Gate::allows('update', Order::class)),
                                 ])
                                 ->send();
                         } else {
@@ -103,17 +103,17 @@ class ViewOrderRequest extends ViewRecord
             Action::make('open_linked_order_single')
                 ->label(__('general.open_linked_order'))
                 ->icon('heroicon-o-arrow-top-right-on-square')
-                ->visible(fn(Model $record) => Order::where('order_request_id', $record->id)->count() === 1)
-                ->url(fn(Model $record) => route('filament.app.resources.orders.view', Order::where('order_request_id', $record->id)->first()->id)),
+                ->visible(fn (Model $record) => Order::where('order_request_id', $record->id)->count() === 1)
+                ->url(fn (Model $record) => route('filament.app.resources.orders.view', Order::where('order_request_id', $record->id)->first()->id)),
 
             Action::make('open_linked_order_multiple')
                 ->label(__('general.open_linked_order'))
                 ->icon('heroicon-o-arrow-top-right-on-square')
-                ->visible(fn(Model $record) => Order::where('order_request_id', $record->id)->count() > 1)
+                ->visible(fn (Model $record) => Order::where('order_request_id', $record->id)->count() > 1)
                 ->schema([
                     Select::make('order_id')
                         ->label(__('general.order'))
-                        ->options(fn(Model $record) => Order::where('order_request_id', $record->id)->pluck('name', 'id'))
+                        ->options(fn (Model $record) => Order::where('order_request_id', $record->id)->pluck('name', 'id'))
                         ->searchable()
                         ->required(),
                 ])

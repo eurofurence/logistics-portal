@@ -3,20 +3,17 @@
 namespace App\Filament\Pages\Auth;
 
 use Filament\Actions\Action;
-use Filament\Schemas\Schema;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ViewField;
-use Filament\Forms\Components\CheckboxList;
-use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\Hash;
-use Filament\Tables\Table;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
-use App\Models\PersonalAccessToken;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
 
 class EditProfile extends \Filament\Auth\Pages\EditProfile implements HasTable
 {
@@ -51,7 +48,7 @@ class EditProfile extends \Filament\Auth\Pages\EditProfile implements HasTable
                                                 'regex:/^https:\/\/discord\.com\/api\/webhooks\/\d+\/[a-zA-Z0-9\-_]+$/',
                                             ]),
                                     ])
-                                    ->description(__('general.discord_webhook_description'))
+                                    ->description(__('general.discord_webhook_description')),
                             ])
                             ->label(__('general.notifications'))
                             ->icon('heroicon-o-bell'),
@@ -67,7 +64,7 @@ class EditProfile extends \Filament\Auth\Pages\EditProfile implements HasTable
                                         CheckboxList::make('abilities')
                                             ->label(__('general.token_abilities'))
                                             ->options([
-                                                //Test Values
+                                                // Test Values
                                                 'create' => 'Erstellen',
                                                 'read' => 'Lesen',
                                                 'update' => 'Aktualisieren',
@@ -78,7 +75,7 @@ class EditProfile extends \Filament\Auth\Pages\EditProfile implements HasTable
                                         $token = $livewire->getUser()->createToken($data['name'], $data['abilities']);
                                         Notification::make()
                                             ->title(__('general.token_created'))
-                                            ->body(__('general.your_new_token') . ': ' . $token->plainTextToken)
+                                            ->body(__('general.your_new_token').': '.$token->plainTextToken)
                                             ->persistent()
                                             ->success()
                                             ->send();
@@ -86,10 +83,11 @@ class EditProfile extends \Filament\Auth\Pages\EditProfile implements HasTable
                             ])
                             ->label(__('general.api'))
                             ->icon('heroicon-o-key')
-                            ->visible(false)
-                    ])
+                            ->visible(false),
+                    ]),
             ]);
     }
+
     public function table(Table $table): Table
     {
         return $table

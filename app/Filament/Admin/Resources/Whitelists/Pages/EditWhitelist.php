@@ -2,9 +2,8 @@
 
 namespace App\Filament\Admin\Resources\Whitelists\Pages;
 
-use Filament\Actions\DeleteAction;
 use App\Filament\Admin\Resources\Whitelists\WhitelistResource;
-use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditWhitelist extends EditRecord

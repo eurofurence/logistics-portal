@@ -2,10 +2,9 @@
 
 namespace App\Filament\App\Resources\Bills\Pages;
 
+use App\Filament\App\Resources\Bills\BillResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
-use App\Filament\App\Resources\Bills\BillResource;
-use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
 class EditBill extends EditRecord
@@ -18,7 +17,7 @@ class EditBill extends EditRecord
             DeleteAction::make()
                 ->icon('heroicon-o-trash')
                 ->modalHeading(function ($record): string {
-                    return __('general.delete') . ': ' . $record->title;
+                    return __('general.delete').': '.$record->title;
                 }),
             ViewAction::make()
                 ->icon('heroicon-o-eye'),

@@ -28,7 +28,7 @@ class DeleteSpatieBackups extends Command
     {
         $this->info('Deleting from s3...');
 
-        $s3Files = Storage::disk('s3')->allFiles('/' . config('app.name'));
+        $s3Files = Storage::disk('s3')->allFiles('/'.config('app.name'));
 
         if ($s3Files) {
             if ($this->confirm('Are you sure?', true)) {

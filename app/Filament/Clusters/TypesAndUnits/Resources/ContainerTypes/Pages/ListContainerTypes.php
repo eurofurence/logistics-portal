@@ -2,10 +2,9 @@
 
 namespace App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypes\Pages;
 
-use Filament\Actions\CreateAction;
-use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
 use App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypes\ContainerTypeResource;
+use Filament\Actions\CreateAction;
+use Filament\Resources\Pages\ListRecords;
 
 class ListContainerTypes extends ListRecords
 {

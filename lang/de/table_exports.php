@@ -31,14 +31,14 @@ return [
     'added_by' => 'Hinzugefügt von',
     'bool' => [
         '1' => 'Yes',
-        '0' => 'No'
+        '0' => 'No',
     ],
     'option_titles' => [
         'calculate_total_net' => 'Gesammt Netto',
         'calculate_total_gross' => 'Gesamt Brutto',
         'calculate_total_returning_deposit' => 'Gesamt Pfand',
         'show_who_added_order' => 'Besteller',
-        'show_who_approved_order' => 'Freigegeben von'
+        'show_who_approved_order' => 'Freigegeben von',
     ],
     'approved_at' => 'Freigegeben am',
     'approved_by' => 'Freigegeben von',

@@ -1,13 +1,13 @@
 <?php
 
 use App\Models\Code;
-use App\Models\User;
-use App\Models\Storage;
 use App\Models\ContainerType;
+use App\Models\Storage;
 use App\Models\StorageArea;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->foreignIdFor(StorageArea::class, 'storage_area')->nullable();
             $table->foreignIdFor(ContainerType::class, 'type');
-            $table->foreignIdFor(Code::class, 'qr_code')->nullable();
             $table->foreignIdFor(Storage::class, 'home_storage');
             $table->bigInteger('parent_container')->nullable();
             $table->text('comment')->nullable();

@@ -2,9 +2,8 @@
 
 namespace App\Filament\App\Resources\OrderEvents\Pages;
 
-use Filament\Actions\DeleteAction;
 use App\Filament\App\Resources\OrderEvents\OrderEventResource;
-use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditOrderEvent extends EditRecord
@@ -17,7 +16,7 @@ class EditOrderEvent extends EditRecord
             DeleteAction::make()
                 ->icon('heroicon-o-trash')
                 ->modalHeading(function ($record): string {
-                    return __('general.delete') . ': ' . $record->name;
+                    return __('general.delete').': '.$record->name;
                 }),
         ];
     }

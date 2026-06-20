@@ -2,23 +2,22 @@
 
 namespace App\Filament\App\Resources\OrderArticles\Pages;
 
-use Filament\Actions\EditAction;
-use Filament\Actions;
-use Filament\Actions\Action;
 use App\Actions\HeaderOrderAction;
-use Filament\Support\Colors\Color;
-use Filament\Resources\Pages\ViewRecord;
 use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Hidden;
 use App\Models\Wishlist;
 use App\Models\WishlistItem;
-use Illuminate\Support\Facades\Auth;
+use Filament\Actions\Action;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
+use Filament\Resources\Pages\ViewRecord;
+use Filament\Support\Colors\Color;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class ViewOrderArticle extends ViewRecord
 {
@@ -63,7 +62,7 @@ class ViewOrderArticle extends ViewRecord
             EditAction::make()
                 ->color(Color::Amber)
                 ->icon('heroicon-o-pencil'),
-            HeaderOrderAction::make()
+            HeaderOrderAction::make(),
         ];
     }
 }

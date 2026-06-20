@@ -2,10 +2,9 @@
 
 namespace App\Filament\Admin\Resources\Users\Pages;
 
-use Filament\Actions\DeleteAction;
-use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
 use App\Filament\Admin\Resources\Users\UserResource;
+use Filament\Actions\DeleteAction;
+use Filament\Resources\Pages\EditRecord;
 
 class EditUser extends EditRecord
 {
@@ -16,7 +15,7 @@ class EditUser extends EditRecord
         return [
             DeleteAction::make()
                 ->modalHeading(function ($record): string {
-                    return __('general.delete') . ': ' . $record->name;
+                    return __('general.delete').': '.$record->name;
                 }),
         ];
     }

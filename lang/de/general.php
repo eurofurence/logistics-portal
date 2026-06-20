@@ -1,6 +1,6 @@
 <?php
 
-return array(
+return [
     'are_you_sure' => 'Bist du dir sicher, dass du löschen willst?',
     'delete' => 'Löschen',
     'yes' => 'Ja',
@@ -496,4 +496,4 @@ return array(
     'your_new_token' => 'Dein neuer API-Token lautet',
     'token_name' => 'Token Name',
     'token' => 'Token',
-);
+];

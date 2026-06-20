@@ -2,10 +2,9 @@
 
 namespace App\Filament\App\Resources\OrderCategories\Pages;
 
-use Filament\Actions\EditAction;
-use Filament\Actions;
-use Filament\Resources\Pages\ViewRecord;
 use App\Filament\App\Resources\OrderCategories\OrderCategoryResource;
+use Filament\Actions\EditAction;
+use Filament\Resources\Pages\ViewRecord;
 
 class ViewOrderCategory extends ViewRecord
 {

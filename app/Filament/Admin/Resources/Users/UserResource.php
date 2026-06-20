@@ -2,38 +2,38 @@
 
 namespace App\Filament\Admin\Resources\Users;
 
-use LaraZeus\SpatieTranslatable\Resources\Concerns\Translatable;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Tables\Filters\TrashedFilter;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use App\Filament\Admin\Resources\Users\Pages\ListUsers;
 use App\Filament\Admin\Resources\Users\Pages\CreateUser;
 use App\Filament\Admin\Resources\Users\Pages\EditUser;
+use App\Filament\Admin\Resources\Users\Pages\ListUsers;
 use App\Filament\Admin\Resources\Users\Pages\ViewUser;
+use App\Models\Department;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Department;
-use Filament\Tables\Table;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Contracts\Support\Htmlable;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Support\Icons\Heroicon;
+use LaraZeus\SpatieTranslatable\Resources\Concerns\Translatable;
 
 class UserResource extends Resource
 {
@@ -41,7 +41,7 @@ class UserResource extends Resource
 
     protected static ?string $model = User::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedUser;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedUser;
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -111,7 +111,7 @@ class UserResource extends Resource
                     TextInput::make('notification_email')
                         ->maxLength(255)
                         ->email()
-                        ->label(__('general.notification_email')), //notification_email
+                        ->label(__('general.notification_email')), // notification_email
                     TextInput::make('ex_id')
                         ->readOnly()
                         ->label(__('general.external_id')),
@@ -166,9 +166,9 @@ class UserResource extends Resource
                         ->options(Role::all()->pluck('name', 'id'))
                         ->preload(true)
                         ->relationship(name: 'roles', titleAttribute: 'name')
-                        ->disabled(!Gate::check('update-Role'))
+                        ->disabled(! Gate::check('update-Role'))
                         ->visible(Gate::check('update-Role')),
-                ])
+                ]),
             ]);
     }
 
@@ -188,8 +188,8 @@ class UserResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->label(__('general.email')),
-                #TODO
-                    /*
+                // TODO
+                /*
                 IconColumn::make('locked')
                     ->label(__('general.locked'))
                     ->sortable()
@@ -223,7 +223,7 @@ class UserResource extends Resource
                 ViewAction::make(),
                 DeleteAction::make()
                     ->modalHeading(function ($record): string {
-                        return __('general.delete') . ': ' . $record->name;
+                        return __('general.delete').': '.$record->name;
                     }),
                 ForceDeleteAction::make(),
                 RestoreAction::make(),
@@ -257,7 +257,7 @@ class UserResource extends Resource
 
     public static function canAccess(): bool
     {
-        if (!Auth::Check()) {
+        if (! Auth::Check()) {
             return false;
         }
 

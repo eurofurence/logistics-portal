@@ -1,14 +1,14 @@
 <?php
 
-use App\Models\Code;
-use App\Models\User;
 use App\Models\BaseUnit;
+use App\Models\Code;
 use App\Models\Department;
 use App\Models\Storage;
 use App\Models\StorageContainer;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -36,7 +36,6 @@ return new class extends Migration
             $table->boolean('locked')->default(0);
             $table->foreignIdFor(User::class, 'specific_editor')->nullable();
             $table->timestamp('buy_date')->nullable();
-            $table->foreignIdFor(Code::class, 'qr_code')->nullable();
             $table->foreignIdFor(StorageContainer::class, 'storage_container_id')->nullable();
             $table->boolean('dangerous_good')->default(false);
             $table->boolean('big_size')->default(false);

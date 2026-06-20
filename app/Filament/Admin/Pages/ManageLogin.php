@@ -2,15 +2,15 @@
 
 namespace App\Filament\Admin\Pages;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
 use App\Settings\LoginSettings;
-use Filament\Pages\SettingsPage;
 use Filament\Forms\Components\Toggle;
+use Filament\Pages\SettingsPage;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class ManageLogin extends SettingsPage
 {
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-user';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user';
 
     protected static string $settings = LoginSettings::class;
 
@@ -35,8 +35,8 @@ class ManageLogin extends SettingsPage
             ->components([
                 Section::make([
                     Toggle::make('whitelist_active')
-                        ->label(__('settings.activate_whitelist'))
-                ])
+                        ->label(__('settings.activate_whitelist')),
+                ]),
             ]);
     }
 }

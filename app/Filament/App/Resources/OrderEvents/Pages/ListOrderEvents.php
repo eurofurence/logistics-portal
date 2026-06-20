@@ -2,10 +2,9 @@
 
 namespace App\Filament\App\Resources\OrderEvents\Pages;
 
-use Filament\Actions\CreateAction;
-use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
 use App\Filament\App\Resources\OrderEvents\OrderEventResource;
+use Filament\Actions\CreateAction;
+use Filament\Resources\Pages\ListRecords;
 
 class ListOrderEvents extends ListRecords
 {

@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use Gate;
-use Str;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Artisan;
+use Str;
 use Sushi\Sushi;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -20,6 +20,7 @@ use Symfony\Component\Console\Input\InputOption;
  * @property string|null $options
  * @property string|null $error
  * @property string|null $group
+ *
  * @method static Builder<static>|Command newModelQuery()
  * @method static Builder<static>|Command newQuery()
  * @method static Builder<static>|Command query()
@@ -31,6 +32,7 @@ use Symfony\Component\Console\Input\InputOption;
  * @method static Builder<static>|Command whereName($value)
  * @method static Builder<static>|Command whereOptions($value)
  * @method static Builder<static>|Command whereSynopsis($value)
+ *
  * @mixin \Eloquent
  */
 class Command extends Model
@@ -40,13 +42,13 @@ class Command extends Model
     public function getSchema(): array
     {
         return [
-            "name" => "string",
-            "description" => "string",
-            "synopsis" => "string",
-            "arguments" => "json",
-            "options" => "json",
-            "group" => "string",
-            "error" => "string"
+            'name' => 'string',
+            'description' => 'string',
+            'synopsis' => 'string',
+            'arguments' => 'json',
+            'options' => 'json',
+            'group' => 'string',
+            'error' => 'string',
         ];
     }
 
@@ -65,8 +67,9 @@ class Command extends Model
         foreach ($commands as $gKey => $group) {
             foreach ($group as $cKey => $command) {
 
-                if (($permission = $permissions[$command] ?? null) && !Gate::check($permission)) {
+                if (($permission = $permissions[$command] ?? null) && ! Gate::check($permission)) {
                     unset($commands[$gKey][$cKey]);
+
                     continue;
                 }
 
@@ -74,14 +77,14 @@ class Command extends Model
             }
             $commands[$gKey] = array_values($commands[$gKey]);
 
-            if (!$commands[$gKey]) {
+            if (! $commands[$gKey]) {
                 unset($commands[$gKey]);
             }
         }
 
         $getCommandArray = [];
-        foreach ($commands as $key=>$commandItem){
-            foreach ($commandItem as $singleCommand){
+        foreach ($commands as $key => $commandItem) {
+            foreach ($commandItem as $singleCommand) {
                 $singleCommand['group'] = $key;
                 $getCommandArray[] = $singleCommand;
             }
@@ -107,22 +110,23 @@ class Command extends Model
         return empty($arguments) ? null : $arguments;
     }
 
-
     protected function commandToArray($command): ?array
     {
 
-        if ($command === null)
-            return  null;
+        if ($command === null) {
+            return null;
+        }
 
-        if (!$command instanceof \Symfony\Component\Console\Command\Command)
+        if (! $command instanceof \Symfony\Component\Console\Command\Command) {
             return [
                 'name' => $command,
                 'description' => null,
                 'synopsis' => null,
                 'arguments' => null,
                 'options' => null,
-                'error' => 'Not found'
+                'error' => 'Not found',
             ];
+        }
 
         return [
             'name' => $command->getName(),
@@ -130,7 +134,7 @@ class Command extends Model
             'synopsis' => $command->getSynopsis(),
             'arguments' => json_encode($this->argumentsToArray($command)),
             'options' => json_encode($this->optionsToArray($command)),
-            'error' => null
+            'error' => null,
         ];
     }
 
@@ -162,6 +166,4 @@ class Command extends Model
 
         return array_combine($keys, array_values($array));
     }
-
-
 }

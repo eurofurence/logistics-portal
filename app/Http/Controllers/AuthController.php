@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
+use App\Models\Department;
+use App\Models\IdpRankSync;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Whitelist;
-use App\Models\Department;
-use App\Models\IdpRankSync;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Laravel\Socialite\Facades\Socialite;
@@ -37,12 +37,12 @@ class AuthController extends Controller
 
             if ($old_email != $user['email']) {
                 Whitelist::where('email', $old_email)->update([
-                    'email' => $user['email']
+                    'email' => $user['email'],
                 ]);
             }
         }
 
-        if (!Whitelist::where('email', $user['email'])->exists()) {
+        if (! Whitelist::where('email', $user['email'])->exists()) {
             return abort(403, __('middleware.not_on_whitelist'));
         }
 
@@ -61,7 +61,7 @@ class AuthController extends Controller
             $update_array
         );
 
-        if (!$updated) {
+        if (! $updated) {
             if (User::where('ex_id', $user['sub'])->withTrashed()->exists()) {
                 abort(403, __('middleware.account_deleted'));
             }
@@ -80,7 +80,7 @@ class AuthController extends Controller
             $f_user_id = $user->id;
         }
 
-        if (!$f_user_id) {
+        if (! $f_user_id) {
             $f_user_id = User::where('ex_id', $user['sub'])->first('id')->id;
         }
 
@@ -89,7 +89,7 @@ class AuthController extends Controller
             $auth_user = Auth::user();
             $external_groups = $auth_user->ex_groups;
 
-            if (!$auth_user->separated_rights) {
+            if (! $auth_user->separated_rights) {
                 if ($external_groups) {
                     $exists = IdpRankSync::whereIn('idp_group', $external_groups)->exists();
 
@@ -102,7 +102,7 @@ class AuthController extends Controller
                             if (Role::where('id', $sync['local_role'])->exists()) {
                                 $name = Role::where('id', $sync['local_role'])->first('name')->name;
 
-                                if (!in_array($name, $roles)) {
+                                if (! in_array($name, $roles)) {
                                     $roles[] = $name;
                                 }
                             }
@@ -113,14 +113,14 @@ class AuthController extends Controller
                 }
             }
 
-            if (!$auth_user->separated_departments) {
+            if (! $auth_user->separated_departments) {
                 if ($external_groups) {
                     // Get all existing ipd_group_id values from the departments table
                     $existing_ipd_group_ids = Department::all()->pluck('idp_group_id')->toArray();
 
                     // Filter the external_groups to keep only entries with non-NULL values
                     $filtered_external_groups = array_filter($external_groups, function ($value) {
-                        return !is_null($value);
+                        return ! is_null($value);
                     });
 
                     // Filter the external_groups to keep only existing values
@@ -128,7 +128,7 @@ class AuthController extends Controller
                         return in_array($group_id, $existing_ipd_group_ids);
                     });
 
-                    $department_ids = array();
+                    $department_ids = [];
                     foreach ($valid_external_groups as $group_id) {
                         $department = Department::where('idp_group_id', $group_id)->first('id');
 
@@ -154,7 +154,6 @@ class AuthController extends Controller
 
         return redirect('https://identity.eurofurence.org/oauth2/sessions/logout');
     }
-
 
     // Frontchannel Logout
     public function logoutCallback()

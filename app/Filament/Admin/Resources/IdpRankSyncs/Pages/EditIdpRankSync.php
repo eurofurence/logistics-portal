@@ -2,9 +2,8 @@
 
 namespace App\Filament\Admin\Resources\IdpRankSyncs\Pages;
 
-use Filament\Actions\DeleteAction;
 use App\Filament\Admin\Resources\IdpRankSyncs\IdpRankSyncResource;
-use Filament\Actions;
+use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
 class EditIdpRankSync extends EditRecord
@@ -16,7 +15,7 @@ class EditIdpRankSync extends EditRecord
         return [
             DeleteAction::make()
                 ->modalHeading(function ($record): string {
-                    return __('general.delete') . ': ' . $record->name;
+                    return __('general.delete').': '.$record->name;
                 }),
         ];
     }

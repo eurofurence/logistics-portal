@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property-read Department $department
  * @property-read Role|null $role
  * @property-read User $user
+ *
  * @method static Builder<static>|DepartmentMember newModelQuery()
  * @method static Builder<static>|DepartmentMember newQuery()
  * @method static Builder<static>|DepartmentMember query()
@@ -27,6 +28,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static Builder<static>|DepartmentMember whereRoleId($value)
  * @method static Builder<static>|DepartmentMember whereUpdatedAt($value)
  * @method static Builder<static>|DepartmentMember whereUserId($value)
+ *
  * @mixin \Eloquent
  */
 class DepartmentMember extends Model
@@ -41,6 +43,16 @@ class DepartmentMember extends Model
     protected $table = 'department_user';
 
     protected $fillable = ['department_id', 'user_id', 'role_id'];
+
+    protected static function booted()
+    {
+        static::saved(function ($member) {
+            $member->user?->incrementPermissionCacheVersion();
+        });
+        static::deleted(function ($member) {
+            $member->user?->incrementPermissionCacheVersion();
+        });
+    }
 
     /**
      * Get the department that the member belongs to.

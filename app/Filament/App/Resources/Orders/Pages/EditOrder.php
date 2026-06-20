@@ -2,14 +2,12 @@
 
 namespace App\Filament\App\Resources\Orders\Pages;
 
-use Filament\Actions\DeleteAction;
-use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
 use App\Filament\App\Resources\Orders\OrderResource;
+use Filament\Actions\DeleteAction;
+use Filament\Resources\Pages\EditRecord;
 
 class EditOrder extends EditRecord
 {
-
     protected static string $resource = OrderResource::class;
 
     protected function getHeaderActions(): array
@@ -18,7 +16,7 @@ class EditOrder extends EditRecord
             DeleteAction::make()
                 ->icon('heroicon-o-trash')
                 ->modalHeading(function ($record): string {
-                    return __('general.delete') . ': ' . $record->name;
+                    return __('general.delete').': '.$record->name;
                 }),
         ];
     }

@@ -2,9 +2,8 @@
 
 namespace App\Filament\Admin\Resources\Whitelists\Pages;
 
-use Filament\Actions\CreateAction;
 use App\Filament\Admin\Resources\Whitelists\WhitelistResource;
-use Filament\Actions;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListWhitelists extends ListRecords

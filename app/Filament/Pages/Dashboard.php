@@ -13,7 +13,7 @@ class Dashboard extends \Filament\Pages\Dashboard
         return __('general.start');
     }
 
-    public function getTitle(): string | Htmlable
+    public function getTitle(): string|Htmlable
     {
         return __('general.start');
     }

@@ -17,6 +17,6 @@ return [
             'navigation_label' => 'filament-schedule-monitor::translations.monitored_scheduled_task_log_item.navigation_label',
             'navigation_icon' => 'heroicon-o-archive-box',
             'navigation_sort' => null,
-        ]
-    ]
+        ],
+    ],
 ];

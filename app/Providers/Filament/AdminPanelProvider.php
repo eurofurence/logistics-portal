@@ -10,7 +10,6 @@ use App\Http\Middleware\CheckWhitelist;
 use App\Http\Middleware\UserIsLocked;
 use App\Settings\ThemeSettings;
 use Awcodes\Versions\VersionsPlugin;
-use Awcodes\Versions\VersionsWidget;
 use CharrafiMed\GlobalSearchModal\GlobalSearchModalPlugin;
 use CraftForge\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
 use Exception;
@@ -50,7 +49,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->favicon(asset('favicon.ico'))
-            //->viteTheme('resources/css/filament/admin/theme.css')
+            // ->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([
                 'primary' => $primaryColor,
             ])
@@ -67,7 +66,7 @@ class AdminPanelProvider extends PanelProvider
             ->login(Login::class)
             ->passwordReset()
             ->profile(EditProfile::class, false)
-            //->emailVerification()
+            // ->emailVerification()
             ->unsavedChangesAlerts()
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
@@ -94,7 +93,7 @@ class AdminPanelProvider extends PanelProvider
                     ->defaultLocales(['en', 'de']),
                 FilamentSpatieLaravelHealthPlugin::make()
                     ->usingPage(HealthCheckResults::class),
-                //FilamentUserActivityPlugin::make(),
+                // FilamentUserActivityPlugin::make(),
                 SpotlightPlugin::make(),
                 GlobalSearchModalPlugin::make(),
                 FilamentDeveloperGatePlugin::make(),

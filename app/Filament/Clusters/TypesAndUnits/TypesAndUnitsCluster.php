@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 class TypesAndUnitsCluster extends Cluster
 {
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-squares-2x2';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-squares-2x2';
 
     public static function getNavigationLabel(): string
     {
@@ -27,13 +27,13 @@ class TypesAndUnitsCluster extends Cluster
 
     public static function canAccessClusteredComponents(): bool
     {
-        if (!Auth::Check()) {
+        if (! Auth::Check()) {
             return false;
         }
 
         $panel_name = trim(preg_replace('/^[^.]+\.(.*?\.).*$/', '$1', Route::currentRouteName()), '.');
 
-        if($panel_name != 'app') {
+        if ($panel_name != 'app') {
             return false;
         }
 

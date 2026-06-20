@@ -6,7 +6,7 @@ use App\Models\OrderEvent;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\OrderEvent>
+ * @extends Factory<OrderEvent>
  */
 class OrderEventFactory extends Factory
 {
@@ -18,7 +18,7 @@ class OrderEventFactory extends Factory
             'locked' => false,
             'is_active' => true,
             'order_deadline' => now()->addDay(),
-            'name' => $this->faker->word
+            'name' => $this->faker->word,
         ];
     }
 }

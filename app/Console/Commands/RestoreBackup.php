@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use RecursiveIteratorIterator;
-use RecursiveDirectoryIterator;
-use ZipArchive;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use ZipArchive;
 
 class RestoreBackup extends Command
 {
@@ -43,7 +43,8 @@ class RestoreBackup extends Command
         $files = collect($sftpDisk->files(config('app.name')));
 
         if ($files->isEmpty()) {
-            $this->warn("No files found on the SFTP server");
+            $this->warn('No files found on the SFTP server');
+
             return Command::SUCCESS;
         }
 
@@ -54,7 +55,7 @@ class RestoreBackup extends Command
 
         $this->info("Latest backup: $latestFile\n");
 
-        $this->confirm("Do you want to restore this backup?");
+        $this->confirm('Do you want to restore this backup?');
 
         $localDisk->deleteDirectory('/backup-restore-temp/');
 
@@ -62,10 +63,10 @@ class RestoreBackup extends Command
 
         // Download the file from the SFTP server and save it locally
         $content = $sftpDisk->get($latestFile);
-        $localDisk->put('/backup-restore-temp/restore.' . $extension, $content);
+        $localDisk->put('/backup-restore-temp/restore.'.$extension, $content);
 
         // Unzip the file
-        $archiveFullPath = storage_path('/app/backup-restore-temp/restore.' . $extension);
+        $archiveFullPath = storage_path('/app/backup-restore-temp/restore.'.$extension);
         $extractTo = storage_path('/app/backup-restore-temp/extracted/');
         $password = $this->argument('password');
 
@@ -79,47 +80,53 @@ class RestoreBackup extends Command
         $this->restoreBackupToS3($extractTo);
 
         $localDisk->deleteDirectory('/backup-restore-temp/');
-        $this->info("Temporary files were deleted");
-        $this->info("Finished");
+        $this->info('Temporary files were deleted');
+        $this->info('Finished');
+
         return Command::SUCCESS;
     }
 
-    function extractEncryptedArchive($archivePath, $extractTo, $password): int
+    public function extractEncryptedArchive($archivePath, $extractTo, $password): int
     {
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
 
         $this->info($archivePath);
 
-        if (!file_exists($archivePath)) {
+        if (! file_exists($archivePath)) {
             $this->error("The file does not exist at the specified path: {$archivePath}");
+
             return Command::FAILURE;
         }
 
-        if ($zip->open($archivePath) === TRUE) {
+        if ($zip->open($archivePath) === true) {
             // Set the password
-            if (!$zip->setPassword($password)) {
-                $this->error("Error when setting the password");
+            if (! $zip->setPassword($password)) {
+                $this->error('Error when setting the password');
+
                 return Command::FAILURE;
             }
 
             // Check whether the ZIP file is encrypted
-            if (!$zip->extractTo($extractTo)) {
-                $this->error("Error when unpacking the archive. Check the password");
+            if (! $zip->extractTo($extractTo)) {
+                $this->error('Error when unpacking the archive. Check the password');
+
                 return Command::FAILURE;
             }
 
             $zip->close();
             $this->info("Archive was successfully extracted to '{$extractTo}'");
+
             return Command::SUCCESS;
         } else {
-            $this->error("Error when opening the archive");
+            $this->error('Error when opening the archive');
+
             return Command::FAILURE;
         }
 
         return Command::FAILURE;
     }
 
-    function restoreBackupToS3($extractTo)
+    public function restoreBackupToS3($extractTo)
     {
         $s3Disk = Storage::disk('s3');
 
@@ -138,12 +145,12 @@ class RestoreBackup extends Command
         $this->uploadFilesToS3($extractTo, '/', $s3Disk);
     }
 
-    function uploadFilesToS3($sourcePath, $destinationPrefix, $s3Disk)
+    public function uploadFilesToS3($sourcePath, $destinationPrefix, $s3Disk)
     {
         $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($sourcePath));
 
         foreach ($files as $name => $file) {
-            if (!$file->isDir()) {
+            if (! $file->isDir()) {
                 $filePath = $file->getRealPath();
 
                 $relativePath = ltrim(substr($filePath, strlen($sourcePath)), '\\/');
@@ -151,7 +158,7 @@ class RestoreBackup extends Command
                 // Remove "storage/app/backup-s3/" if present
                 $relativePath = str_replace('storage/app/backup-s3/', '', $relativePath);
 
-                $s3Path = rtrim($destinationPrefix, '/') . '/' . $relativePath;
+                $s3Path = rtrim($destinationPrefix, '/').'/'.$relativePath;
 
                 $this->info("Uploading file: $relativePath");
                 $s3Disk->put($s3Path, file_get_contents($filePath));

@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 use Throwable;
-use Illuminate\Console\Command;
-use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Artisan;
 
 class UpdateRoles extends Command
 {
@@ -36,20 +36,20 @@ class UpdateRoles extends Command
                 Artisan::call('down');
                 app()[PermissionRegistrar::class]->forgetCachedPermissions();
                 $all_ranks = Role::all();
-                if ($all_ranks != null or []){
+                if ($all_ranks != null or []) {
                     $selected = [];
                     foreach ($all_ranks as $rank) {
                         $selected[] = $rank;
-                        $this->info('Selected: ' . $rank->name . ' [ID: ' . $rank->id . ']');
+                        $this->info('Selected: '.$rank->name.' [ID: '.$rank->id.']');
                     }
                     $this->newLine(1);
 
-                    if ($selected != null or []){
+                    if ($selected != null or []) {
                         $this->comment('Removing old entries...');
                         $this->newLine(1);
                         foreach ($selected as $item) {
                             Role::where('id', '=', $item->id)->delete();
-                            $this->warn('Removing: ' . $item->name . ' [ID: ' . $item->id . ']');
+                            $this->warn('Removing: '.$item->name.' [ID: '.$item->id.']');
                         }
                         $this->info('Removing complete');
                         $this->newLine(1);
@@ -79,15 +79,20 @@ class UpdateRoles extends Command
 
                 Artisan::call('up');
                 $this->info('Update complete');
+
                 return Command::SUCCESS;
             } else {
                 $this->comment('Canceled');
+
                 return Command::SUCCESS;
             }
+
             return Command::INVALID;
         } catch (Throwable $th) {
             Artisan::call('up');
-            return $this->error('Error: ' . $th->getMessage());
+
+            return $this->error('Error: '.$th->getMessage());
+
             return Command::FAILURE;
         }
     }

@@ -2,15 +2,14 @@
 
 namespace App\Filament\App\Resources\Bills\Pages;
 
-use Filament\Actions;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ReplicateAction;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Forms\Components\TextInput;
-use Filament\Resources\Pages\ViewRecord;
-use Filament\Infolists\Components\TextEntry;
 use App\Filament\App\Resources\Bills\BillResource;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ReplicateAction;
+use Filament\Forms\Components\TextInput;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Resources\Pages\ViewRecord;
+use Illuminate\Database\Eloquent\Model;
 
 class ViewBill extends ViewRecord
 {
@@ -24,7 +23,7 @@ class ViewBill extends ViewRecord
             DeleteAction::make()
                 ->icon('heroicon-o-trash')
                 ->modalHeading(function ($record): string {
-                    return __('general.delete') . ': ' . $record->title;
+                    return __('general.delete').': '.$record->title;
                 }),
             ReplicateAction::make()
                 ->icon('heroicon-o-arrow-up-on-square-stack')
@@ -38,12 +37,12 @@ class ViewBill extends ViewRecord
                         ->maxLength(64)
                         ->unique(),
                 ])
-                ->successRedirectUrl(fn(Model $replica): string => route('filament.app.resources.bills.edit', $replica))
+                ->successRedirectUrl(fn (Model $replica): string => route('filament.app.resources.bills.edit', $replica))
                 ->successNotificationTitle(__('general.entry_duplicated'))
                 ->beforeReplicaSaved(function (Model $replica, array $data): void {
                     $replica->fill($data);
                     $replica->status = 'open';
-                })
+                }),
         ];
     }
 }

@@ -2,27 +2,29 @@
 
 namespace App\Jobs;
 
-use Exception;
 use App\Models\OrderArticle;
-use Illuminate\Bus\Batchable;
 use App\Services\AsinDataService;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Foundation\Queue\Queueable;
+use Exception;
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\Middleware\RateLimited;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
-use Illuminate\Queue\Middleware\ThrottlesExceptions;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class SyncDataToOrderArticleJob implements ShouldQueue
 {
-    use Dispatchable, Queueable, Batchable, SerializesModels;
+    use Batchable, Dispatchable, Queueable, SerializesModels;
 
     protected int $current_user_id;
+
     protected array $fields;
+
     protected int $order_article_id;
+
     protected OrderArticle $order_article;
 
     /**
@@ -93,12 +95,13 @@ class SyncDataToOrderArticleJob implements ShouldQueue
 
             Cache::put('SyncDataToOrderArticleJob_running', true, now()->addMinutes(20));
 
-            $asin_data_service = new AsinDataService();
+            $asin_data_service = new AsinDataService;
 
             if (empty($this->order_article)) {
-                $this->logError("Order article not found", $this->order_article_id);
+                $this->logError('Order article not found', $this->order_article_id);
                 Cache::forget('SyncDataToOrderArticleJob_running');
-                $this->fail("Order article not found");
+                $this->fail('Order article not found');
+
                 return;
             }
 
@@ -111,18 +114,20 @@ class SyncDataToOrderArticleJob implements ShouldQueue
             }
 
             if (empty($url)) {
-                $this->logError("URL is empty", $this->order_article_id);
+                $this->logError('URL is empty', $this->order_article_id);
                 Cache::forget('SyncDataToOrderArticleJob_running');
-                $this->fail("URL is empty");
+                $this->fail('URL is empty');
+
                 return;
             }
 
             if (preg_match('/https?:\/\/(www\.)?amazon\.[a-z]{2,3}(\/.*)?$/', $url)) {
                 // Credits check
                 if ($asin_data_service->getCredits() <= 0) {
-                    $this->logError("Not enough credits", $this->order_article_id);
+                    $this->logError('Not enough credits', $this->order_article_id);
                     Cache::forget('SyncDataToOrderArticleJob_running');
-                    $this->fail("Not enough credits");
+                    $this->fail('Not enough credits');
+
                     return;
                 }
 
@@ -130,7 +135,7 @@ class SyncDataToOrderArticleJob implements ShouldQueue
                 $asin = $asin_data_service->extractASIN($url);
                 $product_data = $asin_data_service->getProductData($asin);
 
-                if (!empty($this->fields)) {
+                if (! empty($this->fields)) {
                     // Check whether all required data is available
                     foreach ($this->fields as $key => $field) {
                         if (
@@ -177,7 +182,7 @@ class SyncDataToOrderArticleJob implements ShouldQueue
                     $this->order_article->save();
                 }
             } else {
-                $this->logError("Invalid URL format: " . $url, $this->order_article_id);
+                $this->logError('Invalid URL format: '.$url, $this->order_article_id);
             }
 
             Cache::forget('SyncDataToOrderArticleJob_running');
@@ -201,7 +206,7 @@ class SyncDataToOrderArticleJob implements ShouldQueue
 
             $logEntry = "User ID: {$this->current_user_id}, Job Title: {$jobTitle}, Timestamp: {$timestamp}, Error: {$reason}, Article ID: {$article_id}\n";
 
-            Storage::disk('local_logs')->append('/job_errors_' . $article_id . '.log', $logEntry);
+            Storage::disk('local_logs')->append('/job_errors_'.$article_id.'.log', $logEntry);
         } catch (Exception $e) {
             $this->fail($e);
         }

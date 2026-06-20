@@ -2,17 +2,15 @@
 
 namespace App\Models;
 
-use Spatie\Permission\PermissionRegistrar;
-use Illuminate\Support\Carbon;
-use Illuminate\Database\Eloquent\Collection;
-use Spatie\Permission\Models\Permission;
 use Database\Factories\RoleFactory;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Notifications\Notification;
-use Spatie\Permission\Models\Role as ModelsRole;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Carbon;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role as ModelsRole;
+use Spatie\Permission\PermissionRegistrar;
 
 /**
  * @property int $id
@@ -24,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property-read int|null $permissions_count
  * @property-read Collection<int, User> $users
  * @property-read int|null $users_count
+ *
  * @method static RoleFactory factory($count = null, $state = [])
  * @method static Builder<static>|Role newModelQuery()
  * @method static Builder<static>|Role newQuery()
@@ -35,6 +34,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @method static Builder<static>|Role whereName($value)
  * @method static Builder<static>|Role whereUpdatedAt($value)
  * @method static Builder<static>|Role withoutPermission($permissions)
+ *
  * @mixin \Eloquent
  */
 class Role extends ModelsRole
@@ -57,16 +57,19 @@ class Role extends ModelsRole
             }
         });
 
-        static::updated(function () {
+        static::updated(function ($role) {
             app()->make(PermissionRegistrar::class)->forgetCachedPermissions();
+            User::invalidateDepartmentPermissionsForRole($role);
         });
 
-        static::created(function () {
+        static::created(function ($role) {
             app()->make(PermissionRegistrar::class)->forgetCachedPermissions();
+            User::invalidateDepartmentPermissionsForRole($role);
         });
 
-        static::deleted(function () {
+        static::deleted(function ($role) {
             app()->make(PermissionRegistrar::class)->forgetCachedPermissions();
+            User::invalidateDepartmentPermissionsForRole($role);
         });
     }
 

@@ -2,15 +2,15 @@
 
 namespace App\Filament\Admin\Pages;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
 use App\Settings\ThemeSettings;
-use Filament\Pages\SettingsPage;
 use Filament\Forms\Components\ColorPicker;
+use Filament\Pages\SettingsPage;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class ManageTheme extends SettingsPage
 {
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-paint-brush';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-paint-brush';
 
     protected static string $settings = ThemeSettings::class;
 
@@ -36,8 +36,8 @@ class ManageTheme extends SettingsPage
                 Section::make([
                     ColorPicker::make('primary_color')
                         ->rgb()
-                        ->label(__('settings.primary_color'))
-                ])
+                        ->label(__('settings.primary_color')),
+                ]),
             ]);
     }
 }

@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use App\Models\Department;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @property int $id
@@ -19,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Department|null $connected_department
+ *
  * @method static Builder<static>|ItemsOperationSite newModelQuery()
  * @method static Builder<static>|ItemsOperationSite newQuery()
  * @method static Builder<static>|ItemsOperationSite query()
@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder<static>|ItemsOperationSite whereId($value)
  * @method static Builder<static>|ItemsOperationSite whereName($value)
  * @method static Builder<static>|ItemsOperationSite whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class ItemsOperationSite extends Model
@@ -47,7 +48,7 @@ class ItemsOperationSite extends Model
         'department',
         'added_by',
         'edited_by',
-        'department_id'
+        'department_id',
     ];
 
     protected static function boot()
@@ -64,7 +65,7 @@ class ItemsOperationSite extends Model
         });
     }
 
-     /**
+    /**
      * The department that belong to the operation site.
      */
     public function connected_department(): BelongsTo

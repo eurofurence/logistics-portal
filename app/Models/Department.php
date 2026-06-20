@@ -2,19 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 use Database\Factories\DepartmentFactory;
 use Illuminate\Database\Eloquent\Builder;
-use InvalidArgumentException;
-use App\Models\ItemsOperationSite;
-use App\Models\InventorySubCategory;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @property int $id
@@ -32,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property-read int|null $orders_count
  * @property-read Collection<int, Role> $roles
  * @property-read int|null $roles_count
+ *
  * @method static DepartmentFactory factory($count = null, $state = [])
  * @method static Builder<static>|Department newModelQuery()
  * @method static Builder<static>|Department newQuery()
@@ -48,12 +46,14 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @method static Builder<static>|Department whereUpdatedAt($value)
  * @method static Builder<static>|Department withTrashed()
  * @method static Builder<static>|Department withoutTrashed()
+ *
  * @property-read Collection<int, InventorySubCategory> $inventory_sub_categories
  * @property-read int|null $inventory_sub_categories_count
  * @property-read Collection<int, ItemsOperationSite> $items_operation_sites
  * @property-read int|null $items_operation_sites_count
  * @property-read Collection<int, Storage> $storages
  * @property-read int|null $storages_count
+ *
  * @mixin \Eloquent
  */
 class Department extends Model
@@ -64,8 +64,8 @@ class Department extends Model
      * Returns current department members
      *
      * @return HasMany The `members()` function is returning a relationship of type `HasMany` for the `DepartmentMember`
-     * model. This indicates that the `Department` model has a one-to-many relationship with the `DepartmentMember` model,
-     * where a department can have multiple members.
+     *                 model. This indicates that the `Department` model has a one-to-many relationship with the `DepartmentMember` model,
+     *                 where a department can have multiple members.
      */
     public function members(): HasMany
     {
@@ -93,10 +93,8 @@ class Department extends Model
 
     /**
      * The orders function returns a collection of orders associated with a specific department.
-     *
-     * @return hasMany
      */
-    public function orders(): hasMany
+    public function orders(): HasMany
     {
         return $this->hasMany(Order::class, 'department_id');
     }

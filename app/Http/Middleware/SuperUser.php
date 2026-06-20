@@ -12,12 +12,12 @@ class SuperUser
     /**
      * Handle an incoming request.
      *
-     * @param Closure(Request):Response $next
+     * @param  Closure(Request):Response  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(Auth::check()){
-            if(!$request->user()->isSuperAdmin()){
+        if (Auth::check()) {
+            if (! $request->user()->isSuperAdmin()) {
                 return abort(403, __('middleware.superuser_needed'));
             } else {
                 return $next($request);

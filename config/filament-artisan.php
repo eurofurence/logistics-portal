@@ -15,7 +15,7 @@ return [
         'web',
         'auth',
         'super_user',
-        'system_admin'
+        'system_admin',
     ],
 
     /*
@@ -94,7 +94,7 @@ return [
         ],
         'icons' => [
             'icons:cache',
-            'icons:clear'
+            'icons:clear',
         ],
         'laravel' => [
             'schedule:run',
@@ -129,22 +129,22 @@ return [
         ],
         'view' => [
             'view:cache',
-            'view:clear'
+            'view:clear',
         ],
         'permission' => [
             'permissions:sync',
-            'permission:cache-reset'
+            'permission:cache-reset',
         ],
         'backups' => [
             'backup:with-s3',
-            'backup:clean'
+            'backup:clean',
         ],
         'schedule-monitor' => [
-            'schedule-monitor:sync'
+            'schedule-monitor:sync',
         ],
         's3' => [
             's3:download-logs',
-            's3:delete-logs'
+            's3:delete-logs',
         ],
     ],
 
@@ -164,5 +164,5 @@ return [
         'show-only-commands-showing' => true,
         'group' => 'DEV',
         'icon' => 'heroicon-o-command-line',
-    ]
+    ],
 ];

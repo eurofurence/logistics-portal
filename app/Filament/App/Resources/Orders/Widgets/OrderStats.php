@@ -2,11 +2,10 @@
 
 namespace App\Filament\App\Resources\Orders\Widgets;
 
-use App\Models\Order;
-use Filament\Widgets\StatsOverviewWidget\Stat;
+use App\Filament\App\Resources\Orders\Pages\ListOrders;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
-use App\Filament\App\Resources\Orders\Pages\ListOrders;
+use Filament\Widgets\StatsOverviewWidget\Stat;
 
 class OrderStats extends BaseWidget
 {
@@ -47,11 +46,11 @@ class OrderStats extends BaseWidget
                 ->icon('heroicon-o-shopping-cart'),
             Stat::make(__('general.open_orders'), $this->getPageTableQuery()->whereIn('status', ['open', 'processing'])->count())
                 ->icon('heroicon-o-arrow-path'),
-            Stat::make(__('general.total_amount') . ' (' . __('general.net') . ')', number_format($totalAmount, 2) . '€')
+            Stat::make(__('general.total_amount').' ('.__('general.net').')', number_format($totalAmount, 2).'€')
                 ->description(__('general.widget_total_amount_decription_orders'))
                 ->icon('heroicon-o-currency-euro'),
-            Stat::make(__('general.delivery_costs') . ' ' . __('general.and') . ' ' . __('general.returning_deposit'), number_format($totalAmountReturnDeposit + $totalAmountShippingCosts, 2) . '€')
-                ->description(__('general.widget_total_amount_decription_orders') . ', ' . __('general.delivery_costs') . ': ' . number_format($totalAmountShippingCosts, 2) . '€, ' . __('general.returning_deposit') . ': ' . number_format($totalAmountReturnDeposit, 2) . '€, ' . __('general.gross'))
+            Stat::make(__('general.delivery_costs').' '.__('general.and').' '.__('general.returning_deposit'), number_format($totalAmountReturnDeposit + $totalAmountShippingCosts, 2).'€')
+                ->description(__('general.widget_total_amount_decription_orders').', '.__('general.delivery_costs').': '.number_format($totalAmountShippingCosts, 2).'€, '.__('general.returning_deposit').': '.number_format($totalAmountReturnDeposit, 2).'€, '.__('general.gross'))
                 ->icon('heroicon-o-currency-euro'),
         ];
     }

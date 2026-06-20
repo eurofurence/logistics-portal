@@ -2,10 +2,9 @@
 
 namespace App\Filament\App\Resources\OrderArticles\Pages;
 
-use Filament\Actions\CreateAction;
-use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
 use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
+use Filament\Actions\CreateAction;
+use Filament\Resources\Pages\ListRecords;
 
 class ListOrderArticles extends ListRecords
 {
@@ -15,7 +14,7 @@ class ListOrderArticles extends ListRecords
     {
         return [
             CreateAction::make()
-                ->icon('heroicon-o-plus-circle')
+                ->icon('heroicon-o-plus-circle'),
         ];
     }
 }

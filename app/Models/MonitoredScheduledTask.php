@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
-use Illuminate\Database\Eloquent\Collection;
-use Spatie\ScheduleMonitor\Models\MonitoredScheduledTaskLogItem;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 use Spatie\ScheduleMonitor\Models\MonitoredScheduledTask as ScheduledTaskModel;
+use Spatie\ScheduleMonitor\Models\MonitoredScheduledTaskLogItem;
 
 /**
  * @property int $id
@@ -27,6 +27,7 @@ use Spatie\ScheduleMonitor\Models\MonitoredScheduledTask as ScheduledTaskModel;
  * @property Carbon|null $updated_at
  * @property-read Collection<int, MonitoredScheduledTaskLogItem> $logItems
  * @property-read int|null $log_items_count
+ *
  * @method static Builder<static>|MonitoredScheduledTask newModelQuery()
  * @method static Builder<static>|MonitoredScheduledTask newQuery()
  * @method static Builder<static>|MonitoredScheduledTask query()
@@ -45,6 +46,7 @@ use Spatie\ScheduleMonitor\Models\MonitoredScheduledTask as ScheduledTaskModel;
  * @method static Builder<static>|MonitoredScheduledTask whereTimezone($value)
  * @method static Builder<static>|MonitoredScheduledTask whereType($value)
  * @method static Builder<static>|MonitoredScheduledTask whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class MonitoredScheduledTask extends ScheduledTaskModel

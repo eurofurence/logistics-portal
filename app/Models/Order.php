@@ -2,23 +2,20 @@
 
 namespace App\Models;
 
-use Filament\Actions\Action;
+use Carbon\Carbon;
 use Exception;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Auth;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Illuminate\Database\Eloquent\Builder;
-use Carbon\Carbon;
-use App\Models\OrderEvent;
-use App\Models\OrderArticle;
-use Spatie\MediaLibrary\HasMedia;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Notifications\Notification;
-use Spatie\MediaLibrary\InteractsWithMedia;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property int $id
@@ -73,6 +70,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property-read MediaCollection<int, Media> $media
  * @property-read int|null $media_count
  * @property-read OrderRequest|null $orderRequest
+ *
  * @method static Builder<static>|Order newModelQuery()
  * @method static Builder<static>|Order newQuery()
  * @method static Builder<static>|Order onlyTrashed()
@@ -123,16 +121,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static Builder<static>|Order whereUserNote($value)
  * @method static Builder<static>|Order withTrashed()
  * @method static Builder<static>|Order withoutTrashed()
+ *
  * @property string|null $approved_at
  * @property int|null $approved_by
  * @property-read User|null $approvedBy
+ *
  * @method static Builder<static>|Order whereApprovedAt($value)
  * @method static Builder<static>|Order whereApprovedBy($value)
+ *
  * @mixin \Eloquent
  */
 class Order extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes, InteractsWithMedia;
+    use HasFactory, InteractsWithMedia, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -200,7 +201,7 @@ class Order extends Model implements HasMedia
         'discount_net' => 'real',
     ];
 
-    #Not Used
+    // Not Used
     protected static function sendInstantDeliveryMessage($model)
     {
         if ($model->isDirty('instant_delivery') && $model->getOriginal('instant_delivery') == 0 && $model->instant_delivery == 1) {
@@ -221,7 +222,7 @@ class Order extends Model implements HasMedia
                             Action::make(__('general.edit'))
                                 ->url(route('filament.app.resources.orders.edit', $model), shouldOpenInNewTab: true)
                                 ->button()
-                                ->visible(Auth::user()->can('update-Order'))
+                                ->visible(Auth::user()->can('update-Order')),
                         ])
                         ->sendToDatabase($usersWithPermission);
                 }
@@ -237,9 +238,9 @@ class Order extends Model implements HasMedia
             $model->added_by = Auth::user()->id;
             $model->edited_by = Auth::user()->id;
 
-            //static::sendInstantDeliveryMessage($model);
+            // static::sendInstantDeliveryMessage($model);
 
-            if (!empty($model->order_article_id)) {
+            if (! empty($model->order_article_id)) {
                 if (self::addToExistingOrder($model) == true) {
                     return false; // Return false to halt the creation process
                 }
@@ -247,14 +248,14 @@ class Order extends Model implements HasMedia
         });
 
         static::created(function ($model) {
-            //Cache::forget('orders');
+            // Cache::forget('orders');
         });
 
         static::updating(function ($model) {
             $model->edited_by = Auth::user()->id;
 
             if ($model->isDirty('status')) {
-                if (!Auth::user()->can('can-change-order-status')) {
+                if (! Auth::user()->can('can-change-order-status')) {
                     if ($model->status != 'awaiting_approval') {
                         if ($model->status != 'open') {
                             throw new Exception(__('middleware.no_permission_order_status'));
@@ -291,11 +292,11 @@ class Order extends Model implements HasMedia
         });
 
         static::updated(function ($post) {
-            //Cache::forget('orders');
+            // Cache::forget('orders');
         });
 
         static::deleted(function ($model) {
-            //Cache::forget('orders');
+            // Cache::forget('orders');
         });
     }
 
@@ -307,10 +308,9 @@ class Order extends Model implements HasMedia
      * and article number. It also handles the approval status based on user permissions. If $just_amount is true,
      * only the amount is updated. If the model exists, it is locked and deleted after updating the existing order.
      *
-     * @param object $model The model object containing the article data to be added or updated.
-     * @param bool $overwrite_approval_check Optional. If set to true, skips the approval check. Defaults to false.
-     * @param bool $just_amount Optional. If set to true, only the amount is updated. Defaults to false.
-     *
+     * @param  object  $model  The model object containing the article data to be added or updated.
+     * @param  bool  $overwrite_approval_check  Optional. If set to true, skips the approval check. Defaults to false.
+     * @param  bool  $just_amount  Optional. If set to true, only the amount is updated. Defaults to false.
      * @return bool Returns true if an existing order was found and updated, false otherwise.
      */
     public static function addToExistingOrder($model, bool $overwrite_approval_check = false, bool $just_amount = false): bool
@@ -327,7 +327,6 @@ class Order extends Model implements HasMedia
 
         $existingOrder = $query->first();
 
-
         if ($existingOrder) {
             // If available, increase the amount, change the price and cancel the creation process
             $existingOrder->amount += $model->amount;
@@ -335,7 +334,7 @@ class Order extends Model implements HasMedia
             if ($just_amount == false) {
                 $existingOrder->price_net = $model->price_net;
                 $existingOrder->price_gross = $model->price_gross;
-                $existingOrder->comment = $existingOrder->comment . "\n" . $model->comment;
+                $existingOrder->comment = $existingOrder->comment."\n".$model->comment;
                 $existingOrder->article_number = $model->article_number;
             }
 
@@ -354,6 +353,7 @@ class Order extends Model implements HasMedia
             }
 
             $model->added_to_existing = true;
+
             return true;
         }
 
@@ -409,7 +409,7 @@ class Order extends Model implements HasMedia
         if ($this->canBeApproved()) {
             $this->update(['status' => 'open', 'approved_by' => Auth::id()]);
 
-            if (!empty($this->order_article_id)) {
+            if (! empty($this->order_article_id)) {
                 self::addToExistingOrder($this, just_amount: true);
             }
 
@@ -427,7 +427,7 @@ class Order extends Model implements HasMedia
      * the database.
      *
      * @return bool Returns true if the order was successfully declined and deleted,
-     * false if the order could not be declined.
+     *              false if the order could not be declined.
      */
     public function decline(): bool
     {
@@ -445,7 +445,7 @@ class Order extends Model implements HasMedia
      * permission.
      *
      * @return bool The function `canBeApproved()` returns a boolean value. It returns `true` if the status of the object
-     * is 'awaiting_approval' and the current user has permission to approved the order. Otherwise, it returns `false`.
+     *              is 'awaiting_approval' and the current user has permission to approved the order. Otherwise, it returns `false`.
      */
     public function canBeApproved(): bool
     {
@@ -455,7 +455,7 @@ class Order extends Model implements HasMedia
                 $result = false;
 
                 // Check if the order can be approved based on its event status and status
-                $canApproveOrder = !$this->event->locked &&
+                $canApproveOrder = ! $this->event->locked &&
                     $this->event->order_deadline > now() &&
                     $this->status == 'awaiting_approval';
 
@@ -485,7 +485,7 @@ class Order extends Model implements HasMedia
      * permission.
      *
      * @return bool The function `canBeDeclined()` returns a boolean value. It returns `true` if the status of the object
-     * is 'awaiting_approval' and the current user has permission to decline the order. Otherwise, it returns `false`.
+     *              is 'awaiting_approval' and the current user has permission to decline the order. Otherwise, it returns `false`.
      */
     public function canBeDeclined(): bool
     {
@@ -495,7 +495,7 @@ class Order extends Model implements HasMedia
                 $result = false;
 
                 // Check if the order can be declined based on its event status and status
-                $canDeclineOrder = !$this->event->locked &&
+                $canDeclineOrder = ! $this->event->locked &&
                     $this->event->order_deadline < now() &&
                     $this->status == 'awaiting_approval';
 

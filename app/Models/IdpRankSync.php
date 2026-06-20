@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Role|null $role
+ *
  * @method static Builder<static>|IdpRankSync newModelQuery()
  * @method static Builder<static>|IdpRankSync newQuery()
  * @method static Builder<static>|IdpRankSync onlyTrashed()
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static Builder<static>|IdpRankSync whereUpdatedAt($value)
  * @method static Builder<static>|IdpRankSync withTrashed()
  * @method static Builder<static>|IdpRankSync withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class IdpRankSync extends Model

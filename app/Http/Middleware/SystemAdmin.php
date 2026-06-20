@@ -12,12 +12,12 @@ class SystemAdmin
     /**
      * Handle an incoming request.
      *
-     * @param Closure(Request):Response $next
+     * @param  Closure(Request):Response  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(Auth::check()){
-            if(!$request->user()->value('email') == config('app.admin_mail')){
+        if (Auth::check()) {
+            if (! $request->user()->value('email') == config('app.admin_mail')) {
                 return abort(403);
             } else {
                 return $next($request);

@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\WishlistItemFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class WishlistItem extends Model
 {
-    /** @use HasFactory<\Database\Factories\WishlistItemFactory> */
+    /** @use HasFactory<WishlistItemFactory> */
     use HasFactory;
 
     protected $fillable = ['wishlist_id', 'order_article_id'];

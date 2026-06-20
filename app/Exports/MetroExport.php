@@ -5,34 +5,37 @@ namespace App\Exports;
 use App\Models\Order;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
-use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use Maatwebsite\Excel\Concerns\WithTitle;
-use PhpOffice\PhpSpreadsheet\Style\Style;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Events\BeforeExport;
-use PhpOffice\PhpSpreadsheet\Style\Border;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithDefaultStyles;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Events\BeforeExport;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Style;
 use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class MetroExport implements FromCollection, WithTitle, ShouldAutoSize, WithEvents, WithStyles, WithDefaultStyles, WithHeadings
+class MetroExport implements FromCollection, ShouldAutoSize, WithDefaultStyles, WithEvents, WithHeadings, WithStyles, WithTitle
 {
     protected \Illuminate\Support\Collection $orders;
+
     protected array $headings;
+
     protected array $included_columns = ['id', 'name', 'amount', 'price_net', 'price_gross', 'status', 'user_note', 'comment', 'article_number', 'url'];
+
     protected int $event_id;
 
     public function __construct(Collection $orders)
     {
 
         $this->headings = [
-            __('general.id') . '/' . __('general.group'),
+            __('general.id').'/'.__('general.group'),
             __('general.name'),
             __('general.amount'),
             __('general.price_net'),
@@ -47,7 +50,6 @@ class MetroExport implements FromCollection, WithTitle, ShouldAutoSize, WithEven
         $filteredOrders = $orders->filter(function ($order) {
             return strpos($order->url, 'metro.de') !== false;
         });
-
 
         // Group the selected data by 'url'
         $grouped_data = $filteredOrders->groupBy('url');
@@ -91,7 +93,7 @@ class MetroExport implements FromCollection, WithTitle, ShouldAutoSize, WithEven
             $final_records->push(collect([
                 'empty1' => null,
                 'empty2' => null,
-                'total_amount' => __('general.sum') . ': ' . $total_amount
+                'total_amount' => __('general.sum').': '.$total_amount,
             ]));
 
             // Add one empty row as a spacer
@@ -145,9 +147,9 @@ class MetroExport implements FromCollection, WithTitle, ShouldAutoSize, WithEven
     public function styles(Worksheet $sheet)
     {
         return [
-            1    => [
+            1 => [
                 'font' => [
-                    'bold' => true
+                    'bold' => true,
                 ],
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
@@ -159,9 +161,9 @@ class MetroExport implements FromCollection, WithTitle, ShouldAutoSize, WithEven
                     'wrapText' => true,
                 ],
             ],
-            'A'    => [
+            'A' => [
                 'font' => [
-                    'bold' => true
+                    'bold' => true,
                 ],
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -178,35 +180,35 @@ class MetroExport implements FromCollection, WithTitle, ShouldAutoSize, WithEven
             'font' => [
                 'name' => 'Arial',
                 'color' => [
-                    'rgb' => '1a1a1a'
-                ]
+                    'rgb' => '1a1a1a',
+                ],
             ],
             'borders' => [
                 'bottom' => [
                     'borderStyle' => Border::BORDER_THIN,
                     'color' => [
-                        'rgb' => '1a1a1a'
-                    ]
+                        'rgb' => '1a1a1a',
+                    ],
                 ],
                 'top' => [
                     'borderStyle' => Border::BORDER_THIN,
                     'color' => [
-                        'rgb' => '1a1a1a'
-                    ]
+                        'rgb' => '1a1a1a',
+                    ],
                 ],
                 'left' => [
                     'borderStyle' => Border::BORDER_THIN,
                     'color' => [
-                        'rgb' => '1a1a1a'
-                    ]
+                        'rgb' => '1a1a1a',
+                    ],
                 ],
                 'right' => [
                     'borderStyle' => Border::BORDER_THIN,
                     'color' => [
-                        'rgb' => '1a1a1a'
-                    ]
-                ]
-            ]
+                        'rgb' => '1a1a1a',
+                    ],
+                ],
+            ],
         ];
     }
 }

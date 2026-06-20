@@ -3,8 +3,8 @@
 namespace App\Policies;
 
 use App\Models\Bill;
-use App\Models\User;
 use App\Models\OrderEvent;
+use App\Models\User;
 
 class BillPolicy
 {
