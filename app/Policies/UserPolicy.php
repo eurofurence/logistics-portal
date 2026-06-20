@@ -63,7 +63,7 @@ class UserPolicy
         if ($model->id == 0) {
             return false;
         }
-        
+
         return $user->checkPermissionTo('restore-User');
     }
 
@@ -85,6 +85,14 @@ class UserPolicy
     public function bulkForceDelete(User $user): bool
     {
         return $user->checkPermissionTo('bulk-force-delete-User');
+    }
+
+    /**
+     * Determine whether the user can delete the model via bulk action.
+     */
+    public function deleteAny(User $user): bool
+    {
+        return $user->checkPermissionTo('bulk-delete-User');
     }
 
     /**
