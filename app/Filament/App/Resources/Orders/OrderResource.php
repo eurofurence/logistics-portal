@@ -1688,6 +1688,77 @@ class OrderResource extends Resource
                                 ->send();
                         })
                         ->visible(Auth::user()->can('can-use-article-directory-special-functions')),
+                    BulkAction::make('update_price')
+                        ->label(__('general.price'))
+                        ->icon('heroicon-o-currency-dollar')
+                        ->action(function (Collection $records, array $data): void {
+                            foreach ($records as $record) {
+                                $update = [];
+                                if (isset($data['price_net'])) {
+                                    $update['price_net'] = $data['price_net'];
+                                }
+                                if (isset($data['price_gross'])) {
+                                    $update['price_gross'] = $data['price_gross'];
+                                }
+                                if (isset($data['tax_rate'])) {
+                                    $update['tax_rate'] = $data['tax_rate'];
+                                }
+                                $record->update($update);
+                            }
+                            Notification::make()
+                                ->body(__('general.saved'))
+                                ->success()
+                                ->send();
+                        })
+                        ->schema([
+                            Checkbox::make('auto_calculate')
+                                ->label(__('general.auto_calculate'))
+                                ->default(true)
+                                ->live(),
+                            TextInput::make('tax_rate')
+                                ->label(__('general.tax_rate'))
+                                ->numeric()
+                                ->default(19)
+                                ->visible(fn (Get $get) => $get('auto_calculate'))
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(function (Get $get, Set $set) {
+                                    if (! $get('auto_calculate')) {
+                                        return;
+                                    }
+                                    $taxRate = (float) ($get('tax_rate') ?? 0);
+                                    $net = (float) ($get('price_net') ?? 0);
+                                    $set('price_gross', round($net * (1 + $taxRate / 100), 2));
+                                }),
+                            TextInput::make('price_net')
+                                ->label(__('general.price_net'))
+                                ->numeric()
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                                    if (! $get('auto_calculate')) {
+                                        return;
+                                    }
+                                    $taxRate = (float) ($get('tax_rate') ?? 0);
+                                    if ($state !== null) {
+                                        $set('price_gross', round((float) $state * (1 + $taxRate / 100), 2));
+                                    }
+                                }),
+                            TextInput::make('price_gross')
+                                ->label(__('general.price_gross'))
+                                ->numeric()
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                                    if (! $get('auto_calculate')) {
+                                        return;
+                                    }
+                                    $taxRate = (float) ($get('tax_rate') ?? 0);
+                                    if ($state !== null && $taxRate > 0) {
+                                        $set('price_net', round((float) $state / (1 + $taxRate / 100), 2));
+                                    } elseif ($state !== null) {
+                                        $set('price_net', (float) $state);
+                                    }
+                                }),
+                        ])
+                        ->visible(Auth::user()->can('bulk-update-order-price')),
                     BulkAction::make('returning_deposit_sync')
                         ->label(__('general.returning_deposit_sync'))
                         ->icon('heroicon-o-arrow-path-rounded-square')
