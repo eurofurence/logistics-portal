@@ -54,8 +54,7 @@
         "symfony/browser-kit": "^7.0",
         "symfony/http-client": "^7.0",
         "tightenco/ziggy": "^2.0",
-        "tomatophp/filament-developer-gate": "^4.0"
-    },
+        "tomatophp/filament-developer-gate": "^4.0"},
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.5",
         "fakerphp/faker": "^1.9.1",

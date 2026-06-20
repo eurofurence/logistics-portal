@@ -109,6 +109,7 @@ return [
     'informations' => 'Infos',
     'order_added' => 'Bestellung hinzugefügt',
     'go_to_orders_for_overview' => 'Gehe zu "Bestellungen" um deine aktuellen Bestellungen zu sehen',
+    'download_zip' => 'Als ZIP herunterladen',
     'added_to_existing_order' => 'Bestellung wurde zu einer existierenden Bestellung hinzugefügt',
     'make_order' => 'Bestellen',
     'error' => 'Fehler',

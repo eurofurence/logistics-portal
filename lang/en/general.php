@@ -103,6 +103,7 @@ return [
     'informations' => 'Info',
     'order_added' => 'Order added',
     'go_to_orders_for_overview' => 'Go to "Orders" to see your current orders',
+    'download_zip' => 'Download as ZIP',
     'added_to_existing_order' => 'Order has been added to an existing order',
     'make_order' => 'Order',
     'error' => 'Error',
