@@ -20,4 +20,18 @@ class EditOrder extends EditRecord
                 }),
         ];
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('edit', ['record' => $this->record]);
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if ($data['status'] === 'ordered') {
+            $data['ordered_at'] = now();
+        }
+
+        return $data;
+    }
 }
