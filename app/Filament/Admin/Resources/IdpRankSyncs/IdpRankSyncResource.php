@@ -97,18 +97,6 @@ class IdpRankSyncResource extends Resource
                     ->label(__('general.local_role')),
                 TextColumn::make('idp_group')
                     ->label(__('general.idp_group')),
-                // TODO
-                /*
-                IconColumn::make('active')
-                    ->label(__('general.is_active'))
-                    ->sortable()
-                    ->boolean()
-    ->icon(fn (string $state): Heroicon => match ($state) {
-        'draft' => Heroicon::OutlinedPencil,
-        'reviewing' => Heroicon::OutlinedClock,
-        'published' => Heroicon::OutlinedCheckCircle,
-    })
-        */
             ])
             ->filters([
                 TrashedFilter::make(),

@@ -188,17 +188,6 @@ class UserResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->label(__('general.email')),
-                // TODO
-                /*
-                IconColumn::make('locked')
-                    ->label(__('general.locked'))
-                    ->sortable()
-    ->icon(fn (string $state): Heroicon => match ($state) {
-        'draft' => Heroicon::OutlinedPencil,
-        'reviewing' => Heroicon::OutlinedClock,
-        'published' => Heroicon::OutlinedCheckCircle,
-    })
-        */
                 TextColumn::make('email_verified_at')
                     ->dateTime(timezone: 'Europe/Berlin')
                     ->sortable()

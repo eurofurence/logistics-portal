@@ -22,7 +22,6 @@ class ViewOrderRequest extends ViewRecord
 
     protected function getHeaderActions(): array
     {
-        // TODO: Add the option to select/link more then just one order per request
         $this->existing_order = Order::where('order_request_id', $this->record->id)->withoutTrashed()->first();
 
         return [
