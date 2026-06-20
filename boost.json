@@ -10,7 +10,7 @@
         "filament/filament",
         "filament/blueprint"
     ],
-    "sail": true,
+    "sail": false,
     "skills": [
         "laravel-best-practices",
         "configuring-horizon",

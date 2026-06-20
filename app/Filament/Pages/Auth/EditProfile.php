@@ -22,8 +22,6 @@ class EditProfile extends \Filament\Auth\Pages\EditProfile implements HasTable
 {
     use InteractsWithTable;
 
-    protected string $view = 'filament.pages.auth.edit-profile';
-
     public ?string $newToken = null;
 
     public function form(Schema $schema): Schema
@@ -87,7 +85,8 @@ class EditProfile extends \Filament\Auth\Pages\EditProfile implements HasTable
                                     }),
                             ])
                             ->label(__('general.api'))
-                            ->icon('heroicon-o-key'),
+                            ->icon('heroicon-o-key')
+                            ->visible(false)
                     ])
             ]);
     }
