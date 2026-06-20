@@ -45,6 +45,8 @@ return [
     'search' => 'Suche',
     'quantity' => 'Anzahl',
     'entry_added' => 'Eintrag hinzugefügt',
+    'ikea' => 'IKEA',
+    'bauhaus' => 'Bauhaus',
     'qr_code' => 'QR-Code',
     'country' => 'Land',
     'city' => 'Stadt',

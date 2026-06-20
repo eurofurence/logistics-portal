@@ -1092,6 +1092,8 @@ class OrderResource extends Resource
                                 'metro' => __('general.metro'),
                                 'amazon' => __('general.amazon'),
                                 'hornbach' => __('general.hornbach'),
+                                'ikea' => __('general.ikea'),
+                                'bauhaus' => __('general.bauhaus'),
                             ]),
                         Toggle::make('invert')
                             ->label(__('general.invert')),
@@ -1128,6 +1130,14 @@ class OrderResource extends Resource
                                 if ($value === 'hornbach') {
                                     $invert ? $query->where('url', 'not like', '%hornbach.%') : $query->orWhere('url', 'like', '%hornbach.%');
                                 }
+
+                                if ($value === 'ikea') {
+                                    $invert ? $query->where('url', 'not like', '%ikea.%') : $query->orWhere('url', 'like', '%ikea.%');
+                                }
+
+                                if ($value === 'bauhaus') {
+                                    $invert ? $query->where('url', 'not like', '%bauhaus.%') : $query->orWhere('url', 'like', '%bauhaus.%');
+                                }
                             }
                         });
                     })
@@ -1141,6 +1151,8 @@ class OrderResource extends Resource
                             'metro' => __('general.metro'),
                             'amazon' => __('general.amazon'),
                             'hornbach' => __('general.hornbach'),
+                            'ikea' => __('general.ikea'),
+                            'bauhaus' => __('general.bauhaus'),
                         ];
 
                         $names = collect($data['values'])->map(fn ($value) => $options[$value] ?? $value)->implode(', ');
@@ -1291,6 +1303,8 @@ class OrderResource extends Resource
                                 if ($record->status == 'locked') {
                                     return false;
                                 }
+
+                                return true;
                             }),
                         ForceDeleteAction::make(),
                         ViewAction::make()

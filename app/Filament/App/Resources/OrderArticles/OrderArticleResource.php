@@ -470,6 +470,8 @@ class OrderArticleResource extends Resource
                         'metro' => __('general.metro'),
                         'amazon' => __('general.amazon'),
                         'hornbach' => __('general.hornbach'),
+                        'ikea' => __('general.ikea'),
+                        'bauhaus' => __('general.bauhaus'),
                     ])
                     ->multiple()
                     ->query(function (Builder $query, $data): Builder {
@@ -492,6 +494,14 @@ class OrderArticleResource extends Resource
 
                                     if ($value === 'hornbach') {
                                         $query->orWhere('url', 'like', '%hornbach.%');
+                                    }
+
+                                    if ($value === 'ikea') {
+                                        $query->orWhere('url', 'like', '%ikea.%');
+                                    }
+
+                                    if ($value === 'bauhaus') {
+                                        $query->orWhere('url', 'like', '%bauhaus.%');
                                     }
                                 }
                             });
