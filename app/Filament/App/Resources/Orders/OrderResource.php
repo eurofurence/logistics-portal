@@ -327,7 +327,8 @@ class OrderResource extends Resource
                                                             ->hiddenLabel(true),
                                                         Toggle::make('auto_calculate')
                                                             ->label(__('general.auto_calculate'))
-                                                            ->default(true),
+                                                            ->default(true)
+                                                            ->formatStateUsing(fn ($state) => $state === null || ! $state ? true : $state),
                                                     ])
                                                     ->collapsed()
                                                     ->columnSpanFull(),
@@ -1714,6 +1715,7 @@ class OrderResource extends Resource
                             Checkbox::make('auto_calculate')
                                 ->label(__('general.auto_calculate'))
                                 ->default(true)
+                                ->formatStateUsing(fn ($state) => $state === null || ! $state ? true : $state)
                                 ->live(),
                             TextInput::make('tax_rate')
                                 ->label(__('general.tax_rate'))
