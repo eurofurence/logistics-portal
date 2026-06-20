@@ -976,7 +976,8 @@ class OrderResource extends Resource
                             return [];
                         }
 
-                        $indicator = __('general.department').': '.count($data['values']);
+                        $names = Department::whereIn('id', $data['values'])->pluck('name')->implode(', ');
+                        $indicator = __('general.department').': '.$names;
 
                         if ($data['invert'] ?? false) {
                             $indicator .= ' ('.__('general.invert').')';
@@ -1022,7 +1023,24 @@ class OrderResource extends Resource
                             return [];
                         }
 
-                        $indicator = __('general.status').': '.count($data['values']);
+                        $options = [
+                            'on_hold' => __('general.on_hold'),
+                            'checking' => __('general.checking'),
+                            'processing' => __('general.processing'),
+                            'open' => __('general.open'),
+                            'ordered' => __('general.ordered'),
+                            'delivered' => __('general.delivered'),
+                            'partially_received' => __('general.partially_received'),
+                            'received' => __('general.received'),
+                            'rejected' => __('general.rejected'),
+                            'locked' => __('general.locked'),
+                            'refunded' => __('general.refunded'),
+                            'awaiting_approval' => __('general.awaiting_approval'),
+                        ];
+
+                        $names = collect($data['values'])->map(fn ($value) => $options[$value] ?? $value)->implode(', ');
+
+                        $indicator = __('general.status').': '.$names;
 
                         if ($data['invert'] ?? false) {
                             $indicator .= ' ('.__('general.invert').')';
@@ -1117,7 +1135,17 @@ class OrderResource extends Resource
                         if (empty($data['values'])) {
                             return [];
                         }
-                        $indicator = __('general.marketplace').': '.count($data['values']);
+
+                        $options = [
+                            'frog_store' => __('general.frog_store'),
+                            'metro' => __('general.metro'),
+                            'amazon' => __('general.amazon'),
+                            'hornbach' => __('general.hornbach'),
+                        ];
+
+                        $names = collect($data['values'])->map(fn ($value) => $options[$value] ?? $value)->implode(', ');
+                        $indicator = __('general.marketplace').': '.$names;
+
                         if ($data['invert'] ?? false) {
                             $indicator .= ' ('.__('general.invert').')';
                         }

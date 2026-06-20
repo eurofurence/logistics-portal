@@ -480,6 +480,27 @@ class OrderRequestResource extends Resource
                         }),
                     RestoreAction::make(),
                     ViewAction::make(),
+                    Action::make('set_status_single')
+                        ->label(__('general.set_status'))
+                        ->icon('heroicon-o-ellipsis-horizontal-circle')
+                        ->action(function (Model $record, array $data): void {
+                            $record->update(['status' => $data['status']]);
+                        })
+                        ->schema([
+                            Select::make('status')
+                                ->label(__('general.status'))
+                                ->options([
+                                    0 => __('general.open'),
+                                    1 => __('general.finished'),
+                                    2 => __('general.processing'),
+                                    3 => __('general.note'),
+                                    4 => __('general.checking'),
+                                    5 => __('general.rejected'),
+                                ])
+                                ->prefixIcon('heroicon-o-ellipsis-horizontal-circle')
+                                ->required(),
+                        ])
+                        ->visible(fn () => Auth::user()->can('can-moderate-order-request')),
                     Action::make('open_linked_order_single')
                         ->label(__('general.open_linked_order'))
                         ->icon('heroicon-o-arrow-top-right-on-square')
