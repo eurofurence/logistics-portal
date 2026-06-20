@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d2590aaa6e040d12f61c20178e5e9229",
+    "content-hash": "7b7f8df88cd38d06d598720d75187455",
     "packages": [
         {
             "name": "althinect/filament-spatie-roles-permissions",
@@ -14898,6 +14898,28 @@
                 }
             ],
             "time": "2025-08-14T07:29:31+00:00"
+        },
+        {
+            "name": "filament/blueprint",
+            "version": "v1.2.0",
+            "dist": {
+                "type": "zip",
+                "url": "https://packages.filamentphp.com/composer/10/868/download"
+            },
+            "require": {
+                "filament/support": "^4.0",
+                "laravel/boost": "^1.8|^2.0"
+            },
+            "type": "library",
+            "license": [
+                "proprietary"
+            ],
+            "description": "Guidelines for AI agents to produce detailed Filament implementation plans.",
+            "homepage": "https://github.com/filamentphp/filament",
+            "support": {
+                "issues": "https://github.com/filamentphp/filament/issues",
+                "source": "https://github.com/filamentphp/filament"
+            }
         },
         {
             "name": "filament/upgrade",
