@@ -157,11 +157,18 @@ class Bill extends Model implements HasMedia
         return $this->hasOne(User::class, 'id', 'edited_by');
     }
 
+    public function statusHistories()
+    {
+        return $this->morphMany(StatusHistory::class, 'model');
+    }
+
     public function statusHistory()
     {
-        return StatusHistory::query()
-            ->where('model_type', Bill::class)
-            ->where('model_id', $this->id)
+        if ($this->relationLoaded('statusHistories')) {
+            return $this->statusHistories->sortByDesc('created_at');
+        }
+
+        return $this->statusHistories()
             ->with('user')
             ->latest()
             ->get();

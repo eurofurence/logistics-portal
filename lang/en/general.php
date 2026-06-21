@@ -508,8 +508,9 @@ return [
     'zip_process_started' => 'ZIP creation started',
     'zip_process_started_message' => 'The ZIP file is being created in the background. You will receive a notification as soon as it is ready.',
     'zip_download_ready' => 'ZIP download ready',
-    'zip_download_ready_message' => 'Your ZIP file with the selected bills is ready for download.',
-    'link_valid_24h' => 'The link is valid for 24 hours.',
+    'zip_download_ready_message' => 'Your ZIP file with the selected bills is ready for download. The link is valid for 12 hours, has also been sent to you via email, and can only be accessed once.',
+    'link_valid_12h' => 'The link is valid for 12 hours.',
+    'link_already_used' => 'The link has already been used.',
     'async_processing_disabled' => 'Asynchronous processing disabled',
     'async_processing_disabled_message' => 'Background processing is disabled. Please contact the administrator to process more than 25 files.',
 ];

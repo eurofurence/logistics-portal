@@ -505,8 +505,9 @@ return [
     'zip_process_started' => 'ZIP-Erstellung gestartet',
     'zip_process_started_message' => 'Die ZIP-Datei wird im Hintergrund erstellt. Du erhältst eine Benachrichtigung, sobald sie fertig ist.',
     'zip_download_ready' => 'ZIP-Download bereit',
-    'zip_download_ready_message' => 'Deine ZIP-Datei mit den ausgewählten Rechnungen ist fertig zum Herunterladen.',
-    'link_valid_24h' => 'Der Link ist für 24 Stunden gültig.',
+    'zip_download_ready_message' => 'Deine ZIP-Datei mit den ausgewählten Rechnungen ist fertig zum Herunterladen. Der Link ist 12 Stunden gültig, wurde dir auch per E-Mail zugeschickt und kann nur einmal aufgerufen werden.',
+    'link_valid_12h' => 'Der Link ist für 12 Stunden gültig.',
+    'link_already_used' => 'Der Link wurde bereits verwendet.',
     'async_processing_disabled' => 'Asynchrone Verarbeitung deaktiviert',
     'async_processing_disabled_message' => 'Die Hintergrundverarbeitung ist deaktiviert. Bitte kontaktieren Sie den Administrator, um mehr als 25 Dateien zu verarbeiten.',
 ];
