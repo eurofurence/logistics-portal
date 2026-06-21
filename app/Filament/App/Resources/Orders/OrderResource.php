@@ -80,15 +80,6 @@ class OrderResource extends Resource
 
     protected static $export_column_options = [];
 
-    protected function getTableQuery()
-    {
-        return parent::getTableQuery()
-            ->with([
-                'event',
-                'department',
-            ]);
-    }
-
     public static function getNavigationGroup(): string
     {
         static::$navigationGroup = __('general.orders');
@@ -131,7 +122,16 @@ class OrderResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        $query = parent::getEloquentQuery();
+        $query = parent::getEloquentQuery()
+            ->with([
+                'event',
+                'department',
+                'directoryArticle',
+                'orderRequest',
+                'addedBy',
+                'editedBy',
+                'approvedBy',
+            ]);
         $user = Auth::user();
 
         $query->when(! $user->can('can-see-all-orders'), function ($query) use ($user) {
@@ -917,6 +917,8 @@ class OrderResource extends Resource
                         Select::make('value')
                             ->label(__('general.order_event'))
                             ->options(OrderEvent::all(['id', 'name'])->pluck('name', 'id'))
+                            ->searchable()
+                            ->preload()
                             ->default(function () {
                                 $activeOrderEvent = OrderEvent::where('is_active', true)->first();
 
@@ -954,6 +956,8 @@ class OrderResource extends Resource
                         Select::make('values')
                             ->multiple()
                             ->label(__('general.department'))
+                            ->searchable()
+                            ->preload()
                             ->options(function (): array {
                                 if (Auth::user()->can('can-see-all-orders')) {
                                     return Department::all()->pluck('name', 'id')->toArray();
@@ -1192,9 +1196,9 @@ class OrderResource extends Resource
                         Select::make('values')
                             ->multiple()
                             ->label(__('general.added_by'))
-                            ->options(function (): array {
-                                return User::all()->pluck('name', 'id')->toArray();
-                            }),
+                            ->searchable()
+                            ->getSearchResultsUsing(fn (string $search): array => User::where('name', 'like', "%{$search}%")->limit(50)->pluck('name', 'id')->toArray())
+                            ->getOptionLabelsUsing(fn (array $values): array => User::whereIn('id', $values)->pluck('name', 'id')->toArray()),
                         Toggle::make('invert')
                             ->label(__('general.invert')),
                     ])
@@ -1374,14 +1378,14 @@ class OrderResource extends Resource
                             ->url(function (Model $record) {
                                 return route('filament.app.resources.order-articles.view', $record->order_article_id);
                             }, true)
-                            ->visible(fn (Model $record) => (! empty($record->order_article_id) && Gate::allows('view-OrderArticle', $record->order_article_id) && OrderArticle::where('id', $record->order_article_id)->exists()))
+                            ->visible(fn (Model $record) => (! empty($record->order_article_id) && Gate::allows('view-OrderArticle', $record->order_article_id) && $record->directoryArticle !== null))
                             ->icon('heroicon-o-arrow-top-right-on-square')
                             ->label(__('general.article_directory')),
                         Action::make('order_request_link')
                             ->url(function (Model $record) {
                                 return route('filament.app.resources.order-requests.view', $record->order_request_id);
                             }, true)
-                            ->visible(fn (Model $record) => (! empty($record->order_request_id) && Gate::allows('view-OrderRequest', $record->order_request_id) && OrderRequest::where('id', $record->order_request_id)->exists()))
+                            ->visible(fn (Model $record) => (! empty($record->order_request_id) && Gate::allows('view-OrderRequest', $record->order_request_id) && $record->orderRequest !== null))
                             ->icon('heroicon-o-arrow-top-right-on-square')
                             ->label(__('general.order_request')),
                     ])->dropdown(false),
