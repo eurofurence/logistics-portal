@@ -52,6 +52,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use App\Jobs\CreateZipJob;
+use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -595,7 +597,29 @@ class BillResource extends Resource
                     BulkAction::make('download_zip')
                         ->label(__('general.download_zip'))
                         ->icon('heroicon-o-archive-box-arrow-down')
-                        ->action(function (Collection $records): StreamedResponse {
+                        ->requiresConfirmation()
+                        ->modalHeading(__('general.download_zip_confirmation'))
+                        ->modalDescription(__('general.download_zip_explanation'))
+                        ->action(function (Collection $records) {
+                            if ($records->count() > 25) {
+                                if (config('queue.default') === 'sync') {
+                                    Notification::make()
+                                        ->title(__('general.async_processing_disabled'))
+                                        ->body(__('general.async_processing_disabled_message'))
+                                        ->danger()
+                                        ->send();
+                                    return;
+                                }
+
+                                CreateZipJob::dispatch($records->pluck('id')->toArray(), auth()->user());
+                                Notification::make()
+                                    ->title(__('general.zip_process_started'))
+                                    ->body(__('general.zip_process_started_message'))
+                                    ->success()
+                                    ->send();
+                                return;
+                            }
+
                             set_time_limit(0);
                             $zipFile = tempnam(sys_get_temp_dir(), 'bills_zip');
                             $zip = new ZipArchive;

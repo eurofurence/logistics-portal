@@ -500,4 +500,13 @@ return [
     'your_new_token' => 'Dein neuer API-Token lautet',
     'token_name' => 'Token Name',
     'token' => 'Token',
+    'download_zip_confirmation' => 'Bist du sicher, dass du die ausgewählten Dateien als ZIP herunterladen möchtest?',
+    'download_zip_explanation' => 'Dies kann je nach Anzahl der Dateien einige Zeit in Anspruch nehmen. Bei mehr als 25 Dateien wird der Prozess im Hintergrund ausgeführt und du erhältst eine Benachrichtigung.',
+    'zip_process_started' => 'ZIP-Erstellung gestartet',
+    'zip_process_started_message' => 'Die ZIP-Datei wird im Hintergrund erstellt. Du erhältst eine Benachrichtigung, sobald sie fertig ist.',
+    'zip_download_ready' => 'ZIP-Download bereit',
+    'zip_download_ready_message' => 'Deine ZIP-Datei mit den ausgewählten Rechnungen ist fertig zum Herunterladen.',
+    'link_valid_24h' => 'Der Link ist für 24 Stunden gültig.',
+    'async_processing_disabled' => 'Asynchrone Verarbeitung deaktiviert',
+    'async_processing_disabled_message' => 'Die Hintergrundverarbeitung ist deaktiviert. Bitte kontaktieren Sie den Administrator, um mehr als 25 Dateien zu verarbeiten.',
 ];

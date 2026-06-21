@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 
 /*
 |--------------------------------------------------------------------------
@@ -78,3 +79,10 @@ Route::get('/theme', function () {
 
     return redirect(route("filament.{$panelId}.auth.login"));
 })->name('filament.app.pages.manage-theme');
+
+Route::get('/bills/download-zip/{path}', function (string $path) {
+    if (!Storage::disk('local')->exists($path)) {
+        abort(404);
+    }
+    return Storage::disk('local')->download($path);
+})->name('bills.download-zip')->middleware('signed');

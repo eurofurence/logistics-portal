@@ -503,4 +503,13 @@ return [
     'your_new_token' => 'Your new API token is',
     'token_name' => 'Token name',
     'token' => 'Token',
+    'download_zip_confirmation' => 'Are you sure you want to download the selected files as a ZIP?',
+    'download_zip_explanation' => 'Depending on the number of files, this may take some time. If there are more than 25 files, the process will run in the background and you will receive a notification.',
+    'zip_process_started' => 'ZIP creation started',
+    'zip_process_started_message' => 'The ZIP file is being created in the background. You will receive a notification as soon as it is ready.',
+    'zip_download_ready' => 'ZIP download ready',
+    'zip_download_ready_message' => 'Your ZIP file with the selected bills is ready for download.',
+    'link_valid_24h' => 'The link is valid for 24 hours.',
+    'async_processing_disabled' => 'Asynchronous processing disabled',
+    'async_processing_disabled_message' => 'Background processing is disabled. Please contact the administrator to process more than 25 files.',
 ];
