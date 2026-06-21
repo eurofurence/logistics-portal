@@ -1,4 +1,5 @@
 <?php
+
 return [
     'status_changed' => 'Status changed',
     'from_to' => 'From :old to :new',

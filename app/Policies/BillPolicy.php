@@ -3,8 +3,8 @@
 namespace App\Policies;
 
 use App\Models\Bill;
-use App\Models\User;
 use App\Models\OrderEvent;
+use App\Models\User;
 
 class BillPolicy
 {
@@ -157,5 +157,10 @@ class BillPolicy
     public function bulkRestore(User $user): bool
     {
         return $user->isSuperAdmin();
+    }
+
+    public function downloadZip(User $user): bool
+    {
+        return $user->isSuperAdmin() || $user->hasAnyDepartmentRoleWithPermissionTo('download-Bill-zip') || $user->checkPermissionTo('download-all-bills-zip');
     }
 }

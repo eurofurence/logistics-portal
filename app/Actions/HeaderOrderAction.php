@@ -2,18 +2,18 @@
 
 namespace App\Actions;
 
-use App\Models\Order;
 use App\Models\Department;
+use App\Models\Order;
 use App\Models\OrderEvent;
-use Illuminate\Support\Str;
 use Filament\Actions\Action;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 
 class HeaderOrderAction
 {
@@ -21,7 +21,7 @@ class HeaderOrderAction
     {
         return Action::make('Order')
             ->label(function (Model $record): string {
-                return __('general.make_order') . ': ' . Str::limit($record->name, 25, '...');
+                return __('general.make_order').': '.Str::limit($record->name, 25, '...');
             })
             ->icon('heroicon-o-shopping-bag')
             ->schema([
@@ -40,13 +40,13 @@ class HeaderOrderAction
                         $options = Auth::user()->can('can-always-order')
                             ? OrderEvent::withoutTrashed()->pluck('name', 'id')->toArray()
                             : OrderEvent::where('locked', false)
-                            ->where(function ($query) {
-                                $query->whereNull('order_deadline')
-                                    ->orWhere('order_deadline', '>', now());
-                            })
-                            ->withoutTrashed()
-                            ->pluck('name', 'id')
-                            ->toArray();
+                                ->where(function ($query) {
+                                    $query->whereNull('order_deadline')
+                                        ->orWhere('order_deadline', '>', now());
+                                })
+                                ->withoutTrashed()
+                                ->pluck('name', 'id')
+                                ->toArray();
 
                         return $options;
                     })
@@ -54,12 +54,12 @@ class HeaderOrderAction
                         $options = Auth::user()->can('can-always-order')
                             ? OrderEvent::withoutTrashed()->pluck('id')->toArray()
                             : OrderEvent::where('locked', false)
-                            ->where(function ($query) {
-                                $query->whereNull('order_deadline')
-                                    ->orWhere('order_deadline', '>', now());
-                            })
-                            ->withoutTrashed()
-                            ->pluck('id')->toArray();
+                                ->where(function ($query) {
+                                    $query->whereNull('order_deadline')
+                                        ->orWhere('order_deadline', '>', now());
+                                })
+                                ->withoutTrashed()
+                                ->pluck('id')->toArray();
 
                         return count($options) === 1 ? $options[0] : null;
                     }),
@@ -78,11 +78,11 @@ class HeaderOrderAction
                     ->label(__('general.comment'))
                     ->maxLength(1000)
                     ->nullable()
-                    ->rows(5)
+                    ->rows(5),
             ])
             ->action(function (Model $record, array $data): void {
                 if (Gate::allows('order', $record)) {
-                    $order = new Order();
+                    $order = new Order;
 
                     $order->name = $record->name;
                     $order->order_event_id = $data['order_event'];
@@ -118,7 +118,7 @@ class HeaderOrderAction
                                     ->button()
                                     ->label(__('general.overview'))
                                     ->url(route('filament.app.resources.orders.index'), true)
-                                    ->visible(fn(): bool => Gate::allows('viewAny', Order::class))
+                                    ->visible(fn (): bool => Gate::allows('viewAny', Order::class)),
                             ])
                             ->send();
                     } else {
@@ -134,7 +134,7 @@ class HeaderOrderAction
                                         ->button()
                                         ->label(__('general.overview'))
                                         ->url(route('filament.app.resources.orders.index'), true)
-                                        ->visible(fn(): bool => Gate::allows('viewAny', Order::class))
+                                        ->visible(fn (): bool => Gate::allows('viewAny', Order::class)),
                                 ])
                                 ->send();
                         } else {
@@ -155,7 +155,7 @@ class HeaderOrderAction
                         ->body(__('general.unauthorized_department_access'))
                         ->danger()
                         ->send();
-                };
+                }
             })
             ->visible(function (Model $record) {
                 return Gate::allows('order', $record);

@@ -2,11 +2,10 @@
 
 namespace App\Filament\App\Resources\OrderArticles\Pages;
 
+use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
-use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
-use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
 
 class EditOrderArticle extends EditRecord
 {
@@ -18,7 +17,7 @@ class EditOrderArticle extends EditRecord
             DeleteAction::make()
                 ->icon('heroicon-o-trash')
                 ->modalHeading(function ($record): string {
-                    return __('general.delete') . ': ' . $record->name;
+                    return __('general.delete').': '.$record->name;
                 }),
             ViewAction::make(),
         ];

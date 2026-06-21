@@ -2,27 +2,27 @@
 
 namespace App\Filament\Admin\Resources\TestModels;
 
-use Filament\Schemas\Schema;
-use Filament\Actions\EditAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use App\Filament\Admin\Resources\TestModels\Pages\ListTestModels;
 use App\Filament\Admin\Resources\TestModels\Pages\CreateTestModel;
 use App\Filament\Admin\Resources\TestModels\Pages\EditTestModel;
+use App\Filament\Admin\Resources\TestModels\Pages\ListTestModels;
 use App\Models\TestModel;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
 use App\View\Components\BarcodeInput;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\TextInput;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
 class TestModelResource extends Resource
 {
     protected static ?string $model = TestModel::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     public static function getNavigationGroup(): string
     {
@@ -31,18 +31,17 @@ class TestModelResource extends Resource
         return static::$navigationGroup;
     }
 
-
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 FileUpload::make('data1')
-                ->disk('s3')
-                ->visibility('public'),
-            BarcodeInput::make('data2')
-            ->title('abc')
-            ->icon('heroicon-m-qr-code'),
-            TextInput::make('data3'),
+                    ->disk('s3')
+                    ->visibility('public'),
+                BarcodeInput::make('data2')
+                    ->title('abc')
+                    ->icon('heroicon-m-qr-code'),
+                TextInput::make('data3'),
             ]);
     }
 

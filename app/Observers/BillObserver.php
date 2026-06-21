@@ -14,15 +14,15 @@ class BillObserver
     public function created(Bill $bill): void
     {
         StatusHistory::create([
-                'model_type' => Bill::class,
-                'model_id' => $bill->id,
-                'icon' => 'heroicon-o-plus',
-                'title' => 'timeline.created', // Key instead of text
-                'description' => [
-                    'key' => 'timeline.bill_was_created',
-                ],
-                'user_id' => Auth::id(),
-            ]);
+            'model_type' => Bill::class,
+            'model_id' => $bill->id,
+            'icon' => 'heroicon-o-plus',
+            'title' => 'timeline.created', // Key instead of text
+            'description' => [
+                'key' => 'timeline.bill_was_created',
+            ],
+            'user_id' => Auth::id(),
+        ]);
     }
 
     /**

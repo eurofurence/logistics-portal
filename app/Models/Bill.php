@@ -2,25 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
-use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
-use Illuminate\Database\Eloquent\Builder;
-use App\Models\User;
-use App\Models\Department;
-use App\Models\OrderEvent;
 use App\Events\BillCreated;
 use App\Events\BillStatusChanged;
-use Spatie\MediaLibrary\HasMedia;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use App\Notifications\GeneralNotification;
-use Filament\Notifications\Actions\Action;
-use Spatie\MediaLibrary\InteractsWithMedia;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Filament\Notifications\Notification as FilamentNotification;
 
 /**
  * @property int $id
@@ -45,6 +38,7 @@ use Filament\Notifications\Notification as FilamentNotification;
  * @property-read OrderEvent|null $event
  * @property-read MediaCollection<int, Media> $media
  * @property-read int|null $media_count
+ *
  * @method static Builder<static>|Bill newModelQuery()
  * @method static Builder<static>|Bill newQuery()
  * @method static Builder<static>|Bill onlyTrashed()
@@ -67,15 +61,19 @@ use Filament\Notifications\Notification as FilamentNotification;
  * @method static Builder<static>|Bill whereValue($value)
  * @method static Builder<static>|Bill withTrashed()
  * @method static Builder<static>|Bill withoutTrashed()
+ *
  * @property string|null $repayment_method
+ *
  * @method static Builder<static>|Bill whereRepaymentMethod($value)
+ *
  * @property-read Department|null $connected_department
  * @property-read OrderEvent|null $connected_event
+ *
  * @mixin \Eloquent
  */
 class Bill extends Model implements HasMedia
 {
-    use SoftDeletes, InteractsWithMedia;
+    use InteractsWithMedia, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -128,7 +126,7 @@ class Bill extends Model implements HasMedia
             $model->edited_by = $user->id;
 
             if ($model->isDirty('status')) {
-                if (!$user->can('can-change-bill-status')) {
+                if (! $user->can('can-change-bill-status')) {
                     abort(403);
                 }
 
@@ -159,11 +157,18 @@ class Bill extends Model implements HasMedia
         return $this->hasOne(User::class, 'id', 'edited_by');
     }
 
+    public function statusHistories()
+    {
+        return $this->morphMany(StatusHistory::class, 'model');
+    }
+
     public function statusHistory()
     {
-        return StatusHistory::query()
-            ->where('model_type', Bill::class)
-            ->where('model_id', $this->id)
+        if ($this->relationLoaded('statusHistories')) {
+            return $this->statusHistories->sortByDesc('created_at');
+        }
+
+        return $this->statusHistories()
             ->with('user')
             ->latest()
             ->get();

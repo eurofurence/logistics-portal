@@ -2,76 +2,75 @@
 
 namespace App\Filament\App\Resources\OrderArticles;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Fieldset;
-use Filament\Schemas\Components\Utilities\Set;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Section;
-use Filament\Actions\Action;
-use Filament\Tables\Filters\TrashedFilter;
-use Filament\Support\Enums\Size;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Support\Enums\Width;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\BulkAction;
-use Filament\Schemas\Components\Group;
-use Filament\Schemas\Components\Flex;
-use App\Filament\App\Resources\OrderArticles\Pages\ListOrderArticles;
+use App\Actions\TableOrderAction;
 use App\Filament\App\Resources\OrderArticles\Pages\CreateOrderArticle;
 use App\Filament\App\Resources\OrderArticles\Pages\EditOrderArticle;
+use App\Filament\App\Resources\OrderArticles\Pages\ListOrderArticles;
 use App\Filament\App\Resources\OrderArticles\Pages\ViewOrderArticle;
-use DateTime;
-use DateTimeZone;
-use Filament\Tables\Table;
+use App\Jobs\SyncDataToOrderArticleJob;
 use App\Models\OrderArticle;
 use App\Models\OrderCategory;
-use Filament\Resources\Resource;
-use App\Actions\TableOrderAction;
 use App\Services\AsinDataService;
-use Filament\Support\Colors\Color;
-use Illuminate\Support\HtmlString;
-use Illuminate\Support\Facades\Bus;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
+use DateTime;
+use DateTimeZone;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Toggle;
-use Illuminate\Support\Facades\Cache;
-use Filament\Support\Enums\FontWeight;
-use App\Jobs\SyncDataToOrderArticleJob;
 use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ViewField;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Fieldset;
+use Filament\Schemas\Components\Flex;
+use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+use Filament\Schemas\Schema;
+use Filament\Support\Colors\Color;
+use Filament\Support\Enums\FontWeight;
+use Filament\Support\Enums\Size;
+use Filament\Support\Enums\Width;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
-use Filament\Infolists\Components\TextEntry;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Support\Icons\Heroicon;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\HtmlString;
 use Njxqlus\Filament\Components\Infolists\LightboxImageEntry;
 
 class OrderArticleResource extends Resource
 {
-
     protected static ?string $model = OrderArticle::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedListBullet;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedListBullet;
 
     public static function getNavigationGroup(): string
     {
@@ -108,7 +107,7 @@ class OrderArticleResource extends Resource
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
-            __('general.price') => $record->price_gross . '€',
+            __('general.price') => $record->price_gross.'€',
         ];
     }
 
@@ -208,7 +207,7 @@ class OrderArticleResource extends Resource
                                                     ->label(__('general.auto_calculate'))
                                                     ->default(1),
                                             ])
-                                            ->collapsed()
+                                            ->collapsed(),
                                     ]),
                                 TextInput::make('picture')
                                     ->placeholder('http://example.com/picture.png')
@@ -228,14 +227,14 @@ class OrderArticleResource extends Resource
                                             ->requiresConfirmation()
                                             ->schema([
                                                 TextEntry::make(__('general.hint'))
-                                                    ->state(new HtmlString('<b><label style="color: orange">' . __('general.selected_fields_will_be_overwritten') . '</label></b>'))
+                                                    ->state(new HtmlString('<b><label style="color: orange">'.__('general.selected_fields_will_be_overwritten').'</label></b>'))
                                                     ->extraAttributes(['class' => 'text-red-500'])
                                                     ->columnSpanFull(),
                                                 Select::make('fields')
                                                     ->label(__('general.select_fields'))
                                                     ->options([
                                                         'name' => __('general.name'),
-                                                        //'description' => __('general.description'),
+                                                        // 'description' => __('general.description'),
                                                         'price_gross' => __('general.price_gross'),
                                                         'picture' => __('general.picture'),
                                                         'url' => __('general.url'),
@@ -245,7 +244,7 @@ class OrderArticleResource extends Resource
                                                         'price_gross',
                                                         'picture',
                                                         'url',
-                                                        'article_number'
+                                                        'article_number',
                                                     ])
                                                     ->multiple()
                                                     ->reactive()
@@ -257,11 +256,11 @@ class OrderArticleResource extends Resource
                                                         if ($state) {
                                                             $set('fields', [
                                                                 'name',
-                                                                //'description',
+                                                                // 'description',
                                                                 'price_gross',
                                                                 'picture',
                                                                 'url',
-                                                                'article_number'
+                                                                'article_number',
                                                             ]);
                                                         } else {
                                                             $set('fields', []);
@@ -276,7 +275,7 @@ class OrderArticleResource extends Resource
                                                 }
 
                                                 if (preg_match('/https?:\/\/(www\.)?amazon\.[a-z]{2,3}(\/.*)?$/', $url)) {
-                                                    $asin_data_service = new AsinDataService();
+                                                    $asin_data_service = new AsinDataService;
 
                                                     // Checking if a job is already in progress
                                                     $isJobRunning = Cache::get('SyncDataToOrderArticleJob_running', false);
@@ -287,6 +286,7 @@ class OrderArticleResource extends Resource
                                                             ->title(__('general.job_already_running'))
                                                             ->body(__('general.job_is_currently_running'))
                                                             ->send();
+
                                                         return;
                                                     }
 
@@ -296,10 +296,11 @@ class OrderArticleResource extends Resource
                                                             ->title(__('general.not_enough_credits'))
                                                             ->body(__('general.please_inform_an_admin'))
                                                             ->send();
+
                                                         return;
                                                     }
 
-                                                    if (!empty($data['fields'])) {
+                                                    if (! empty($data['fields'])) {
                                                         $asin = $asin_data_service->extractASIN($url);
                                                         $product_data = $asin_data_service->getProductData($asin);
 
@@ -340,6 +341,7 @@ class OrderArticleResource extends Resource
                                                             ->body(__('general.fields_updated_successfully'))
                                                             ->send();
                                                     }
+
                                                     return;
                                                 }
 
@@ -347,7 +349,7 @@ class OrderArticleResource extends Resource
                                                     ->info()
                                                     ->title(__('general.no_valid_link'))
                                                     ->send();
-                                            })
+                                            }),
 
                                     ]),
                                 TextInput::make('article_number')
@@ -355,7 +357,7 @@ class OrderArticleResource extends Resource
                                     ->maxLength(255)
                                     ->label(__('general.article_number'))
                                     ->reactive(),
-                                TextArea::make('comment')
+                                Textarea::make('comment')
                                     ->nullable()
                                     ->maxLength(10000)
                                     ->label(__('general.comment')),
@@ -376,7 +378,7 @@ class OrderArticleResource extends Resource
                                             }),
                                         TextInput::make('locked_reason')
                                             ->label(__('general.reason'))
-                                            ->visible(fn(Get $get) => $get('locked') === true),
+                                            ->visible(fn (Get $get) => $get('locked') === true),
                                     ])
                                     ->label(__('general.lock'))
                                     ->columns(2),
@@ -400,10 +402,10 @@ class OrderArticleResource extends Resource
                                             ->autosize(),
                                     ])
                                     ->label(__('general.important_note'))
-                                    ->columns(2)
+                                    ->columns(2),
                             ])
                             ->label(__('general.options'))
-                            ->icon('heroicon-o-adjustments-horizontal')
+                            ->icon('heroicon-o-adjustments-horizontal'),
                     ])
                     ->columnSpanFull(),
             ]);
@@ -439,7 +441,7 @@ class OrderArticleResource extends Resource
                                 };
 
                                 if ($record->returning_deposit > 0) {
-                                    return "{$priceNet}{$currencySymbol} <span style='color: gray; font-size: 0.9em;'> + (" . __('general.returning_deposit') . ": {$returningDeposit}{$currencySymbol})</span>";
+                                    return "{$priceNet}{$currencySymbol} <span style='color: gray; font-size: 0.9em;'> + (".__('general.returning_deposit').": {$returningDeposit}{$currencySymbol})</span>";
                                 }
 
                                 return "{$priceNet}{$currencySymbol}";
@@ -449,14 +451,14 @@ class OrderArticleResource extends Resource
                             ->searchable()
                             ->html()
                             ->formatStateUsing(function () {
-                                return "";
+                                return '';
                             }),
-                    ])
-                ])
+                    ]),
+                ]),
             ])
             ->filters([
                 TrashedFilter::make()
-                    ->visible(fn(): bool => Gate::allows('restore', OrderArticle::class) || Gate::allows('forceDelete', OrderArticle::class) || Gate::allows('bulkForceDelete', OrderArticle::class) || Gate::allows('bulkRestore', OrderArticle::class)),
+                    ->visible(fn (): bool => Gate::allows('restore', OrderArticle::class) || Gate::allows('forceDelete', OrderArticle::class) || Gate::allows('bulkForceDelete', OrderArticle::class) || Gate::allows('bulkRestore', OrderArticle::class)),
                 SelectFilter::make('category')
                     ->label(__('general.category'))
                     ->options(OrderCategory::all()->pluck('name', 'id'))
@@ -468,10 +470,12 @@ class OrderArticleResource extends Resource
                         'metro' => __('general.metro'),
                         'amazon' => __('general.amazon'),
                         'hornbach' => __('general.hornbach'),
+                        'ikea' => __('general.ikea'),
+                        'bauhaus' => __('general.bauhaus'),
                     ])
                     ->multiple()
                     ->query(function (Builder $query, $data): Builder {
-                        if (!empty($data['values'])) {
+                        if (! empty($data['values'])) {
                             $query->where(function ($query) use ($data) {
                                 foreach ($data['values'] as $value) {
                                     if ($value === 'frog_store') {
@@ -483,11 +487,21 @@ class OrderArticleResource extends Resource
                                     }
 
                                     if ($value === 'amazon') {
-                                        $query->orWhere('url', 'like', '%amazon.%')->orWhere('url', 'like', '%amzn.%');
+                                        $query->orWhere('url', 'like', '%amazon.%')
+                                            ->orWhere('url', 'like', '%amzn.%')
+                                            ->orWhere('url', 'like', '%amzn.eu%');
                                     }
 
                                     if ($value === 'hornbach') {
                                         $query->orWhere('url', 'like', '%hornbach.%');
+                                    }
+
+                                    if ($value === 'ikea') {
+                                        $query->orWhere('url', 'like', '%ikea.%');
+                                    }
+
+                                    if ($value === 'bauhaus') {
+                                        $query->orWhere('url', 'like', '%bauhaus.%');
                                     }
                                 }
                             });
@@ -514,7 +528,7 @@ class OrderArticleResource extends Resource
                     EditAction::make(),
                     DeleteAction::make()
                         ->modalHeading(function ($record): string {
-                            return __('general.delete') . ': ' . $record->name;
+                            return __('general.delete').': '.$record->name;
                         }),
                     RestoreAction::make(),
                     ForceDeleteAction::make(),
@@ -529,21 +543,21 @@ class OrderArticleResource extends Resource
                     ->color(Color::Yellow)
                     ->size(Size::ExtraSmall)
                     ->visible(function (Model $record): bool {
-                        return !empty(static::getOrderArticleNotes($record));
+                        return ! empty(static::getOrderArticleNotes($record));
                     })
                     ->schema(function (Model $record) {
                         return [
                             ViewField::make('note_list')
                                 ->view('components.form-list')
                                 ->viewData([
-                                    'notes' => static::getOrderArticleNotes($record)
-                                ])
+                                    'notes' => static::getOrderArticleNotes($record),
+                                ]),
                         ];
                     })
                     ->modalIcon('heroicon-o-shield-exclamation')
                     ->modalWidth(Width::ExtraLarge)
                     ->modalSubmitAction(false)
-                    ->modalCancelAction(false)
+                    ->modalCancelAction(false),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -566,7 +580,7 @@ class OrderArticleResource extends Resource
                                 $priceGross = $article->price_net * (1 + $article->tax_rate / 100);
 
                                 $article->update([
-                                    'price_gross' => $priceGross
+                                    'price_gross' => $priceGross,
                                 ]);
                             }
 
@@ -586,14 +600,14 @@ class OrderArticleResource extends Resource
                         ->visible(Auth::user()->can('can-use-article-directory-special-functions'))
                         ->schema([
                             TextEntry::make(__('general.hint'))
-                                ->state(new HtmlString('<b><label style="color: orange">' . __('general.selected_fields_will_be_overwritten') . '</label></b>'))
+                                ->state(new HtmlString('<b><label style="color: orange">'.__('general.selected_fields_will_be_overwritten').'</label></b>'))
                                 ->extraAttributes(['class' => 'text-red-500'])
                                 ->columnSpanFull(),
                             Select::make('fields')
                                 ->label(__('general.select_fields'))
                                 ->options([
                                     'name' => __('general.name'),
-                                    //'description' => __('general.description'),
+                                    // 'description' => __('general.description'),
                                     'price_gross' => __('general.price_gross'),
                                     'picture' => __('general.picture'),
                                     'url' => __('general.url'),
@@ -602,7 +616,7 @@ class OrderArticleResource extends Resource
                                 ->default([
                                     'price_gross',
                                     'url',
-                                    'article_number'
+                                    'article_number',
                                 ])
                                 ->multiple()
                                 ->reactive()
@@ -614,11 +628,11 @@ class OrderArticleResource extends Resource
                                     if ($state) {
                                         $set('fields', [
                                             'name',
-                                            //'description',
+                                            // 'description',
                                             'price_gross',
                                             'picture',
                                             'url',
-                                            'article_number'
+                                            'article_number',
                                         ]);
                                     } else {
                                         $set('fields', []);
@@ -669,7 +683,7 @@ class OrderArticleResource extends Resource
                                 }
 
                                 $article->update([
-                                    'deadline' => $data['deadline']
+                                    'deadline' => $data['deadline'],
                                 ]);
                             }
 
@@ -679,7 +693,7 @@ class OrderArticleResource extends Resource
                                 ->icon('heroicon-o-check')
                                 ->iconColor('success')
                                 ->send();
-                        })
+                        }),
                 ]),
             ]);
     }
@@ -705,13 +719,13 @@ class OrderArticleResource extends Resource
                             ->listWithLineBreaks()
                             ->bulleted()
                             ->limitList(3)
-                            ->expandableLimitedList()
+                            ->expandableLimitedList(),
                     ])
                     ->description(__('general.note'))
                     ->icon('heroicon-m-shield-exclamation')
                     ->iconColor('warning')
                     ->visible(function (Model $record) {
-                        return $record->locked || !empty($record->deadline);
+                        return $record->locked || ! empty($record->deadline);
                     }),
                 Section::make(__('general.informations'))
                     ->columns([
@@ -740,14 +754,14 @@ class OrderArticleResource extends Resource
                             TextEntry::make('name')
                                 ->label(__('general.name')),
                             TextEntry::make('price_net')
-                                ->money(fn(Model $record) => match ($record->currency) {
+                                ->money(fn (Model $record) => match ($record->currency) {
                                     'EUR' => 'EUR',
                                     'USD' => 'USD',
                                     default => 'EUR',
                                 })
                                 ->label(__('general.price_net')),
                             TextEntry::make('price_gross')
-                                ->money(fn(Model $record) => match ($record->currency) {
+                                ->money(fn (Model $record) => match ($record->currency) {
                                     'EUR' => 'EUR',
                                     'USD' => 'USD',
                                     default => 'EUR',
@@ -761,18 +775,18 @@ class OrderArticleResource extends Resource
                                 ->default(__('general.not_set'))
                                 ->visible(function (Model $record) {
                                     return $record->article_number;
-                                })
+                                }),
                         ]),
                         Group::make([
                             TextEntry::make('returning_deposit')
-                                ->money(fn(Model $record) => match ($record->returning_deposit) {
+                                ->money(fn (Model $record) => match ($record->returning_deposit) {
                                     'EUR' => 'EUR',
                                     'USD' => 'USD',
                                     default => 'EUR',
                                 })
                                 ->label(__('general.returning_deposit'))
-                                ->hint(__('general.additional') . ', ' . __('general.gross'))
-                                ->visible(fn($record) => $record->returning_deposit > 0),
+                                ->hint(__('general.additional').', '.__('general.gross'))
+                                ->visible(fn ($record) => $record->returning_deposit > 0),
                             TextEntry::make('url')
                                 ->url(function (Model $record) {
                                     return $record->url;
@@ -786,8 +800,8 @@ class OrderArticleResource extends Resource
                                 ->label(__('general.category'))
                                 ->default(__('general.not_set'))
                                 ->url(function (Model $record) {
-                                    if (!empty($record->categorie)) {
-                                        return route('filament.app.resources.order-articles.index') . '?tableFilters[category][value]=' . $record->categorie->id;
+                                    if (! empty($record->categorie)) {
+                                        return route('filament.app.resources.order-articles.index').'?tableFilters[category][value]='.$record->categorie->id;
                                     }
                                 }, true),
                             TextEntry::make('description')
@@ -795,14 +809,14 @@ class OrderArticleResource extends Resource
                                 ->visible(function (Model $record) {
                                     return $record->description;
                                 }),
-                        ])
+                        ]),
                     ])
                     ->columnSpanFull(),
                 Section::make(__('general.comment'))
                     ->schema([
                         TextEntry::make('comment')
                             ->default(__('general.not_set'))
-                            ->label('')
+                            ->label(''),
                     ])
                     ->visible(function (Model $record) {
                         return $record->comment;
@@ -813,10 +827,10 @@ class OrderArticleResource extends Resource
                             Group::make([
                                 TextEntry::make('added_by')
                                     ->label(__('general.added_by'))
-                                    ->state(fn(Model $record) => $record->addedBy->name),
+                                    ->state(fn (Model $record) => $record->addedBy->name),
                                 TextEntry::make('edited_by')
                                     ->label(__('general.edited_by'))
-                                    ->state(fn(Model $record) => $record->editedBy->name),
+                                    ->state(fn (Model $record) => $record->editedBy->name),
                             ]),
                             Group::make([
                                 TextEntry::make('created_at')
@@ -825,8 +839,8 @@ class OrderArticleResource extends Resource
                                 TextEntry::make('updated_at')
                                     ->label(__('general.updated_at'))
                                     ->dateTime(timezone: 'Europe/Berlin'),
-                            ])
-                        ])
+                            ]),
+                        ]),
                     ])
                     ->columnSpanFull(),
             ]);
@@ -838,7 +852,7 @@ class OrderArticleResource extends Resource
             'index' => ListOrderArticles::route('/'),
             'create' => CreateOrderArticle::route('/create'),
             'edit' => EditOrderArticle::route('/{record}/edit'),
-            'view' => ViewOrderArticle::route('{record}')
+            'view' => ViewOrderArticle::route('{record}'),
         ];
     }
 
@@ -849,30 +863,29 @@ class OrderArticleResource extends Resource
      * @param Model record The `getOrderArticleNotes` function takes a `Model` object as a parameter named `record`. It
      * checks if the record is locked and if there is a deadline set for the order article. If the record is locked, it
      * adds a note to the output array mentioning the reason for locking.
-     *
      * @return array An array of notes related to the order article, including information about whether the article is
-     * locked and the reason for it being locked, as well as the order deadline if it is set.
+     *               locked and the reason for it being locked, as well as the order deadline if it is set.
      */
     public static function getOrderArticleNotes(Model $record): array
     {
-        $output = array();
+        $output = [];
 
         if ($record->locked) {
-            $output[] = __('general.this_article_is_locked_because') . ': ' . $record->locked_reason;
+            $output[] = __('general.this_article_is_locked_because').': '.$record->locked_reason;
         }
 
-        if (!empty($record->deadline)) {
+        if (! empty($record->deadline)) {
             $deadline = new DateTime($record->deadline, new DateTimeZone('UTC'));
 
             // Converting to the Berlin time zone
             $deadline->setTimezone(new DateTimeZone('Europe/Berlin'));
             $formattedDeadline = $deadline->format('Y-m-d H:i:s');
 
-            $output[] = __('general.order_deadline') . ': ' . $formattedDeadline;
+            $output[] = __('general.order_deadline').': '.$formattedDeadline;
         }
 
-        if (!empty($record->important_note)) {
-            $output[] = __('general.important_note') . ': ' . $record->important_note;
+        if (! empty($record->important_note)) {
+            $output[] = __('general.important_note').': '.$record->important_note;
         }
 
         return $output;

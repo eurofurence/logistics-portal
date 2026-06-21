@@ -1,8 +1,8 @@
 <?php
+
 namespace App\Exports;
 
 use App\Models\Department;
-use App\Exports\SingleDepartmentSheet;
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
 class InventoryItemsExport extends ExportBase implements WithMultipleSheets
@@ -19,6 +19,7 @@ class InventoryItemsExport extends ExportBase implements WithMultipleSheets
             foreach ($this->included_columns as $column) {
                 $list[$column] = $item[$column] ?? null;
             }
+
             return $list;
         });
 
@@ -29,15 +30,17 @@ class InventoryItemsExport extends ExportBase implements WithMultipleSheets
                     $itemArray[$key] = $value ? __('general.yes') : __('general.no');
                 }
             }
+
             return $itemArray;
         });
 
-        $final_records = array();
+        $final_records = [];
         foreach ($items->groupBy('department_id') as $key => $value) {
             $department_name = Department::where('id', $key)->first()->name ?? 'Unknown Department';
             $final_records[$key]['department_name'] = $department_name;
             $final_records[$key]['items'] = $value->map(function ($record) {
                 $recordArray = collect($record);
+
                 return $recordArray->only(array_diff($this->included_columns, ['department']));
             });
         }
@@ -53,23 +56,24 @@ class InventoryItemsExport extends ExportBase implements WithMultipleSheets
         foreach ($this->final_records as $sheet) {
             $sheets[] = new SingleDepartmentSheet($sheet['department_name'], $sheet['items'], $this->headings, $this->data, $this->image_height, $this->image_width);
         }
+
         return $sheets;
     }
 
     private function processOption(string $option): bool
     {
         if (isset($this->data[$option]) && $this->data[$option] === true) {
-            $this->headings[] = __('table_exports.option_titles.' . $option);
+            $this->headings[] = __('table_exports.option_titles.'.$option);
 
             switch ($option) {
 
-                #TODO:: Storage Option
+                // TODO:: Storage Option
 
-                #TODO: Operation Site Option
+                // TODO: Operation Site Option
 
-                #TODO: custom_fields Option
+                // TODO: custom_fields Option
 
-                #TODO: sub_category Option
+                // TODO: sub_category Option
 
                 case 'show_who_added_order':
                     foreach ($this->final_records as &$department) {
@@ -87,7 +91,7 @@ class InventoryItemsExport extends ExportBase implements WithMultipleSheets
                             $order_id = $order['id'];
                             $order_model = $this->data['records']->where('id', $order_id)->first();
 
-                            if (!empty($order_model['approvedBy']['name'])) {
+                            if (! empty($order_model['approvedBy']['name'])) {
                                 $order['show_who_approved_order'] = $order_model['approvedBy']['name'];
                             }
                         }
@@ -97,8 +101,10 @@ class InventoryItemsExport extends ExportBase implements WithMultipleSheets
                 default:
                     return false;
             }
+
             return true;
         }
+
         return false;
     }
 }

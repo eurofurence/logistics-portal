@@ -2,37 +2,35 @@
 
 namespace App\Filament\Admin\Resources\IdpRankSyncs;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use App\Filament\Admin\Resources\IdpRankSyncs\Pages\ListIdpRankSyncs;
 use App\Filament\Admin\Resources\IdpRankSyncs\Pages\CreateIdpRankSync;
 use App\Filament\Admin\Resources\IdpRankSyncs\Pages\EditIdpRankSync;
+use App\Filament\Admin\Resources\IdpRankSyncs\Pages\ListIdpRankSyncs;
 use App\Filament\Admin\Resources\IdpRankSyncs\Pages\ViewIdpRankSync;
-use App\Models\Role;
-use Filament\Tables;
-use Filament\Tables\Table;
 use App\Models\IdpRankSync;
-use Filament\Resources\Resource;
-use Illuminate\Support\Facades\Gate;
+use App\Models\Role;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\TrashedFilter;
-use App\Filament\Admin\Resources\IdpRankSyncResource\Pages;
-use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 
 class IdpRankSyncResource extends Resource
 {
     protected static ?string $model = IdpRankSync::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedArrowPath;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowPath;
 
     public static function getNavigationGroup(): string
     {
@@ -78,8 +76,8 @@ class IdpRankSyncResource extends Resource
                             ->label(__('general.idp_group')),
                         Toggle::make('active')
                             ->label(__('general.is_active'))
-                            ->default(false)
-                    ])
+                            ->default(false),
+                    ]),
             ]);
     }
 
@@ -99,28 +97,16 @@ class IdpRankSyncResource extends Resource
                     ->label(__('general.local_role')),
                 TextColumn::make('idp_group')
                     ->label(__('general.idp_group')),
-                #TODO
-                    /*
-                IconColumn::make('active')
-                    ->label(__('general.is_active'))
-                    ->sortable()
-                    ->boolean()
-    ->icon(fn (string $state): Heroicon => match ($state) {
-        'draft' => Heroicon::OutlinedPencil,
-        'reviewing' => Heroicon::OutlinedClock,
-        'published' => Heroicon::OutlinedCheckCircle,
-    })
-        */
             ])
             ->filters([
-                TrashedFilter::make()
+                TrashedFilter::make(),
             ])
             ->recordActions([
                 EditAction::make(),
                 DeleteAction::make()
                     ->modalHeading(function ($record): string {
-                        return __('general.delete') . ': ' . $record->name;
-                    })
+                        return __('general.delete').': '.$record->name;
+                    }),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

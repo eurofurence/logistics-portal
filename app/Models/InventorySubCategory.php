@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @property int $id
@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Department|null $connected_department
+ *
  * @method static Builder<static>|InventorySubCategory newModelQuery()
  * @method static Builder<static>|InventorySubCategory newQuery()
  * @method static Builder<static>|InventorySubCategory query()
@@ -28,6 +29,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static Builder<static>|InventorySubCategory whereId($value)
  * @method static Builder<static>|InventorySubCategory whereName($value)
  * @method static Builder<static>|InventorySubCategory whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class InventorySubCategory extends Model
@@ -46,28 +48,28 @@ class InventorySubCategory extends Model
         'department',
         'added_by',
         'edited_by',
-        'department_id'
+        'department_id',
     ];
 
     protected static function boot()
     {
         parent::boot();
 
-        #TODO: Checks einbauen
-        #TODO: Sollte das Department mal im Nachhinein geändert werden müssen hier Checks eingebaut werden die Prüfen ob die Kategorie/operation site zum Department gehört
+        // TODO: Checks einbauen
+        // TODO: Sollte das Department mal im Nachhinein geändert werden müssen hier Checks eingebaut werden die Prüfen ob die Kategorie/operation site zum Department gehört
         static::creating(function ($model) {
             $model->added_by = Auth::user()->id;
             $model->edited_by = Auth::user()->id;
         });
 
-        #TODO: Checks einbauen
-        #TODO: Sollte das Department mal im Nachhinein geändert werden müssen hier Checks eingebaut werden die Prüfen ob die Kategorie/operation site zum Department gehört
+        // TODO: Checks einbauen
+        // TODO: Sollte das Department mal im Nachhinein geändert werden müssen hier Checks eingebaut werden die Prüfen ob die Kategorie/operation site zum Department gehört
         static::updating(function ($model) {
             $model->edited_by = Auth::user()->id;
         });
     }
 
-     /**
+    /**
      * The department that belong to the operation site.
      */
     public function connected_department(): BelongsTo

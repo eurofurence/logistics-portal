@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use Illuminate\Auth\Access\Response;
 use App\Models\StorageContainer;
 use App\Models\User;
 
@@ -63,7 +62,7 @@ class StorageContainerPolicy
     {
         return $user->checkPermissionTo('force-delete-StorageContainer');
     }
-    
+
     /**
      * Determine whether the user can permanently delete the model via bulk action.
      */

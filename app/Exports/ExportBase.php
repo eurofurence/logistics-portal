@@ -1,25 +1,32 @@
 <?php
+
 namespace App\Exports;
 
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\Exportable;
-use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithDefaultStyles;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\BeforeExport;
-use PhpOffice\PhpSpreadsheet\Style\Style;
-use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Style;
 
 class ExportBase implements WithDefaultStyles, WithEvents
 {
     use Exportable;
 
     protected $final_records;
+
     protected array $headings = [];
+
     protected array $data;
+
     protected array $included_columns = [];
+
     protected int $image_height;
+
     protected int $image_width;
+
     protected array $bool_columns;
 
     public function __construct(array $data, int $image_height = 92, int $image_width = 92, array $bool_columns = [])
@@ -32,7 +39,7 @@ class ExportBase implements WithDefaultStyles, WithEvents
         $this->included_columns = array_unique(array_merge(['id', 'name'], $this->included_columns));
 
         $this->headings = array_map(function ($column) {
-            return __('table_exports.' . $column) ?? ucfirst(str_replace('_', ' ', $column));
+            return __('table_exports.'.$column) ?? ucfirst(str_replace('_', ' ', $column));
         }, $this->included_columns);
     }
 
@@ -42,34 +49,34 @@ class ExportBase implements WithDefaultStyles, WithEvents
             'font' => [
                 'name' => 'Arial',
                 'color' => [
-                    'rgb' => '1a1a1a'
-                ]
+                    'rgb' => '1a1a1a',
+                ],
             ],
             'borders' => [
                 'bottom' => [
                     'borderStyle' => Border::BORDER_THIN,
                     'color' => [
-                        'rgb' => '1a1a1a'
-                    ]
+                        'rgb' => '1a1a1a',
+                    ],
                 ],
                 'top' => [
                     'borderStyle' => Border::BORDER_THIN,
                     'color' => [
-                        'rgb' => '1a1a1a'
-                    ]
+                        'rgb' => '1a1a1a',
+                    ],
                 ],
                 'left' => [
                     'borderStyle' => Border::BORDER_THIN,
                     'color' => [
-                        'rgb' => '1a1a1a'
-                    ]
+                        'rgb' => '1a1a1a',
+                    ],
                 ],
                 'right' => [
                     'borderStyle' => Border::BORDER_THIN,
                     'color' => [
-                        'rgb' => '1a1a1a'
-                    ]
-                ]
+                        'rgb' => '1a1a1a',
+                    ],
+                ],
             ],
             'alignment' => [
                 'horizontal' => Alignment::HORIZONTAL_LEFT,

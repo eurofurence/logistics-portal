@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @property int $id
@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property Carbon|null $updated_at
  * @property User|null $added_by
  * @property User|null $edited_by
+ *
  * @method static Builder<static>|SubUnit newModelQuery()
  * @method static Builder<static>|SubUnit newQuery()
  * @method static Builder<static>|SubUnit onlyTrashed()
@@ -33,6 +34,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static Builder<static>|SubUnit whereValue($value)
  * @method static Builder<static>|SubUnit withTrashed()
  * @method static Builder<static>|SubUnit withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class SubUnit extends Model
@@ -46,7 +48,7 @@ class SubUnit extends Model
      */
     protected $fillable = [
         'name',
-        'value'
+        'value',
     ];
 
     protected static function boot()

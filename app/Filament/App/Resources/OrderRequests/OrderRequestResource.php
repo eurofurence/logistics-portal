@@ -35,12 +35,12 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -50,7 +50,7 @@ class OrderRequestResource extends Resource
 {
     protected static ?string $model = OrderRequest::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedPencilSquare;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedPencilSquare;
 
     public static function getNavigationGroup(): string
     {
@@ -117,7 +117,7 @@ class OrderRequestResource extends Resource
         $query = parent::getEloquentQuery();
         $user = Auth::user();
 
-        $query->when(!$user->can('can-see-all-orderRequests'), function ($query) use ($user) {
+        $query->when(! $user->can('can-see-all-orderRequests'), function ($query) use ($user) {
             return $query->whereIn('department_id', $user->getDepartmentsWithPermission('view-OrderRequest')->pluck('id'));
         });
 
@@ -181,13 +181,13 @@ class OrderRequestResource extends Resource
                                 $options = Auth::user()->can('can-always-order')
                                     ? OrderEvent::withoutTrashed()->pluck('name', 'id')->toArray()
                                     : OrderEvent::where('locked', false)
-                                    ->where(function ($query) {
-                                        $query->whereNull('order_deadline')
-                                            ->orWhere('order_deadline', '>', now());
-                                    })
-                                    ->withoutTrashed()
-                                    ->pluck('name', 'id')
-                                    ->toArray();
+                                        ->where(function ($query) {
+                                            $query->whereNull('order_deadline')
+                                                ->orWhere('order_deadline', '>', now());
+                                        })
+                                        ->withoutTrashed()
+                                        ->pluck('name', 'id')
+                                        ->toArray();
 
                                 return $options;
                             })
@@ -195,13 +195,13 @@ class OrderRequestResource extends Resource
                                 $options = Auth::user()->can('can-always-order')
                                     ? OrderEvent::withoutTrashed()->pluck('id')->toArray()
                                     : OrderEvent::where('locked', false)
-                                    ->where(function ($query) {
-                                        $query->whereNull('order_deadline')
-                                            ->orWhere('order_deadline', '>', now());
-                                    })
-                                    ->withoutTrashed()
-                                    ->pluck('id')
-                                    ->toArray();
+                                        ->where(function ($query) {
+                                            $query->whereNull('order_deadline')
+                                                ->orWhere('order_deadline', '>', now());
+                                        })
+                                        ->withoutTrashed()
+                                        ->pluck('id')
+                                        ->toArray();
 
                                 return count($options) === 1 ? $options[0] : null;
                             }),
@@ -209,8 +209,8 @@ class OrderRequestResource extends Resource
                             ->schema([
                                 Toggle::make('status_notifications')
                                     ->label(__('general.status_has_changed'))
-                                    ->default(true)
-                            ])
+                                    ->default(true),
+                            ]),
                     ]),
                 Section::make(__('general.moderation'))
                     ->schema([
@@ -225,10 +225,10 @@ class OrderRequestResource extends Resource
                                 2 => __('general.processing'),
                                 3 => __('general.note'),
                                 4 => __('general.checking'),
-                                5 => __('general.rejected')
+                                5 => __('general.rejected'),
                             ])
-                            ->required()
-                    ])->visible($moderation_active)
+                            ->required(),
+                    ])->visible($moderation_active),
             ]);
     }
 
@@ -258,7 +258,7 @@ class OrderRequestResource extends Resource
                     ->label(__('general.status'))
                     ->sortable()
                     ->toggleable()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         '0' => 'warning',
                         '1' => 'success',
                         '2' => 'warning',
@@ -267,7 +267,7 @@ class OrderRequestResource extends Resource
                         '5' => 'danger',
                         default => 'gray',
                     })
-                    ->icon(fn(string $state): string => match ($state) {
+                    ->icon(fn (string $state): string => match ($state) {
                         '0' => 'heroicon-o-clock',
                         '1' => 'heroicon-o-check-circle',
                         '2' => 'heroicon-o-arrow-path',
@@ -290,11 +290,11 @@ class OrderRequestResource extends Resource
                 TextColumn::make('addedBy.name')
                     ->label(__('general.requested_by'))
                     ->sortable()
-                    ->toggleable(true, true)
+                    ->toggleable(true, true),
             ])
             ->filters([
                 TrashedFilter::make()
-                    ->visible(fn(): bool => Gate::allows('restore', OrderRequest::class) || Gate::allows('forceDelete', OrderRequest::class) || Gate::allows('bulkForceDelete', OrderRequest::class) || Gate::allows('bulkRestore', OrderRequest::class)),
+                    ->visible(fn (): bool => Gate::allows('restore', OrderRequest::class) || Gate::allows('forceDelete', OrderRequest::class) || Gate::allows('bulkForceDelete', OrderRequest::class) || Gate::allows('bulkRestore', OrderRequest::class)),
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
@@ -311,7 +311,7 @@ class OrderRequestResource extends Resource
                         $until = $data['created_until'] ?? null;
                         $invert = $data['invert'] ?? false;
 
-                        if (!$from && !$until) {
+                        if (! $from && ! $until) {
                             return $query;
                         }
 
@@ -345,6 +345,32 @@ class OrderRequestResource extends Resource
 
                         return $indicators;
                     }),
+                Filter::make('url')
+                    ->form([
+                        TextInput::make('url')
+                            ->label(__('general.url')),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['url'])) {
+                            return $query;
+                        }
+
+                        $invert = $data['invert'] ?? false;
+
+                        return $invert
+                            ? $query->where('url', 'not like', '%'.$data['url'].'%')
+                            : $query->where('url', 'like', '%'.$data['url'].'%');
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if (! empty($data['url'])) {
+                            $indicators['url'] = __('general.url').': '.$data['url'].(($data['invert'] ?? false) ? ' ('.__('general.invert').')' : '');
+                        }
+
+                        return $indicators;
+                    }),
                 Filter::make('order_event_id')
                     ->schema([
                         Select::make('value')
@@ -355,15 +381,23 @@ class OrderRequestResource extends Resource
                             ->label(__('general.invert')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (empty($data['value'])) return $query;
+                        if (empty($data['value'])) {
+                            return $query;
+                        }
+
                         return ($data['invert'] ?? false)
                             ? $query->where('order_event_id', '!=', $data['value'])
                             : $query->where('order_event_id', $data['value']);
                     })
                     ->indicateUsing(function (array $data): array {
-                        if (empty($data['value'])) return [];
-                        $indicator = __('general.order_event') . ': ' . (OrderEvent::find($data['value'])?->name ?? $data['value']);
-                        if ($data['invert'] ?? false) $indicator .= ' (' . __('general.invert') . ')';
+                        if (empty($data['value'])) {
+                            return [];
+                        }
+                        $indicator = __('general.order_event').': '.(OrderEvent::find($data['value'])?->name ?? $data['value']);
+                        if ($data['invert'] ?? false) {
+                            $indicator .= ' ('.__('general.invert').')';
+                        }
+
                         return [$indicator];
                     }),
                 Filter::make('department_id')
@@ -380,15 +414,23 @@ class OrderRequestResource extends Resource
                             ->label(__('general.invert')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (empty($data['values'])) return $query;
+                        if (empty($data['values'])) {
+                            return $query;
+                        }
+
                         return ($data['invert'] ?? false)
                             ? $query->whereNotIn('department_id', $data['values'])
                             : $query->whereIn('department_id', $data['values']);
                     })
                     ->indicateUsing(function (array $data): array {
-                        if (empty($data['values'])) return [];
-                        $indicator = __('general.department') . ': ' . count($data['values']);
-                        if ($data['invert'] ?? false) $indicator .= ' (' . __('general.invert') . ')';
+                        if (empty($data['values'])) {
+                            return [];
+                        }
+                        $indicator = __('general.department').': '.count($data['values']);
+                        if ($data['invert'] ?? false) {
+                            $indicator .= ' ('.__('general.invert').')';
+                        }
+
                         return [$indicator];
                     }),
                 Filter::make('status')
@@ -408,15 +450,23 @@ class OrderRequestResource extends Resource
                             ->label(__('general.invert')),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
-                        if (empty($data['values'])) return $query;
+                        if (empty($data['values'])) {
+                            return $query;
+                        }
+
                         return ($data['invert'] ?? false)
                             ? $query->whereNotIn('status', $data['values'])
                             : $query->whereIn('status', $data['values']);
                     })
                     ->indicateUsing(function (array $data): array {
-                        if (empty($data['values'])) return [];
-                        $indicator = __('general.status') . ': ' . count($data['values']);
-                        if ($data['invert'] ?? false) $indicator .= ' (' . __('general.invert') . ')';
+                        if (empty($data['values'])) {
+                            return [];
+                        }
+                        $indicator = __('general.status').': '.count($data['values']);
+                        if ($data['invert'] ?? false) {
+                            $indicator .= ' ('.__('general.invert').')';
+                        }
+
                         return [$indicator];
                     }),
             ], layout: FiltersLayout::Modal)
@@ -426,23 +476,44 @@ class OrderRequestResource extends Resource
                     EditAction::make(),
                     DeleteAction::make()
                         ->modalHeading(function ($record): string {
-                            return __('general.delete') . ': ' . $record->title;
+                            return __('general.delete').': '.$record->title;
                         }),
                     RestoreAction::make(),
                     ViewAction::make(),
+                    Action::make('set_status_single')
+                        ->label(__('general.set_status'))
+                        ->icon('heroicon-o-ellipsis-horizontal-circle')
+                        ->action(function (Model $record, array $data): void {
+                            $record->update(['status' => $data['status']]);
+                        })
+                        ->schema([
+                            Select::make('status')
+                                ->label(__('general.status'))
+                                ->options([
+                                    0 => __('general.open'),
+                                    1 => __('general.finished'),
+                                    2 => __('general.processing'),
+                                    3 => __('general.note'),
+                                    4 => __('general.checking'),
+                                    5 => __('general.rejected'),
+                                ])
+                                ->prefixIcon('heroicon-o-ellipsis-horizontal-circle')
+                                ->required(),
+                        ])
+                        ->visible(fn () => Auth::user()->can('can-moderate-order-request')),
                     Action::make('open_linked_order_single')
                         ->label(__('general.open_linked_order'))
                         ->icon('heroicon-o-arrow-top-right-on-square')
-                        ->visible(fn(Model $record) => Order::where('order_request_id', $record->id)->count() === 1)
-                        ->url(fn(Model $record) => route('filament.app.resources.orders.view', Order::where('order_request_id', $record->id)->first()->id)),
+                        ->visible(fn (Model $record) => Order::where('order_request_id', $record->id)->count() === 1)
+                        ->url(fn (Model $record) => route('filament.app.resources.orders.view', Order::where('order_request_id', $record->id)->first()->id)),
                     Action::make('open_linked_order_multiple')
                         ->label(__('general.open_linked_order'))
                         ->icon('heroicon-o-arrow-top-right-on-square')
-                        ->visible(fn(Model $record) => Order::where('order_request_id', $record->id)->count() > 1)
+                        ->visible(fn (Model $record) => Order::where('order_request_id', $record->id)->count() > 1)
                         ->schema([
                             Select::make('order_id')
                                 ->label(__('general.order'))
-                                ->options(fn(Model $record) => Order::where('order_request_id', $record->id)->pluck('name', 'id'))
+                                ->options(fn (Model $record) => Order::where('order_request_id', $record->id)->pluck('name', 'id'))
                                 ->searchable()
                                 ->required(),
                         ])
@@ -461,7 +532,7 @@ class OrderRequestResource extends Resource
                         ->visible(Gate::check('bulkRestore', OrderRequest::class)),
                     BulkAction::make('set_status')
                         ->label(__('general.set_status'))
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data): void {
+                        ->action(function (Collection $records, array $data): void {
                             foreach ($records as $record) {
                                 $record->update(['status' => $data['status']]);
                             }
@@ -494,7 +565,7 @@ class OrderRequestResource extends Resource
 
     protected function getTableRecordUrlUsing(): ?callable
     {
-        return fn($record) => $this->getResource()::getUrl('view', ['record' => $record]);
+        return fn ($record) => $this->getResource()::getUrl('view', ['record' => $record]);
     }
 
     public static function infolist(Schema $schema): Schema
@@ -513,19 +584,19 @@ class OrderRequestResource extends Resource
                             ->label(__('general.quantity')),
                         TextEntry::make('url')
                             ->label(__('general.url'))
-                            ->url(fn($record) => $record->url, true)
+                            ->url(fn ($record) => $record->url, true)
                             ->default(__('general.not_set'))
                             ->limit(100)
                             ->visible(function ($record) {
                                 return $record->url;
-                            })
+                            }),
                     ]),
                 Section::make(__('general.moderation'))
                     ->schema([
                         TextEntry::make('status')
                             ->label(__('general.status'))
                             ->badge()
-                            ->icon(fn(string $state): string => match ($state) {
+                            ->icon(fn (string $state): string => match ($state) {
                                 '0' => 'heroicon-o-clock',
                                 '1' => 'heroicon-o-check-circle',
                                 '2' => 'heroicon-o-arrow-path',
@@ -533,7 +604,7 @@ class OrderRequestResource extends Resource
                                 '4' => 'heroicon-o-arrow-path',
                                 '5' => 'heroicon-o-no-symbol',
                             })
-                            ->color(fn(string $state): string => match ($state) {
+                            ->color(fn (string $state): string => match ($state) {
                                 '0' => 'warning',
                                 '1' => 'success',
                                 '2' => 'warning',
@@ -542,7 +613,7 @@ class OrderRequestResource extends Resource
                                 '5' => 'danger',
                                 default => 'gray',
                             })
-                            ->formatStateUsing(fn(string $state): string => match ($state) {
+                            ->formatStateUsing(fn (string $state): string => match ($state) {
                                 '0' => __('general.open'),
                                 '1' => __('general.finished'),
                                 '2' => __('general.processing'),
@@ -553,7 +624,7 @@ class OrderRequestResource extends Resource
                             }),
                         TextEntry::make('comment')
                             ->default(__('general.not_set'))
-                            ->label(__('general.comment'))
+                            ->label(__('general.comment')),
                     ])
                     ->visible(true),
                 Section::make(__('general.other_infos'))
@@ -562,14 +633,15 @@ class OrderRequestResource extends Resource
                             \Filament\Schemas\Components\Group::make([
                                 TextEntry::make('addedBy.name')
                                     ->label(__('general.added_by'))
-                                    ->suffix(function ($record): string|null {
+                                    ->suffix(function ($record): ?string {
                                         $roles = $record->addedBy->getRolesInDepartment($record->department_id);
 
-                                        if (!empty($roles)) {
+                                        if (! empty($roles)) {
                                             $roleNames = array_map(function ($role) {
                                                 return $role['name'];
                                             }, $roles);
-                                            return ' (' . __('general.currently') . ': ' . implode(', ', $roleNames) . ')';
+
+                                            return ' ('.__('general.currently').': '.implode(', ', $roleNames).')';
                                         }
 
                                         return null;
@@ -591,9 +663,9 @@ class OrderRequestResource extends Resource
                                 TextEntry::make('event.name')
                                     ->label(__('general.order_event')),
                             ]),
-                        ])
+                        ]),
                     ])
-                    ->columnSpanFull()
+                    ->columnSpanFull(),
             ]);
     }
 
@@ -610,7 +682,7 @@ class OrderRequestResource extends Resource
             'index' => ListOrderRequests::route('/'),
             'create' => CreateOrderRequest::route('/create'),
             'edit' => EditOrderRequest::route('/{record}/edit'),
-            'view' => ViewOrderRequest::route('/{record}')
+            'view' => ViewOrderRequest::route('/{record}'),
         ];
     }
 }

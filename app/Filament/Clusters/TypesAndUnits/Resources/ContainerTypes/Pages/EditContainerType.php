@@ -2,10 +2,9 @@
 
 namespace App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypes\Pages;
 
-use Filament\Actions\DeleteAction;
-use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
 use App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypes\ContainerTypeResource;
+use Filament\Actions\DeleteAction;
+use Filament\Resources\Pages\EditRecord;
 
 class EditContainerType extends EditRecord
 {

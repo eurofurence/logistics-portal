@@ -30,7 +30,7 @@ class DeleteS3Files extends Command
     {
         // List of files to be deleted
         $filesToDelete = [
-            //'01J35X45R103XHCA2VF9V2A0N1.png',
+            // '01J35X45R103XHCA2VF9V2A0N1.png',
         ];
 
         // Loop through all files and delete them directly from S3
@@ -44,6 +44,7 @@ class DeleteS3Files extends Command
         }
 
         $this->info('File deletion process completed.');
+
         return Command::SUCCESS;
     }
 }

@@ -3,26 +3,29 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Support\Carbon;
-use Illuminate\Notifications\DatabaseNotificationCollection;
-use Illuminate\Notifications\DatabaseNotification;
-use Spatie\Permission\Models\Permission;
-use Laravel\Sanctum\PersonalAccessToken;
+use App\Models\Permission as AppPermission;
+use App\Models\Role as AppRole;
 use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Panel;
-use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
-use Filament\Models\Contracts\HasAvatar;
-use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
+use Filament\Panel;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Notifications\DatabaseNotificationCollection;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\PersonalAccessToken;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Traits\HasRoles;
 
 /**
  * @property int $id
@@ -50,10 +53,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property-read int|null $notifications_count
  * @property-read Collection<int, Permission> $permissions
  * @property-read int|null $permissions_count
- * @property-read Collection<int, Role> $roles
+ * @property-read Collection<int, AppRole> $roles
  * @property-read int|null $roles_count
  * @property-read Collection<int, PersonalAccessToken> $tokens
  * @property-read int|null $tokens_count
+ *
  * @method static UserFactory factory($count = null, $state = [])
  * @method static Builder<static>|User newModelQuery()
  * @method static Builder<static>|User newQuery()
@@ -82,7 +86,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @method static Builder<static>|User withoutPermission($permissions)
  * @method static Builder<static>|User withoutRole($roles, $guard = null)
  * @method static Builder<static>|User withoutTrashed()
+ *
  * @property-read string $notification_email_or_fallback
+ *
  * @mixin \Eloquent
  */
 class User extends Authenticatable implements FilamentUser, HasAvatar
@@ -167,13 +173,23 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
      * The departments function establishes a many-to-many relationship between users and departments in PHP.
      *
      * @return BelongsToMany A BelongsToMany relationship between the current model and the Department model is being
-     * returned. The relationship is defined using the `belongsToMany` method, specifying the related model
-     * `Department::class`, the pivot table name `'department_user'`, the foreign key `'user_id'`, and the related key
-     * `'department_id'`.
+     *                       returned. The relationship is defined using the `belongsToMany` method, specifying the related model
+     *                       `Department::class`, the pivot table name `'department_user'`, the foreign key `'user_id'`, and the related key
+     *                       `'department_id'`.
      */
     public function departments(): BelongsToMany
     {
         return $this->belongsToMany(Department::class, 'department_user', 'user_id', 'department_id');
+    }
+
+    public function wishlists(): HasMany
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    public function sharedWishlists(): BelongsToMany
+    {
+        return $this->belongsToMany(Wishlist::class, 'wishlist_user');
     }
 
     protected static function boot()
@@ -185,7 +201,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
                 return false;
             }
 
-            if (!$model->password) {
+            if (! $model->password) {
                 unset($model->password);
             }
         });
@@ -226,17 +242,15 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
      * polymorphic relations.
      *
      * @return MorphToMany The `roles()` function is returning a MorphToMany relationship. It is defining a many-to-many
-     * polymorphic relationship between the current model and the `Role` model.
+     *                     polymorphic relationship between the current model and the `Role` model.
      */
     public function roles(): MorphToMany
     {
-        return $this->morphToMany(Role::class, 'model', 'model_has_roles', 'model_id', 'role_id');
+        return $this->morphToMany(AppRole::class, 'model', 'model_has_roles', 'model_id', 'role_id');
     }
 
     /**
      * Get all departments where the user has at least one role.
-     *
-     * @return Collection
      */
     public function departmentsWithRoles(): Collection
     {
@@ -245,104 +259,155 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         })->get();
     }
 
-    public function departmentMemberships()
+    public function departmentMemberships(): User|Builder|HasMany
     {
         return $this->hasMany(DepartmentMember::class, 'user_id');
+    }
+
+    public function getPermissionCacheVersion(): int
+    {
+        return Cache::remember("user_{$this->id}_permission_version", now()->addDays(7), fn () => 1);
+    }
+
+    public function incrementPermissionCacheVersion(): void
+    {
+        Cache::put("user_{$this->id}_permission_version", $this->getPermissionCacheVersion() + 1, now()->addDays(7));
+    }
+
+    public static function invalidateDepartmentPermissionsForRole(AppRole $role): void
+    {
+        self::whereHas('departmentMemberships', function ($query) use ($role) {
+            $query->where('role_id', $role->id);
+        })->each(function (User $user) {
+            $user->incrementPermissionCacheVersion();
+        });
+    }
+
+    public static function invalidateDepartmentPermissionsForPermission(AppPermission $permission): void
+    {
+        self::whereHas('departmentMemberships.role.permissions', function ($query) use ($permission) {
+            $query->where('id', $permission->id);
+        })->each(function (User $user) {
+            $user->incrementPermissionCacheVersion();
+        });
     }
 
     /**
      * Check if the user has a specific permission within a department.
      *
-     * @param string $permission The permission to check.
-     * @param int $department_id The department ID to check the permission in.
+     * @param  string  $permission  The permission to check.
+     * @param  int  $department_id  The department ID to check the permission in.
      * @return bool True if the user has the permission, false otherwise.
      */
     public function hasDepartmentRoleWithPermissionTo(string $permission, int $department_id): bool
     {
-        return $this->departmentMemberships()
-            ->where('department_id', $department_id)
-            ->whereHas('role.permissions', function ($query) use ($permission) {
-                $query->where('name', $permission)
-                    ->where('guard_name', 'web');
-            })
-            ->exists();
+        $version = $this->getPermissionCacheVersion();
+        $cacheKey = "user_{$this->id}_v{$version}_dept_{$department_id}_perm_{$permission}";
+
+        return Cache::remember($cacheKey, now()->addMinutes(60), function () use ($permission, $department_id) {
+            return $this->departmentMemberships()
+                ->where('department_id', $department_id)
+                ->whereHas('role.permissions', function ($query) use ($permission) {
+                    $query->where('name', $permission)
+                        ->where('guard_name', 'web');
+                })
+                ->exists();
+        });
     }
 
     /**
      * Get all departments where the user has a specific permission.
      *
-     * @param string $permission The permission to check.
+     * @param  string  $permission  The permission to check.
      * @return array An array of department IDs where the user has the permission.
      */
     public function getDepartmentsWithPermission_Array(string $permission): array
     {
-        return $this->departmentMemberships()
-            ->whereHas('role.permissions', function ($query) use ($permission) {
-                $query->where('name', $permission)
-                    ->where('guard_name', 'web');
-            })
-            ->with('department') // Preloading the department relationship
-            ->get()
-            ->pluck('department') // Extracting the department models
-            ->unique('id') // Removing duplicates based on the department ID
-            ->keyBy('id') // Set the array key to the department ID
-            ->toArray();
+        $version = $this->getPermissionCacheVersion();
+        $cacheKey = "user_{$this->id}_v{$version}_perms_{$permission}_dept_array";
+
+        return Cache::remember($cacheKey, now()->addMinutes(60), function () use ($permission) {
+            return $this->departmentMemberships()
+                ->whereHas('role.permissions', function ($query) use ($permission) {
+                    $query->where('name', $permission)
+                        ->where('guard_name', 'web');
+                })
+                ->with('department') // Preloading the department relationship
+                ->get()
+                ->pluck('department') // Extracting the department models
+                ->unique('id') // Removing duplicates based on the department ID
+                ->keyBy('id') // Set the array key to the department ID
+                ->toArray();
+        });
     }
 
     /**
      * Get all departments where the user has a specific role.
-     *
-     * @return \Illuminate\Support\Collection
      */
-    public function getDepartmentsWithPermission(string $permission)
+    public function getDepartmentsWithPermission(string $permission): \Illuminate\Support\Collection
     {
-        return $this->departmentMemberships()
-            ->whereHas('role.permissions', function ($query) use ($permission) {
-                $query->where('name', $permission)
-                    ->where('guard_name', 'web');
-            })
-            ->with('department')
-            ->get()
-            ->pluck('department');
+        $version = $this->getPermissionCacheVersion();
+        $cacheKey = "user_{$this->id}_v{$version}_perms_{$permission}_dept_coll";
+
+        return Cache::remember($cacheKey, now()->addMinutes(60), function () use ($permission) {
+            return $this->departmentMemberships()
+                ->whereHas('role.permissions', function ($query) use ($permission) {
+                    $query->where('name', $permission)
+                        ->where('guard_name', 'web');
+                })
+                ->with('department')
+                ->get()
+                ->pluck('department');
+        });
     }
 
     /**
      * Get the number of departments where the user has a specific permission.
      *
-     * @param string $permission The permission to check.
+     * @param  string  $permission  The permission to check.
      * @return int The amount of department with that permission
      */
     public function getDepartmentsWithPermission_Count(string $permission): int
     {
-        return $this->departmentMemberships()
-            ->whereHas('role.permissions', function ($query) use ($permission) {
-                $query->where('name', $permission)
-                    ->where('guard_name', 'web');
-            })
-            ->count();
+        $version = $this->getPermissionCacheVersion();
+        $cacheKey = "user_{$this->id}_v{$version}_perms_{$permission}_dept_count";
+
+        return Cache::remember($cacheKey, now()->addMinutes(60), function () use ($permission) {
+            return $this->departmentMemberships()
+                ->whereHas('role.permissions', function ($query) use ($permission) {
+                    $query->where('name', $permission)
+                        ->where('guard_name', 'web');
+                })
+                ->count();
+        });
     }
 
     /**
      * Check if the user has a specific permission in any department.
      *
-     * @param string $permission The permission to check.
+     * @param  string  $permission  The permission to check.
      * @return bool True if the user has the permission in any department, false otherwise.
      */
     public function hasAnyDepartmentRoleWithPermissionTo(string $permission): bool
     {
-        return $this->departmentMemberships()
-            ->whereHas('role.permissions', function ($query) use ($permission) {
-                $query->where('name', $permission)
-                    ->where('guard_name', 'web');
-            })
-            ->exists();
+        $version = $this->getPermissionCacheVersion();
+        $cacheKey = "user_{$this->id}_v{$version}_perms_{$permission}_any";
+
+        return Cache::remember($cacheKey, now()->addMinutes(60), function () use ($permission) {
+            return $this->departmentMemberships()
+                ->whereHas('role.permissions', function ($query) use ($permission) {
+                    $query->where('name', $permission)
+                        ->where('guard_name', 'web');
+                })
+                ->exists();
+        });
     }
 
     /**
      * Get all roles of a specific user in a specific department.
      *
-     * @param int $department_id The department ID to get roles from.
-     * @param int|null $user_id The optional user ID to filter roles. If null, the current user's ID is used.
+     * @param  int  $department_id  The department ID to get roles from.
+     * @param  int|null  $user_id  The optional user ID to filter roles. If null, the current user's ID is used.
      * @return array An array of roles in the specified department for the specified user.
      */
     public function getRolesInDepartment(int $department_id, ?int $user_id = null): array

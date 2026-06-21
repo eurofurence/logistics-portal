@@ -2,9 +2,8 @@
 
 namespace App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypes\Pages;
 
-use Filament\Actions;
-use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypes\ContainerTypeResource;
+use Filament\Resources\Pages\CreateRecord;
 
 class CreateContainerType extends CreateRecord
 {

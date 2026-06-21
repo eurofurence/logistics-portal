@@ -31,14 +31,16 @@ class AddRoleToUser extends Command
         $roleName = $this->argument('role');
 
         $user = User::find($userId);
-        if (!$user) {
+        if (! $user) {
             $this->error("User with ID $userId not found.");
+
             return;
         }
 
         $role = Role::findByName($roleName);
-        if (!$role) {
+        if (! $role) {
             $this->error("Role '$roleName' does not exist.");
+
             return;
         }
 

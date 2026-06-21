@@ -2,14 +2,13 @@
 
 namespace App\Filament\App\Resources\Orders\Pages;
 
-use Filament\Actions\CreateAction;
-use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Actions;
-use Filament\Resources\Pages\ListRecords;
-use Illuminate\Database\Eloquent\Builder;
 use App\Filament\App\Resources\Orders\OrderResource;
-use Filament\Pages\Concerns\ExposesTableToWidgets;
 use App\Filament\App\Resources\Orders\Widgets\OrderStats;
+use Filament\Actions\CreateAction;
+use Filament\Pages\Concerns\ExposesTableToWidgets;
+use Filament\Resources\Pages\ListRecords;
+use Filament\Schemas\Components\Tabs\Tab;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListOrders extends ListRecords
 {
@@ -29,24 +28,31 @@ class ListOrders extends ListRecords
     {
         return [
             'all' => Tab::make()
+                ->icon('heroicon-o-queue-list')
                 ->label(__('general.all')),
             'open' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('status', ['open', 'processing']))
+                ->icon('heroicon-o-arrow-path')
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereIn('status', ['open', 'processing']))
                 ->label(__('general.open')),
             'ordered' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'ordered'))
+                ->icon('heroicon-o-shopping-cart')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'ordered'))
                 ->label(__('general.ordered')),
             'delivered' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'delivered'))
+                ->icon('heroicon-o-truck')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'delivered'))
                 ->label(__('general.delivered')),
             'received' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('status', ['received', 'partially_received']))
+                ->icon('heroicon-o-check')
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereIn('status', ['received', 'partially_received']))
                 ->label(__('general.received')),
             'rejected' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->where('status', 'rejected'))
+                ->icon('heroicon-o-x-circle')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'rejected'))
                 ->label(__('general.rejected')),
             'other' => Tab::make()
-                ->modifyQueryUsing(fn(Builder $query) => $query->whereIn('status', ['on_hold', 'checking', 'awaiting_approval', 'refunded', 'locked', ]))
+                ->icon('heroicon-o-ellipsis-horizontal')
+                ->modifyQueryUsing(fn (Builder $query) => $query->whereIn('status', ['on_hold', 'checking', 'awaiting_approval', 'refunded', 'locked']))
                 ->label(__('general.other')),
         ];
     }
@@ -54,7 +60,7 @@ class ListOrders extends ListRecords
     public function getHeaderWidgets(): array
     {
         return [
-            OrderStats::class
+            OrderStats::class,
         ];
     }
 }

@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Illuminate\Database\Eloquent\Builder;
-use Spatie\MediaLibrary\HasMedia;
-use Illuminate\Database\Eloquent\Model;
-use Spatie\MediaLibrary\InteractsWithMedia;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property int $id
@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property Carbon|null $updated_at
  * @property-read MediaCollection<int, Media> $media
  * @property-read int|null $media_count
+ *
  * @method static Builder<static>|TestModel newModelQuery()
  * @method static Builder<static>|TestModel newQuery()
  * @method static Builder<static>|TestModel query()
@@ -37,6 +38,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static Builder<static>|TestModel whereData7($value)
  * @method static Builder<static>|TestModel whereId($value)
  * @method static Builder<static>|TestModel whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class TestModel extends Model implements HasMedia
@@ -55,7 +57,7 @@ class TestModel extends Model implements HasMedia
         'data4',
         'data5',
         'data6',
-        'data7'
+        'data7',
     ];
 
     protected static function boot()

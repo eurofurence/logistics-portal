@@ -32,7 +32,8 @@ class DeleteOldFiles extends Command
         $this->deleteOldExcelTemp();
     }
 
-    public function deleteOldExcelTemp() {
+    public function deleteOldExcelTemp()
+    {
         $disk = 's3';
         $directory = '/export/excel/tmp';
 

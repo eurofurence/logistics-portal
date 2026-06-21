@@ -2,9 +2,9 @@
 
 namespace App\Policies;
 
-use App\Models\User;
-use App\Models\OrderEvent;
 use App\Models\OrderArticle;
+use App\Models\OrderEvent;
+use App\Models\User;
 
 class OrderArticlePolicy
 {
@@ -97,8 +97,8 @@ class OrderArticlePolicy
      * 3. The user must belong to at least one department or have the permission to choose all departments.
      * 4. The user must have the permission to place an order or place an order with approval.
      *
-     * @param User $user The user attempting to place the order.
-     * @param OrderArticle $orderarticle The order article being considered.
+     * @param  User  $user  The user attempting to place the order.
+     * @param  OrderArticle  $orderarticle  The order article being considered.
      * @return bool True if the user can place the order, false otherwise.
      */
     public function order(User $user, OrderArticle $orderarticle): bool
@@ -115,16 +115,15 @@ class OrderArticlePolicy
         $department_counter = $user->departments()->count();
 
         // Determine if the order article is over its deadline.
-        $over_deadline = !empty($orderarticle->deadline) && now()->gte($orderarticle->deadline);
+        $over_deadline = ! empty($orderarticle->deadline) && now()->gte($orderarticle->deadline);
 
         // Check if the user can place the order based on the conditions.
         return (
-            (($event_counter > 0) && !$orderarticle->locked && !$over_deadline) || $user->can('can-always-order')
+            (($event_counter > 0) && ! $orderarticle->locked && ! $over_deadline) || $user->can('can-always-order')
         ) && (
             ($department_counter > 0) || $user->can('can-choose-all-departments')
         ) && $user->hasAnyDepartmentRoleWithPermissionTo('can-place-order');
     }
-
 
     /**
      * Determine whether the user can change the deadline of the model. (Many models at once)

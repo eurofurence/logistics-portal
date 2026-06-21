@@ -9,7 +9,6 @@ use App\Filament\App\Resources\Orders\Pages\EditOrder;
 use App\Filament\App\Resources\Orders\Pages\ListOrders;
 use App\Filament\App\Resources\Orders\Pages\ViewOrder;
 use App\Forms\Components\Timeline;
-use App\Models\Addressbook;
 use App\Models\Department;
 use App\Models\Order;
 use App\Models\OrderArticle;
@@ -81,15 +80,6 @@ class OrderResource extends Resource
 
     protected static $export_column_options = [];
 
-    protected function getTableQuery()
-    {
-        return parent::getTableQuery()
-            ->with([
-                'event',
-                'department',
-            ]);
-    }
-
     public static function getNavigationGroup(): string
     {
         static::$navigationGroup = __('general.orders');
@@ -132,7 +122,16 @@ class OrderResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        $query = parent::getEloquentQuery();
+        $query = parent::getEloquentQuery()
+            ->with([
+                'event',
+                'department',
+                'directoryArticle',
+                'orderRequest',
+                'addedBy',
+                'editedBy',
+                'approvedBy',
+            ]);
         $user = Auth::user();
 
         $query->when(! $user->can('can-see-all-orders'), function ($query) use ($user) {
@@ -328,7 +327,8 @@ class OrderResource extends Resource
                                                             ->hiddenLabel(true),
                                                         Toggle::make('auto_calculate')
                                                             ->label(__('general.auto_calculate'))
-                                                            ->default(true),
+                                                            ->default(true)
+                                                            ->formatStateUsing(fn ($state) => $state === null || ! $state ? true : $state),
                                                     ])
                                                     ->collapsed()
                                                     ->columnSpanFull(),
@@ -406,6 +406,7 @@ class OrderResource extends Resource
                                         'locked' => __('general.locked'),
                                         'refunded' => __('general.refunded'),
                                         'awaiting_approval' => __('general.awaiting_approval'),
+                                        'ready_for_pickup' => __('general.ready_for_pickup'),
                                     ])
                                     ->default('open'),
                                 Section::make(__('timeline.status_history'))
@@ -708,6 +709,7 @@ class OrderResource extends Resource
                         'locked' => 'danger',
                         'refunded' => 'danger',
                         'awaiting_approval' => 'checking',
+                        'ready_for_pickup' => 'info',
                     })
                     ->icon(fn (string $state): string => match ($state) {
                         'on_hold' => 'heroicon-o-clock',
@@ -721,7 +723,8 @@ class OrderResource extends Resource
                         'rejected' => 'heroicon-o-x-circle',
                         'locked' => 'heroicon-o-lock-closed',
                         'refunded' => 'heroicon-o-arrow-uturn-left',
-                        'awaiting_approval' => 'heroicon-o-shield-exclamation'
+                        'awaiting_approval' => 'heroicon-o-shield-exclamation',
+                        'ready_for_pickup' => 'heroicon-o-shopping-bag'
                     })
                     ->extraAttributes(['class' => 'cursor-pointer'])
                     ->formatStateUsing(function ($state) {
@@ -875,7 +878,7 @@ class OrderResource extends Resource
                         $until = $data['created_until'] ?? null;
                         $invert = $data['invert'] ?? false;
 
-                        if (!$from && !$until) {
+                        if (! $from && ! $until) {
                             return $query;
                         }
 
@@ -910,10 +913,12 @@ class OrderResource extends Resource
                         return $indicators;
                     }),
                 Filter::make('order_event_id')
-                    ->form([
+                    ->schema([
                         Select::make('value')
                             ->label(__('general.order_event'))
                             ->options(OrderEvent::all(['id', 'name'])->pluck('name', 'id'))
+                            ->searchable()
+                            ->preload()
                             ->default(function () {
                                 $activeOrderEvent = OrderEvent::where('is_active', true)->first();
 
@@ -938,19 +943,21 @@ class OrderResource extends Resource
                             return [];
                         }
 
-                        $indicator = __('general.order_event') . ': ' . (OrderEvent::find($data['value'])?->name ?? $data['value']);
+                        $indicator = __('general.order_event').': '.(OrderEvent::find($data['value'])?->name ?? $data['value']);
 
                         if ($data['invert'] ?? false) {
-                            $indicator .= ' (' . __('general.invert') . ')';
+                            $indicator .= ' ('.__('general.invert').')';
                         }
 
                         return [$indicator];
                     }),
                 Filter::make('department_id')
-                    ->form([
+                    ->schema([
                         Select::make('values')
                             ->multiple()
                             ->label(__('general.department'))
+                            ->searchable()
+                            ->preload()
                             ->options(function (): array {
                                 if (Auth::user()->can('can-see-all-orders')) {
                                     return Department::all()->pluck('name', 'id')->toArray();
@@ -977,16 +984,17 @@ class OrderResource extends Resource
                             return [];
                         }
 
-                        $indicator = __('general.department') . ': ' . count($data['values']);
+                        $names = Department::whereIn('id', $data['values'])->pluck('name')->implode(', ');
+                        $indicator = __('general.department').': '.$names;
 
                         if ($data['invert'] ?? false) {
-                            $indicator .= ' (' . __('general.invert') . ')';
+                            $indicator .= ' ('.__('general.invert').')';
                         }
 
                         return [$indicator];
                     }),
                 Filter::make('status')
-                    ->form([
+                    ->schema([
                         Select::make('values')
                             ->multiple()
                             ->label(__('general.status'))
@@ -1003,6 +1011,7 @@ class OrderResource extends Resource
                                 'locked' => __('general.locked'),
                                 'refunded' => __('general.refunded'),
                                 'awaiting_approval' => __('general.awaiting_approval'),
+                                'ready_for_pickup' => __('general.ready_for_pickup'),
                             ]),
                         Toggle::make('invert')
                             ->label(__('general.invert')),
@@ -1023,10 +1032,28 @@ class OrderResource extends Resource
                             return [];
                         }
 
-                        $indicator = __('general.status') . ': ' . count($data['values']);
+                        $options = [
+                            'on_hold' => __('general.on_hold'),
+                            'checking' => __('general.checking'),
+                            'processing' => __('general.processing'),
+                            'open' => __('general.open'),
+                            'ordered' => __('general.ordered'),
+                            'delivered' => __('general.delivered'),
+                            'partially_received' => __('general.partially_received'),
+                            'received' => __('general.received'),
+                            'rejected' => __('general.rejected'),
+                            'locked' => __('general.locked'),
+                            'refunded' => __('general.refunded'),
+                            'awaiting_approval' => __('general.awaiting_approval'),
+                            'ready_for_pickup' => __('general.ready_for_pickup'),
+                        ];
+
+                        $names = collect($data['values'])->map(fn ($value) => $options[$value] ?? $value)->implode(', ');
+
+                        $indicator = __('general.status').': '.$names;
 
                         if ($data['invert'] ?? false) {
-                            $indicator .= ' (' . __('general.invert') . ')';
+                            $indicator .= ' ('.__('general.invert').')';
                         }
 
                         return [$indicator];
@@ -1065,8 +1092,8 @@ class OrderResource extends Resource
 
                         return $query;
                     }),
-                Filter::make('url')
-                    ->form([
+                Filter::make('marketplace')
+                    ->schema([
                         Select::make('values')
                             ->label(__('general.marketplace'))
                             ->multiple()
@@ -1075,6 +1102,8 @@ class OrderResource extends Resource
                                 'metro' => __('general.metro'),
                                 'amazon' => __('general.amazon'),
                                 'hornbach' => __('general.hornbach'),
+                                'ikea' => __('general.ikea'),
+                                'bauhaus' => __('general.bauhaus'),
                             ]),
                         Toggle::make('invert')
                             ->label(__('general.invert')),
@@ -1098,14 +1127,26 @@ class OrderResource extends Resource
 
                                 if ($value === 'amazon') {
                                     if ($invert) {
-                                        $query->where('url', 'not like', '%amazon.%')->where('url', 'not like', '%amzn.%');
+                                        $query->where('url', 'not like', '%amazon.%')
+                                            ->where('url', 'not like', '%amzn.%')
+                                            ->where('url', 'not like', '%amzn.eu%');
                                     } else {
-                                        $query->orWhere('url', 'like', '%amazon.%')->orWhere('url', 'like', '%amzn.%');
+                                        $query->orWhere('url', 'like', '%amazon.%')
+                                            ->orWhere('url', 'like', '%amzn.%')
+                                            ->orWhere('url', 'like', '%amzn.eu%');
                                     }
                                 }
 
                                 if ($value === 'hornbach') {
                                     $invert ? $query->where('url', 'not like', '%hornbach.%') : $query->orWhere('url', 'like', '%hornbach.%');
+                                }
+
+                                if ($value === 'ikea') {
+                                    $invert ? $query->where('url', 'not like', '%ikea.%') : $query->orWhere('url', 'like', '%ikea.%');
+                                }
+
+                                if ($value === 'bauhaus') {
+                                    $invert ? $query->where('url', 'not like', '%bauhaus.%') : $query->orWhere('url', 'like', '%bauhaus.%');
                                 }
                             }
                         });
@@ -1114,10 +1155,23 @@ class OrderResource extends Resource
                         if (empty($data['values'])) {
                             return [];
                         }
-                        $indicator = __('general.marketplace') . ': ' . count($data['values']);
+
+                        $options = [
+                            'frog_store' => __('general.frog_store'),
+                            'metro' => __('general.metro'),
+                            'amazon' => __('general.amazon'),
+                            'hornbach' => __('general.hornbach'),
+                            'ikea' => __('general.ikea'),
+                            'bauhaus' => __('general.bauhaus'),
+                        ];
+
+                        $names = collect($data['values'])->map(fn ($value) => $options[$value] ?? $value)->implode(', ');
+                        $indicator = __('general.marketplace').': '.$names;
+
                         if ($data['invert'] ?? false) {
-                            $indicator .= ' (' . __('general.invert') . ')';
+                            $indicator .= ' ('.__('general.invert').')';
                         }
+
                         return [$indicator];
                     }),
                 SelectFilter::make('user_note')
@@ -1138,13 +1192,13 @@ class OrderResource extends Resource
                         return $query;
                     }),
                 Filter::make('added_by')
-                    ->form([
+                    ->schema([
                         Select::make('values')
                             ->multiple()
                             ->label(__('general.added_by'))
-                            ->options(function (): array {
-                                return User::all()->pluck('name', 'id')->toArray();
-                            }),
+                            ->searchable()
+                            ->getSearchResultsUsing(fn (string $search): array => User::where('name', 'like', "%{$search}%")->limit(50)->pluck('name', 'id')->toArray())
+                            ->getOptionLabelsUsing(fn (array $values): array => User::whereIn('id', $values)->pluck('name', 'id')->toArray()),
                         Toggle::make('invert')
                             ->label(__('general.invert')),
                     ])
@@ -1163,11 +1217,38 @@ class OrderResource extends Resource
                         if (empty($data['values'])) {
                             return [];
                         }
-                        $indicator = __('general.added_by') . ': ' . count($data['values']);
+                        $indicator = __('general.added_by').': '.count($data['values']);
                         if ($data['invert'] ?? false) {
-                            $indicator .= ' (' . __('general.invert') . ')';
+                            $indicator .= ' ('.__('general.invert').')';
                         }
+
                         return [$indicator];
+                    }),
+                Filter::make('url')
+                    ->schema([
+                        TextInput::make('url')
+                            ->label(__('general.url')),
+                        Toggle::make('invert')
+                            ->label(__('general.invert')),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if (empty($data['url'])) {
+                            return $query;
+                        }
+
+                        $invert = $data['invert'] ?? false;
+
+                        return $invert
+                            ? $query->where('url', 'not like', '%'.$data['url'].'%')
+                            : $query->where('url', 'like', '%'.$data['url'].'%');
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if (! empty($data['url'])) {
+                            $indicators['url'] = __('general.url').': '.$data['url'].(($data['invert'] ?? false) ? ' ('.__('general.invert').')' : '');
+                        }
+
+                        return $indicators;
                     }),
             ], layout: FiltersLayout::Modal)
             ->filtersFormColumns(3)
@@ -1232,6 +1313,8 @@ class OrderResource extends Resource
                                 if ($record->status == 'locked') {
                                     return false;
                                 }
+
+                                return true;
                             }),
                         ForceDeleteAction::make(),
                         ViewAction::make()
@@ -1266,6 +1349,7 @@ class OrderResource extends Resource
                                         'locked' => __('general.locked'),
                                         'refunded' => __('general.refunded'),
                                         'awaiting_approval' => __('general.awaiting_approval'),
+                                        'ready_for_pickup' => __('general.ready_for_pickup'),
                                     ])
                                     ->prefixIcon('heroicon-o-ellipsis-horizontal-circle')
                                     ->required(),
@@ -1294,14 +1378,14 @@ class OrderResource extends Resource
                             ->url(function (Model $record) {
                                 return route('filament.app.resources.order-articles.view', $record->order_article_id);
                             }, true)
-                            ->visible(fn (Model $record) => (! empty($record->order_article_id) && Gate::allows('view-OrderArticle', $record->order_article_id) && OrderArticle::where('id', $record->order_article_id)->exists()))
+                            ->visible(fn (Model $record) => (! empty($record->order_article_id) && Gate::allows('view-OrderArticle', $record->order_article_id) && $record->directoryArticle !== null))
                             ->icon('heroicon-o-arrow-top-right-on-square')
                             ->label(__('general.article_directory')),
                         Action::make('order_request_link')
                             ->url(function (Model $record) {
                                 return route('filament.app.resources.order-requests.view', $record->order_request_id);
                             }, true)
-                            ->visible(fn (Model $record) => (! empty($record->order_request_id) && Gate::allows('view-OrderRequest', $record->order_request_id) && OrderRequest::where('id', $record->order_request_id)->exists()))
+                            ->visible(fn (Model $record) => (! empty($record->order_request_id) && Gate::allows('view-OrderRequest', $record->order_request_id) && $record->orderRequest !== null))
                             ->icon('heroicon-o-arrow-top-right-on-square')
                             ->label(__('general.order_request')),
                     ])->dropdown(false),
@@ -1571,6 +1655,7 @@ class OrderResource extends Resource
                                     'locked' => __('general.locked'),
                                     'refunded' => __('general.refunded'),
                                     'awaiting_approval' => __('general.awaiting_approval'),
+                                    'ready_for_pickup' => __('general.ready_for_pickup'),
                                 ])
                                 ->prefixIcon('heroicon-o-ellipsis-horizontal-circle')
                                 ->required(),
@@ -1591,7 +1676,7 @@ class OrderResource extends Resource
                         ->schema([
                             Textarea::make('delivery_destination')
                                 ->label(__('general.delivery_destination'))
-                                ->rows(7)
+                                ->rows(7),
                         ])
                         ->visible(Auth::user()->can('update-Order')),
                     BulkAction::make('article_number_sync')
@@ -1615,6 +1700,78 @@ class OrderResource extends Resource
                                 ->send();
                         })
                         ->visible(Auth::user()->can('can-use-article-directory-special-functions')),
+                    BulkAction::make('update_price')
+                        ->label(__('general.price'))
+                        ->icon('heroicon-o-currency-dollar')
+                        ->action(function (Collection $records, array $data): void {
+                            foreach ($records as $record) {
+                                $update = [];
+                                if (isset($data['price_net'])) {
+                                    $update['price_net'] = $data['price_net'];
+                                }
+                                if (isset($data['price_gross'])) {
+                                    $update['price_gross'] = $data['price_gross'];
+                                }
+                                if (isset($data['tax_rate'])) {
+                                    $update['tax_rate'] = $data['tax_rate'];
+                                }
+                                $record->update($update);
+                            }
+                            Notification::make()
+                                ->body(__('general.saved'))
+                                ->success()
+                                ->send();
+                        })
+                        ->schema([
+                            Checkbox::make('auto_calculate')
+                                ->label(__('general.auto_calculate'))
+                                ->default(true)
+                                ->formatStateUsing(fn ($state) => $state === null || ! $state ? true : $state)
+                                ->live(),
+                            TextInput::make('tax_rate')
+                                ->label(__('general.tax_rate'))
+                                ->numeric()
+                                ->default(19)
+                                ->visible(fn (Get $get) => $get('auto_calculate'))
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(function (Get $get, Set $set) {
+                                    if (! $get('auto_calculate')) {
+                                        return;
+                                    }
+                                    $taxRate = (float) ($get('tax_rate') ?? 0);
+                                    $net = (float) ($get('price_net') ?? 0);
+                                    $set('price_gross', round($net * (1 + $taxRate / 100), 2));
+                                }),
+                            TextInput::make('price_net')
+                                ->label(__('general.price_net'))
+                                ->numeric()
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                                    if (! $get('auto_calculate')) {
+                                        return;
+                                    }
+                                    $taxRate = (float) ($get('tax_rate') ?? 0);
+                                    if ($state !== null) {
+                                        $set('price_gross', round((float) $state * (1 + $taxRate / 100), 2));
+                                    }
+                                }),
+                            TextInput::make('price_gross')
+                                ->label(__('general.price_gross'))
+                                ->numeric()
+                                ->live(onBlur: true)
+                                ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                                    if (! $get('auto_calculate')) {
+                                        return;
+                                    }
+                                    $taxRate = (float) ($get('tax_rate') ?? 0);
+                                    if ($state !== null && $taxRate > 0) {
+                                        $set('price_net', round((float) $state / (1 + $taxRate / 100), 2));
+                                    } elseif ($state !== null) {
+                                        $set('price_net', (float) $state);
+                                    }
+                                }),
+                        ])
+                        ->visible(Auth::user()->can('bulk-update-order-price')),
                     BulkAction::make('returning_deposit_sync')
                         ->label(__('general.returning_deposit_sync'))
                         ->icon('heroicon-o-arrow-path-rounded-square')

@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @property int $id
@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property Carbon|null $updated_at
  * @property User|null $added_by
  * @property User|null $edited_by
+ *
  * @method static Builder<static>|ContainerType newModelQuery()
  * @method static Builder<static>|ContainerType newQuery()
  * @method static Builder<static>|ContainerType onlyTrashed()
@@ -31,6 +32,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static Builder<static>|ContainerType whereUpdatedAt($value)
  * @method static Builder<static>|ContainerType withTrashed()
  * @method static Builder<static>|ContainerType withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class ContainerType extends Model

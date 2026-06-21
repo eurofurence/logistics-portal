@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Actions\Inventory;
 
 use App\Models\Department;

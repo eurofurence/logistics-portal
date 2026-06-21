@@ -6,7 +6,7 @@ use App\Models\OrderRequest;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\OrderRequest>
+ * @extends Factory<OrderRequest>
  */
 class OrderRequestFactory extends Factory
 {

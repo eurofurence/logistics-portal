@@ -2,21 +2,32 @@
 
 namespace App\Filament\Pages\Auth;
 
-use Filament\Schemas\Schema;
+use Filament\Actions\Action;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Section;
-use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
 
-class EditProfile extends \Filament\Auth\Pages\EditProfile
+class EditProfile extends \Filament\Auth\Pages\EditProfile implements HasTable
 {
+    use InteractsWithTable;
+
+    public ?string $newToken = null;
+
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Tabs::make('Tabs')
                     ->tabs([
-                        Tab::make('Tab 1')
+                        Tab::make('Notifications')
                             ->schema([
                                 Section::make(__('general.notification_email'))
                                     ->schema([
@@ -37,11 +48,59 @@ class EditProfile extends \Filament\Auth\Pages\EditProfile
                                                 'regex:/^https:\/\/discord\.com\/api\/webhooks\/\d+\/[a-zA-Z0-9\-_]+$/',
                                             ]),
                                     ])
-                                    ->description(__('general.discord_webhook_description'))
+                                    ->description(__('general.discord_webhook_description')),
                             ])
                             ->label(__('general.notifications'))
                             ->icon('heroicon-o-bell'),
-                    ])
+                        Tab::make('API')
+                            ->schema([
+                                Action::make('createToken')
+                                    ->label(__('general.create_token'))
+                                    ->icon('heroicon-o-plus')
+                                    ->schema([
+                                        TextInput::make('name')
+                                            ->label(__('general.token_name'))
+                                            ->required(),
+                                        CheckboxList::make('abilities')
+                                            ->label(__('general.token_abilities'))
+                                            ->options([
+                                                // Test Values
+                                                'create' => 'Erstellen',
+                                                'read' => 'Lesen',
+                                                'update' => 'Aktualisieren',
+                                                'delete' => 'Löschen',
+                                            ]),
+                                    ])
+                                    ->action(function (array $data, $livewire) {
+                                        $token = $livewire->getUser()->createToken($data['name'], $data['abilities']);
+                                        Notification::make()
+                                            ->title(__('general.token_created'))
+                                            ->body(__('general.your_new_token').': '.$token->plainTextToken)
+                                            ->persistent()
+                                            ->success()
+                                            ->send();
+                                    }),
+                            ])
+                            ->label(__('general.api'))
+                            ->icon('heroicon-o-key')
+                            ->visible(false),
+                    ]),
+            ]);
+    }
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->query($this->getUser()->tokens()->getQuery())
+            ->columns([
+                TextColumn::make('name')
+                    ->label(__('general.token_name')),
+                TextColumn::make('created_at')
+                    ->label(__('general.created_at'))
+                    ->dateTime(),
+            ])
+            ->recordActions([
+
             ]);
     }
 }

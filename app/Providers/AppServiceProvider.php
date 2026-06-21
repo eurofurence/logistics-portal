@@ -2,34 +2,36 @@
 
 namespace App\Providers;
 
+use App\Http\Responses\LogoutResponse;
 use App\Models\Bill;
 use App\Models\Order;
+use App\Models\PersonalAccessToken;
 use App\Observers\BillObserver;
 use App\Observers\OrderObserver;
+use App\Providers\Socialite\SocialiteIdentityProvider;
 use App\Services\AsinDataService;
-use Spatie\Health\Facades\Health;
 use Filament\Support\Colors\Color;
-use Illuminate\Support\Facades\URL;
-use App\Http\Responses\LogoutResponse;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Cache\RateLimiting\Limit;
-use Laravel\Socialite\Contracts\Factory;
-use Spatie\Health\Checks\Checks\PingCheck;
 use Filament\Support\Facades\FilamentColor;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\ServiceProvider;
+use Laravel\Sanctum\Sanctum;
+use Laravel\Socialite\Contracts\Factory;
 use Spatie\CpuLoadHealthCheck\CpuLoadCheck;
 use Spatie\Health\Checks\Checks\CacheCheck;
-use Spatie\Health\Checks\Checks\QueueCheck;
-use Spatie\Health\Checks\Checks\RedisCheck;
-use Spatie\Health\Checks\Checks\HorizonCheck;
-use Spatie\Health\Checks\Checks\ScheduleCheck;
+use Spatie\Health\Checks\Checks\DatabaseConnectionCountCheck;
+use Spatie\Health\Checks\Checks\DatabaseSizeCheck;
 use Spatie\Health\Checks\Checks\DebugModeCheck;
 use Spatie\Health\Checks\Checks\EnvironmentCheck;
-use Spatie\Health\Checks\Checks\DatabaseSizeCheck;
-//use Spatie\SecurityAdvisoriesHealthCheck\SecurityAdvisoriesCheck;
+use Spatie\Health\Checks\Checks\HorizonCheck;
+use Spatie\Health\Checks\Checks\PingCheck;
+use Spatie\Health\Checks\Checks\QueueCheck;
+use Spatie\Health\Checks\Checks\RedisCheck;
+// use Spatie\SecurityAdvisoriesHealthCheck\SecurityAdvisoriesCheck;
+use Spatie\Health\Checks\Checks\ScheduleCheck;
 use Spatie\Health\Checks\Checks\UsedDiskSpaceCheck;
-use App\Providers\Socialite\SocialiteIdentityProvider;
-use Spatie\Health\Checks\Checks\DatabaseConnectionCountCheck;
+use Spatie\Health\Facades\Health;
 use Spatie\SecurityAdvisoriesHealthCheck\SecurityAdvisoriesCheck;
 
 class AppServiceProvider extends ServiceProvider
@@ -64,13 +66,13 @@ class AppServiceProvider extends ServiceProvider
             'warning' => Color::Amber,
             'delivered' => Color::Teal,
             'received' => Color::Fuchsia,
-            'checking' => Color::Orange
+            'checking' => Color::Orange,
         ]);
 
         Health::checks([
             DebugModeCheck::new(),
             EnvironmentCheck::new(),
-            //ScheduleCheck::new(),
+            // ScheduleCheck::new(),
             UsedDiskSpaceCheck::new(),
             SecurityAdvisoriesCheck::new(),
             CacheCheck::new(),
@@ -82,7 +84,7 @@ class AppServiceProvider extends ServiceProvider
             DatabaseConnectionCountCheck::new()
                 ->warnWhenMoreConnectionsThan(50)
                 ->failWhenMoreConnectionsThan(100),
-            //QueueCheck::new(),
+            // QueueCheck::new(),
         ]);
 
         $socialite = $this->app->make(Factory::class);
@@ -101,5 +103,7 @@ class AppServiceProvider extends ServiceProvider
         // Observers
         Order::observe(OrderObserver::class);
         Bill::observe(BillObserver::class);
+
+        Sanctum::usePersonalAccessTokenModel(PersonalAccessToken::class);
     }
 }

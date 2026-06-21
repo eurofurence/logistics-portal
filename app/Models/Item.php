@@ -2,18 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Illuminate\Database\Eloquent\Builder;
-use Spatie\MediaLibrary\HasMedia;
-use App\Models\InventorySubCategory;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Model;
-use Spatie\MediaLibrary\InteractsWithMedia;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property int $id
@@ -49,6 +48,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property-read User|null $editedBy
  * @property-read MediaCollection<int, Media> $media
  * @property-read int|null $media_count
+ *
  * @method static Builder<static>|Item newModelQuery()
  * @method static Builder<static>|Item newQuery()
  * @method static Builder<static>|Item onlyTrashed()
@@ -83,6 +83,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static Builder<static>|Item whereWeightG($value)
  * @method static Builder<static>|Item withTrashed()
  * @method static Builder<static>|Item withoutTrashed()
+ *
  * @property string|null $owner
  * @property int $borrowed_item
  * @property int $rented_item
@@ -95,6 +96,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property-read ItemsOperationSite|null $connected_operation_site
  * @property-read Storage|null $connected_storage
  * @property-read InventorySubCategory|null $connected_sub_category
+ *
  * @method static Builder<static>|Item whereBorrowedItem($value)
  * @method static Builder<static>|Item whereCustomFields($value)
  * @method static Builder<static>|Item whereManufacturerBarcode($value)
@@ -104,11 +106,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static Builder<static>|Item whereSubCategory($value)
  * @method static Builder<static>|Item whereWeight($value)
  * @method static Builder<static>|Item whereWillBeBroughtToNextEvent($value)
+ *
  * @mixin \Eloquent
  */
 class Item extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes, InteractsWithMedia;
+    use HasFactory, InteractsWithMedia, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -125,8 +128,7 @@ class Item extends Model implements HasMedia
     {
         parent::boot();
 
-        #TODO: Sollte das Department mal im Nachhinein geändert werden müssen hier Checks eingebaut werden die Prüfen ob die Kategorie/operation site zum Department gehört
-
+        // TODO: Sollte das Department mal im Nachhinein geändert werden müssen hier Checks eingebaut werden die Prüfen ob die Kategorie/operation site zum Department gehört
 
         static::creating(function ($model) {
             $model->added_by = Auth::user()->id;

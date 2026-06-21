@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @property int $id
@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property int $edited_by
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ *
  * @method static Builder<static>|StorageContainer newModelQuery()
  * @method static Builder<static>|StorageContainer newQuery()
  * @method static Builder<static>|StorageContainer onlyTrashed()
@@ -42,6 +43,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static Builder<static>|StorageContainer whereUpdatedAt($value)
  * @method static Builder<static>|StorageContainer withTrashed()
  * @method static Builder<static>|StorageContainer withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class StorageContainer extends Model

@@ -2,22 +2,21 @@
 
 namespace App\Filament\Admin\Resources\Departments\RelationManagers;
 
-use Filament\Schemas\Schema;
+use App\Models\Department;
+use App\Models\Role;
+use App\Models\User;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
-use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use App\Models\Role;
-
-use App\Models\User;
-use App\Models\Department;
-use Filament\Tables\Table;
 use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\TextColumn;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Tables\Columns\SelectColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\SelectColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class DepartmentMembersRelationManager extends RelationManager
 {
@@ -70,7 +69,7 @@ class DepartmentMembersRelationManager extends RelationManager
                                 ->toArray();
                         }
                     )
-                    ->selectablePlaceholder(true)
+                    ->selectablePlaceholder(true),
             ])
             ->filters([
                 SelectFilter::make('role_id')
@@ -87,7 +86,7 @@ class DepartmentMembersRelationManager extends RelationManager
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->schema(fn(): array => [
+                    ->schema(fn (): array => [
                         Select::make('department_id')
                             ->options(Department::where('id', $this->getOwnerRecord()->getAttribute('id'))->pluck('name', 'id')->toArray())
                             ->default($this->getOwnerRecord()->getAttribute('id'))
@@ -110,7 +109,7 @@ class DepartmentMembersRelationManager extends RelationManager
                             ->label(__('general.role'))
                             ->default('0')
                             ->required()
-                            ->selectablePlaceholder(true)
+                            ->selectablePlaceholder(true),
                     ])
                     ->modalSubmitActionLabel(__('general.add'))
                     ->modalHeading(__('general.add_member'))

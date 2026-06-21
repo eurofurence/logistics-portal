@@ -1,10 +1,15 @@
 <?php
 
+use Althinect\FilamentSpatieRolesPermissions\Resources\PermissionResource;
+use Althinect\FilamentSpatieRolesPermissions\Resources\RoleResource;
+use App\Models\Team;
+use App\Models\User;
+
 return [
 
     'resources' => [
-        'PermissionResource' => \Althinect\FilamentSpatieRolesPermissions\Resources\PermissionResource::class,
-        'RoleResource' => \Althinect\FilamentSpatieRolesPermissions\Resources\RoleResource::class,
+        'PermissionResource' => PermissionResource::class,
+        'RoleResource' => RoleResource::class,
     ],
 
     'preload_roles' => true,
@@ -13,7 +18,7 @@ return [
 
     'navigation_section_group' => 'filament-spatie-roles-permissions::filament-spatie.section.roles_and_permissions', // Default uses language constant
 
-    'team_model' => \App\Models\Team::class,
+    'team_model' => Team::class,
 
     'scope_to_tenant' => true,
 
@@ -49,11 +54,11 @@ return [
     'should_redirect_to_index' => [
         'permissions' => [
             'after_create' => false,
-            'after_edit' => false
+            'after_edit' => false,
         ],
         'roles' => [
             'after_create' => false,
-            'after_edit' => false
+            'after_edit' => false,
         ],
     ],
 
@@ -128,7 +133,7 @@ return [
 
     'sort' => [
         'role_navigation' => false,
-        'permission_navigation' => false
+        'permission_navigation' => false,
     ],
 
     'generator' => [
@@ -148,13 +153,13 @@ return [
             'createPermission' => 'create',
             'updatePermission' => 'update',
             'deletePermission' => 'delete',
-            //'deleteAnyPermission' => 'delete-any',
+            // 'deleteAnyPermission' => 'delete-any',
             'replicatePermission' => 'replicate',
             'restorePermission' => 'restore',
-            //'restoreAnyPermission' => 'restore-any',
-            //'reorderPermission' => 'reorder',
+            // 'restoreAnyPermission' => 'restore-any',
+            // 'reorderPermission' => 'reorder',
             'forceDeletePermission' => 'force-delete',
-            //'forceDeleteAnyPermission' => 'force-delete-any',
+            // 'forceDeleteAnyPermission' => 'force-delete-any',
         ],
 
         /*
@@ -179,7 +184,7 @@ return [
          */
         'model_directories' => [
             app_path('Models'),
-            //app_path('Domains/Forum')
+            // app_path('Domains/Forum')
         ],
 
         /*
@@ -193,12 +198,12 @@ return [
          * Define excluded_models
          */
         'excluded_models' => [
-            //\App\Models\ItemsOperationSite::class
+            // \App\Models\ItemsOperationSite::class
 
         ],
 
         'excluded_policy_models' => [
-            \App\Models\User::class,
+            User::class,
         ],
 
         /*
@@ -274,7 +279,7 @@ return [
             'get-new-bill-accountant-notification',
         ],
 
-        'user_model' => \App\Models\User::class,
+        'user_model' => User::class,
 
         'policies_namespace' => 'App\Policies',
     ],

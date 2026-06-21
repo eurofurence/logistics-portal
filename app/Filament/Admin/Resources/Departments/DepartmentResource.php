@@ -2,35 +2,35 @@
 
 namespace App\Filament\Admin\Resources\Departments;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Tables\Filters\TrashedFilter;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use App\Filament\Admin\Resources\Departments\Pages\ListDepartments;
 use App\Filament\Admin\Resources\Departments\Pages\CreateDepartment;
 use App\Filament\Admin\Resources\Departments\Pages\EditDepartment;
+use App\Filament\Admin\Resources\Departments\Pages\ListDepartments;
+use App\Filament\Admin\Resources\Departments\RelationManagers\DepartmentMembersRelationManager;
 use App\Models\Department;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Illuminate\Support\Facades\Gate;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Forms\Components\TextInput;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Admin\Resources\Departments\RelationManagers\DepartmentMembersRelationManager;
-use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Gate;
 
 class DepartmentResource extends Resource
 {
     protected static ?string $model = Department::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedBuildingOffice;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice;
 
     public static function getNavigationGroup(): string
     {
@@ -73,7 +73,7 @@ class DepartmentResource extends Resource
                             ->unique(ignoreRecord: true)
                             ->label(__('general.idp_group'))
                             ->nullable(),
-                    ])
+                    ]),
             ]);
     }
 
@@ -102,7 +102,7 @@ class DepartmentResource extends Resource
                 EditAction::make(),
                 DeleteAction::make()
                     ->modalHeading(function ($record): string {
-                        return __('general.delete') . ': ' . $record->name;
+                        return __('general.delete').': '.$record->name;
                     }),
                 ForceDeleteAction::make(),
                 RestoreAction::make(),
@@ -120,7 +120,7 @@ class DepartmentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            DepartmentMembersRelationManager::class
+            DepartmentMembersRelationManager::class,
         ];
     }
 

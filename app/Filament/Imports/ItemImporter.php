@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Filament\Imports;
 
+use App\Models\Department;
 use App\Models\Item;
+use App\Models\Storage;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
-use Illuminate\Support\Facades\Auth;
-use Filament\Forms\Components\Select;
-use App\Models\Department;
-use App\Models\Storage;
 use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Utilities\Get;
+use Illuminate\Support\Facades\Auth;
 
 class ItemImporter extends Importer
 {
@@ -162,12 +162,12 @@ class ItemImporter extends Importer
                         if ($departmentId) {
                             $q->orWhere(function ($q2) use ($departmentId) {
                                 $q2->where('type', 2) // Department specific
-                                  ->where(function ($subQ) use ($departmentId) {
-                                      $subQ->where('managing_department', $departmentId)
-                                          ->orWhereHas('departments', function ($deptQuery) use ($departmentId) {
-                                              $deptQuery->where('department', $departmentId);
-                                          });
-                                  });
+                                    ->where(function ($subQ) use ($departmentId) {
+                                        $subQ->where('managing_department', $departmentId)
+                                            ->orWhereHas('departments', function ($deptQuery) use ($departmentId) {
+                                                $deptQuery->where('department', $departmentId);
+                                            });
+                                    });
                             });
                         }
                     });
@@ -176,7 +176,7 @@ class ItemImporter extends Importer
                 })
                 ->searchable()
                 ->disabled(function (Get $get) {
-                    return !$get('department_id');
+                    return ! $get('department_id');
                 }),
         ];
     }
@@ -196,16 +196,16 @@ class ItemImporter extends Importer
 
             // If the name already exists, we append (1), (2), etc., just like in Windows.
             while (Item::where('name', $name)->exists()) {
-                $suffix = ' (' . $counter . ')';
+                $suffix = ' ('.$counter.')';
                 // Trim the original name if we exceed the 64-character limit of the database
-                $name = mb_substr($originalName, 0, 64 - mb_strlen($suffix)) . $suffix;
+                $name = mb_substr($originalName, 0, 64 - mb_strlen($suffix)).$suffix;
                 $counter++;
             }
 
             // Important: Overwrite the name in the import data so that Filament saves this new name
             $this->data['name'] = $name;
 
-            $item = new Item();
+            $item = new Item;
         }
 
         // Set the department selected from the dropdown menu
@@ -226,10 +226,10 @@ class ItemImporter extends Importer
 
     public static function getCompletedNotificationBody(Import $import): string
     {
-        $body =  number_format($import->successful_rows) . ' ' . __('general.row_where_imported') . '.';
+        $body = number_format($import->successful_rows).' '.__('general.row_where_imported').'.';
 
         if ($failedRowsCount = $import->getFailedRowsCount()) {
-            $body .= ' ' . number_format($failedRowsCount) . ' ' . __('general.row_where_failed') . '.';
+            $body .= ' '.number_format($failedRowsCount).' '.__('general.row_where_failed').'.';
         }
 
         return $body;

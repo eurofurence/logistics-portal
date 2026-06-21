@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Filament\Forms\Components\Field;
 use App\View\Components\BarcodeInput;
+use Filament\Forms\Components\Field;
 use Illuminate\Support\ServiceProvider;
 
 class BarcodeInputServiceProvider extends ServiceProvider

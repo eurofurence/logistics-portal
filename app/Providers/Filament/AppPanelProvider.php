@@ -9,8 +9,6 @@ use App\Filament\Pages\Dashboard;
 use App\Http\Middleware\CheckWhitelist;
 use App\Http\Middleware\UserIsLocked;
 use App\Settings\ThemeSettings;
-use Awcodes\Versions\VersionsPlugin;
-use Awcodes\Versions\VersionsWidget;
 use CharrafiMed\GlobalSearchModal\GlobalSearchModalPlugin;
 use CraftForge\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
 use Exception;
@@ -58,10 +56,10 @@ class AppPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
-            //->viteTheme('resources/css/filament/app/theme.css')
+            // ->viteTheme('resources/css/filament/app/theme.css')
             ->widgets([
                 AccountWidget::class,
-                //JokesWidget::make(),
+                // JokesWidget::make(),
             ])
             ->middleware([
                 EncryptCookies::class,

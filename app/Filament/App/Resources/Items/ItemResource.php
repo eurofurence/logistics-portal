@@ -5,7 +5,6 @@ namespace App\Filament\App\Resources\Items;
 use App\Actions\Inventory\OperationSiteActions;
 use App\Actions\Inventory\SubCategorySiteActions;
 use App\Exports\InventoryItemsExport;
-use App\Filament\App\Resources\ItemResource\Pages;
 use App\Filament\App\Resources\Items\Pages\CreateItem;
 use App\Filament\App\Resources\Items\Pages\EditItem;
 use App\Filament\App\Resources\Items\Pages\ListItems;
@@ -30,7 +29,6 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
-use Filament\Forms;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
@@ -56,11 +54,9 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Grouping\Group;
@@ -79,9 +75,9 @@ class ItemResource extends Resource
 {
     protected static ?string $model = Item::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedListBullet;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedListBullet;
 
-    protected static $export_column_options = array();
+    protected static $export_column_options = [];
 
     public static function getNavigationGroup(): string
     {
@@ -123,7 +119,7 @@ class ItemResource extends Resource
             __('general.serialnumber') => $record->serialnumber,
             __('general.owner') => $record->owner,
             __('general.description') => $record->description,
-            __('general.storage') => $record->connected_storage->name
+            __('general.storage') => $record->connected_storage->name,
         ];
     }
 
@@ -237,6 +233,7 @@ class ItemResource extends Resource
                                                                 return $department->inventory_sub_categories->pluck('name', 'id')->toArray();
                                                             }
                                                         }
+
                                                         return [];
                                                     })
                                                     ->searchable(['name'])
@@ -252,10 +249,10 @@ class ItemResource extends Resource
                                                     ->suffixAction(fn (Get $get) => SubCategorySiteActions::getEditAction($get('department')))
                                                     ->suffixAction(fn (Get $get) => SubCategorySiteActions::getDeleteAction($get('department')))
                                                     ->disabled(function (Get $get) {
-                                                        return self::isView() || self::isCreate() || !$get('department');
+                                                        return self::isView() || self::isCreate() || ! $get('department');
                                                     })
                                                     ->hint(function (Get $get) {
-                                                        if (!$get('department')) {
+                                                        if (! $get('department')) {
                                                             return __('general.please_select_department_first');
                                                         }
                                                         if (self::isCreate()) {
@@ -263,9 +260,10 @@ class ItemResource extends Resource
                                                         }
                                                     })
                                                     ->hintIcon(function (Get $get) {
-                                                        if (!$get('department')) {
+                                                        if (! $get('department')) {
                                                             return 'heroicon-o-exclamation-triangle';
                                                         }
+
                                                         return null;
                                                     }),
                                                 Textarea::make('description')
@@ -346,7 +344,7 @@ class ItemResource extends Resource
                                     ]),
                                 Tab::make('storage_and_locations')
                                     ->icon('heroicon-o-building-storefront')
-                                    ->label(__('general.storage') . '/' . __('general.locations'))
+                                    ->label(__('general.storage').'/'.__('general.locations'))
                                     ->schema([
                                         Select::make('storage')
                                             ->label(__('general.storage'))
@@ -362,12 +360,12 @@ class ItemResource extends Resource
                                                     if ($departmentId) {
                                                         $q->orWhere(function ($q2) use ($departmentId) {
                                                             $q2->where('type', 2) // Department specific
-                                                              ->where(function ($subQ) use ($departmentId) {
-                                                                  $subQ->where('managing_department', $departmentId)
-                                                                      ->orWhereHas('departments', function ($deptQuery) use ($departmentId) {
-                                                                          $deptQuery->where('department', $departmentId);
-                                                                      });
-                                                              });
+                                                                ->where(function ($subQ) use ($departmentId) {
+                                                                    $subQ->where('managing_department', $departmentId)
+                                                                        ->orWhereHas('departments', function ($deptQuery) use ($departmentId) {
+                                                                            $deptQuery->where('department', $departmentId);
+                                                                        });
+                                                                });
                                                         });
                                                     }
                                                 });
@@ -376,15 +374,17 @@ class ItemResource extends Resource
                                             })
                                             ->searchable(['name'])
                                             ->hint(function (Get $get) {
-                                                if (!$get('department')) {
+                                                if (! $get('department')) {
                                                     return __('general.storage_department_hint');
                                                 }
+
                                                 return null;
                                             })
                                             ->hintIcon(function (Get $get) {
-                                                if (!$get('department')) {
+                                                if (! $get('department')) {
                                                     return 'heroicon-o-exclamation-triangle';
                                                 }
+
                                                 return null;
                                             })
                                             ->suffixIcon('heroicon-o-building-storefront'),
@@ -398,6 +398,7 @@ class ItemResource extends Resource
                                                         return $department->items_operation_sites->pluck('name', 'id')->toArray();
                                                     }
                                                 }
+
                                                 return [];
                                             })
                                             ->searchable(['name'])
@@ -413,10 +414,10 @@ class ItemResource extends Resource
                                             ->suffixAction(fn (Get $get) => OperationSiteActions::getEditAction($get('department')))
                                             ->suffixAction(fn (Get $get) => OperationSiteActions::getDeleteAction($get('department')))
                                             ->disabled(function (Get $get) {
-                                                return self::isView() || self::isCreate() || !$get('department');
+                                                return self::isView() || self::isCreate() || ! $get('department');
                                             })
                                             ->hint(function (Get $get) {
-                                                if (!$get('department')) {
+                                                if (! $get('department')) {
                                                     return __('general.please_select_department_first');
                                                 }
                                                 if (self::isEdit()) {
@@ -426,13 +427,14 @@ class ItemResource extends Resource
                                                 }
                                             })
                                             ->hintIcon(function (Get $get) {
-                                                if (!$get('department')) {
+                                                if (! $get('department')) {
                                                     return 'heroicon-o-exclamation-triangle';
                                                 }
+
                                                 return null;
                                             }),
                                     ]),
-                                Tab::make(__('general.more') . '/' . __('general.note'))
+                                Tab::make(__('general.more').'/'.__('general.note'))
                                     ->icon('heroicon-o-ellipsis-horizontal-circle')
                                     ->schema([
                                         Fieldset::make('note')
@@ -474,18 +476,18 @@ class ItemResource extends Resource
                                             ->schema([
                                                 TextEntry::make('added_by')
                                                     ->label(__('general.added_by'))
-                                                    ->state(fn(Model $record) => $record->addedBy->name),
+                                                    ->state(fn (Model $record) => $record->addedBy->name),
                                                 TextEntry::make('edited_by')
                                                     ->label(__('general.edited_by'))
-                                                    ->state(fn(Model $record) => $record->editedBy->name),
+                                                    ->state(fn (Model $record) => $record->editedBy->name),
                                                 TextEntry::make('created_at')
                                                     ->label(__('general.created_at'))
-                                                    ->state(fn(Model $record) => Carbon::parse($record->created_at)->timezone('Europe/Berlin')),
+                                                    ->state(fn (Model $record) => Carbon::parse($record->created_at)->timezone('Europe/Berlin')),
                                                 TextEntry::make('updated_at')
                                                     ->label(__('general.updated_at'))
-                                                    ->state(fn(Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
+                                                    ->state(fn (Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
                                             ])
-                                            ->hiddenOn(CreateItem::class)
+                                            ->hiddenOn(CreateItem::class),
                                     ]),
                                 Tab::make(__('general.files'))
                                     ->icon('heroicon-o-document')
@@ -510,30 +512,30 @@ class ItemResource extends Resource
                                             ->tabs([
                                                 Tab::make('generate_code')
                                                     ->schema([
-                                                        //Placeholder::make('WIP')
+                                                        // Placeholder::make('WIP')
                                                     ])
                                                     ->label(__('general.generate'))
                                                     ->icon('heroicon-o-plus-circle'),
                                                 Tab::make('link_code')
                                                     ->schema([
-                                                        //Placeholder::make('WIP')
+                                                        // Placeholder::make('WIP')
                                                     ])
                                                     ->label(__('general.connect'))
                                                     ->disabled()
-                                                    ->icon('heroicon-o-link')
-                                            ])
+                                                    ->icon('heroicon-o-link'),
+                                            ]),
                                     ]),
                                 Tab::make(__('general.custom_fields'))
                                     ->icon('heroicon-o-table-cells')
                                     ->schema([
                                         KeyValue::make('custom_fields')
                                             ->label(__('general.custom_fields'))
-                                            ->keyLabel(__('general.field_name'))
+                                            ->keyLabel(__('general.field_name')),
                                     ]),
                             ])
                             ->persistTabInQueryString()
-                            ->contained(false)
-                    ])->columnSpanFull()
+                            ->contained(false),
+                    ])->columnSpanFull(),
             ]);
     }
 
@@ -583,7 +585,7 @@ class ItemResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->label(__('general.name'))
-                    ->formatStateUsing(fn(string $state) => Str::limit($state, 40, '...'))
+                    ->formatStateUsing(fn (string $state) => Str::limit($state, 40, '...'))
                     ->description(function ($record): string {
                         $flags = array_filter([
                             $record->dangerous_good ? __('general.dangerous_good') : null,
@@ -616,7 +618,7 @@ class ItemResource extends Resource
                     ->searchable()
                     ->label(__('general.storage'))
                     ->toggleable(),
-                    /*
+                /*
                 ToggleIconColumn::make('sorted_out')
                     ->sortable()
                     ->toggleable(true, true)
@@ -632,7 +634,7 @@ class ItemResource extends Resource
                     ->toggleable(true, true)
                     ->label(__('general.serialnumber')),
                     */
-                    /*
+                /*
                 ToggleIconColumn::make('borrowed_item')
                     ->sortable()
                     ->toggleable(true, true)
@@ -665,15 +667,15 @@ class ItemResource extends Resource
             ])
             ->filters([
                 TrashedFilter::make()
-                    ->visible(fn(): bool => Gate::allows('restore', Item::class) || Gate::allows('forceDelete', Item::class) || Gate::allows('bulkForceDelete', Item::class) || Gate::allows('bulkRestore', Item::class)),
+                    ->visible(fn (): bool => Gate::allows('restore', Item::class) || Gate::allows('forceDelete', Item::class) || Gate::allows('bulkForceDelete', Item::class) || Gate::allows('bulkRestore', Item::class)),
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
                             ->label(__('general.created_from'))
-                            ->placeholder(fn($state): string => 'Dec 18, ' . now()->subYear()->format('Y')),
+                            ->placeholder(fn ($state): string => 'Dec 18, '.now()->subYear()->format('Y')),
                         DatePicker::make('created_until')
                             ->label(__('general.created_until'))
-                            ->placeholder(fn($state): string => now()->format('M d, Y')),
+                            ->placeholder(fn ($state): string => now()->format('M d, Y')),
                         Toggle::make('invert')
                             ->label(__('general.invert')),
                     ])
@@ -682,7 +684,7 @@ class ItemResource extends Resource
                         $until = $data['created_until'] ?? null;
                         $invert = $data['invert'] ?? false;
 
-                        if (!$from && !$until) {
+                        if (! $from && ! $until) {
                             return $query;
                         }
 
@@ -706,12 +708,12 @@ class ItemResource extends Resource
                     })
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
-                        $invertText = ($data['invert'] ?? false) ? ' (' . __('general.invert') . ')' : '';
+                        $invertText = ($data['invert'] ?? false) ? ' ('.__('general.invert').')' : '';
                         if ($data['created_from'] ?? null) {
-                            $indicators['created_from'] = __('general.created_from') . ' ' . Carbon::parse($data['created_from'])->toFormattedDateString() . $invertText;
+                            $indicators['created_from'] = __('general.created_from').' '.Carbon::parse($data['created_from'])->toFormattedDateString().$invertText;
                         }
                         if ($data['created_until'] ?? null) {
-                            $indicators['created_until'] = __('general.created_until') . ' ' . Carbon::parse($data['created_until'])->toFormattedDateString() . $invertText;
+                            $indicators['created_until'] = __('general.created_until').' '.Carbon::parse($data['created_until'])->toFormattedDateString().$invertText;
                         }
 
                         return $indicators;
@@ -720,10 +722,10 @@ class ItemResource extends Resource
                     ->form([
                         DatePicker::make('due_date_from')
                             ->label(__('general.due_date_from'))
-                            ->placeholder(fn($state): string => 'Dec 18, ' . now()->subYear()->format('Y')),
+                            ->placeholder(fn ($state): string => 'Dec 18, '.now()->subYear()->format('Y')),
                         DatePicker::make('due_date_until')
                             ->label(__('general.due_date_until'))
-                            ->placeholder(fn($state): string => now()->format('M d, Y')),
+                            ->placeholder(fn ($state): string => now()->format('M d, Y')),
                         Toggle::make('invert')
                             ->label(__('general.invert')),
                     ])
@@ -732,7 +734,7 @@ class ItemResource extends Resource
                         $until = $data['due_date_until'] ?? null;
                         $invert = $data['invert'] ?? false;
 
-                        if (!$from && !$until) {
+                        if (! $from && ! $until) {
                             return $query;
                         }
 
@@ -756,12 +758,12 @@ class ItemResource extends Resource
                     })
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
-                        $invertText = ($data['invert'] ?? false) ? ' (' . __('general.invert') . ')' : '';
+                        $invertText = ($data['invert'] ?? false) ? ' ('.__('general.invert').')' : '';
                         if ($data['due_date_from'] ?? null) {
-                            $indicators['due_date_from'] = __('general.due_date_from') . ' ' . Carbon::parse($data['due_date_from'])->toFormattedDateString() . $invertText;
+                            $indicators['due_date_from'] = __('general.due_date_from').' '.Carbon::parse($data['due_date_from'])->toFormattedDateString().$invertText;
                         }
                         if ($data['due_date_until'] ?? null) {
-                            $indicators['due_date_until'] = __('general.due_date_until') . ' ' . Carbon::parse($data['due_date_until'])->toFormattedDateString() . $invertText;
+                            $indicators['due_date_until'] = __('general.due_date_until').' '.Carbon::parse($data['due_date_until'])->toFormattedDateString().$invertText;
                         }
 
                         return $indicators;
@@ -788,16 +790,18 @@ class ItemResource extends Resource
                         if ($data['invert'] ?? false) {
                             return $query->whereNotIn('department', $data['values']);
                         }
+
                         return $query->whereIn('department', $data['values']);
                     })
                     ->indicateUsing(function (array $data): array {
                         if (empty($data['values'])) {
                             return [];
                         }
-                        $indicator = __('general.department') . ': ' . count($data['values']);
+                        $indicator = __('general.department').': '.count($data['values']);
                         if ($data['invert'] ?? false) {
-                            $indicator .= ' (' . __('general.invert') . ')';
+                            $indicator .= ' ('.__('general.invert').')';
                         }
+
                         return [$indicator];
                     }),
                 Filter::make('storage')
@@ -830,16 +834,18 @@ class ItemResource extends Resource
                         if ($data['invert'] ?? false) {
                             return $query->whereNotIn('storage', $data['values']);
                         }
+
                         return $query->whereIn('storage', $data['values']);
                     })
                     ->indicateUsing(function (array $data): array {
                         if (empty($data['values'])) {
                             return [];
                         }
-                        $indicator = __('general.storage') . ': ' . count($data['values']);
+                        $indicator = __('general.storage').': '.count($data['values']);
                         if ($data['invert'] ?? false) {
-                            $indicator .= ' (' . __('general.invert') . ')';
+                            $indicator .= ' ('.__('general.invert').')';
                         }
+
                         return [$indicator];
                     }),
                 TernaryFilter::make('sorted_out')
@@ -874,7 +880,7 @@ class ItemResource extends Resource
                             ->searchable()
                             ->preload()
                             ->options(function (): array {
-                                $options = array();
+                                $options = [];
 
                                 if (Auth::user()->isSuperAdmin()) {
                                     $options = ItemsOperationSite::all()->mapWithKeys(function ($site) {
@@ -904,16 +910,18 @@ class ItemResource extends Resource
                         if ($data['invert'] ?? false) {
                             return $query->whereNotIn('operation_site', $data['values']);
                         }
+
                         return $query->whereIn('operation_site', $data['values']);
                     })
                     ->indicateUsing(function (array $data): array {
                         if (empty($data['values'])) {
                             return [];
                         }
-                        $indicator = __('general.operation_site') . ': ' . count($data['values']);
+                        $indicator = __('general.operation_site').': '.count($data['values']);
                         if ($data['invert'] ?? false) {
-                            $indicator .= ' (' . __('general.invert') . ')';
+                            $indicator .= ' ('.__('general.invert').')';
                         }
+
                         return [$indicator];
                     }),
                 Filter::make('sub_category')
@@ -928,6 +936,7 @@ class ItemResource extends Resource
                                     // Hole alle Sub-Kategorien und formatiere sie für SuperAdmins
                                     $options = InventorySubCategory::all()->mapWithKeys(function ($subCategory) {
                                         $departmentName = $subCategory->connected_department ? $subCategory->connected_department->name : 'No Department';
+
                                         return [$subCategory->id => "ID: {$subCategory->id} - {$subCategory->name} ({$departmentName})"];
                                     })->toArray();
                                 } else {
@@ -942,6 +951,7 @@ class ItemResource extends Resource
                                         }
                                     }
                                 }
+
                                 return $options;
                             }),
                         Toggle::make('invert')
@@ -954,18 +964,20 @@ class ItemResource extends Resource
                         if ($data['invert'] ?? false) {
                             return $query->whereNotIn('sub_category', $data['values']);
                         }
+
                         return $query->whereIn('sub_category', $data['values']);
                     })
                     ->indicateUsing(function (array $data): array {
                         if (empty($data['values'])) {
                             return [];
                         }
-                        $indicator = __('general.sub_category') . ': ' . count($data['values']);
+                        $indicator = __('general.sub_category').': '.count($data['values']);
                         if ($data['invert'] ?? false) {
-                            $indicator .= ' (' . __('general.invert') . ')';
+                            $indicator .= ' ('.__('general.invert').')';
                         }
+
                         return [$indicator];
-                    })
+                    }),
             ])
             ->filtersFormColumns(3)
             ->recordActions([
@@ -974,18 +986,18 @@ class ItemResource extends Resource
                         ->url(function (Model $record) {
                             return route('filament.app.resources.storages.view', $record->storage);
                         }, true)
-                        ->visible(fn(Model $record) => (!empty($record->storage) && Gate::allows('view-Storage', $record->storage) && Storage::where('id', $record->storage)->exists()))
+                        ->visible(fn (Model $record) => (! empty($record->storage) && Gate::allows('view-Storage', $record->storage) && Storage::where('id', $record->storage)->exists()))
                         ->icon('heroicon-o-arrow-top-right-on-square')
                         ->label(__('general.open_storage')),
                     ViewAction::make(),
                     EditAction::make(),
                     DeleteAction::make()
                         ->modalHeading(function ($record): string {
-                            return __('general.delete') . ': ' . $record->name;
+                            return __('general.delete').': '.$record->name;
                         }),
                     RestoreAction::make(),
                     ForceDeleteAction::make(),
-                ])
+                ]),
             ])
             ->toolbarActions([
                 BulkAction::make('export_selected')
@@ -1002,9 +1014,9 @@ class ItemResource extends Resource
                                             'standard' => __('general.export_filetype_standard_description'),
                                         ])
                                         ->required()
-                                        ->label('')
+                                        ->label(''),
                                 ])
-                                    ->description(__('general.type'))
+                                    ->description(__('general.type')),
                             ])
                             ->icon('heroicon-o-document'),
                         Step::make('select_columns')
@@ -1031,22 +1043,22 @@ class ItemResource extends Resource
                                         ->default(['id', 'name'])
                                         ->columns(3)
                                         ->required()
-                                        ->disableOptionWhen(fn(string $value): bool => in_array($value, ['id', 'name'])),
+                                        ->disableOptionWhen(fn (string $value): bool => in_array($value, ['id', 'name'])),
                                 ])
                                     ->visible(function (Get $get) {
                                         return $get('export_type') == 'standard';
                                     })
                                     ->description(__('general.select_columns')),
                                 Section::make([
-                                    TextEntry::make(__('general.no_options_available'))
+                                    TextEntry::make(__('general.no_options_available')),
                                 ])
                                     ->visible(function (Get $get) {
                                         return $get('export_type') != 'standard';
-                                    })
+                                    }),
                             ]),
                         Step::make(__('general.options'))
                             ->schema([
-                                #Option for standard export
+                                // Option for standard export
                                 Section::make([
                                     FileUpload::make('image')
                                         ->label('')
@@ -1060,22 +1072,22 @@ class ItemResource extends Resource
                                         ->avatar()
                                         ->storeFiles(true)
                                         ->imageEditorEmptyFillColor('#000000')
-                                        ->getUploadedFileNameForStorageUsing(fn() => str()->random(64))
+                                        ->getUploadedFileNameForStorageUsing(fn () => str()->random(64)),
                                 ])
-                                    ->description(__('general.picture') . ' - ' . __('general.export_picture_option_description'))
+                                    ->description(__('general.picture').' - '.__('general.export_picture_option_description'))
                                     ->visible(function (Get $get) {
                                         return $get('export_type') == 'standard';
                                     }),
 
-                                #Options for standard export
+                                // Options for standard export
                                 Section::make([
-                                    #TODO:: Storage Option
+                                    // TODO:: Storage Option
 
-                                    #TODO: Operation Site Option
+                                    // TODO: Operation Site Option
 
-                                    #TODO: custom_fields Option
+                                    // TODO: custom_fields Option
 
-                                    #TODO: sub_category Option
+                                    // TODO: sub_category Option
                                     Checkbox::make('calculate_total_net')
                                         ->inline()
                                         ->label(__('general.calculate_total_net')),
@@ -1092,12 +1104,12 @@ class ItemResource extends Resource
                                         ->inline()
                                         ->label(__('general.show_who_approved_order')),
                                 ])
-                                    ->description(__('general.special_fields') . ' - (' . __('general.per_row') . ')')
+                                    ->description(__('general.special_fields').' - ('.__('general.per_row').')')
                                     ->visible(function (Get $get) {
                                         return $get('export_type') == 'standard';
                                     }),
 
-                                #Option for standard export
+                                // Option for standard export
                                 Section::make([
                                     Radio::make('orientation')
                                         ->label('')
@@ -1114,13 +1126,13 @@ class ItemResource extends Resource
                                         return $get('export_type') == 'standard';
                                     }),
 
-                                #When no option is available
+                                // When no option is available
                                 Section::make([
-                                    TextEntry::make(__('general.no_options_available'))
+                                    TextEntry::make(__('general.no_options_available')),
                                 ])
                                     ->visible(function (Get $get) {
                                         return $get('export_type') == 'metro_list';
-                                    })
+                                    }),
                             ])
                             ->icon('heroicon-o-puzzle-piece'),
                         Step::make(__('general.columns'))
@@ -1128,7 +1140,7 @@ class ItemResource extends Resource
                                 Section::make([
 
                                 ])
-                                ->description(__('general.add_custom_columns_description'))
+                                    ->description(__('general.add_custom_columns_description')),
                             ])
                             ->description(__('general.add_custom_columns'))
                             ->icon('heroicon-o-table-cells'),
@@ -1142,28 +1154,29 @@ class ItemResource extends Resource
                                         ])
                                         ->descriptions([
                                             'xlsx' => __('general.excel_table'),
-                                            'pdf' => __('general.pdf_file')
+                                            'pdf' => __('general.pdf_file'),
                                         ])
                                         ->required()
-                                        ->label('')
+                                        ->label(''),
                                 ])
-                                ->description(__('general.file_type'))
+                                    ->description(__('general.file_type')),
                             ])
                             ->icon('heroicon-o-cog-6-tooth'),
                     ])
                     ->action(function (Collection $records, array $data, $table) {
                         try {
-                            if (!empty($data['image'])) {
+                            if (! empty($data['image'])) {
                                 $data['image'] = Storage::temporaryUrl($data['image'], now()->addMinutes(30));
                             }
 
-                            $data['records'] = $records->filter(fn($record) => $record->status !== 'locked');
+                            $data['records'] = $records->filter(fn ($record) => $record->status !== 'locked');
 
                             if ($data['records']->count() < 1) {
                                 Notification::make()
                                     ->body(__('general.no_entries'))
                                     ->warning()
                                     ->send();
+
                                 return;
                             }
 
@@ -1174,12 +1187,12 @@ class ItemResource extends Resource
                             $exportConfig = [
                                 'standard' => [
                                     'class' => InventoryItemsExport::class,
-                                    'filename' => __('general.standard') . ' - ' . __('general.orders'),
+                                    'filename' => __('general.standard').' - '.__('general.orders'),
                                     'params' => [$data, 92, 92, ['dangerous_good', 'big_size', 'needs_truck', 'booked_to_inventory', 'instant_delivery']],
                                 ],
                             ];
 
-                            if (!isset($exportConfig[$exportType])) {
+                            if (! isset($exportConfig[$exportType])) {
                                 return response()->json(['error' => 'Invalid export type'], 400);
                             }
 
@@ -1191,12 +1204,12 @@ class ItemResource extends Resource
                             return Excel::download(new $exportClass(...$config['params']), $filename, $exportFormat);
                         } catch (Exception $e) {
                             Notification::make()
-                                ->body($e->getMessage() . ' - ' . __('general.reload_required'))
+                                ->body($e->getMessage().' - '.__('general.reload_required'))
                                 ->title(__('general.error'))
                                 ->danger()
                                 ->persistent()
                                 ->send();
-                            Log::error('Error: ' . $e->getMessage() . ' - Code: ' . $e->getCode() . ' - File: ' . $e->getFile() . ' - Line: ' . $e->getLine());
+                            Log::error('Error: '.$e->getMessage().' - Code: '.$e->getCode().' - File: '.$e->getFile().' - Line: '.$e->getLine());
                         }
                     }),
                 BulkActionGroup::make([
@@ -1252,8 +1265,8 @@ class ItemResource extends Resource
                 Group::make('connected_operation_site.name')
                     ->label(__('general.operation_site'))
                     ->getTitleFromRecordUsing(function (Item $record): string {
-                        if (!empty($record->connected_operation_site)) {
-                            return ucfirst($record->connected_operation_site->name) . " ({$record->connected_department->name})";
+                        if (! empty($record->connected_operation_site)) {
+                            return ucfirst($record->connected_operation_site->name)." ({$record->connected_department->name})";
                         }
 
                         return __('general.no_operation_site');
@@ -1262,8 +1275,8 @@ class ItemResource extends Resource
                 Group::make('connected_sub_category.name')
                     ->label(__('general.sub_category'))
                     ->getTitleFromRecordUsing(function (Item $record): string {
-                        if (!empty($record->connected_sub_category)) {
-                            return ucfirst($record->connected_sub_category->name) . " ({$record->connected_department->name})";
+                        if (! empty($record->connected_sub_category)) {
+                            return ucfirst($record->connected_sub_category->name)." ({$record->connected_department->name})";
                         }
 
                         return __('general.no_category');

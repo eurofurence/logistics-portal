@@ -51,7 +51,7 @@ class RolePolicy
         if ($role->name == 'Master' || $role->id == 1) {
             return false;
         }
-        
+
         return $user->checkPermissionTo('delete-Role');
     }
 

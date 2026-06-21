@@ -2,15 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 use Database\Factories\OrderEventFactory;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @property int $id
@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property Carbon|null $updated_at
  * @property-read Collection<int, Order> $orders
  * @property-read int|null $orders_count
+ *
  * @method static OrderEventFactory factory($count = null, $state = [])
  * @method static Builder<static>|OrderEvent newModelQuery()
  * @method static Builder<static>|OrderEvent newQuery()
@@ -42,6 +43,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static Builder<static>|OrderEvent whereUpdatedAt($value)
  * @method static Builder<static>|OrderEvent withTrashed()
  * @method static Builder<static>|OrderEvent withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class OrderEvent extends Model
@@ -59,7 +61,7 @@ class OrderEvent extends Model
         'order_deadline',
         'added_by',
         'edited_by',
-        'is_active'
+        'is_active',
     ];
 
     /**
@@ -68,7 +70,7 @@ class OrderEvent extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'order_deadline' => 'datetime'
+        'order_deadline' => 'datetime',
     ];
 
     protected static function boot()

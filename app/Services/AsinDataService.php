@@ -2,9 +2,7 @@
 
 namespace App\Services;
 
-use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Cache;
 
 class AsinDataService
 {
@@ -19,14 +17,13 @@ class AsinDataService
      * @param string asin The `asin` parameter in the `getProductData` function is a string variable that represents the
      * Amazon Standard Identification Number (ASIN) of a product. This ASIN is used to uniquely identify products on the
      * Amazon marketplace. When you call this function and pass an ASIN as an argument,
-     *
      * @return null|array If the HTTP response is successful and the 'product' key exists in the JSON response, the
-     * function will return the product data as an array. If either of these conditions is not met, the function will
-     * return null.
+     *                    function will return the product data as an array. If either of these conditions is not met, the function will
+     *                    return null.
      */
-    public function getProductData(string $asin): null|array
+    public function getProductData(string $asin): ?array
     {
-        $response = Http::timeout(config('amazon-asin.timeout', 60))->get(config('amazon-asin.api_url') . '/request?', [
+        $response = Http::timeout(config('amazon-asin.timeout', 60))->get(config('amazon-asin.api_url').'/request?', [
             'api_key' => config('amazon-asin.api_key'),
             'type' => 'product',
             'asin' => $asin,
@@ -55,12 +52,12 @@ class AsinDataService
      * null.
      *
      * @return null|array Either an array containing account information if the API call is successful and the
-     * 'account_info' key exists in the response, or null if the API call is not successful or the 'account_info' key does
-     * not exist in the response.
+     *                    'account_info' key exists in the response, or null if the API call is not successful or the 'account_info' key does
+     *                    not exist in the response.
      */
-    public function getAccountData(): null|array
+    public function getAccountData(): ?array
     {
-        $response = Http::timeout(config('amazon-asin.timeout', 60))->get(config('amazon-asin.api_url') . '/account?', [
+        $response = Http::timeout(config('amazon-asin.timeout', 60))->get(config('amazon-asin.api_url').'/account?', [
             'api_key' => config('amazon-asin.api_key'),
         ]);
 
@@ -84,13 +81,12 @@ class AsinDataService
      *
      * @param string url Thank you for providing the code snippet. To extract the ASIN (Amazon Standard Identification
      * Number) from the given URL, you can use the `extractASIN` function.
-     *
      * @return string|null An array with the ASIN value if it was successfully extracted from the URL, or null if the ASIN
-     * could not be extracted.
+     *                     could not be extracted.
      */
     public function extractASIN(string $url): string
     {
-        if (!$this->isAmazonUrl($url)) {
+        if (! $this->isAmazonUrl($url)) {
             return '';
         }
 
@@ -107,9 +103,8 @@ class AsinDataService
      * @param url The `isAmazonUrl` function is designed to check if a given URL is from Amazon. The regular expression
      * used in the function checks if the URL starts with `http://` or `https://`, followed by an optional `www.`, then
      * `amazon.`, followed by a top-level domain
-     *
      * @return int|false the result of the `preg_match` function, which will be either an integer (the number of times the
-     * pattern was found in the string) or `false` if an error occurred/not found.
+     *                   pattern was found in the string) or `false` if an error occurred/not found.
      */
     public function isAmazonUrl($url): int|false
     {
@@ -120,8 +115,8 @@ class AsinDataService
      * This PHP function retrieves the remaining top-up credits from account data.
      *
      * @return int The function `getCredits()` is returning an integer value representing the remaining top-up credits from
-     * the account information. If the account data is not available or if the 'account_info' key is not present in the
-     * data, the function will return 0.
+     *             the account information. If the account data is not available or if the 'account_info' key is not present in the
+     *             data, the function will return 0.
      */
     public function getCredits(): int
     {
@@ -137,7 +132,7 @@ class AsinDataService
      * The function `getRateLimitPerMinute` retrieves the rate limit per minute from account data.
      *
      * @return int The function `getRateLimitPerMinute` returns the rate limit per minute as an integer value. If the
-     * account data is not available or if the rate limit per minute is not set in the account data, it will return 0.
+     *             account data is not available or if the rate limit per minute is not set in the account data, it will return 0.
      */
     public function getRateLimitPerMinute(): int
     {
@@ -171,13 +166,13 @@ class AsinDataService
      * @param string shortUrl The `resolveAmazonUrl` function you provided is designed to resolve a shortened Amazon URL to
      * its actual URL by following any redirections. To use this function, you need to pass the shortened Amazon URL as the
      * `shortUrl` parameter.
-     *
      * @return string The function `resolveAmazonUrl` returns the resolved URL after following any redirects from the
-     * provided short URL.
+     *                provided short URL.
      */
     public function resolveAmazonUrl(string $shortUrl): string
     {
         $headers = get_headers($shortUrl, 1);
+
         return $headers['Location'] ?? $shortUrl; // Returns the target URL or the original URL
     }
 
@@ -186,16 +181,15 @@ class AsinDataService
      * adjusted base link if found, otherwise returns the original URL.
      *
      * @param string url Please provide the Amazon URL that you would like to clean up using the `cleanAmazonUrl` function.
-     *
      * @return string If the URL contains the DP format for an Amazon link, the adjusted base link will be returned.
-     * Otherwise, the original URL will be returned.
+     *                Otherwise, the original URL will be returned.
      */
-    public function cleanAmazonUrl(string $url) :string
+    public function cleanAmazonUrl(string $url): string
     {
         // Check whether the URL contains the DP format
         if (preg_match('#https://www\.amazon\.de/dp/([A-Z0-9]+)#', $url, $matches)) {
             // Return the adjusted base link
-            return "https://www.amazon.de/dp/" . $matches[1];
+            return 'https://www.amazon.de/dp/'.$matches[1];
         }
 
         // If no DP link is found, return the original URL

@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @property int $id
@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property User|null $added_by
  * @property User|null $edited_by
  * @property-read SubUnit|null $subUnit
+ *
  * @method static Builder<static>|BaseUnit newModelQuery()
  * @method static Builder<static>|BaseUnit newQuery()
  * @method static Builder<static>|BaseUnit onlyTrashed()
@@ -34,6 +35,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @method static Builder<static>|BaseUnit whereUpdatedAt($value)
  * @method static Builder<static>|BaseUnit withTrashed()
  * @method static Builder<static>|BaseUnit withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class BaseUnit extends Model
@@ -49,7 +51,7 @@ class BaseUnit extends Model
      */
     protected $fillable = [
         'name',
-        'sub_unit'
+        'sub_unit',
     ];
 
     protected static function boot()

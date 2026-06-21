@@ -3,19 +3,25 @@
 namespace App\Providers\Socialite;
 
 use Carbon\Carbon;
-use Laravel\Socialite\Two\User;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
 use Laravel\Socialite\Two\AbstractProvider;
+use Laravel\Socialite\Two\User;
 
 class SocialiteIdentityProvider extends AbstractProvider
 {
     private mixed $issuer;
+
     private mixed $userinfoEndpoint;
+
     private mixed $tokenEndpoint;
+
     private mixed $authorizationEndpoint;
+
     private mixed $jwksUri;
+
     private mixed $endSessionEndpoint;
+
     private mixed $revocationEndpoint;
 
     /**
@@ -51,6 +57,7 @@ class SocialiteIdentityProvider extends AbstractProvider
         $this->jwksUri = $config['jwks_uri'];
         $this->endSessionEndpoint = $config['end_session_endpoint'];
         $this->revocationEndpoint = $config['revocation_endpoint'];
+
         return $this;
     }
 
@@ -87,7 +94,7 @@ class SocialiteIdentityProvider extends AbstractProvider
             $ex_email_verified = null;
         }
 
-        return (new User())->setRaw($user)->map([
+        return (new User)->setRaw($user)->map([
             'ex_id' => $user['sub'],
             'email' => $user['email'],
             'name' => $user['name'],

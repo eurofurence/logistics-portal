@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * @property int $id
@@ -41,6 +40,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read OrderCategory|null $categorie
+ *
  * @method static Builder<static>|OrderArticle newModelQuery()
  * @method static Builder<static>|OrderArticle newQuery()
  * @method static Builder<static>|OrderArticle onlyTrashed()
@@ -75,8 +75,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @method static Builder<static>|OrderArticle whereUrl($value)
  * @method static Builder<static>|OrderArticle withTrashed()
  * @method static Builder<static>|OrderArticle withoutTrashed()
- * @property-read \App\Models\User|null $addedBy
- * @property-read \App\Models\User|null $editedBy
+ *
+ * @property-read User|null $addedBy
+ * @property-read User|null $editedBy
+ *
  * @mixin \Eloquent
  */
 class OrderArticle extends Model
@@ -112,7 +114,7 @@ class OrderArticle extends Model
         'packaging_article_quantity',
         'deadline',
         'auto_calculate',
-        'important_note'
+        'important_note',
     ];
 
     /**
@@ -127,7 +129,7 @@ class OrderArticle extends Model
         'returning_deposit' => 'real',
         'article_variants' => 'array',
         'packaging_size_per_article' => 'real',
-        'auto_calculate' => 'bool'
+        'auto_calculate' => 'bool',
     ];
 
     protected static function boot()
@@ -188,15 +190,15 @@ class OrderArticle extends Model
      * The function `getAuthUser` returns the authenticated user or the "System" user if no user is authenticated.
      *
      * @return User The `getAuthUser` function returns an instance of the `User` model. If a user is authenticated, it
-     * returns the authenticated user using `Auth::user()`. If no user is authenticated, it returns the "System" user by
-     * finding the user with an ID of 0 using `User::find(0)`.
+     *              returns the authenticated user using `Auth::user()`. If no user is authenticated, it returns the "System" user by
+     *              finding the user with an ID of 0 using `User::find(0)`.
      */
     private static function getAuthUser(): User
     {
         $user = Auth::check() ? Auth::user() : null;
 
         // If no user is authenticated, select the "System" user
-        if (!$user) {
+        if (! $user) {
             $user = User::find(0);
         }
 

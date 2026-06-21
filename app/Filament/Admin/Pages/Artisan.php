@@ -2,34 +2,34 @@
 
 namespace App\Filament\Admin\Pages;
 
-use Gate;
-use Exception;
-use Filament\Panel;
 use App\Models\Command;
-use Filament\Pages\Page;
-use Filament\Tables\Table;
+use Exception;
 use Filament\Actions\Action;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
-use Filament\Forms\Components\Textarea;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Contracts\HasTable;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
 use Filament\Forms\Components\TagsInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Tables\Filters\SelectFilter;
-use Filament\Actions\Contracts\HasActions;
+use Filament\Pages\Page;
+use Filament\Panel;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Gate;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Console\Output\BufferedOutput;
 use TomatoPHP\FilamentDeveloperGate\Http\Middleware\DeveloperGateMiddleware;
 
-class Artisan extends Page implements HasTable, HasActions
+class Artisan extends Page implements HasActions, HasTable
 {
-    use InteractsWithTable;
     use InteractsWithActions;
+    use InteractsWithTable;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-command-line';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-command-line';
 
     protected string $view = 'filament.admin.pages.artisan.index';
 
@@ -47,7 +47,8 @@ class Artisan extends Page implements HasTable, HasActions
         return $middlewares;
     }
 
-    public static function canAccess(): bool {
+    public static function canAccess(): bool
+    {
         if (Auth::check()) {
             if (Auth::user()->isSuperAdmin()) {
                 if (Auth::user()->email == config('app.admin_mail')) {
@@ -69,9 +70,6 @@ class Artisan extends Page implements HasTable, HasActions
         return __('artisan.title');
     }
 
-    /**
-     * @param string|null $navigationGroup
-     */
     public static function setNavigationGroup(?string $navigationGroup): void
     {
         self::$navigationGroup = __('artisan.group');
@@ -83,12 +81,12 @@ class Artisan extends Page implements HasTable, HasActions
             Action::make('output')
                 ->icon('heroicon-s-computer-desktop')
                 ->color('warning')
-                ->schema(fn(array $arguments = []) => [
+                ->schema(fn (array $arguments = []) => [
                     Textarea::make('output')
                         ->autosize()
                         ->default($arguments ? $arguments['output'] : session()->get('terminal_output'))
                         ->disabled()
-                        ->label(__('artisan.actions.output'))
+                        ->label(__('artisan.actions.output')),
                 ])
                 ->label(__('artisan.actions.output')),
         ];
@@ -105,7 +103,7 @@ class Artisan extends Page implements HasTable, HasActions
                         ->success()
                         ->send();
 
-                    return redirect()->to(config('filament-developer-gate.route_prefix') . '/developer-gate');
+                    return redirect()->to(config('filament-developer-gate.route_prefix').'/developer-gate');
                 })
                 ->requiresConfirmation()
                 ->color('danger')
@@ -162,14 +160,13 @@ class Artisan extends Page implements HasTable, HasActions
             });
     }
 
-
     public static function shouldRegisterNavigation(): bool
     {
         $show = true;
         if (config('filament-artisan.navigation.show-only-commands-showing', false)) {
             $local = App::environment('local');
             $only = config('filament-artisan.local', true);
-            $show = ($local || !$only);
+            $show = ($local || ! $only);
         }
 
         return $show;
@@ -190,7 +187,7 @@ class Artisan extends Page implements HasTable, HasActions
         return $table
             ->query(Command::query())
             ->paginated(false)
-            ->content(fn() => view('filament.admin.pages.artisan.table.content'))
+            ->content(fn () => view('filament.admin.pages.artisan.table.content'))
             ->defaultSort('name')
             ->filters([
                 SelectFilter::make('group')
@@ -202,8 +199,8 @@ class Artisan extends Page implements HasTable, HasActions
                             ->distinct()
                             ->get()
                             ->pluck('group')
-                            ->mapWithKeys(fn($group) => [$group => $group])
-                    )
+                            ->mapWithKeys(fn ($group) => [$group => $group])
+                    ),
             ])
             ->columns([
                 TextColumn::make('name')->searchable()->sortable(),
@@ -220,13 +217,12 @@ class Artisan extends Page implements HasTable, HasActions
     {
         $commands = \Illuminate\Support\Facades\Artisan::all();
 
-        if (!in_array($name, array_keys($commands))) {
+        if (! in_array($name, array_keys($commands))) {
             abort(404);
         }
 
         return $commands[$name];
     }
-
 
     public function runCommand(string $key, array $data = []): string
     {
@@ -237,7 +233,7 @@ class Artisan extends Page implements HasTable, HasActions
             $permissions = config('filament-artisan.permissions', []);
 
             if (count($permissions)) {
-                if (in_array($command->getName(), array_keys($permissions)) && !Gate::check($permissions[$command->getName()])) {
+                if (in_array($command->getName(), array_keys($permissions)) && ! Gate::check($permissions[$command->getName()])) {
                     abort(403);
                 }
             }
@@ -250,15 +246,15 @@ class Artisan extends Page implements HasTable, HasActions
 
                 foreach ($data as $key => $value) {
 
-                    if (in_array($key, $options))
+                    if (in_array($key, $options)) {
                         $key = "--{$key}";
+                    }
 
                     $params[$key] = $value;
                 }
             }
 
-
-            $output = new BufferedOutput();
+            $output = new BufferedOutput;
             $status = \Illuminate\Support\Facades\Artisan::call($command->getName(), $params, $output);
             $output = $output->fetch();
 

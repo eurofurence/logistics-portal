@@ -2,12 +2,12 @@
 
 namespace App\Filament\Pages\Auth;
 
-use Filament\Schemas\Schema; // Zurück zum originalen Schema aus deinem Projekt
-use Filament\Actions\Action;
+use Filament\Actions\Action; // Zurück zum originalen Schema aus deinem Projekt
+use Filament\Schemas\Schema;
 
 class Login extends \Filament\Auth\Pages\Login
 {
-   public function form(Schema $schema): Schema
+    public function form(Schema $schema): Schema
     {
         return parent::form($schema);
     }

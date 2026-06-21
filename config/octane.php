@@ -209,6 +209,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Swoole Settings
+    |--------------------------------------------------------------------------
+    |
+    | The following settings configure the Swoole server options. These options
+    | are passed directly to the Swoole server when it is started. You may
+    | set any of the supported Swoole server options here.
+    |
+    */
+    'swoole' => [
+        'options' => [
+            'package_max_length' => 128 * 1024 * 1024,
+            'buffer_output_size' => 128 * 1024 * 1024,
+            'socket_buffer_size' => 128 * 1024 * 1024,
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Maximum Execution Time
     |--------------------------------------------------------------------------
     |
@@ -218,6 +236,6 @@ return [
     |
     */
 
-    'max_execution_time' => 30,
+    'max_execution_time' => 3600,
 
 ];

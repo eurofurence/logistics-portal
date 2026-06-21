@@ -2,15 +2,14 @@
 
 namespace App\Filament\App\Resources\Items\Pages;
 
-use Filament\Actions;
-use Filament\Actions\ViewAction;
+use App\Filament\App\Resources\Items\ItemResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ReplicateAction;
-use Illuminate\Database\Eloquent\Model;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\TextInput;
-use Filament\Resources\Pages\EditRecord;
 use Filament\Infolists\Components\TextEntry;
-use App\Filament\App\Resources\Items\ItemResource;
+use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Model;
 
 class EditItem extends EditRecord
 {
@@ -24,7 +23,7 @@ class EditItem extends EditRecord
             DeleteAction::make()
                 ->icon('heroicon-o-trash')
                 ->modalHeading(function ($record): string {
-                    return __('general.delete') . ': ' . $record->name;
+                    return __('general.delete').': '.$record->name;
                 }),
             ReplicateAction::make()
                 ->icon('heroicon-o-arrow-up-on-square-stack')
@@ -38,8 +37,8 @@ class EditItem extends EditRecord
                         ->maxLength(64)
                         ->unique(),
                 ])
-                ->successRedirectUrl(fn(Model $replica): string => route('filament.app.resources.items.edit', $replica))
-                ->successNotificationTitle(__('general.entry_duplicated'))
+                ->successRedirectUrl(fn (Model $replica): string => route('filament.app.resources.items.edit', $replica))
+                ->successNotificationTitle(__('general.entry_duplicated')),
         ];
     }
 }

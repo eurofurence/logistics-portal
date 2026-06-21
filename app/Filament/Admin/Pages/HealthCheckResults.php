@@ -2,16 +2,15 @@
 
 namespace App\Filament\Admin\Pages;
 
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Contracts\Support\Htmlable;
 use ShuvroRoy\FilamentSpatieLaravelHealth\Pages\HealthCheckResults as BaseHealthCheckResults;
-
 
 class HealthCheckResults extends BaseHealthCheckResults
 {
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-heart';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-heart';
 
     /*
     public function getHeading(): string | Htmlable
@@ -29,7 +28,7 @@ class HealthCheckResults extends BaseHealthCheckResults
     {
         $panel_name = trim(preg_replace('/^[^.]+\.(.*?\.).*$/', '$1', Route::currentRouteName()), '.');
 
-        if (!Auth::Check()) {
+        if (! Auth::Check()) {
             return false;
         }
 

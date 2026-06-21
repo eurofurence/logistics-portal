@@ -3,31 +3,36 @@
 namespace App\Exports;
 
 use Exception;
-use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use Maatwebsite\Excel\Concerns\WithTitle;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use PhpOffice\PhpSpreadsheet\Style\Border;
-use Maatwebsite\Excel\Concerns\WithDrawings;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
+use Maatwebsite\Excel\Concerns\WithDrawings;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\HeaderFooter;
 use PhpOffice\PhpSpreadsheet\Worksheet\MemoryDrawing;
+use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class SingleDepartmentSheet implements FromCollection, WithTitle, ShouldAutoSize, WithStyles, WithHeadings, WithEvents, WithCustomStartCell, WithDrawings, WithColumnWidths
+class SingleDepartmentSheet implements FromCollection, ShouldAutoSize, WithColumnWidths, WithCustomStartCell, WithDrawings, WithEvents, WithHeadings, WithStyles, WithTitle
 {
     protected string $department_name;
+
     protected $orders;
+
     protected array $headings;
+
     protected array $data;
+
     protected int $image_height;
+
     protected int $image_width;
 
     public function __construct(string $department_name, $orders, array $headings, array $data, int $image_height, int $image_width)
@@ -91,7 +96,7 @@ class SingleDepartmentSheet implements FromCollection, WithTitle, ShouldAutoSize
                 ],
                 'font' => [
                     'bold' => true,
-                    'size' => 26
+                    'size' => 26,
                 ],
                 'borders' => [
                     'bottom' => [
@@ -105,8 +110,8 @@ class SingleDepartmentSheet implements FromCollection, WithTitle, ShouldAutoSize
                     ],
                     'right' => [
                         'borderStyle' => Border::BORDER_NONE,
-                    ]
-                ]
+                    ],
+                ],
             ];
         }
 
@@ -154,13 +159,13 @@ class SingleDepartmentSheet implements FromCollection, WithTitle, ShouldAutoSize
                 $event->sheet->getDelegate()->getRowDimension(1)->setRowHeight($this->image_height);
                 $event->sheet->setCellValue('B1', $this->department_name);
 
-                //Page numbers
-                $event->sheet->getHeaderFooter()->setOddFooter('&L&B' . __('general.page') . ' &P ' . __('general.of') . ' &N');
-                $event->sheet->getHeaderFooter()->setEvenFooter('&L&B' . __('general.page') . ' &P ' . __('general.of') . ' &N');
+                // Page numbers
+                $event->sheet->getHeaderFooter()->setOddFooter('&L&B'.__('general.page').' &P '.__('general.of').' &N');
+                $event->sheet->getHeaderFooter()->setEvenFooter('&L&B'.__('general.page').' &P '.__('general.of').' &N');
 
                 // Set font size and color for header and footer
-                $event->sheet->getHeaderFooter()->setOddHeader('&C&H' . HeaderFooter::IMAGE_FOOTER_CENTER . '&G&12&KFF0000');
-                $event->sheet->getHeaderFooter()->setOddFooter('&L&B' . $event->sheet->getTitle() . '&RPage &P of &N&12&KFF0000');
+                $event->sheet->getHeaderFooter()->setOddHeader('&C&H'.HeaderFooter::IMAGE_FOOTER_CENTER.'&G&12&KFF0000');
+                $event->sheet->getHeaderFooter()->setOddFooter('&L&B'.$event->sheet->getTitle().'&RPage &P of &N&12&KFF0000');
             },
         ];
     }
@@ -173,14 +178,14 @@ class SingleDepartmentSheet implements FromCollection, WithTitle, ShouldAutoSize
     public function drawings()
     {
         if ($this->data['image'] != null) {
-            if (!$imageResource = @imagecreatefromstring(file_get_contents($this->data['image']))) {
+            if (! $imageResource = @imagecreatefromstring(file_get_contents($this->data['image']))) {
                 throw new Exception('The image URL cannot be converted into an image resource.');
             }
 
             imagealphablending($imageResource, false);
             imagesavealpha($imageResource, true);
 
-            $drawing = new MemoryDrawing();
+            $drawing = new MemoryDrawing;
             $drawing->setName('Logo');
             $drawing->setDescription('Sheet logo');
             $drawing->setImageResource($imageResource);
@@ -198,7 +203,7 @@ class SingleDepartmentSheet implements FromCollection, WithTitle, ShouldAutoSize
         $transparent = imagecolorallocatealpha($imageResource, 0, 0, 0, 127);
         imagefilledrectangle($imageResource, 0, 0, $this->image_width, $this->image_height, $transparent);
 
-        $drawing = new MemoryDrawing();
+        $drawing = new MemoryDrawing;
         $drawing->setName('Empty Logo');
         $drawing->setDescription('Empty sheet logo');
         $drawing->setImageResource($imageResource);
@@ -221,9 +226,10 @@ class SingleDepartmentSheet implements FromCollection, WithTitle, ShouldAutoSize
         $letters = '';
         while ($columnNumber > 0) {
             $remainder = ($columnNumber - 1) % 26;
-            $letters = chr(65 + $remainder) . $letters;
+            $letters = chr(65 + $remainder).$letters;
             $columnNumber = intval(($columnNumber - 1) / 26);
         }
+
         return $letters;
     }
 }

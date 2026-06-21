@@ -3,13 +3,6 @@
         @if ($getRecord()->statusHistory()->count() > 0)
             @foreach ($getRecord()->statusHistory() as $entry)
                 <div class="flex items-start gap-4 group">
-                    <div class="relative mt-1">
-                        <div
-                            class="relative z-10 flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-full shadow-md ring-1 ring-gray-300">
-                            <x-dynamic-component :component="$entry->icon"
-                                class="w-5 h-5" />
-                        </div>
-                    </div>
                     <div
                         class="flex-1 p-4 border rounded-lg shadow-sm">
                         <div class="flex items-center justify-between">
@@ -32,6 +25,7 @@
                         @endif
                     </div>
                 </div>
+                <br>
             @endforeach
         @else
             <!-- No entries -->

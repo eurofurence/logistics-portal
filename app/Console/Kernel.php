@@ -2,9 +2,9 @@
 
 namespace App\Console;
 
-use Illuminate\Support\Facades\Log;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Log;
 use Spatie\ScheduleMonitor\Models\MonitoredScheduledTaskLogItem;
 
 class Kernel extends ConsoleKernel
@@ -18,8 +18,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('files:delete-old')->hourly();
         $schedule->command('model:prune', ['--model' => MonitoredScheduledTaskLogItem::class])->daily();
 
-        if(config('app.backup_schedule_active')){
-            //Log::info('Running backup schedule...');
+        if (config('app.backup_schedule_active')) {
+            // Log::info('Running backup schedule...');
             $schedule->command('backup:with-s3')->daily();
             $schedule->command('backup:clean')->daily();
         }
@@ -30,7 +30,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__ . '/Commands');
+        $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
     }

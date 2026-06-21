@@ -3,14 +3,14 @@
 namespace App\Providers;
 
 use App\Models\User;
-use App\Policies\PermissionPolicy;
-use Illuminate\Support\Facades\Gate;
-use App\Policies\ScheduledTaskLogItemPolicy;
 use App\Policies\MonitoredScheduledTaskPolicy;
-use Spatie\ScheduleMonitor\Models\MonitoredScheduledTask;
-use Spatie\Permission\Models\Permission as SpatiePermission;
-use Spatie\ScheduleMonitor\Models\MonitoredScheduledTaskLogItem;
+use App\Policies\PermissionPolicy;
+use App\Policies\ScheduledTaskLogItemPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+use Spatie\Permission\Models\Permission as SpatiePermission;
+use Spatie\ScheduleMonitor\Models\MonitoredScheduledTask;
+use Spatie\ScheduleMonitor\Models\MonitoredScheduledTaskLogItem;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -28,10 +28,10 @@ class AuthServiceProvider extends ServiceProvider
     /**
      * Register any authentication / authorization services.
      */
-     public function boot(): void
+    public function boot(): void
     {
         Gate::before(function (User $user, string $ability) {
-            return $user->isSuperAdmin() ? true: null;
+            return $user->isSuperAdmin() ? true : null;
         });
     }
 }

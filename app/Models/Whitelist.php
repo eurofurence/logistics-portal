@@ -2,12 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -16,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property Carbon|null $updated_at
  * @property-read User|null $user
  * @property-read User|null $users
+ *
  * @method static Builder<static>|Whitelist newModelQuery()
  * @method static Builder<static>|Whitelist newQuery()
  * @method static Builder<static>|Whitelist query()
@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static Builder<static>|Whitelist whereEmail($value)
  * @method static Builder<static>|Whitelist whereId($value)
  * @method static Builder<static>|Whitelist whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class Whitelist extends Model
@@ -48,7 +49,7 @@ class Whitelist extends Model
         return $this->belongsTo('App\Models\User');
     }
 
-    public function user() :BelongsTo
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'email', 'email');
     }

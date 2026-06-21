@@ -2,30 +2,30 @@
 
 namespace App\Filament\Admin\Resources\Whitelists;
 
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
-use Filament\Actions\EditAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\RestoreBulkAction;
-use App\Filament\Admin\Resources\Whitelists\Pages\ListWhitelists;
 use App\Filament\Admin\Resources\Whitelists\Pages\CreateWhitelist;
 use App\Filament\Admin\Resources\Whitelists\Pages\EditWhitelist;
+use App\Filament\Admin\Resources\Whitelists\Pages\ListWhitelists;
 use App\Models\Whitelist;
-use Filament\Tables\Table;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Forms\Components\TextInput;
-use Filament\Support\Icons\Heroicon;
 
 class WhitelistResource extends Resource
 {
     protected static ?string $model = Whitelist::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = Heroicon::OutlinedCheck;
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedCheck;
 
     protected static ?string $recordTitleAttribute = 'email';
 
@@ -42,7 +42,6 @@ class WhitelistResource extends Resource
     {
         return static::$modelLabel = __('general.whitelist');
     }
-
 
     public static function getNavigationGroup(): string
     {
@@ -63,7 +62,7 @@ class WhitelistResource extends Resource
                 Section::make()
                     ->schema([
                         TextInput::make('email')->required()->unique()->email(),
-                    ])
+                    ]),
             ]);
     }
 
@@ -82,7 +81,7 @@ class WhitelistResource extends Resource
                 EditAction::make(),
                 DeleteAction::make()
                     ->modalHeading(function ($record): string {
-                        return __('general.delete') . ': ' . $record->email;
+                        return __('general.delete').': '.$record->email;
                     }),
             ])
             ->toolbarActions([
@@ -113,10 +112,10 @@ class WhitelistResource extends Resource
 
     public static function canAccess(): bool
     {
-        if (!Auth::Check()) {
+        if (! Auth::Check()) {
             return false;
         }
 
-        return (Auth::user()->checkPermissionTo('access-whitelist-navigation') || Auth::user()->isSuperAdmin());
+        return Auth::user()->checkPermissionTo('access-whitelist-navigation') || Auth::user()->isSuperAdmin();
     }
 }
