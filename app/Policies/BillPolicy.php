@@ -158,4 +158,9 @@ class BillPolicy
     {
         return $user->isSuperAdmin();
     }
+
+    public function downloadZip(User $user): bool
+    {
+        return $user->isSuperAdmin() || $user->hasAnyDepartmentRoleWithPermissionTo('download-Bill-zip') || $user->checkPermissionTo('download-all-bills-zip');
+    }
 }

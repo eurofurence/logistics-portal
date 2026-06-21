@@ -596,6 +596,7 @@ class BillResource extends Resource
                         ->label(__('general.download_zip'))
                         ->icon('heroicon-o-archive-box-arrow-down')
                         ->action(function (Collection $records): StreamedResponse {
+                            set_time_limit(0);
                             $zipFile = tempnam(sys_get_temp_dir(), 'bills_zip');
                             $zip = new ZipArchive;
                             $zip->open($zipFile, ZipArchive::OVERWRITE);
@@ -684,6 +685,7 @@ class BillResource extends Resource
                                 unlink($zipFile);
                             }, 'bills_'.now()->format('Y-m-d_H-i-s').'.zip');
                         })
+                        ->visible(fn (): bool => Gate::allows('downloadZip', Bill::class))
                         ->deselectRecordsAfterCompletion(),
                     DeleteBulkAction::make()
                         ->visible(fn (): bool => Gate::allows('bulkDelete', Bill::class)),
