@@ -4,14 +4,18 @@ namespace App\Jobs;
 
 use App\Models\Bill;
 use App\Models\User;
-use App\Notifications\ZipDownloadReady;
+use App\Notifications\GeneralNotification;
+use Filament\Actions\Action;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use ZipArchive;
 
@@ -27,6 +31,7 @@ class CreateZipJob implements ShouldQueue
     public function handle(): void
     {
         set_time_limit(0);
+        ini_set('memory_limit', '512M');
         $bills = Bill::whereIn('id', $this->billIds)->get();
         $zipName = 'bills_' . now()->format('Y-m-d_H-i-s') . '_' . Str::random(8) . '.zip';
 
@@ -76,6 +81,7 @@ class CreateZipJob implements ShouldQueue
                     $infoContent .= "\n";
                 }
                 $infoContent = mb_convert_encoding($infoContent, 'UTF-8', 'UTF-8');
+                $zip->addFromString($folderName.'/info.txt', "\xEF\xBB\xBF".$infoContent);
 
                 foreach ($bill->getMedia('bills') as $media) {
                     $disk = Storage::disk($media->disk);
@@ -87,8 +93,6 @@ class CreateZipJob implements ShouldQueue
                             $tmpFile = tempnam(sys_get_temp_dir(), 'media_');
                             file_put_contents($tmpFile, $stream);
                             $zip->addFile($tmpFile, $folderName.'/'.$media->file_name);
-                            // Cleanup tmpFile after zip close? No, addFile adds it to ZIP.
-                            // ZipArchive adds the file when closing. So don't delete yet.
                         }
                     }
                 }
@@ -96,9 +100,37 @@ class CreateZipJob implements ShouldQueue
             $zip->close();
         }
 
-        Storage::disk('local')->put($storagePath, file_get_contents($tempLocalPath));
+        Storage::disk('local')->writeStream($storagePath, fopen($tempLocalPath, 'r'));
         unlink($tempLocalPath);
 
-        $this->user->notify(new ZipDownloadReady($storagePath));
+        $downloadUrl = URL::temporarySignedRoute(
+            'bills.download-zip', now()->addHours(24), ['path' => $storagePath]
+        );
+
+        // Send email
+        Notification::send($this->user, new GeneralNotification(
+            $this->user->name,
+            __('general.zip_download_ready', [], 'en'),
+            __('general.zip_download_ready', [], 'en'),
+            __('general.zip_download_ready_message', [], 'en'),
+            null,
+            null,
+            null,
+            $downloadUrl,
+            __('general.download_zip', [], 'en')
+        ));
+
+        // Send database notification
+        FilamentNotification::make()
+            ->title(__('general.zip_download_ready'))
+            ->body(__('general.zip_download_ready_message'))
+            ->icon('heroicon-o-archive-box-arrow-down')
+            ->iconColor('success')
+            ->actions([
+                Action::make(__('general.download_zip'))
+                    ->url($downloadUrl)
+                    ->button(),
+            ])
+            ->sendToDatabase($this->user);
     }
 }
