@@ -19,15 +19,32 @@ use Illuminate\Support\Facades\Storage;
 */
 
 Route::get('/bills/download-zip/{path}', function (string $path) {
-    Log::info('BILL_DOWNLOAD: Route hit', ['path' => $path, 'ip' => request()->ip()]);
+    Log::info('BILL_DOWNLOAD: Route hit', [
+        'path' => $path,
+        'ip' => request()->ip(),
+        'range' => request()->header('Range'),
+    ]);
 
     // Check if link has already been used
-    // We use the full URL (which includes the signature) as unique identifier
     $cacheKey = 'zip_download_used:'.sha1(request()->fullUrl());
+    $accessData = Cache::get($cacheKey);
 
-    if (Cache::has($cacheKey)) {
-        Log::warning('BILL_DOWNLOAD: Link already used', ['url' => request()->fullUrl(), 'ip' => request()->ip()]);
-        abort(403, __('general.link_already_used'));
+    if ($accessData) {
+        // Subsequent request: ONLY allow if it's a range request (for retries/browser behavior)
+        if (! request()->header('Range') || $accessData['ip'] !== request()->ip() || now()->diffInMinutes($accessData['time']) > 15) {
+            Log::warning('BILL_DOWNLOAD: Link already used or invalid retry', [
+                'url' => request()->fullUrl(),
+                'ip' => request()->ip(),
+                'range' => request()->header('Range'),
+            ]);
+            abort(403, __('general.link_already_used'));
+        }
+    } else {
+        // Mark as first used
+        Cache::put($cacheKey, [
+            'ip' => request()->ip(),
+            'time' => now(),
+        ], now()->addHours(12));
     }
 
     if (! Storage::disk('local')->exists($path)) {
@@ -35,21 +52,12 @@ Route::get('/bills/download-zip/{path}', function (string $path) {
         abort(404);
     }
 
-    // Mark as used
-    Cache::put($cacheKey, true, now()->addHours(12));
+    $fullPath = storage_path('app/'.$path);
+    Log::info('BILL_DOWNLOAD: Streaming file', ['path' => $fullPath, 'ip' => request()->ip()]);
 
-    Log::info('BILL_DOWNLOAD: Download started', ['path' => $path, 'ip' => request()->ip()]);
-
-    return response()->streamDownload(function () use ($path) {
-        $stream = Storage::disk('local')->readStream($path);
-        while (! feof($stream)) {
-            echo fread($stream, 8192);
-            flush();
-        }
-        fclose($stream);
-    }, basename($path), [
+    return response()->file($fullPath, [
         'Content-Type' => 'application/zip',
-        'Content-Length' => Storage::disk('local')->size($path),
+        'Content-Disposition' => 'attachment; filename="'.basename($path).'"',
     ]);
 })->name('bills.download-zip')->middleware('signed')->where('path', '.*');
 
