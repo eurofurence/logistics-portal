@@ -22,7 +22,8 @@
     },
     "dependencies": {
         "@tailwindcss/postcss": "^4.1.18",
-        "@zxing/library": "^0.21.3"
+        "@zxing/library": "^0.21.3",
+        "qs": ">=6.15.2"
     },
     "allowScripts": {
         "esbuild@0.25.12": true
