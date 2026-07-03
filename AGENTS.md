@@ -53,7 +53,7 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 ## Frontend Bundling
 
-- If the user doesn't see a frontend change reflected in the UI, it could mean they need to run `vendor\bin\sail npm run build`, `vendor\bin\sail npm run dev`, or `vendor\bin\sail composer run dev`. Ask them.
+- If the user doesn't see a frontend change reflected in the UI, it could mean they need to run `vendor/bin/sail npm run build`, `vendor/bin/sail npm run dev`, or `vendor/bin/sail composer run dev`. Ask them.
 
 ## Documentation Files
 
@@ -91,15 +91,15 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 ## Artisan
 
-- Run Artisan commands directly via the command line (e.g., `vendor\bin\sail artisan route:list`). Use `vendor\bin\sail artisan list` to discover available commands and `vendor\bin\sail artisan [command] --help` to check parameters.
-- Inspect routes with `vendor\bin\sail artisan route:list`. Filter with: `--method=GET`, `--name=users`, `--path=api`, `--except-vendor`, `--only-vendor`.
-- Read configuration values using dot notation: `vendor\bin\sail artisan config:show app.name`, `vendor\bin\sail artisan config:show database.default`. Or read config files directly from the `config/` directory.
+- Run Artisan commands directly via the command line (e.g., `vendor/bin/sail artisan route:list`). Use `vendor/bin/sail artisan list` to discover available commands and `vendor/bin/sail artisan [command] --help` to check parameters.
+- Inspect routes with `vendor/bin/sail artisan route:list`. Filter with: `--method=GET`, `--name=users`, `--path=api`, `--except-vendor`, `--only-vendor`.
+- Read configuration values using dot notation: `vendor/bin/sail artisan config:show app.name`, `vendor/bin/sail artisan config:show database.default`. Or read config files directly from the `config/` directory.
 
 ## Tinker
 
 - Execute PHP in app context for debugging and testing code. Do not create models without user approval, prefer tests with factories instead. Prefer existing Artisan commands over custom tinker code.
-- Always use single quotes to prevent shell expansion: `vendor\bin\sail artisan tinker --execute 'Your::code();'`
-  - Double quotes for PHP strings inside: `vendor\bin\sail artisan tinker --execute 'User::where("active", true)->count();'`
+- Always use single quotes to prevent shell expansion: `vendor/bin/sail artisan tinker --execute 'Your::code();'`
+  - Double quotes for PHP strings inside: `vendor/bin/sail artisan tinker --execute 'User::where("active", true)->count();'`
 
 === php rules ===
 
@@ -123,14 +123,14 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 # Laravel Sail
 
 - This project runs inside Laravel Sail's Docker containers. You MUST execute all commands through Sail.
-- Start services using `vendor\bin\sail up -d` and stop them with `vendor\bin\sail stop`.
-- Open the application in the browser by running `vendor\bin\sail open`.
-- Always prefix PHP, Artisan, Composer, and Node commands with `vendor\bin\sail`. Examples:
-    - Run Artisan Commands: `vendor\bin\sail artisan migrate`
-    - Install Composer packages: `vendor\bin\sail composer install`
-    - Execute Node commands: `vendor\bin\sail npm run dev`
-    - Execute PHP scripts: `vendor\bin\sail php [script]`
-- View all available Sail commands by running `vendor\bin\sail` without arguments.
+- Start services using `vendor/bin/sail up -d` and stop them with `vendor/bin/sail stop`.
+- Open the application in the browser by running `vendor/bin/sail open`.
+- Always prefix PHP, Artisan, Composer, and Node commands with `vendor/bin/sail`. Examples:
+    - Run Artisan Commands: `vendor/bin/sail artisan migrate`
+    - Install Composer packages: `vendor/bin/sail composer install`
+    - Execute Node commands: `vendor/bin/sail npm run dev`
+    - Execute PHP scripts: `vendor/bin/sail php [script]`
+- View all available Sail commands by running `vendor/bin/sail` without arguments.
 
 === inertia-laravel/core rules ===
 
@@ -151,13 +151,13 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 # Do Things the Laravel Way
 
-- Use `vendor\bin\sail artisan make:` commands to create new files (i.e. migrations, controllers, models, etc.). You can list available Artisan commands using `vendor\bin\sail artisan list` and check their parameters with `vendor\bin\sail artisan [command] --help`.
-- If you're creating a generic PHP class, use `vendor\bin\sail artisan make:class`.
+- Use `vendor/bin/sail artisan make:` commands to create new files (i.e. migrations, controllers, models, etc.). You can list available Artisan commands using `vendor/bin/sail artisan list` and check their parameters with `vendor/bin/sail artisan [command] --help`.
+- If you're creating a generic PHP class, use `vendor/bin/sail artisan make:class`.
 - Pass `--no-interaction` to all Artisan commands to ensure they work without user input. You should also pass the correct `--options` to ensure correct behavior.
 
 ### Model Creation
 
-- When creating new models, create useful factories and seeders for them too. Ask the user if they need any other things, using `vendor\bin\sail artisan make:model --help` to check the available options.
+- When creating new models, create useful factories and seeders for them too. Ask the user if they need any other things, using `vendor/bin/sail artisan make:model --help` to check the available options.
 
 ## APIs & Eloquent Resources
 
@@ -171,11 +171,11 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - When creating models for tests, use the factories for the models. Check if the factory has custom states that can be used before manually setting up the model.
 - Faker: Use methods such as `$this->faker->word()` or `fake()->randomDigit()`. Follow existing conventions whether to use `$this->faker` or `fake()`.
-- When creating tests, make use of `vendor\bin\sail artisan make:test [options] {name}` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
+- When creating tests, make use of `vendor/bin/sail artisan make:test [options] {name}` to create a feature test, and pass `--unit` to create a unit test. Most tests should be feature tests.
 
 ## Vite Error
 
-- If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `vendor\bin\sail npm run build` or ask the user to run `vendor\bin\sail npm run dev` or `vendor\bin\sail composer run dev`.
+- If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `vendor/bin/sail npm run build` or ask the user to run `vendor/bin/sail npm run dev` or `vendor/bin/sail composer run dev`.
 
 === laravel/v12 rules ===
 
@@ -219,16 +219,16 @@ When working on Octane-specific features (concurrency, shared tables, memory, dr
 
 # Laravel Pint Code Formatter
 
-- If you have modified any PHP files, you must run `vendor\bin\sail bin pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
-- Do not run `vendor\bin\sail bin pint --test --format agent`, simply run `vendor\bin\sail bin pint --format agent` to fix any formatting issues.
+- If you have modified any PHP files, you must run `vendor/bin/sail bin pint --dirty --format agent` before finalizing changes to ensure your code matches the project's expected style.
+- Do not run `vendor/bin/sail bin pint --test --format agent`, simply run `vendor/bin/sail bin pint --format agent` to fix any formatting issues.
 
 === pest/core rules ===
 
 ## Pest
 
-- This project uses Pest for testing. Create tests: `vendor\bin\sail artisan make:test --pest {name}`.
-- The `{name}` argument should not include the test suite directory. Use `vendor\bin\sail artisan make:test --pest SomeFeatureTest` instead of `vendor\bin\sail artisan make:test --pest Feature/SomeFeatureTest`.
-- Run tests: `vendor\bin\sail artisan test --compact` or filter: `vendor\bin\sail artisan test --compact --filter=testName`.
+- This project uses Pest for testing. Create tests: `vendor/bin/sail artisan make:test --pest {name}`.
+- The `{name}` argument should not include the test suite directory. Use `vendor/bin/sail artisan make:test --pest SomeFeatureTest` instead of `vendor/bin/sail artisan make:test --pest Feature/SomeFeatureTest`.
+- Run tests: `vendor/bin/sail artisan test --compact` or filter: `vendor/bin/sail artisan test --compact --filter=testName`.
 - Do NOT delete tests without approval.
 
 === inertia-vue/core rules ===
