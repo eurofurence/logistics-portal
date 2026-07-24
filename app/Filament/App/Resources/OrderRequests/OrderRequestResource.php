@@ -100,7 +100,7 @@ class OrderRequestResource extends Resource
             // Status 0 = open
             if (Auth::check()) {
                 if (Auth::user()->can('can-moderate-order-request')) {
-                    $counter = static::getModel()::where('status', 0)->whereHas('event', function ($query) {
+                    $counter = static::getModel()::whereIn('status', [0, 2, 4])->whereHas('event', function ($query) {
                         $query->where('is_active', true);
                     })->count();
 
