@@ -194,30 +194,10 @@ class OrderResource extends Resource
                                             ->exists('order_events', 'id')
                                             ->required()
                                             ->options(function (): array {
-                                                $options = Auth::user()->can('can-always-order')
-                                                    ? OrderEvent::withoutTrashed()->pluck('name', 'id')->toArray()
-                                                    : OrderEvent::where('locked', false)
-                                                        ->where(function ($query) {
-                                                            $query->whereNull('order_deadline')
-                                                                ->orWhere('order_deadline', '>', now());
-                                                        })
-                                                        ->withoutTrashed()
-                                                        ->pluck('name', 'id')
-                                                        ->toArray();
-
-                                                return $options;
+                                                return OrderEvent::withTrashed()->pluck('name', 'id')->toArray();
                                             })
                                             ->default(function () {
-                                                $options = Auth::user()->can('can-always-order')
-                                                    ? OrderEvent::withoutTrashed()->pluck('id')->toArray()
-                                                    : OrderEvent::where('locked', false)
-                                                        ->where(function ($query) {
-                                                            $query->whereNull('order_deadline')
-                                                                ->orWhere('order_deadline', '>', now());
-                                                        })
-                                                        ->withoutTrashed()
-                                                        ->pluck('id')
-                                                        ->toArray();
+                                                $options = OrderEvent::withTrashed()->pluck('name', 'id')->toArray();
 
                                                 return count($options) === 1 ? $options[0] : null;
                                             }),
