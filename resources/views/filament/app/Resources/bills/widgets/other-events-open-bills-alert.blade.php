@@ -1,6 +1,7 @@
 <x-filament-widgets::widget>
     @php
         $count = $this->getOpenBillsCount();
+        $events = $this->getEventsWithOpenBills();
     @endphp
 
     @if ($count > 0)
@@ -22,6 +23,15 @@
                     <p class="text-sm text-white/90">
                         {{ __('general.open_bills_in_other_events_hint', ['count' => $count]) }}
                     </p>
+                    @if ($events->isNotEmpty())
+                        <div class="mt-2 text-sm text-white/80">
+                            <ul class="list-disc list-inside">
+                                @foreach ($events as $eventName)
+                                    <li>- {{ $eventName }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
