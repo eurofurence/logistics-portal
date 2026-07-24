@@ -196,11 +196,11 @@ class ItemResource extends Resource
                                                     ->exists('departments', 'id')
                                                     ->options(function (): array {
                                                         if (self::isView()) {
-                                                            return Department::all()->pluck('name', 'id')->toArray();
+                                                            return Department::query()->pluck('name', 'id')->toArray();
                                                         }
 
                                                         if (Auth::user()->can('can-create-items-for-other-departments')) {
-                                                            return Department::all()->pluck('name', 'id')->toArray();
+                                                            return Department::query()->pluck('name', 'id')->toArray();
                                                         } else {
                                                             return Auth::user()->getDepartmentsWithPermission('view-Item')->pluck('name', 'id')->toArray();
                                                         }
@@ -289,7 +289,7 @@ class ItemResource extends Resource
                                             Select::make('unit')
                                                 ->label(__('general.unit'))
                                                 ->searchable()
-                                                ->options(BaseUnit::all()->pluck('name', 'id'))
+                                                ->options(BaseUnit::query()->pluck('name', 'id'))
                                                 ->exists('base_units', 'id')
                                                 ->disabled()
                                                 ->visible(false),
@@ -775,7 +775,7 @@ class ItemResource extends Resource
                             ->label(__('general.department'))
                             ->options(function (): array {
                                 if (Auth::user()->can('can-choose-all-departments') || Auth::user()->can('can-see-all-departments')) {
-                                    return Department::all()->pluck('name', 'id')->toArray();
+                                    return Department::query()->pluck('name', 'id')->toArray();
                                 } else {
                                     return Auth::user()->departments()->pluck('name', 'department_id')->toArray();
                                 }
@@ -811,7 +811,7 @@ class ItemResource extends Resource
                             ->label(__('general.storage'))
                             ->options(function (): array {
                                 if (Auth::user()->can('can-see-all-storages')) {
-                                    return Storage::all()->pluck('name', 'id')->toArray();
+                                    return Storage::query()->pluck('name', 'id')->toArray();
                                 } else {
                                     // Get the departments to which the user has access
                                     $accessibleDepartments = Auth::user()->departments;

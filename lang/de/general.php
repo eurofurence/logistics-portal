@@ -299,6 +299,8 @@ return [
     'hornbach' => 'Hornbach',
     'billing' => 'Abrechnung',
     'billing_plural' => 'Abrechnungen',
+    'open_bills_in_other_events' => 'Offene Rechnungen in anderen Events',
+    'open_bills_in_other_events_hint' => 'Es gibt ":count" offene Rechnungen in Events, die nicht aktuell aktiv sind.',
     'bill' => 'Rechnung',
     'receipts_and_invoices' => 'Belege und Rechnungen',
     'done' => 'Erledigt',

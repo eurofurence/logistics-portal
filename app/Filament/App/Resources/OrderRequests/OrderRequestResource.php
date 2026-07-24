@@ -100,7 +100,7 @@ class OrderRequestResource extends Resource
             // Status 0 = open
             if (Auth::check()) {
                 if (Auth::user()->can('can-moderate-order-request')) {
-                    $counter = static::getModel()::where('status', 0)->whereHas('event', function ($query) {
+                    $counter = static::getModel()::whereIn('status', [0, 2, 4])->whereHas('event', function ($query) {
                         $query->where('is_active', true);
                     })->count();
 
@@ -253,6 +253,11 @@ class OrderRequestResource extends Resource
                     ->label(__('general.order_event'))
                     ->sortable()
                     ->toggleable(),
+                TextColumn::make('url')
+                    ->label(__('general.url'))
+                    ->toggleable(true, true)
+                    ->searchable()
+                    ->limit(500),
                 TextColumn::make('status')
                     ->badge()
                     ->label(__('general.status'))
@@ -407,7 +412,7 @@ class OrderRequestResource extends Resource
                             ->label(__('general.department'))
                             ->options(function (): array {
                                 return Auth::user()->can('can-see-all-orderRequests')
-                                    ? Department::all()->pluck('name', 'id')->toArray()
+                                    ? Department::query()->pluck('name', 'id')->toArray()
                                     : Auth::user()->departmentsWithRoles()->pluck('name', 'id')->toArray();
                             }),
                         Toggle::make('invert')

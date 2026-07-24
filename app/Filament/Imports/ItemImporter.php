@@ -140,7 +140,7 @@ class ItemImporter extends Importer
                 ->label(__('general.department'))
                 ->options(function () {
                     if (Auth::user()->can('can-create-items-for-other-departments')) {
-                        return Department::all()->pluck('name', 'id')->toArray();
+                        return Department::query()->pluck('name', 'id')->toArray();
                     } else {
                         return Auth::user()->getDepartmentsWithPermission('create-Item')->pluck('name', 'id')->toArray();
                     }
