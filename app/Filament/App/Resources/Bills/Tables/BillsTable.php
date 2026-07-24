@@ -56,6 +56,7 @@ class BillsTable
             ->defaultGroup('connected_department.name')
             ->deferLoading()
             ->searchDebounce('750ms')
+            ->persistFiltersInSession()
             ->persistSortInSession();
     }
 
