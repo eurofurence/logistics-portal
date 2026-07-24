@@ -359,7 +359,7 @@ class OrdersTable
                     ->schema([
                         Select::make('value')
                             ->label(__('general.order_event'))
-                            ->options(OrderEvent::all(['id', 'name'])->pluck('name', 'id'))
+                            ->options(OrderEvent::query()->pluck('name', 'id'))
                             ->searchable()
                             ->preload()
                             ->default(function () {
@@ -403,7 +403,7 @@ class OrdersTable
                             ->preload()
                             ->options(function (): array {
                                 if (Auth::user()->can('can-see-all-orders')) {
-                                    return Department::all()->pluck('name', 'id')->toArray();
+                                    return Department::query()->pluck('name', 'id')->toArray();
                                 } else {
                                     return Auth::user()->getDepartmentsWithPermission('view-Order')->pluck('name', 'department_id')->toArray();
                                 }

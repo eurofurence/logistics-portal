@@ -56,11 +56,11 @@ class OrderForm
                                             ->exists('departments', 'id')
                                             ->options(function (): array {
                                                 if (OrderResource::isView()) {
-                                                    return Department::all()->pluck('name', 'id')->toArray();
+                                                    return Department::query()->pluck('name', 'id')->toArray();
                                                 }
 
                                                 if (Auth::user()->can('can-create-orders-for-other-departments')) {
-                                                    return Department::all()->pluck('name', 'id')->toArray();
+                                                    return Department::query()->pluck('name', 'id')->toArray();
                                                 } else {
                                                     return Auth::user()->getDepartmentsWithPermission('view-Order')->pluck('name', 'id')->toArray();
                                                 }

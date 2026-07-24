@@ -47,7 +47,7 @@ class DepartmentMembersRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        $unfiltered_users = User::all()->pluck('name', 'id')->toArray(); // Beispiel-Array mit Benutzer-IDs
+        $unfiltered_users = User::query()->pluck('name', 'id')->toArray(); // Beispiel-Array mit Benutzer-IDs
         $users_to_remove = [0 => 'System'];
 
         $filtered_users = array_diff($unfiltered_users, $users_to_remove);

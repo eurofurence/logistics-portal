@@ -7,6 +7,7 @@ use App\Filament\App\Resources\Bills\Pages\EditBill;
 use App\Filament\App\Resources\Bills\Pages\ListBills;
 use App\Filament\App\Resources\Bills\Pages\ViewBill;
 use App\Forms\Components\Timeline;
+use App\Jobs\CreateZipJob;
 use App\Models\Bill;
 use App\Models\Department;
 use App\Models\OrderEvent;
@@ -31,6 +32,7 @@ use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
@@ -52,12 +54,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use App\Jobs\CreateZipJob;
-use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use ZipArchive;
 
 class BillResource extends Resource
@@ -512,7 +511,7 @@ class BillResource extends Resource
                     ->label(__('general.department'))
                     ->options(function (): array {
                         if (Auth::user()->can('can-see-all-bills')) {
-                            return Department::all()->pluck('name', 'id')->toArray();
+                            return Department::query()->pluck('name', 'id')->toArray();
                         } else {
                             return Auth::user()->getDepartmentsWithPermission('view-Bill')->pluck('name', 'department_id')->toArray();
                         }
@@ -532,7 +531,7 @@ class BillResource extends Resource
                     ->multiple()
                     ->label(__('general.added_by'))
                     ->options(function (): array {
-                        return User::all()->pluck('name', 'id')->toArray();
+                        return User::query()->pluck('name', 'id')->toArray();
                     }),
             ], layout: FiltersLayout::Modal)
             ->filtersFormColumns(2)
@@ -593,7 +592,7 @@ class BillResource extends Resource
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    #TODO: Audit Log
+                    // TODO: Audit Log
                     BulkAction::make('download_zip')
                         ->label(__('general.download_zip'))
                         ->icon('heroicon-o-archive-box-arrow-down')
@@ -608,6 +607,7 @@ class BillResource extends Resource
                                         ->body(__('general.async_processing_disabled_message'))
                                         ->danger()
                                         ->send();
+
                                     return;
                                 }
 
@@ -617,6 +617,7 @@ class BillResource extends Resource
                                     ->body(__('general.zip_process_started_message'))
                                     ->success()
                                     ->send();
+
                                 return;
                             }
 
@@ -630,36 +631,36 @@ class BillResource extends Resource
                                 $departmentSlug = Str::slug($bill->connected_department?->name ?? 'no_department');
                                 $eventSlug = Str::slug($bill->connected_event?->name ?? 'no_event');
                                 $zip->addEmptyDir($departmentSlug);
-                                $zip->addEmptyDir($departmentSlug . '/' . $eventSlug);
-                                $folderName = $departmentSlug . '/' . $eventSlug . '/' . $bill->id.'_'.Str::slug($bill->title).'_'.Str::random(8);
+                                $zip->addEmptyDir($departmentSlug.'/'.$eventSlug);
+                                $folderName = $departmentSlug.'/'.$eventSlug.'/'.$bill->id.'_'.Str::slug($bill->title).'_'.Str::random(8);
                                 $zip->addEmptyDir($folderName);
 
                                 // Add info.txt
-                                $infoContent = __('general.id').': ' . $bill->id . "\n";
-                                $infoContent .= __('general.title').': ' . $bill->title . "\n";
-                                $infoContent .= __('general.bill_amount').': ' . $bill->value . ' ' . $bill->currency . "\n";
-                                $infoContent .= __('general.status').': ' . $bill->status . "\n";
-                                $infoContent .= __('general.description').': ' . $bill->description . "\n";
-                                $infoContent .= __('general.comment').': ' . $bill->comment . "\n";
-                                $infoContent .= __('general.advance_payment').': ' . $bill->advance_payment_value . "\n";
-                                $infoContent .= __('general.advance_payment_to').': ' . $bill->advance_payment_receiver . "\n";
-                                $infoContent .= __('general.repayment_method').': ' . $bill->repayment_method . "\n";
-                                $infoContent .= __('general.exchange_rate').': ' . $bill->exchange_rate . "\n";
-                                $infoContent .= __('general.reimbursement_to_invoice_issuer').': ' . ($bill->reimbursement_to_invoice_issuer ? __('general.yes') : __('general.no')) . "\n";
-                                $infoContent .= __('general.added_by').': ' . ($bill->addedBy ? $bill->addedBy->name : 'N/A') . "\n";
-                                $infoContent .= __('general.edited_by').': ' . ($bill->editedBy ? $bill->editedBy->name : 'N/A') . "\n";
-                                $infoContent .= __('general.department').': ' . ($bill->connected_department ? $bill->connected_department->name : 'N/A') . "\n";
-                                $infoContent .= __('general.order_event').': ' . ($bill->connected_event ? $bill->connected_event->name : 'N/A') . "\n";
-                                $infoContent .= "\n--- " . __('timeline.status_history') . " ---\n";
+                                $infoContent = __('general.id').': '.$bill->id."\n";
+                                $infoContent .= __('general.title').': '.$bill->title."\n";
+                                $infoContent .= __('general.bill_amount').': '.$bill->value.' '.$bill->currency."\n";
+                                $infoContent .= __('general.status').': '.$bill->status."\n";
+                                $infoContent .= __('general.description').': '.$bill->description."\n";
+                                $infoContent .= __('general.comment').': '.$bill->comment."\n";
+                                $infoContent .= __('general.advance_payment').': '.$bill->advance_payment_value."\n";
+                                $infoContent .= __('general.advance_payment_to').': '.$bill->advance_payment_receiver."\n";
+                                $infoContent .= __('general.repayment_method').': '.$bill->repayment_method."\n";
+                                $infoContent .= __('general.exchange_rate').': '.$bill->exchange_rate."\n";
+                                $infoContent .= __('general.reimbursement_to_invoice_issuer').': '.($bill->reimbursement_to_invoice_issuer ? __('general.yes') : __('general.no'))."\n";
+                                $infoContent .= __('general.added_by').': '.($bill->addedBy ? $bill->addedBy->name : 'N/A')."\n";
+                                $infoContent .= __('general.edited_by').': '.($bill->editedBy ? $bill->editedBy->name : 'N/A')."\n";
+                                $infoContent .= __('general.department').': '.($bill->connected_department ? $bill->connected_department->name : 'N/A')."\n";
+                                $infoContent .= __('general.order_event').': '.($bill->connected_event ? $bill->connected_event->name : 'N/A')."\n";
+                                $infoContent .= "\n--- ".__('timeline.status_history')." ---\n";
                                 foreach ($bill->statusHistory() as $history) {
-                                    $infoContent .= __('general.date') . ": {$history->created_at} | " . __('general.user') . ": " . ($history->user ? $history->user->name : 'N/A') . ' | ';
+                                    $infoContent .= __('general.date').": {$history->created_at} | ".__('general.user').': '.($history->user ? $history->user->name : 'N/A').' | ';
                                     if (isset($history->description['key'])) {
                                         $params = $history->description['params'] ?? [];
                                         if (isset($params['old'])) {
-                                            $params['old'] = __('general.' . $params['old'], [], 'de') !== 'general.' . $params['old'] ? __('general.' . $params['old']) : $params['old'];
+                                            $params['old'] = __('general.'.$params['old'], [], 'de') !== 'general.'.$params['old'] ? __('general.'.$params['old']) : $params['old'];
                                         }
                                         if (isset($params['new'])) {
-                                            $params['new'] = __('general.' . $params['new'], [], 'de') !== 'general.' . $params['new'] ? __('general.' . $params['new']) : $params['new'];
+                                            $params['new'] = __('general.'.$params['new'], [], 'de') !== 'general.'.$params['new'] ? __('general.'.$params['new']) : $params['new'];
                                         }
                                         $infoContent .= __($history->description['key'], $params);
                                     } else {
@@ -678,8 +679,9 @@ class BillResource extends Resource
 
                                     $path = $media->getPath();
 
-                                    if (!$disk->exists($path)) {
+                                    if (! $disk->exists($path)) {
                                         Log::error("Media file not found on disk {$media->disk}: {$path}");
+
                                         continue;
                                     }
 
@@ -688,6 +690,7 @@ class BillResource extends Resource
                                         file_put_contents($tempPath, $stream);
                                     } else {
                                         Log::error("Could not create stream for: {$path}");
+
                                         continue;
                                     }
 

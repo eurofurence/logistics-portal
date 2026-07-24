@@ -116,7 +116,7 @@ class AuthController extends Controller
             if (! $auth_user->separated_departments) {
                 if ($external_groups) {
                     // Get all existing ipd_group_id values from the departments table
-                    $existing_ipd_group_ids = Department::all()->pluck('idp_group_id')->toArray();
+                    $existing_ipd_group_ids = Department::query()->pluck('idp_group_id')->toArray();
 
                     // Filter the external_groups to keep only entries with non-NULL values
                     $filtered_external_groups = array_filter($external_groups, function ($value) {

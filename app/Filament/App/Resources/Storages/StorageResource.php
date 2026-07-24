@@ -142,11 +142,11 @@ class StorageResource extends Resource
                                             ->exists('departments', 'id')
                                             ->options(function (): array {
                                                 if (self::isView()) {
-                                                    return Department::all()->pluck('name', 'id')->toArray();
+                                                    return Department::query()->pluck('name', 'id')->toArray();
                                                 }
 
                                                 if (Auth::user()->can('can-create-storages-for-all-departments')) {
-                                                    return Department::all()->pluck('name', 'id')->toArray();
+                                                    return Department::query()->pluck('name', 'id')->toArray();
                                                 } else {
                                                     return Auth::user()->getDepartmentsWithPermission('create-Storage')->pluck('name', 'id')->toArray();
                                                 }
@@ -198,7 +198,7 @@ class StorageResource extends Resource
                                     ->relationship('departments')
                                     ->simple(
                                         Select::make('department')
-                                            ->options(Department::all()->pluck('name', 'id'))
+                                            ->options(Department::query()->pluck('name', 'id'))
                                     )
                                     ->defaultItems(1)
                                     ->disabled(),
@@ -262,7 +262,7 @@ class StorageResource extends Resource
                 SelectFilter::make('managing_department')
                     ->options(function (): array {
                         if (Auth::user()->can('can-see-all-storages')) {
-                            return Department::all()->pluck('name', 'id')->toArray();
+                            return Department::query()->pluck('name', 'id')->toArray();
                         } else {
                             return Auth::user()->getDepartmentsWithPermission('view-Storage')->pluck('name', 'id')->toArray();
                         }

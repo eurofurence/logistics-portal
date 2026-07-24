@@ -407,7 +407,7 @@ class OrderRequestResource extends Resource
                             ->label(__('general.department'))
                             ->options(function (): array {
                                 return Auth::user()->can('can-see-all-orderRequests')
-                                    ? Department::all()->pluck('name', 'id')->toArray()
+                                    ? Department::query()->pluck('name', 'id')->toArray()
                                     : Auth::user()->departmentsWithRoles()->pluck('name', 'id')->toArray();
                             }),
                         Toggle::make('invert')

@@ -155,7 +155,7 @@ class UserResource extends Resource
                         ->nullable()
                         ->preload(true)
                         ->exists('departments', 'id')
-                        ->options(Department::all()->pluck('name', 'id'))
+                        ->options(Department::query()->pluck('name', 'id'))
                         ->relationship(name: 'departments', titleAttribute: 'name'),
                     Select::make('roles')
                         ->label(__('general.user_roles'))
@@ -163,7 +163,7 @@ class UserResource extends Resource
                         ->searchable()
                         ->nullable()
                         ->exists('roles', 'id')
-                        ->options(Role::all()->pluck('name', 'id'))
+                        ->options(Role::query()->pluck('name', 'id'))
                         ->preload(true)
                         ->relationship(name: 'roles', titleAttribute: 'name')
                         ->disabled(! Gate::check('update-Role'))

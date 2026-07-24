@@ -131,7 +131,7 @@ class OrderArticleResource extends Resource
                                     ->label(__('general.description')),
                                 Select::make('category')
                                     ->label(__('general.category'))
-                                    ->options(OrderCategory::all()->pluck('name', 'id'))
+                                    ->options(OrderCategory::query()->pluck('name', 'id'))
                                     ->searchable()
                                     ->exists('order_categories', 'id'),
                                 Fieldset::make(__('general.price'))
@@ -461,7 +461,7 @@ class OrderArticleResource extends Resource
                     ->visible(fn (): bool => Gate::allows('restore', OrderArticle::class) || Gate::allows('forceDelete', OrderArticle::class) || Gate::allows('bulkForceDelete', OrderArticle::class) || Gate::allows('bulkRestore', OrderArticle::class)),
                 SelectFilter::make('category')
                     ->label(__('general.category'))
-                    ->options(OrderCategory::all()->pluck('name', 'id'))
+                    ->options(OrderCategory::query()->pluck('name', 'id'))
                     ->searchable(),
                 SelectFilter::make('url')
                     ->label(__('general.marketplace'))
