@@ -68,13 +68,13 @@ class OrderResource extends Resource
     {
         $query = parent::getEloquentQuery()
             ->with([
-                'event',
-                'department',
-                'directoryArticle',
-                'orderRequest',
-                'addedBy',
-                'editedBy',
-                'approvedBy',
+                'event:id,name,locked,order_deadline',
+                'department:id,name',
+                'directoryArticle:id,article_number,returning_deposit',
+                'orderRequest:id',
+                'addedBy:id,name',
+                'editedBy:id,name',
+                'approvedBy:id,name',
             ]);
         $user = Auth::user();
 

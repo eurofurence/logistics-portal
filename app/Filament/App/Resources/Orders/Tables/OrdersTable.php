@@ -59,8 +59,25 @@ class OrdersTable
 {
     protected static array $export_column_options = [];
 
+    protected static ?bool $isSuperAdmin = null;
+
+    protected static ?bool $canChangeAmountAll = null;
+
+    protected static ?bool $canAlwaysEdit = null;
+
+    protected static ?bool $canSeeAllOrders = null;
+
+    protected static array $userDepartmentsWithChangeAmount = [];
+
     public static function configure(Table $table): Table
     {
+        $user = Auth::user();
+        static::$isSuperAdmin = $user->isSuperAdmin();
+        static::$canChangeAmountAll = $user->can('can-change-amount-order-table-all');
+        static::$canAlwaysEdit = $user->can('can-always-edit-orders');
+        static::$canSeeAllOrders = $user->can('can-see-all-orders');
+        static::$userDepartmentsWithChangeAmount = $user->getDepartmentsWithPermission('can-change-amount-order-table')->pluck('id')->toArray();
+
         $export_type_options = ['standard' => __('general.standard')];
 
         static::$export_column_options = [
@@ -180,21 +197,20 @@ class OrdersTable
                     ->type('number')
                     ->rules(['numeric', 'min:1', 'max:1000000'])
                     ->disabled(function ($record) {
-                        if (Auth::user()->isSuperAdmin()) {
+                        if (static::$isSuperAdmin) {
                             return false;
                         }
 
-                        if ($record->department) {
-                            if (! Auth::user()->hasDepartmentRoleWithPermissionTo('can-change-amount-order-table', $record->department->id)) {
-                                if (! Auth::user()->can('can-change-amount-order-table-all')) {
+                        if ($record->department_id) {
+                            if (! in_array($record->department_id, static::$userDepartmentsWithChangeAmount)) {
+                                if (! static::$canChangeAmountAll) {
                                     return true;
                                 }
                             }
 
-                            if (Auth::user()->can('can-see-all-orders')) {
-                                $userDepartments = Auth::user()->getDepartmentsWithPermission('can-change-amount-order-table')->pluck('id')->toArray();
-                                if (! in_array($record->department->id, $userDepartments)) {
-                                    if (! Auth::user()->can('can-change-amount-order-table-all')) {
+                            if (static::$canSeeAllOrders) {
+                                if (! in_array($record->department_id, static::$userDepartmentsWithChangeAmount)) {
+                                    if (! static::$canChangeAmountAll) {
                                         return true;
                                     }
                                 }
@@ -206,7 +222,7 @@ class OrdersTable
                         if (($record->status == 'open' || $record->status == 'awaiting_approval') && ! $record->event->locked) {
                             return false;
                         } else {
-                            if (Auth::user()->can('can-always-edit-orders')) {
+                            if (static::$canAlwaysEdit) {
                                 return false;
                             }
                         }
@@ -363,9 +379,9 @@ class OrdersTable
                             ->searchable()
                             ->preload()
                             ->default(function () {
-                                $activeOrderEvent = OrderEvent::where('is_active', true)->first();
-
-                                return $activeOrderEvent ? $activeOrderEvent->id : null;
+                                return Cache::remember('active_order_event_id', 600, function () {
+                                    return OrderEvent::where('is_active', true)->first()?->id;
+                                });
                             }),
                         Toggle::make('invert')
                             ->label(__('general.invert')),
@@ -386,7 +402,11 @@ class OrdersTable
                             return [];
                         }
 
-                        $indicator = __('general.order_event').': '.(OrderEvent::find($data['value'])?->name ?? $data['value']);
+                        $eventName = Cache::remember("order_event_{$data['value']}_name", 600, function () use ($data) {
+                            return OrderEvent::find($data['value'])?->name;
+                        });
+
+                        $indicator = __('general.order_event').': '.($eventName ?? $data['value']);
 
                         if ($data['invert'] ?? false) {
                             $indicator .= ' ('.__('general.invert').')';
@@ -427,7 +447,10 @@ class OrdersTable
                             return [];
                         }
 
-                        $names = Department::whereIn('id', $data['values'])->pluck('name')->implode(', ');
+                        $names = Cache::remember('dept_names_'.implode('_', $data['values']), 600, function () use ($data) {
+                            return Department::whereIn('id', $data['values'])->pluck('name')->implode(', ');
+                        });
+
                         $indicator = __('general.department').': '.$names;
 
                         if ($data['invert'] ?? false) {
