@@ -49,6 +49,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -1116,6 +1117,24 @@ class OrdersTable
                             Textarea::make('delivery_destination')
                                 ->label(__('general.delivery_destination'))
                                 ->rows(7),
+                        ])
+                        ->visible(Auth::user()->can('update-Order')),
+                    BulkAction::make('set_order_number')
+                        ->label(__('general.order_number'))
+                        ->action(function (Collection $records, array $data): void {
+                            foreach ($records as $record) {
+                                $record->update(['order_number' => $data['order_number']]);
+                            }
+                            Notification::make()
+                                ->body(__('general.saved'))
+                                ->success()
+                                ->send();
+                        })
+                        ->icon('heroicon-o-hashtag')
+                        ->schema([
+                            TextInput::make('order_number')
+                                ->label(__('general.order_number'))
+                                ->required(),
                         ])
                         ->visible(Auth::user()->can('update-Order')),
                     BulkAction::make('article_number_sync')
