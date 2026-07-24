@@ -253,6 +253,11 @@ class OrderRequestResource extends Resource
                     ->label(__('general.order_event'))
                     ->sortable()
                     ->toggleable(),
+                TextColumn::make('url')
+                    ->label(__('general.url'))
+                    ->toggleable(true, true)
+                    ->searchable()
+                    ->limit(500),
                 TextColumn::make('status')
                     ->badge()
                     ->label(__('general.status'))

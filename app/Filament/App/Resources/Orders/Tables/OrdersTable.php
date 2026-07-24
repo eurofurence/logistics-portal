@@ -152,6 +152,11 @@ class OrdersTable
                     ->toggleable(true, true)
                     ->searchable()
                     ->label(__('general.department')),
+                TextColumn::make('url')
+                    ->label(__('general.url'))
+                    ->toggleable(true, true)
+                    ->searchable()
+                    ->limit(500),
                 TextColumn::make('status')
                     ->badge()
                     ->label(__('general.status'))
