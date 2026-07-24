@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\Bills\Pages;
 
 use App\Filament\App\Resources\Bills\BillResource;
 use App\Filament\App\Resources\Bills\Widgets\BillStats;
+use App\Filament\App\Resources\Bills\Widgets\OtherEventsOpenBillsAlert;
 use Filament\Actions\CreateAction;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
 use Filament\Resources\Pages\ListRecords;
@@ -28,8 +29,14 @@ class ListBills extends ListRecords
     public function getHeaderWidgets(): array
     {
         return [
+            OtherEventsOpenBillsAlert::class,
             BillStats::class,
         ];
+    }
+
+    public function getHeaderWidgetsColumns(): array|int
+    {
+        return 1;
     }
 
     public function getTabs(): array

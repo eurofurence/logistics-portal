@@ -293,6 +293,8 @@ return [
     'hornbach' => 'Hornbach',
     'billing' => 'Billing',
     'billing_plural' => 'Settlements',
+    'open_bills_in_other_events' => 'Open bills in other events',
+    'open_bills_in_other_events_hint' => 'There are ":count" open bills in events that are not currently active.',
     'bill' => 'Bill',
     'receipts_and_invoices' => 'Receipts and invoices',
     'done' => 'Done',
