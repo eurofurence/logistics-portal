@@ -4,7 +4,6 @@ namespace App\Filament\App\Resources\Bills\Widgets;
 
 use App\Filament\App\Resources\Bills\Pages\ListBills;
 use App\Models\Bill;
-use App\Models\OrderEvent;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Filament\Widgets\Widget;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,7 +14,7 @@ class OtherEventsOpenBillsAlert extends Widget
 {
     use InteractsWithPageTable;
 
-    protected string $view = 'filament.app.resources.bills.widgets.other-events-open-bills-alert';
+    protected string $view = 'filament.app.widgets.other-events-open-bills-alert';
 
     public int|string|array $columnSpan = 'full';
 
