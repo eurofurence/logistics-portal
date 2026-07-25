@@ -261,7 +261,7 @@ return [
     'file_type' => 'File Type',
     'excel_table' => 'Excel table',
     'packing_list_description' => 'Packing list for on-site distribution',
-    'metro_list_description' => 'An order list for Metro on which all the same items are grouped into one item (Better overview). A Metro order is recognized by the URL that is stored in the order.',
+    'metro_list_description' => 'An order list on which all the same items are grouped into one item (Better overview). The items are grouped by their URL (e.g. Metro or Frog Store).',
     'no_options_available' => 'No options available',
     'pdf_file' => 'PDF-File',
     'reload_required' => 'Reload required',

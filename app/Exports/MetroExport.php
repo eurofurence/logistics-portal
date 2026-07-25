@@ -46,13 +46,10 @@ class MetroExport implements FromCollection, ShouldAutoSize, WithDefaultStyles, 
             __('general.article_number'),
         ];
 
-        // Filter the orders to include only those with the 'metro.de' domain in the URL
-        $filteredOrders = $orders->filter(function ($order) {
-            return strpos($order->url, 'metro.de') !== false;
-        });
-
         // Group the selected data by 'url'
-        $grouped_data = $filteredOrders->groupBy('url');
+        $grouped_data = $orders->groupBy(function ($order) {
+            return $order->url ?: __('general.not_set');
+        });
 
         $final_records = collect();
 

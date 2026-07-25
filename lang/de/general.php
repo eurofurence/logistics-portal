@@ -267,7 +267,7 @@ return [
     'file_type' => 'Datei-Typ',
     'excel_table' => 'Excel Tabelle',
     'packing_list_description' => 'Packliste für die Verteilung vor Ort',
-    'metro_list_description' => 'Eine Bestellliste für Metro, auf der alle gleichen Artikel zu einer Position zusammengefasst sind (Bessere Übersicht). Eine Metro Bestellung wird anhand der URL der in der Bestellung hinterlegt ist erkannt.',
+    'metro_list_description' => 'Eine Bestellliste, auf der alle gleichen Artikel zu einer Position zusammengefasst sind (Bessere Übersicht). Die Artikel werden anhand ihrer URL gruppiert (z.B. Metro oder Frog Store).',
     'no_options_available' => 'Keine Optionen verfügbar',
     'pdf_file' => 'PDF-Datei',
     'reload_required' => 'Refresh erforderlich',
