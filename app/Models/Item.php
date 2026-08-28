@@ -122,7 +122,7 @@ class Item extends Model implements HasMedia
      *
      * @var array'
      */
-    protected $fillable = ['name', 'shortname', 'url', 'serialnumber', 'weight', 'stackable', 'unit', 'due_date', 'sorted_out', 'description', 'comment', 'department', 'edited_by', 'added_by', 'price', 'quantity', 'palletnumber', 'locked', 'specific_editor', 'buy_date', 'qr_code', 'storage_container_id', 'storage', 'owner', 'borrowed_item', 'rented_item', 'will_be_brought_to_next_event', 'operation_site', 'custom_fields', 'sub_category', 'manufacturer_barcode', 'dangerous_good', 'needs_truck', 'big_size'];
+    protected $fillable = ['name', 'shortname', 'url', 'serialnumber', 'weight', 'stackable', 'unit', 'due_date', 'sorted_out', 'description', 'comment', 'user_note', 'special_flag_text', 'department', 'edited_by', 'added_by', 'price', 'quantity', 'palletnumber', 'locked', 'specific_editor', 'buy_date', 'qr_code', 'storage_container_id', 'storage', 'owner', 'borrowed_item', 'rented_item', 'will_be_brought_to_next_event', 'operation_site', 'custom_fields', 'sub_category', 'manufacturer_barcode', 'dangerous_good', 'needs_truck', 'big_size'];
 
     protected $casts = [
         'custom_fields' => 'array',

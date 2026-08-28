@@ -58,6 +58,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Grouping\Group;
@@ -292,6 +293,10 @@ class ItemResource extends Resource
                                                 Textarea::make('comment')
                                                     ->label(__('general.comment'))
                                                     ->maxLength(100000)
+                                                    ->columnSpanFull(),
+                                                TextInput::make('special_flag_text')
+                                                    ->label(__('general.special_flag_text'))
+                                                    ->maxLength(250)
                                                     ->columnSpanFull(),
                                             ]),
                                     ]),
@@ -579,6 +584,8 @@ class ItemResource extends Resource
             'sorted_out' => __('general.sorted_out'),
             'description' => __('general.description'),
             'comment' => __('general.comment'),
+            'user_note' => __('general.user_note'),
+            'special_flag_text' => __('general.special_flag_text'),
             'price' => __('general.price'),
             'buy_date' => __('general.buy_date'),
             'dangerous_good' => __('general.dangerous_good'),
@@ -622,6 +629,8 @@ class ItemResource extends Resource
                             $record->dangerous_good ? __('general.dangerous_good') : null,
                             $record->borrowed_item ? __('general.borrowed_item') : null,
                             $record->rented_item ? __('general.rented_item') : null,
+                            $record->user_note ? __('general.user_note') : null,
+                            $record->special_flag_text ?: null,
                             $record->comment ? __('general.comment') : null,
                             $record->due_date ? __('general.due_date') : null,
                         ]);
@@ -709,6 +718,23 @@ class ItemResource extends Resource
             ->filters([
                 TrashedFilter::make()
                     ->visible(fn (): bool => Gate::allows('restore', Item::class) || Gate::allows('forceDelete', Item::class) || Gate::allows('bulkForceDelete', Item::class) || Gate::allows('bulkRestore', Item::class)),
+                SelectFilter::make('user_note')
+                    ->label(__('general.user_note'))
+                    ->options([
+                        'with' => __('general.yes'),
+                        'without' => __('general.no'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if ($data['value'] === 'with') {
+                            return $query->whereNotNull('user_note');
+                        }
+
+                        if ($data['value'] === 'without') {
+                            return $query->whereNull('user_note');
+                        }
+
+                        return $query;
+                    }),
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
@@ -1055,6 +1081,19 @@ class ItemResource extends Resource
                         ->modalHeading(function ($record): string {
                             return __('general.delete').': '.$record->name;
                         }),
+                    Action::make('user_note')
+                        ->label(__('general.user_note'))
+                        ->action(function (Model $record, array $data): void {
+                            $record->update(['user_note' => $data['note']]);
+                        })
+                        ->icon('heroicon-o-pencil')
+                        ->schema([
+                            Textarea::make('note')
+                                ->label(fn (Model $record): string => __('general.user_note').' - '.$record->name)
+                                ->default(fn (Model $record): ?string => $record->user_note)
+                                ->autosize(),
+                        ])
+                        ->visible(fn (Model $record): bool => Gate::allows('view', $record)),
                     RestoreAction::make(),
                     ForceDeleteAction::make(),
                 ]),
@@ -1302,9 +1341,6 @@ class ItemResource extends Resource
                 ]),
             ])
             ->groups([
-                Group::make('name')
-                    ->label(__('general.name'))
-                    ->collapsible(),
                 Group::make('will_be_brought_to_next_event')
                     ->label(__('general.will_be_brought_to_next_event'))
                     ->getTitleFromRecordUsing(function (Item $record): string {
