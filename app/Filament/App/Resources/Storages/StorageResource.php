@@ -85,7 +85,9 @@ class StorageResource extends Resource
         $user = Auth::user();
         $query = parent::getEloquentQuery();
 
-
+        if ($user->isSuperAdmin() || $user->can('can-see-all-storages')) {
+            return $query;
+        }
 
         $accessibleDepartmentIds = $user->getDepartmentsWithPermission('view-Storage')->pluck('id')->toArray();
 

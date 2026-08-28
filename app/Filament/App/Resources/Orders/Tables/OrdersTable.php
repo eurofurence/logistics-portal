@@ -431,7 +431,7 @@ class OrdersTable
                                 if (Auth::user()->can('can-see-all-orders')) {
                                     return Department::query()->pluck('name', 'id')->toArray();
                                 } else {
-                                    return Auth::user()->getDepartmentsWithPermission('view-Order')->pluck('name', 'department_id')->toArray();
+                                    return Auth::user()->getDepartmentsWithPermission('view-Order')->pluck('name', 'id')->toArray();
                                 }
                             }),
                         Toggle::make('invert')
