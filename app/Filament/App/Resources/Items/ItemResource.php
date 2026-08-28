@@ -29,6 +29,7 @@ use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
+use Filament\Actions\ReplicateAction;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
@@ -299,15 +300,6 @@ class ItemResource extends Resource
                                                 ->exists('base_units', 'id')
                                                 ->disabled()
                                                 ->visible(false),
-                                            TextInput::make('price')
-                                                ->label(__('general.price'))
-                                                ->numeric()
-                                                ->minValue(0)
-                                                ->step(0.01)
-                                                ->maxValue(config('constants.inputs.numeric.max'))
-                                                ->default(0)
-                                                ->required(false)
-                                                ->suffixIcon('heroicon-m-currency-euro'),
                                             TextInput::make('price')
                                                 ->label(__('general.price'))
                                                 ->numeric()
@@ -1024,6 +1016,20 @@ class ItemResource extends Resource
                         ->label(__('general.open_storage')),
                     ViewAction::make(),
                     EditAction::make(),
+                    ReplicateAction::make()
+                        ->icon('heroicon-o-arrow-up-on-square-stack')
+                        ->schema([
+                            TextEntry::make('duplicate_hint')
+                                ->label(__('general.hint'))
+                                ->state(__('general.duplicate_note_1')),
+                            TextInput::make('name')
+                                ->label(__('general.name'))
+                                ->required()
+                                ->maxLength(64)
+                                ->unique(),
+                        ])
+                        ->successRedirectUrl(fn (Model $replica): string => route('filament.app.resources.items.edit', $replica))
+                        ->successNotificationTitle(__('general.entry_duplicated')),
                     DeleteAction::make()
                         ->modalHeading(function ($record): string {
                             return __('general.delete').': '.$record->name;

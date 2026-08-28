@@ -34,7 +34,7 @@
         "league/flysystem-aws-s3-v3": "^3.29",
         "league/flysystem-sftp-v3": "^3.0",
         "maatwebsite/excel": "^3.1",
-        "martinpetricko/filament-sentry-feedback": "^2.0",
+        "martinpetricko/filament-sentry-feedback": "*",
         "mpdf/mpdf": "^8.2",
         "njxqlus/filament-lightbox": "^3.0",
         "njxqlus/filament-progressbar": "^2.0",
@@ -54,7 +54,8 @@
         "symfony/browser-kit": "^7.0",
         "symfony/http-client": "^7.0",
         "tightenco/ziggy": "^2.0",
-        "tomatophp/filament-developer-gate": "^4.0"},
+        "tomatophp/filament-developer-gate": "^4.0"
+    },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.5",
         "fakerphp/faker": "^1.9.1",

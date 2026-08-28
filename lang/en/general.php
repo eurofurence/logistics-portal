@@ -466,7 +466,7 @@ return [
     'new_bill_is_available' => 'New bill is available',
     'notification_email_description' => 'The email address to which notifications should be sent. If the field is left blank, the email address entered during registration will be used',
     'webhook' => 'Webhook',
-    'dicord_webhook' => 'Discord Webhook',
+    'discord_webhook' => 'Discord Webhook',
     'discord_webhook_description' => 'Send a copy of your notifications to a Discord webhook',
     'reimbursement_to_invoice_issuer' => 'Reimbursement to biller',
     'reimbursement_to_invoice_issuer_tooltip' => 'The refund amount should be sent to the details in the invoice. By setting this option, the field for repayment modalities is deactivated and no longer needs to be filled in.',

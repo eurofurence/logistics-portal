@@ -26,6 +26,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use MartinPetricko\FilamentSentryFeedback\Entities\SentryUser;
+use MartinPetricko\FilamentSentryFeedback\FilamentSentryFeedbackPlugin;
 use Njxqlus\FilamentProgressbar\FilamentProgressbarPlugin;
 use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 use SalmanAlmajali\JokesWidget\JokesWidget;
@@ -82,12 +84,10 @@ class AppPanelProvider extends PanelProvider
                 SpotlightPlugin::make(),
                 GlobalSearchModalPlugin::make(),
                 FilamentDeveloperGatePlugin::make(),
-                /*
                 FilamentSentryFeedbackPlugin::make()
                     ->sentryUser(function (): ?SentryUser {
                         return new SentryUser(auth()->user()->name, auth()->user()->email);
                     })
-                */
             ])
             ->unsavedChangesAlerts()
             ->authMiddleware([
