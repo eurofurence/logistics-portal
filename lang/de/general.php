@@ -282,6 +282,7 @@ return [
     'returning_deposit_sync' => 'Pfand synchronisieren',
     'special_delivery' => 'Besondere Lieferung',
     'special_flag_text' => 'Sondervermerk',
+    'special_flag_text_hint' => 'Wenn du hier einen Text eingibst, wird dieser in der Tabelle als Hinweis für diesen Eintrag angezeigt.',
     'set_delivery_address' => 'Lieferadresse setzen',
     'if_unnecessary' => 'Wenn nicht benötigt = 0',
     'returning_deposit' => 'Pfand',

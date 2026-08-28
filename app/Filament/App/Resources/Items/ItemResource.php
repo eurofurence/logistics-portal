@@ -26,10 +26,10 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ReplicateAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
-use Filament\Actions\ReplicateAction;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
@@ -294,10 +294,6 @@ class ItemResource extends Resource
                                                     ->label(__('general.comment'))
                                                     ->maxLength(100000)
                                                     ->columnSpanFull(),
-                                                TextInput::make('special_flag_text')
-                                                    ->label(__('general.special_flag_text'))
-                                                    ->maxLength(250)
-                                                    ->columnSpanFull(),
                                             ]),
                                     ]),
                                 Tab::make(__('general.details'))
@@ -501,6 +497,10 @@ class ItemResource extends Resource
                                                     ->label(__('general.will_be_brought_to_next_event'))
                                                     ->default(false)
                                                     ->inline(false),
+                                                TextInput::make('special_flag_text')
+                                                    ->label(__('general.special_flag_text'))
+                                                    ->hint(__('general.special_flag_text_hint'))
+                                                    ->maxLength(250),
                                             ])
                                             ->label(__('general.note')),
                                         Fieldset::make('')
@@ -1057,7 +1057,19 @@ class ItemResource extends Resource
                         ->icon('heroicon-o-arrow-top-right-on-square')
                         ->label(__('general.open_storage')),
                     ViewAction::make(),
-                    EditAction::make(),
+                    Action::make('user_note')
+                        ->label(__('general.user_note'))
+                        ->action(function (Model $record, array $data): void {
+                            $record->update(['user_note' => $data['note']]);
+                        })
+                        ->icon('heroicon-o-pencil')
+                        ->schema([
+                            Textarea::make('note')
+                                ->label(fn (Model $record): string => __('general.user_note').' - '.$record->name)
+                                ->default(fn (Model $record): ?string => $record->user_note)
+                                ->autosize(),
+                        ])
+                        ->visible(fn (Model $record): bool => Gate::allows('view', $record)),
                     ReplicateAction::make()
                         ->icon('heroicon-o-arrow-up-on-square-stack')
                         ->schema([
@@ -1077,23 +1089,11 @@ class ItemResource extends Resource
                         ])
                         ->successRedirectUrl(fn (Model $replica): string => route('filament.app.resources.items.edit', $replica))
                         ->successNotificationTitle(__('general.entry_duplicated')),
+                    EditAction::make(),
                     DeleteAction::make()
                         ->modalHeading(function ($record): string {
                             return __('general.delete').': '.$record->name;
                         }),
-                    Action::make('user_note')
-                        ->label(__('general.user_note'))
-                        ->action(function (Model $record, array $data): void {
-                            $record->update(['user_note' => $data['note']]);
-                        })
-                        ->icon('heroicon-o-pencil')
-                        ->schema([
-                            Textarea::make('note')
-                                ->label(fn (Model $record): string => __('general.user_note').' - '.$record->name)
-                                ->default(fn (Model $record): ?string => $record->user_note)
-                                ->autosize(),
-                        ])
-                        ->visible(fn (Model $record): bool => Gate::allows('view', $record)),
                     RestoreAction::make(),
                     ForceDeleteAction::make(),
                 ]),

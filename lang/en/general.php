@@ -276,6 +276,7 @@ return [
     'returning_deposit_sync' => 'Synchronize returning deposit',
     'special_delivery' => 'Special delivery',
     'special_flag_text' => 'Special note',
+    'special_flag_text_hint' => 'If you enter text here, it will be displayed in the table as a note for this entry.',
     'set_delivery_address' => 'Set delivery address',
     'if_unnecessary' => 'If unnecessary = 0',
     'returning_deposit' => 'Returning deposit',
