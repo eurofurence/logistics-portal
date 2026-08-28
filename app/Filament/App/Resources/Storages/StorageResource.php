@@ -80,6 +80,22 @@ class StorageResource extends Resource
         return ['name'];
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $user = Auth::user();
+        $query = parent::getEloquentQuery();
+
+
+
+        $accessibleDepartmentIds = $user->getDepartmentsWithPermission('view-Storage')->pluck('id')->toArray();
+
+        return $query->where(function (Builder $query) use ($accessibleDepartmentIds): void {
+            $query
+                ->where('type', 1)
+                ->orWhereIn('managing_department', $accessibleDepartmentIds);
+        });
+    }
+
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [

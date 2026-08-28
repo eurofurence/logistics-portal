@@ -342,7 +342,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
     }
 
     /**
-     * Get all departments where the user has a specific role.
+     * Get all departments where the user has a specific permission.
      */
     public function getDepartmentsWithPermission(string $permission): \Illuminate\Support\Collection
     {
