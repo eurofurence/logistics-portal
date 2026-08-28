@@ -239,6 +239,11 @@ class ItemResource extends Resource
                                                     })
                                                     ->searchable(['name'])
                                                     ->live()
+                                                    ->afterStateHydrated(function (Set $set, mixed $state): void {
+                                                        $subCategory = InventorySubCategory::find($state);
+                                                        $set('current_selected_sub_category_id', $subCategory?->id);
+                                                        $set('current_selected_sub_category_name', $subCategory?->name);
+                                                    })
                                                     ->preload()
                                                     ->afterStateUpdated(function (Set $set, $state) {
                                                         // Saving the ID and name of the selected element
@@ -413,6 +418,11 @@ class ItemResource extends Resource
                                             })
                                             ->searchable(['name'])
                                             ->live()
+                                            ->afterStateHydrated(function (Set $set, mixed $state): void {
+                                                $operationSite = ItemsOperationSite::find($state);
+                                                $set('current_selected_operation_site_id', $operationSite?->id);
+                                                $set('current_selected_operation_site_name', $operationSite?->name);
+                                            })
                                             ->preload()
                                             ->afterStateUpdated(function (Set $set, $state) {
                                                 // Saving the ID and name of the selected element
