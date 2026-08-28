@@ -44,6 +44,8 @@ return [
     'view_more' => 'Mehr anzeigen',
     'search' => 'Suche',
     'quantity' => 'Anzahl',
+    'palletnumber' => 'Palettennummer',
+    'entry_added' => 'Eintrag hinzugefügt',
     'entry_added' => 'Eintrag hinzugefügt',
     'ikea' => 'IKEA',
     'bauhaus' => 'Bauhaus',

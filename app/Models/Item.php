@@ -30,6 +30,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property int $added_by
  * @property int $edited_by
  * @property int|null $price
+ * @property int|null $quantity
+ * @property string|null $palletnumber
  * @property int $locked
  * @property int|null $specific_editor
  * @property string|null $buy_date
@@ -69,6 +71,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @method static Builder<static>|Item whereName($value)
  * @method static Builder<static>|Item whereNeedsTruck($value)
  * @method static Builder<static>|Item wherePrice($value)
+ * @method static Builder<static>|Item wherePalletnumber($value)
+ * @method static Builder<static>|Item whereQuantity($value)
  * @method static Builder<static>|Item whereQrCode($value)
  * @method static Builder<static>|Item whereSerialnumber($value)
  * @method static Builder<static>|Item whereShortname($value)
@@ -118,7 +122,7 @@ class Item extends Model implements HasMedia
      *
      * @var array'
      */
-    protected $fillable = ['name', 'shortname', 'serialnumber', 'weight', 'stackable', 'unit', 'due_date', 'sorted_out', 'description', 'comment', 'department', 'edited_by', 'added_by', 'price', 'locked', 'specific_editor', 'buy_date', 'qr_code', 'storage_container_id', 'storage', 'owner', 'borrowed_item', 'rented_item', 'will_be_brought_to_next_event', 'operation_site', 'custom_fields', 'sub_category', 'manufacturer_barcode'];
+    protected $fillable = ['name', 'shortname', 'serialnumber', 'weight', 'stackable', 'unit', 'due_date', 'sorted_out', 'description', 'comment', 'department', 'edited_by', 'added_by', 'price', 'quantity', 'palletnumber', 'locked', 'specific_editor', 'buy_date', 'qr_code', 'storage_container_id', 'storage', 'owner', 'borrowed_item', 'rented_item', 'will_be_brought_to_next_event', 'operation_site', 'custom_fields', 'sub_category', 'manufacturer_barcode'];
 
     protected $casts = [
         'custom_fields' => 'array',

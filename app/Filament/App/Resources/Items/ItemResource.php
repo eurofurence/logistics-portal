@@ -266,6 +266,12 @@ class ItemResource extends Resource
 
                                                         return null;
                                                     }),
+                                                TextInput::make('quantity')
+                                                    ->label(__('general.quantity'))
+                                                    ->numeric()
+                                                    ->minValue(0)
+                                                    ->maxValue(config('constants.inputs.numeric.max'))
+                                                    ->required(false),
                                                 Textarea::make('description')
                                                     ->label(__('general.description'))
                                                     ->maxLength(10000)
@@ -302,6 +308,18 @@ class ItemResource extends Resource
                                                 ->default(0)
                                                 ->required(false)
                                                 ->suffixIcon('heroicon-m-currency-euro'),
+                                            TextInput::make('price')
+                                                ->label(__('general.price'))
+                                                ->numeric()
+                                                ->minValue(0)
+                                                ->step(0.01)
+                                                ->maxValue(config('constants.inputs.numeric.max'))
+                                                ->default(0)
+                                                ->required(false)
+                                                ->suffixIcon('heroicon-m-currency-euro'),
+                                            TextInput::make('palletnumber')
+                                                ->label(__('general.palletnumber'))
+                                                ->maxLength(255),
                                             TextInput::make('serialnumber')
                                                 ->label(__('general.serialnumber'))
                                                 ->maxLength(250),
@@ -575,6 +593,11 @@ class ItemResource extends Resource
                     ->searchable()
                     ->label(__('general.id'))
                     ->toggleable(),
+                TextColumn::make('quantity')
+                    ->label(__('general.quantity'))
+                    ->toggleable()
+                    ->sortable()
+                    ->searchable(),
                 SpatieMediaLibraryImageColumn::make('main_image')
                     ->collection('inventory_main_image')
                     ->label(__('general.picture'))
@@ -651,6 +674,16 @@ class ItemResource extends Resource
                     ->sortable(),
                 TextColumn::make('manufacturer_barcode')
                     ->label(__('general.manufacturer_barcode'))
+                    ->toggleable(true, true)
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('palletnumber')
+                    ->label(__('general.palletnumber'))
+                    ->toggleable(true, true)
+                    ->sortable()
+                    ->searchable(),
+                TextColumn::make('connected_operation_site.name')
+                    ->label(__('general.operation_site'))
                     ->toggleable(true, true)
                     ->sortable()
                     ->searchable(),
