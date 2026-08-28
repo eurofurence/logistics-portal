@@ -70,6 +70,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Unique;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ItemResource extends Resource
@@ -183,7 +184,12 @@ class ItemResource extends Resource
                                                 TextInput::make('name')
                                                     ->label(__('general.name'))
                                                     ->required()
-                                                    ->unique(ignoreRecord: true)
+                                                    ->unique(
+                                                        ignoreRecord: true,
+                                                        modifyRuleUsing: function (Unique $rule, Get $get): Unique {
+                                                            return $rule->where('department', $get('department'));
+                                                        },
+                                                    )
                                                     ->maxLength(64),
                                                 TextInput::make('shortname')
                                                     ->unique(ignoreRecord: true)
@@ -1036,7 +1042,12 @@ class ItemResource extends Resource
                                 ->label(__('general.name'))
                                 ->required()
                                 ->maxLength(64)
-                                ->unique(),
+                                ->unique(
+                                    ignoreRecord: true,
+                                    modifyRuleUsing: function (Unique $rule, Get $get): Unique {
+                                        return $rule->where('department', $get('department'));
+                                    },
+                                ),
                         ])
                         ->successRedirectUrl(fn (Model $replica): string => route('filament.app.resources.items.edit', $replica))
                         ->successNotificationTitle(__('general.entry_duplicated')),

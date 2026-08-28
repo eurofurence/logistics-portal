@@ -434,7 +434,7 @@ return [
     'edit_operation_site' => 'Edit operation site',
     'delete_operation_site' => 'Delete operation site',
     'sub_category_create_note_1' => 'Please create the entry before adding a category',
-    'inventory_department_note_1' => 'The department cannot be changed retrospectively at the',
+    'inventory_department_note_1' => 'The department cannot be changed retrospectively at the moment',
     'department_sub_category' => 'Department sub category',
     'edit_sub_category' => 'Edit category',
     'add_sub_category' => 'Add category',
