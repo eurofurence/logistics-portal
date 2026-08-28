@@ -34,7 +34,6 @@ use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
@@ -643,11 +642,6 @@ class ItemResource extends Resource
                     ->label(__('general.shortname'))
                     ->toggleable(true, true)
                     ->visible(false),
-                TextColumn::make('connected_storage.name')
-                    ->sortable()
-                    ->searchable()
-                    ->label(__('general.name'))
-                    ->toggleable(true, true),
                 TextColumn::make('connected_department.name')
                     ->sortable()
                     ->searchable()
@@ -696,11 +690,6 @@ class ItemResource extends Resource
                     ->searchable(),
                 TextColumn::make('palletnumber')
                     ->label(__('general.palletnumber'))
-                    ->toggleable(true, true)
-                    ->sortable()
-                    ->searchable(),
-                TextColumn::make('connected_operation_site.name')
-                    ->label(__('general.operation_site'))
                     ->toggleable(true, true)
                     ->sortable()
                     ->searchable(),
@@ -1142,7 +1131,8 @@ class ItemResource extends Resource
                                         ->default(['id', 'name'])
                                         ->columns(3)
                                         ->required()
-                                        ->disableOptionWhen(fn (string $value): bool => in_array($value, ['id', 'name'])),
+                                        ->disableOptionWhen(fn (string $value): bool => in_array($value, ['id', 'name']))
+                                        ->in(array_keys(static::$export_column_options)),
                                 ])
                                     ->visible(function (Get $get) {
                                         return $get('export_type') == 'standard';
@@ -1157,57 +1147,6 @@ class ItemResource extends Resource
                             ]),
                         Step::make(__('general.options'))
                             ->schema([
-                                // Option for standard export
-                                Section::make([
-                                    FileUpload::make('image')
-                                        ->label('')
-                                        ->disk('s3')
-                                        ->directory('/export/excel/tmp')
-                                        ->visibility('private')
-                                        ->image()
-                                        ->maxSize(50000)
-                                        ->imageEditor()
-                                        ->imageEditorMode(1)
-                                        ->avatar()
-                                        ->storeFiles(true)
-                                        ->imageEditorEmptyFillColor('#000000')
-                                        ->getUploadedFileNameForStorageUsing(fn () => str()->random(64)),
-                                ])
-                                    ->description(__('general.picture').' - '.__('general.export_picture_option_description'))
-                                    ->visible(function (Get $get) {
-                                        return $get('export_type') == 'standard';
-                                    }),
-
-                                // Options for standard export
-                                Section::make([
-                                    // TODO:: Storage Option
-
-                                    // TODO: Operation Site Option
-
-                                    // TODO: custom_fields Option
-
-                                    // TODO: sub_category Option
-                                    Checkbox::make('calculate_total_net')
-                                        ->inline()
-                                        ->label(__('general.calculate_total_net')),
-                                    Checkbox::make('calculate_total_gross')
-                                        ->inline()
-                                        ->label(__('general.calculate_total_gross')),
-                                    Checkbox::make('calculate_total_returning_deposit')
-                                        ->inline()
-                                        ->label(__('general.calculate_total_returning_deposit')),
-                                    Checkbox::make('show_who_added_order')
-                                        ->inline()
-                                        ->label(__('general.show_who_added_order')),
-                                    Checkbox::make('show_who_approved_order')
-                                        ->inline()
-                                        ->label(__('general.show_who_approved_order')),
-                                ])
-                                    ->description(__('general.special_fields').' - ('.__('general.per_row').')')
-                                    ->visible(function (Get $get) {
-                                        return $get('export_type') == 'standard';
-                                    }),
-
                                 // Option for standard export
                                 Section::make([
                                     Radio::make('orientation')
@@ -1264,10 +1203,6 @@ class ItemResource extends Resource
                     ])
                     ->action(function (Collection $records, array $data, $table) {
                         try {
-                            if (! empty($data['image'])) {
-                                $data['image'] = Storage::temporaryUrl($data['image'], now()->addMinutes(30));
-                            }
-
                             $data['records'] = $records->filter(fn ($record) => $record->status !== 'locked');
 
                             if ($data['records']->count() < 1) {

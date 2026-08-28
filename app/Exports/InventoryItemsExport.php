@@ -46,8 +46,6 @@ class InventoryItemsExport extends ExportBase implements WithMultipleSheets
         }
 
         $this->final_records = $final_records;
-        $this->processOption('show_who_added_order', $this->data);
-        $this->processOption('show_who_approved_order', $this->data);
     }
 
     public function sheets(): array
@@ -60,51 +58,4 @@ class InventoryItemsExport extends ExportBase implements WithMultipleSheets
         return $sheets;
     }
 
-    private function processOption(string $option): bool
-    {
-        if (isset($this->data[$option]) && $this->data[$option] === true) {
-            $this->headings[] = __('table_exports.option_titles.'.$option);
-
-            switch ($option) {
-
-                // TODO:: Storage Option
-
-                // TODO: Operation Site Option
-
-                // TODO: custom_fields Option
-
-                // TODO: sub_category Option
-
-                case 'show_who_added_order':
-                    foreach ($this->final_records as &$department) {
-                        foreach ($department['orders'] as &$order) {
-                            $order_id = $order['id'];
-                            $order_model = $this->data['records']->where('id', $order_id)->first();
-                            $order['show_who_added_order'] = $order_model['addedBy']['name'];
-                        }
-                    }
-                    break;
-
-                case 'show_who_approved_order':
-                    foreach ($this->final_records as &$department) {
-                        foreach ($department['orders'] as &$order) {
-                            $order_id = $order['id'];
-                            $order_model = $this->data['records']->where('id', $order_id)->first();
-
-                            if (! empty($order_model['approvedBy']['name'])) {
-                                $order['show_who_approved_order'] = $order_model['approvedBy']['name'];
-                            }
-                        }
-                    }
-                    break;
-
-                default:
-                    return false;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
 }
