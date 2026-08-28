@@ -26,6 +26,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ReplicateAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
@@ -33,7 +34,6 @@ use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
@@ -57,6 +57,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Grouping\Group;
@@ -69,6 +70,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Unique;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ItemResource extends Resource
@@ -182,7 +184,12 @@ class ItemResource extends Resource
                                                 TextInput::make('name')
                                                     ->label(__('general.name'))
                                                     ->required()
-                                                    ->unique(ignoreRecord: true)
+                                                    ->unique(
+                                                        ignoreRecord: true,
+                                                        modifyRuleUsing: function (Unique $rule, Get $get): Unique {
+                                                            return $rule->where('department', $get('department'));
+                                                        },
+                                                    )
                                                     ->maxLength(64),
                                                 TextInput::make('shortname')
                                                     ->unique(ignoreRecord: true)
@@ -238,6 +245,11 @@ class ItemResource extends Resource
                                                     })
                                                     ->searchable(['name'])
                                                     ->live()
+                                                    ->afterStateHydrated(function (Set $set, mixed $state): void {
+                                                        $subCategory = InventorySubCategory::find($state);
+                                                        $set('current_selected_sub_category_id', $subCategory?->id);
+                                                        $set('current_selected_sub_category_name', $subCategory?->name);
+                                                    })
                                                     ->preload()
                                                     ->afterStateUpdated(function (Set $set, $state) {
                                                         // Saving the ID and name of the selected element
@@ -266,6 +278,12 @@ class ItemResource extends Resource
 
                                                         return null;
                                                     }),
+                                                TextInput::make('quantity')
+                                                    ->label(__('general.quantity'))
+                                                    ->numeric()
+                                                    ->minValue(0)
+                                                    ->maxValue(config('constants.inputs.numeric.max'))
+                                                    ->required(false),
                                                 Textarea::make('description')
                                                     ->label(__('general.description'))
                                                     ->maxLength(10000)
@@ -302,6 +320,9 @@ class ItemResource extends Resource
                                                 ->default(0)
                                                 ->required(false)
                                                 ->suffixIcon('heroicon-m-currency-euro'),
+                                            TextInput::make('palletnumber')
+                                                ->label(__('general.palletnumber'))
+                                                ->maxLength(255),
                                             TextInput::make('serialnumber')
                                                 ->label(__('general.serialnumber'))
                                                 ->maxLength(250),
@@ -403,6 +424,11 @@ class ItemResource extends Resource
                                             })
                                             ->searchable(['name'])
                                             ->live()
+                                            ->afterStateHydrated(function (Set $set, mixed $state): void {
+                                                $operationSite = ItemsOperationSite::find($state);
+                                                $set('current_selected_operation_site_id', $operationSite?->id);
+                                                $set('current_selected_operation_site_name', $operationSite?->name);
+                                            })
                                             ->preload()
                                             ->afterStateUpdated(function (Set $set, $state) {
                                                 // Saving the ID and name of the selected element
@@ -470,6 +496,10 @@ class ItemResource extends Resource
                                                     ->label(__('general.will_be_brought_to_next_event'))
                                                     ->default(false)
                                                     ->inline(false),
+                                                TextInput::make('special_flag_text')
+                                                    ->label(__('general.special_flag_text'))
+                                                    ->hint(__('general.special_flag_text_hint'))
+                                                    ->maxLength(250),
                                             ])
                                             ->label(__('general.note')),
                                         Fieldset::make('')
@@ -553,6 +583,8 @@ class ItemResource extends Resource
             'sorted_out' => __('general.sorted_out'),
             'description' => __('general.description'),
             'comment' => __('general.comment'),
+            'user_note' => __('general.user_note'),
+            'special_flag_text' => __('general.special_flag_text'),
             'price' => __('general.price'),
             'buy_date' => __('general.buy_date'),
             'dangerous_good' => __('general.dangerous_good'),
@@ -575,6 +607,11 @@ class ItemResource extends Resource
                     ->searchable()
                     ->label(__('general.id'))
                     ->toggleable(),
+                TextColumn::make('quantity')
+                    ->label(__('general.quantity'))
+                    ->toggleable()
+                    ->sortable()
+                    ->searchable(),
                 SpatieMediaLibraryImageColumn::make('main_image')
                     ->collection('inventory_main_image')
                     ->label(__('general.picture'))
@@ -591,6 +628,8 @@ class ItemResource extends Resource
                             $record->dangerous_good ? __('general.dangerous_good') : null,
                             $record->borrowed_item ? __('general.borrowed_item') : null,
                             $record->rented_item ? __('general.rented_item') : null,
+                            $record->user_note ? __('general.user_note') : null,
+                            $record->special_flag_text ?: null,
                             $record->comment ? __('general.comment') : null,
                             $record->due_date ? __('general.due_date') : null,
                         ]);
@@ -603,11 +642,6 @@ class ItemResource extends Resource
                     ->label(__('general.shortname'))
                     ->toggleable(true, true)
                     ->visible(false),
-                TextColumn::make('connected_storage.name')
-                    ->sortable()
-                    ->searchable()
-                    ->label(__('general.name'))
-                    ->toggleable(true, true),
                 TextColumn::make('connected_department.name')
                     ->sortable()
                     ->searchable()
@@ -654,6 +688,11 @@ class ItemResource extends Resource
                     ->toggleable(true, true)
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('palletnumber')
+                    ->label(__('general.palletnumber'))
+                    ->toggleable(true, true)
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('connected_operation_site.name')
                     ->label(__('general.operation_site'))
                     ->toggleable(true, true)
@@ -668,6 +707,23 @@ class ItemResource extends Resource
             ->filters([
                 TrashedFilter::make()
                     ->visible(fn (): bool => Gate::allows('restore', Item::class) || Gate::allows('forceDelete', Item::class) || Gate::allows('bulkForceDelete', Item::class) || Gate::allows('bulkRestore', Item::class)),
+                SelectFilter::make('user_note')
+                    ->label(__('general.user_note'))
+                    ->options([
+                        'with' => __('general.yes'),
+                        'without' => __('general.no'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if ($data['value'] === 'with') {
+                            return $query->whereNotNull('user_note');
+                        }
+
+                        if ($data['value'] === 'without') {
+                            return $query->whereNull('user_note');
+                        }
+
+                        return $query;
+                    }),
                 Filter::make('created_at')
                     ->schema([
                         DatePicker::make('created_from')
@@ -990,6 +1046,38 @@ class ItemResource extends Resource
                         ->icon('heroicon-o-arrow-top-right-on-square')
                         ->label(__('general.open_storage')),
                     ViewAction::make(),
+                    Action::make('user_note')
+                        ->label(__('general.user_note'))
+                        ->action(function (Model $record, array $data): void {
+                            $record->update(['user_note' => $data['note']]);
+                        })
+                        ->icon('heroicon-o-pencil')
+                        ->schema([
+                            Textarea::make('note')
+                                ->label(fn (Model $record): string => __('general.user_note').' - '.$record->name)
+                                ->default(fn (Model $record): ?string => $record->user_note)
+                                ->autosize(),
+                        ])
+                        ->visible(fn (Model $record): bool => Gate::allows('view', $record)),
+                    ReplicateAction::make()
+                        ->icon('heroicon-o-arrow-up-on-square-stack')
+                        ->schema([
+                            TextEntry::make('duplicate_hint')
+                                ->label(__('general.hint'))
+                                ->state(__('general.duplicate_note_1')),
+                            TextInput::make('name')
+                                ->label(__('general.name'))
+                                ->required()
+                                ->maxLength(64)
+                                ->unique(
+                                    ignoreRecord: true,
+                                    modifyRuleUsing: function (Unique $rule, Get $get): Unique {
+                                        return $rule->where('department', $get('department'));
+                                    },
+                                ),
+                        ])
+                        ->successRedirectUrl(fn (Model $replica): string => route('filament.app.resources.items.edit', $replica))
+                        ->successNotificationTitle(__('general.entry_duplicated')),
                     EditAction::make(),
                     DeleteAction::make()
                         ->modalHeading(function ($record): string {
@@ -1043,7 +1131,8 @@ class ItemResource extends Resource
                                         ->default(['id', 'name'])
                                         ->columns(3)
                                         ->required()
-                                        ->disableOptionWhen(fn (string $value): bool => in_array($value, ['id', 'name'])),
+                                        ->disableOptionWhen(fn (string $value): bool => in_array($value, ['id', 'name']))
+                                        ->in(array_keys(static::$export_column_options)),
                                 ])
                                     ->visible(function (Get $get) {
                                         return $get('export_type') == 'standard';
@@ -1058,57 +1147,6 @@ class ItemResource extends Resource
                             ]),
                         Step::make(__('general.options'))
                             ->schema([
-                                // Option for standard export
-                                Section::make([
-                                    FileUpload::make('image')
-                                        ->label('')
-                                        ->disk('s3')
-                                        ->directory('/export/excel/tmp')
-                                        ->visibility('private')
-                                        ->image()
-                                        ->maxSize(50000)
-                                        ->imageEditor()
-                                        ->imageEditorMode(1)
-                                        ->avatar()
-                                        ->storeFiles(true)
-                                        ->imageEditorEmptyFillColor('#000000')
-                                        ->getUploadedFileNameForStorageUsing(fn () => str()->random(64)),
-                                ])
-                                    ->description(__('general.picture').' - '.__('general.export_picture_option_description'))
-                                    ->visible(function (Get $get) {
-                                        return $get('export_type') == 'standard';
-                                    }),
-
-                                // Options for standard export
-                                Section::make([
-                                    // TODO:: Storage Option
-
-                                    // TODO: Operation Site Option
-
-                                    // TODO: custom_fields Option
-
-                                    // TODO: sub_category Option
-                                    Checkbox::make('calculate_total_net')
-                                        ->inline()
-                                        ->label(__('general.calculate_total_net')),
-                                    Checkbox::make('calculate_total_gross')
-                                        ->inline()
-                                        ->label(__('general.calculate_total_gross')),
-                                    Checkbox::make('calculate_total_returning_deposit')
-                                        ->inline()
-                                        ->label(__('general.calculate_total_returning_deposit')),
-                                    Checkbox::make('show_who_added_order')
-                                        ->inline()
-                                        ->label(__('general.show_who_added_order')),
-                                    Checkbox::make('show_who_approved_order')
-                                        ->inline()
-                                        ->label(__('general.show_who_approved_order')),
-                                ])
-                                    ->description(__('general.special_fields').' - ('.__('general.per_row').')')
-                                    ->visible(function (Get $get) {
-                                        return $get('export_type') == 'standard';
-                                    }),
-
                                 // Option for standard export
                                 Section::make([
                                     Radio::make('orientation')
@@ -1165,10 +1203,6 @@ class ItemResource extends Resource
                     ])
                     ->action(function (Collection $records, array $data, $table) {
                         try {
-                            if (! empty($data['image'])) {
-                                $data['image'] = Storage::temporaryUrl($data['image'], now()->addMinutes(30));
-                            }
-
                             $data['records'] = $records->filter(fn ($record) => $record->status !== 'locked');
 
                             if ($data['records']->count() < 1) {
@@ -1242,9 +1276,6 @@ class ItemResource extends Resource
                 ]),
             ])
             ->groups([
-                Group::make('name')
-                    ->label(__('general.name'))
-                    ->collapsible(),
                 Group::make('will_be_brought_to_next_event')
                     ->label(__('general.will_be_brought_to_next_event'))
                     ->getTitleFromRecordUsing(function (Item $record): string {

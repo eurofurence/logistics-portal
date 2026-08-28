@@ -177,8 +177,10 @@ class SingleDepartmentSheet implements FromCollection, ShouldAutoSize, WithColum
 
     public function drawings()
     {
-        if ($this->data['image'] != null) {
-            if (! $imageResource = @imagecreatefromstring(file_get_contents($this->data['image']))) {
+        $image = $this->data['image'] ?? null;
+
+        if ($image !== null) {
+            if (! $imageResource = @imagecreatefromstring(file_get_contents($image))) {
                 throw new Exception('The image URL cannot be converted into an image resource.');
             }
 

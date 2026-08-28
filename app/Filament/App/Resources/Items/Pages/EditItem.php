@@ -9,7 +9,9 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Validation\Rules\Unique;
 
 class EditItem extends EditRecord
 {
@@ -35,7 +37,12 @@ class EditItem extends EditRecord
                         ->label(__('general.name'))
                         ->required()
                         ->maxLength(64)
-                        ->unique(),
+                        ->unique(
+                            ignoreRecord: true,
+                            modifyRuleUsing: function (Unique $rule, Get $get): Unique {
+                                return $rule->where('department', $get('department'));
+                            },
+                        )
                 ])
                 ->successRedirectUrl(fn (Model $replica): string => route('filament.app.resources.items.edit', $replica))
                 ->successNotificationTitle(__('general.entry_duplicated')),

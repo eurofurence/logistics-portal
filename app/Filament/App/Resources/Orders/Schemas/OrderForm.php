@@ -400,6 +400,7 @@ class OrderForm
                                             ->inline(false),
                                         TextInput::make('special_flag_text')
                                             ->label(__('general.special_flag_text'))
+                                            ->hint(__('general.special_flag_text_hint'))
                                             ->maxLength(250),
                                     ])
                                     ->label(__('general.special')),
