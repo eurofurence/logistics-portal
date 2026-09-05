@@ -9,6 +9,7 @@ use App\Models\OrderEvent;
 use App\Models\User;
 use Carbon\Carbon;
 use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
@@ -89,6 +90,11 @@ class BillForm
                         ->maxLength(250)
                         ->required()
                         ->helperText(__('general.bill_title_description')),
+                    DatePicker::make('payment_deadline')
+                        ->label(__('general.bill_payment_deadline'))
+                        ->helperText(__('general.bill_payment_deadline_hint'))
+                        ->nullable()
+                        ->columnSpan(1),
                     Select::make('department_id')
                         ->label(__('general.department'))
                         ->required()

@@ -5,21 +5,14 @@ namespace App\Filament\Admin\Resources\Whitelists;
 use App\Filament\Admin\Resources\Whitelists\Pages\CreateWhitelist;
 use App\Filament\Admin\Resources\Whitelists\Pages\EditWhitelist;
 use App\Filament\Admin\Resources\Whitelists\Pages\ListWhitelists;
+use App\Filament\Admin\Resources\Whitelists\Schemas\WhitelistForm;
+use App\Filament\Admin\Resources\Whitelists\Tables\WhitelistsTable;
 use App\Models\Whitelist;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\RestoreBulkAction;
-use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 
 class WhitelistResource extends Resource
 {
@@ -57,41 +50,12 @@ class WhitelistResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                Section::make()
-                    ->schema([
-                        TextInput::make('email')->required()->unique()->email(),
-                    ]),
-            ]);
+        return WhitelistForm::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                TextColumn::make('id')->searchable(),
-                TextColumn::make('email')->searchable(),
-                TextColumn::make('user.name')->searchable(),
-            ])
-            ->filters([
-                //
-            ])
-            ->recordActions([
-                EditAction::make(),
-                DeleteAction::make()
-                    ->modalHeading(function ($record): string {
-                        return __('general.delete').': '.$record->email;
-                    }),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->visible(Gate::check('bulkDelete', Whitelist::class)),
-                    RestoreBulkAction::make()
-                        ->visible(Gate::check('bulkRestore', Whitelist::class)),
-                ]),
-            ]);
+        return WhitelistsTable::configure($table);
     }
 
     public static function getRelations(): array

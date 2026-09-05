@@ -13,13 +13,14 @@
     ],
     "sail": true,
     "skills": [
+        "infer-conventions",
         "laravel-best-practices",
+        "testing-best-practices",
         "configuring-horizon",
         "octane-development",
         "socialite-development",
-        "pest-testing",
-        "inertia-vue-development",
         "tailwindcss-development",
+        "inertia-vue-development",
         "filament-security-audit"
     ]
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Events\BillCreated;
 use App\Events\BillStatusChanged;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -21,6 +22,9 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  * @property string $description
  * @property float $value
  * @property string $status
+ * @property Carbon|null $payment_deadline
+ * @property Carbon|null $payment_reminder_sent_at
+ * @property Carbon|null $payment_overdue_reminder_sent_at
  * @property string|null $comment
  * @property string $currency
  * @property float|null $advance_payment_value
@@ -73,7 +77,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
  */
 class Bill extends Model implements HasMedia
 {
-    use InteractsWithMedia, SoftDeletes;
+    use HasFactory, InteractsWithMedia, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -86,6 +90,7 @@ class Bill extends Model implements HasMedia
         'value',
         'currency',
         'status',
+        'payment_deadline',
         'title',
         'order_event_id',
         'department_id',
@@ -106,6 +111,9 @@ class Bill extends Model implements HasMedia
     protected $casts = [
         'value' => 'real',
         'advance_payment_value' => 'real',
+        'payment_deadline' => 'date',
+        'payment_reminder_sent_at' => 'datetime',
+        'payment_overdue_reminder_sent_at' => 'datetime',
     ];
 
     protected static function boot()
@@ -113,6 +121,8 @@ class Bill extends Model implements HasMedia
         parent::boot();
 
         static::creating(function ($model) {
+            $model->payment_reminder_sent_at = null;
+            $model->payment_overdue_reminder_sent_at = null;
             $model->added_by = Auth::user()->id;
             $model->edited_by = Auth::user()->id;
         });
@@ -122,6 +132,11 @@ class Bill extends Model implements HasMedia
         });
 
         static::updating(function ($model) {
+            if ($model->isDirty('payment_deadline')) {
+                $model->payment_reminder_sent_at = null;
+                $model->payment_overdue_reminder_sent_at = null;
+            }
+
             $user = Auth::user();
             $model->edited_by = $user->id;
 
