@@ -6,25 +6,13 @@ use App\Filament\Admin\Resources\IdpRankSyncs\Pages\CreateIdpRankSync;
 use App\Filament\Admin\Resources\IdpRankSyncs\Pages\EditIdpRankSync;
 use App\Filament\Admin\Resources\IdpRankSyncs\Pages\ListIdpRankSyncs;
 use App\Filament\Admin\Resources\IdpRankSyncs\Pages\ViewIdpRankSync;
+use App\Filament\Admin\Resources\IdpRankSyncs\Schemas\IdpRankSyncForm;
+use App\Filament\Admin\Resources\IdpRankSyncs\Tables\IdpRankSyncsTable;
 use App\Models\IdpRankSync;
-use App\Models\Role;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\RestoreBulkAction;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Gate;
 
 class IdpRankSyncResource extends Resource
 {
@@ -56,66 +44,12 @@ class IdpRankSyncResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                Section::make()
-                    ->schema([
-                        TextInput::make('name')
-                            ->unique(ignoreRecord: true)
-                            ->nullable()
-                            ->label(__('general.name')),
-                        Select::make('local_role')
-                            ->options(
-                                Role::all(['id', 'name'])->pluck('name', 'id')
-                            )
-                            ->required()
-                            ->exists(table: Role::class, column: 'id')
-                            ->label(__('general.local_role')),
-                        TextInput::make('idp_group')
-                            ->required()
-                            ->label(__('general.idp_group')),
-                        Toggle::make('active')
-                            ->label(__('general.is_active'))
-                            ->default(false),
-                    ]),
-            ]);
+        return IdpRankSyncForm::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                TextColumn::make('id')
-                    ->label(__('general.id'))
-                    ->sortable()
-                    ->toggleable(true),
-                TextColumn::make('name')
-                    ->label(__('general.name'))
-                    ->sortable()
-                    ->toggleable(),
-                TextColumn::make('role.name')
-                    ->label(__('general.local_role')),
-                TextColumn::make('idp_group')
-                    ->label(__('general.idp_group')),
-            ])
-            ->filters([
-                TrashedFilter::make(),
-            ])
-            ->recordActions([
-                EditAction::make(),
-                DeleteAction::make()
-                    ->modalHeading(function ($record): string {
-                        return __('general.delete').': '.$record->name;
-                    }),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->visible(Gate::check('bulkDelete', IdpRankSync::class)),
-                    RestoreBulkAction::make()
-                        ->visible(Gate::check('bulkRestore', IdpRankSync::class)),
-                ]),
-            ]);
+        return IdpRankSyncsTable::configure($table);
     }
 
     public static function getRelations(): array

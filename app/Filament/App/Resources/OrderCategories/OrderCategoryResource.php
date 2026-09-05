@@ -6,29 +6,15 @@ use App\Filament\App\Resources\OrderCategories\Pages\CreateOrderCategory;
 use App\Filament\App\Resources\OrderCategories\Pages\EditOrderCategory;
 use App\Filament\App\Resources\OrderCategories\Pages\ListOrderCategories;
 use App\Filament\App\Resources\OrderCategories\Pages\ViewOrderCategory;
+use App\Filament\App\Resources\OrderCategories\Schemas\OrderCategoryForm;
+use App\Filament\App\Resources\OrderCategories\Tables\OrderCategoriesTable;
 use App\Models\OrderCategory;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\ForceDeleteBulkAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\RestoreBulkAction;
-use Filament\Actions\ViewAction;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Support\Enums\FontWeight;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Gate;
 
 class OrderCategoryResource extends Resource
 {
@@ -70,65 +56,12 @@ class OrderCategoryResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                Section::make(__('general.informations'))
-                    ->schema([
-                        TextInput::make('name')
-                            ->required()
-                            ->unique(ignoreRecord: true),
-                        Textarea::make('description')
-                            ->nullable()
-                            ->maxLength(1000)
-                            ->label(__('general.description')),
-
-                    ]),
-            ]);
+        return OrderCategoryForm::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                TextColumn::make('id')
-                    ->label(__('general.id'))
-                    ->toggleable()
-                    ->sortable(),
-                TextColumn::make('name')
-                    ->label(__('general.name'))
-                    ->weight(FontWeight::Bold)
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('description')
-                    ->label(__('general.description'))
-                    ->color('gray')
-                    ->limit(30)
-                    ->toggleable(true, true),
-            ])
-            ->filters([
-                TrashedFilter::make()
-                    ->visible(fn (): bool => Gate::allows('restore', OrderCategory::class) || Gate::allows('forceDelete', OrderCategory::class) || Gate::allows('bulkForceDelete', OrderCategory::class) || Gate::allows('bulkRestore', OrderCategory::class)),
-            ])
-            ->recordActions([
-                RestoreAction::make(),
-                ForceDeleteAction::make(),
-                EditAction::make(),
-                DeleteAction::make()
-                    ->modalHeading(function ($record): string {
-                        return __('general.delete').': '.$record->name;
-                    }),
-                ViewAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->visible(fn (): bool => Gate::allows('bulk-delete', OrderCategory::class)),
-                    RestoreBulkAction::make()
-                        ->visible(fn (): bool => Gate::allows('bulk-restore-OrderCategory', OrderCategory::class)),
-                    ForceDeleteBulkAction::make()
-                        ->visible(fn (): bool => Gate::allows('bulk-force-delete-OrderCategory', OrderCategory::class)),
-                ]),
-            ]);
+        return OrderCategoriesTable::configure($table);
     }
 
     public static function getPages(): array

@@ -6,25 +6,15 @@ use App\Filament\Admin\Resources\Departments\Pages\CreateDepartment;
 use App\Filament\Admin\Resources\Departments\Pages\EditDepartment;
 use App\Filament\Admin\Resources\Departments\Pages\ListDepartments;
 use App\Filament\Admin\Resources\Departments\RelationManagers\DepartmentMembersRelationManager;
+use App\Filament\Admin\Resources\Departments\Schemas\DepartmentForm;
+use App\Filament\Admin\Resources\Departments\Tables\DepartmentsTable;
 use App\Models\Department;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\RestoreBulkAction;
-use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\Gate;
 
 class DepartmentResource extends Resource
 {
@@ -61,60 +51,12 @@ class DepartmentResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema
-            ->components([
-                Section::make()
-                    ->schema([
-                        TextInput::make('name')
-                            ->unique(ignoreRecord: true)
-                            ->label(__('general.name'))
-                            ->required(),
-                        TextInput::make('idp_group_id')
-                            ->unique(ignoreRecord: true)
-                            ->label(__('general.idp_group'))
-                            ->nullable(),
-                    ]),
-            ]);
+        return DepartmentForm::configure($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                TextColumn::make('id')
-                    ->searchable()
-                    ->toggleable(true)
-                    ->label(__('general.id')),
-                TextColumn::make('name')
-                    ->searchable()
-                    ->sortable()
-                    ->label(__('general.name')),
-                TextColumn::make('idp_group_id')
-                    ->searchable()
-                    ->toggleable()
-                    ->label(__('general.idp_group'))
-                    ->visible(config('app.identity_mode')),
-            ])
-            ->filters([
-                TrashedFilter::make(),
-            ])
-            ->recordActions([
-                EditAction::make(),
-                DeleteAction::make()
-                    ->modalHeading(function ($record): string {
-                        return __('general.delete').': '.$record->name;
-                    }),
-                ForceDeleteAction::make(),
-                RestoreAction::make(),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make()
-                        ->visible(Gate::check('bulkDelete', Department::class)),
-                    RestoreBulkAction::make()
-                        ->visible(Gate::check('bulkRestore', Department::class)),
-                ]),
-            ]);
+        return DepartmentsTable::configure($table);
     }
 
     public static function getRelations(): array
