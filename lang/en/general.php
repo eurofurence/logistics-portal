@@ -2,6 +2,10 @@
 
 return [
     'bill_payment_deadline' => 'Payment deadline',
+    'bill_payment_deadline_from' => 'Payment deadline from',
+    'bill_payment_deadline_until' => 'Payment deadline until',
+    'bill_payment_overdue_label' => 'Overdue',
+    'bill_payment_overdue_filter' => 'Only overdue invoices',
     'bill_payment_deadline_hint' => 'Optional: date by which the invoice must be paid.',
     'bill_payment_reminder' => 'Reminder: process invoice',
     'bill_payment_due_soon' => 'This invoice must be paid by :date. Please process it before the deadline.',

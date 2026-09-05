@@ -2,6 +2,10 @@
 
 return [
     'bill_payment_deadline' => 'Zahlungsfrist',
+    'bill_payment_deadline_from' => 'Zahlungsfrist von',
+    'bill_payment_deadline_until' => 'Zahlungsfrist bis',
+    'bill_payment_overdue_label' => 'Überfällig',
+    'bill_payment_overdue_filter' => 'Nur überfällige Rechnungen',
     'bill_payment_deadline_hint' => 'Optional: Datum, bis zu dem die Rechnung bezahlt werden muss.',
     'bill_payment_reminder' => 'Erinnerung: Rechnung bearbeiten',
     'bill_payment_due_soon' => 'Die Rechnung muss bis zum :date bezahlt werden. Bitte bearbeite die Rechnung rechtzeitig.',
