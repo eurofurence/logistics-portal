@@ -38,19 +38,18 @@ class AppPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
-        try {
-            $primaryColor = app(ThemeSettings::class)->primary_color;
-        } catch (Exception $e) {
-            // Set an alternative value if an error occurs
-            $primaryColor = '#007bff'; // Example: Standard blue color
-        }
-
         return $panel
             ->id('app')
             ->path('app')
-            ->colors([
-                'primary' => $primaryColor,
-            ])
+            ->colors(function (): array {
+                try {
+                    $primaryColor = app(ThemeSettings::class)->primary_color;
+                } catch (Exception $e) {
+                    $primaryColor = '#007bff';
+                }
+
+                return ['primary' => $primaryColor];
+            })
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
             ->pages([
