@@ -7,11 +7,16 @@ ENV COMPOSER_MEMORY_LIMIT=-1
 ######################################################
 RUN apt-get update \
     && apt-get install -y curl git unzip openssl tar ca-certificates procps \
-    && apt-get clean -y
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
 
-#RUN install-php-extensions gd bcmath pdo_mysql zip intl opcache pcntl redis swoole exif zip bz2 @composer
-RUN curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
-      gd bcmath pdo_mysql zip intl opcache pcntl redis swoole exif zip bz2 mbstring fileinfo igbinary imagick @composer
+RUN rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL --retry 3 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions \
+        -o /usr/local/bin/install-php-extensions \
+    && chmod +x /usr/local/bin/install-php-extensions \
+    && install-php-extensions \
+        gd bcmath pdo_mysql zip intl opcache pcntl redis swoole exif bz2 mbstring fileinfo igbinary imagick @composer \
+    && rm -rf /var/lib/apt/lists/*
 ######################################################
 # Copy Configuration
 ######################################################
