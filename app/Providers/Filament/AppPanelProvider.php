@@ -85,8 +85,14 @@ class AppPanelProvider extends PanelProvider
                 FilamentDeveloperGatePlugin::make(),
                 FilamentSentryFeedbackPlugin::make()
                     ->sentryUser(function (): ?SentryUser {
-                        return new SentryUser(auth()->user()->name, auth()->user()->email);
-                    })
+                        $user = auth()->user();
+
+                        if ($user === null) {
+                            return null;
+                        }
+
+                        return new SentryUser($user->name, $user->email);
+                    }),
             ])
             ->unsavedChangesAlerts()
             ->authMiddleware([
