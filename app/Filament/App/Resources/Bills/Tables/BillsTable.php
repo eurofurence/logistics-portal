@@ -25,6 +25,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Notifications\Notification;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
@@ -104,6 +105,16 @@ class BillsTable
                 ->formatStateUsing(function ($state) {
                     return strtoupper(str_replace('_', ' ', $state));
                 }),
+            TextColumn::make('payment_deadline')
+                ->label(__('general.bill_payment_deadline'))
+                ->date('d.m.Y')
+                ->placeholder('—')
+                ->sortable()
+                ->toggleable()
+                ->badge()
+                ->color(fn (Bill $record): string => self::isPaymentOverdue($record) ? 'danger' : 'gray')
+                ->icon(fn (Bill $record): ?Heroicon => self::isPaymentOverdue($record) ? Heroicon::OutlinedExclamationTriangle : null)
+                ->description(fn (Bill $record): ?string => self::isPaymentOverdue($record) ? __('general.bill_payment_overdue_label') : null),
             TextColumn::make('value')
                 ->label(__('general.value'))
                 ->formatStateUsing(function ($record) {
@@ -152,8 +163,44 @@ class BillsTable
     public static function getFilters(): array
     {
         return [
+            Filter::make('payment_overdue')
+                ->label(__('general.bill_payment_overdue_filter'))
+                ->query(fn (Builder $query): Builder => $query
+                    ->whereNotIn('status', ['done', 'rejected'])
+                    ->whereDate('payment_deadline', '<', now('Europe/Berlin')->toDateString())),
             TrashedFilter::make()
                 ->visible(fn (): bool => Gate::allows('restore', Bill::class) || Gate::allows('forceDelete', Bill::class) || Gate::allows('bulkForceDelete', Bill::class) || Gate::allows('bulkRestore', Bill::class)),
+            Filter::make('payment_deadline')
+                ->schema([
+                    DatePicker::make('payment_deadline_from')
+                        ->label(__('general.bill_payment_deadline_from')),
+                    DatePicker::make('payment_deadline_until')
+                        ->label(__('general.bill_payment_deadline_until')),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['payment_deadline_from'] ?? null,
+                            fn (Builder $query, string $date): Builder => $query->whereDate('payment_deadline', '>=', $date),
+                        )
+                        ->when(
+                            $data['payment_deadline_until'] ?? null,
+                            fn (Builder $query, string $date): Builder => $query->whereDate('payment_deadline', '<=', $date),
+                        );
+                })
+                ->indicateUsing(function (array $data): array {
+                    $indicators = [];
+
+                    if ($data['payment_deadline_from'] ?? null) {
+                        $indicators['payment_deadline_from'] = __('general.bill_payment_deadline_from').' '.Carbon::parse($data['payment_deadline_from'])->format('d.m.Y');
+                    }
+
+                    if ($data['payment_deadline_until'] ?? null) {
+                        $indicators['payment_deadline_until'] = __('general.bill_payment_deadline_until').' '.Carbon::parse($data['payment_deadline_until'])->format('d.m.Y');
+                    }
+
+                    return $indicators;
+                }),
             Filter::make('created_at')
                 ->schema([
                     DatePicker::make('created_from')
@@ -221,6 +268,13 @@ class BillsTable
                     return User::query()->pluck('name', 'id')->toArray();
                 }),
         ];
+    }
+
+    private static function isPaymentOverdue(Bill $record): bool
+    {
+        return $record->payment_deadline !== null
+            && ! in_array($record->status, ['done', 'rejected'], true)
+            && $record->payment_deadline->toDateString() < now('Europe/Berlin')->toDateString();
     }
 
     public static function getRecordActions(): array
