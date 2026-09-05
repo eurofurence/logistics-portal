@@ -1,4 +1,4 @@
-FROM php:8.4-bullseye AS base
+FROM php:8.4-bookworm AS base
 WORKDIR /app
 
 ENV COMPOSER_MEMORY_LIMIT=-1
