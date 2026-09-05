@@ -1,6 +1,11 @@
 <?php
 
 return [
+    'bill_payment_deadline' => 'Payment deadline',
+    'bill_payment_deadline_hint' => 'Optional: date by which the invoice must be paid.',
+    'bill_payment_reminder' => 'Reminder: process invoice',
+    'bill_payment_due_soon' => 'This invoice must be paid by :date. Please process it before the deadline.',
+    'bill_payment_overdue' => 'The payment deadline for this invoice expired on :date. Please process it as soon as possible.',
     'are_you_sure' => 'Are you sure you want to delete this?',
     'delete' => 'Delete',
     'yes' => 'Yes',

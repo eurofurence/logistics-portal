@@ -1,6 +1,11 @@
 <?php
 
 return [
+    'bill_payment_deadline' => 'Zahlungsfrist',
+    'bill_payment_deadline_hint' => 'Optional: Datum, bis zu dem die Rechnung bezahlt werden muss.',
+    'bill_payment_reminder' => 'Erinnerung: Rechnung bearbeiten',
+    'bill_payment_due_soon' => 'Die Rechnung muss bis zum :date bezahlt werden. Bitte bearbeite die Rechnung rechtzeitig.',
+    'bill_payment_overdue' => 'Die Zahlungsfrist der Rechnung ist am :date abgelaufen. Bitte bearbeite die Rechnung schnellstmöglich.',
     'are_you_sure' => 'Bist du dir sicher, dass du löschen willst?',
     'delete' => 'Löschen',
     'yes' => 'Ja',

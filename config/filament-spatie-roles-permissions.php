@@ -277,6 +277,7 @@ return [
             'can-create-bills-for-other-departments',
             'can-see-all-bills',
             'get-new-bill-accountant-notification',
+            'get-bill-payment-reminder-accountant-notification',
         ],
 
         'user_model' => User::class,

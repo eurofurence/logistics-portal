@@ -16,6 +16,10 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('schedule-monitor:sync')->everyFifteenMinutes();
         $schedule->command('files:delete-old')->hourly();
+        $schedule->command('bills:send-payment-reminders')
+            ->dailyAt('08:00')
+            ->timezone('Europe/Berlin')
+            ->withoutOverlapping();
         $schedule->command('model:prune', ['--model' => MonitoredScheduledTaskLogItem::class])->daily();
 
         if (config('app.backup_schedule_active')) {
