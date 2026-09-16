@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources\Items\Tables;
 
+use App\Exports\CsvExport;
 use App\Exports\InventoryItemsExport;
 use App\Models\Department;
 use App\Models\InventorySubCategory;
@@ -695,10 +696,12 @@ class ItemsTable
                                     ->options([
                                         'xlsx' => '.xlsx',
                                         'pdf' => '.pdf',
+                                        'csv' => '.csv',
                                     ])
                                     ->descriptions([
                                         'xlsx' => __('general.excel_table'),
                                         'pdf' => __('general.pdf_file'),
+                                        'csv' => __('general.csv_file'),
                                     ])
                                     ->required()
                                     ->label(''),
@@ -727,7 +730,7 @@ class ItemsTable
                         $exportConfig = [
                             'standard' => [
                                 'class' => InventoryItemsExport::class,
-                                'filename' => __('general.standard').' - '.__('general.orders'),
+                                'filename' => __('general.standard').' - '.__('general.inventory_items'),
                                 'params' => [$data, 92, 92, ['dangerous_good', 'big_size', 'needs_truck', 'booked_to_inventory', 'instant_delivery']],
                             ],
                         ];
@@ -739,9 +742,14 @@ class ItemsTable
                         $config = $exportConfig[$exportType];
                         $filename = "{$config['filename']} - {$timestamp}.{$fileType}";
                         $exportClass = $config['class'];
-                        $exportFormat = $fileType === 'pdf' ? \Maatwebsite\Excel\Excel::MPDF : \Maatwebsite\Excel\Excel::XLSX;
+                        $exportFormat = match ($fileType) {
+                            'pdf' => \Maatwebsite\Excel\Excel::MPDF,
+                            'csv' => \Maatwebsite\Excel\Excel::CSV,
+                            default => \Maatwebsite\Excel\Excel::XLSX,
+                        };
+                        $export = new $exportClass(...$config['params']);
 
-                        return Excel::download(new $exportClass(...$config['params']), $filename, $exportFormat);
+                        return Excel::download($fileType === 'csv' ? new CsvExport($export) : $export, $filename, $exportFormat);
                     } catch (Exception $e) {
                         Notification::make()
                             ->body($e->getMessage().' - '.__('general.reload_required'))

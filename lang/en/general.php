@@ -275,6 +275,7 @@ return [
     'metro_list_description' => 'An order list on which all the same items are grouped into one item (Better overview). The items are grouped by their URL (e.g. Metro or Frog Store).',
     'no_options_available' => 'No options available',
     'pdf_file' => 'PDF-File',
+    'csv_file' => 'CSV file',
     'reload_required' => 'Reload required',
     'page' => 'Page',
     'of' => 'of',

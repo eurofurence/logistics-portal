@@ -281,6 +281,7 @@ return [
     'metro_list_description' => 'Eine Bestellliste, auf der alle gleichen Artikel zu einer Position zusammengefasst sind (Bessere Übersicht). Die Artikel werden anhand ihrer URL gruppiert (z.B. Metro oder Frog Store).',
     'no_options_available' => 'Keine Optionen verfügbar',
     'pdf_file' => 'PDF-Datei',
+    'csv_file' => 'CSV-Datei',
     'reload_required' => 'Refresh erforderlich',
     'page' => 'Seite',
     'of' => 'von',
