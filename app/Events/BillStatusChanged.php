@@ -15,12 +15,21 @@ class BillStatusChanged
 
     public Bill $bill;
 
+    public string $previousStatus;
+
+    public string $newStatus;
+
+    public bool $hasComment;
+
     /**
      * Create a new event instance.
      */
     public function __construct(Bill $model)
     {
         $this->bill = $model;
+        $this->previousStatus = $model->getRawOriginal('status');
+        $this->newStatus = $model->status;
+        $this->hasComment = filled($model->comment);
     }
 
     /**

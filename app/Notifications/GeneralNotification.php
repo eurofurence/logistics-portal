@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Services\ApplicationTime;
 use App\Settings\GeneralSettings;
+use App\Settings\ThemeSettings;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -94,7 +95,9 @@ class GeneralNotification extends Notification
     {
         return (new MailMessage)
             ->subject($this->data['data']['subject'])
-            ->view('emails.GeneralNotification', $this->data);
+            ->view('emails.GeneralNotification', array_merge($this->data, [
+                'emailColors' => app(ThemeSettings::class)->emailColors(),
+            ]));
     }
 
     /**

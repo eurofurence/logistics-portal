@@ -4,10 +4,13 @@ use App\Filament\Admin\Pages\ManageGeneral;
 use App\Filament\Admin\Pages\ManageTheme;
 use App\Models\Permission;
 use App\Models\User;
+use App\Notifications\GeneralNotification;
+use App\Notifications\OrderApprovalReminder;
 use App\Settings\GeneralSettings;
 use App\Settings\LoginSettings;
 use App\Settings\ThemeSettings;
 use Filament\Facades\Filament;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -163,3 +166,35 @@ test('uses the configured application name when the site name is empty', functio
 
     expect(app(GeneralSettings::class)->displayName())->toBe(config('app.name'));
 });
+
+test('renders emails using the current primary color at send time', function (string $type) {
+    $user = User::factory()->make();
+    ThemeSettings::fake(['primary_color' => 'rgb(32, 64, 96)']);
+    $notification = $type === 'general'
+        ? new GeneralNotification(username: $user->name, details_title: 'Bill', details_link: 'https://example.com', details_link_title: 'Show')
+        : new OrderApprovalReminder(new Collection);
+
+    $html = (string) $notification->toMail($user)->render();
+
+    expect($html)->toContain('background-color: #204060;')->not->toContain('#045350');
+
+    ThemeSettings::fake(['primary_color' => 'rgb(255, 255, 0)']);
+    $updatedHtml = (string) $notification->toMail($user)->render();
+
+    expect($updatedHtml)->toContain('background-color: #ffff00;')->toContain('color: #000000;')->not->toContain('#204060');
+})->with(['general', 'approval digest']);
+
+test('normalizes email colors and selects a readable foreground', function (string $color, string $expected, string $foreground) {
+    ThemeSettings::fake(['primary_color' => $color]);
+
+    $colors = app(ThemeSettings::class)->emailColors();
+
+    expect($colors['primary'])->toBe($expected);
+    expect($colors['foreground'])->toBe($foreground);
+})->with([
+    'rgb' => ['rgb(32, 64, 96)', '#204060', '#ffffff'],
+    'hex' => ['#ABCDEF', '#abcdef', '#000000'],
+    'short hex' => ['#fff', '#ffffff', '#000000'],
+    'invalid rgb' => ['rgb(999, 0, 0)', '#01504b', '#ffffff'],
+    'invalid css' => ['red; background-image: url(https://example.com)', '#01504b', '#ffffff'],
+]);

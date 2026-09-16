@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'bill_status_transition' => 'The status of your bill changed from :from to :to.',
+    'bill_comment_login_notice' => 'A comment is available for this bill. Please log in and review the comments on your bill.',
     'order_approval_reminder' => 'Pending order approvals: :count new orders',
     'order_approval_reminder_greeting' => 'Hello :name,',
     'order_approval_reminder_body' => 'The following orders are awaiting your approval.',

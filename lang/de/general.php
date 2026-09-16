@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'bill_status_transition' => 'Der Status deiner Bill wurde von :from zu :to geändert.',
+    'bill_comment_login_notice' => 'Zu dieser Bill ist ein Kommentar vorhanden. Bitte melde dich an und beachte die Kommentare zu deiner Bill.',
     'order_approval_reminder' => 'Offene Genehmigungen: :count neue Bestellungen',
     'order_approval_reminder_greeting' => 'Hallo :name,',
     'order_approval_reminder_body' => 'Die folgenden Bestellungen warten auf deine Genehmigung.',

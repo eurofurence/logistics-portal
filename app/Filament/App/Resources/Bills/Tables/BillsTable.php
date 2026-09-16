@@ -71,6 +71,7 @@ class BillsTable
                 ->label(__('general.id')),
             TextColumn::make('title')
                 ->label(__('general.title'))
+                ->description(fn (Bill $record): ?string => filled($record->comment) ? __('general.comment') : null)
                 ->searchable()
                 ->sortable(),
             TextColumn::make('connected_department.name')
