@@ -2,10 +2,9 @@
 
 namespace App\Filament\Admin\Pages;
 
-use Illuminate\Contracts\Support\Htmlable;
+use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Lang;
-use Illuminate\Support\Facades\Route;
 use ShuvroRoy\FilamentSpatieLaravelHealth\Pages\HealthCheckResults as BaseHealthCheckResults;
 
 class HealthCheckResults extends BaseHealthCheckResults
@@ -26,13 +25,20 @@ class HealthCheckResults extends BaseHealthCheckResults
 
     public static function canAccess(): bool
     {
-        $panel_name = trim(preg_replace('/^[^.]+\.(.*?\.).*$/', '$1', Route::currentRouteName()), '.');
+        $user = Auth::user();
+        $panel = Filament::getCurrentPanel();
 
-        if (! Auth::Check()) {
-            return false;
-        }
+        return $user !== null
+            && $panel?->getId() === 'admin'
+            && $user->canAccessPanel($panel)
+            && $user->can('access-healthchecks');
+    }
 
-        return Auth::user()->can('access-healthchecks') && ($panel_name == 'admin');
+    public function refresh(): void
+    {
+        abort_unless(static::canAccess(), 403);
+
+        parent::refresh();
     }
 
     public static function getNavigationLabel(): string

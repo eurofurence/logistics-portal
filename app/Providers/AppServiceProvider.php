@@ -90,7 +90,6 @@ class AppServiceProvider extends ServiceProvider
             RedisCheck::new(),
             HorizonCheck::new(),
             DatabaseSizeCheck::new()->failWhenSizeAboveGb(errorThresholdGb: 5.0),
-            PingCheck::new()->url('https://identity.eurofurence.org/')->name('Identity status'),
             CpuLoadCheck::new(),
             DatabaseConnectionCountCheck::new()
                 ->warnWhenMoreConnectionsThan(50)
