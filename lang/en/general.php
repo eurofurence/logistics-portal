@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'order_approval_reminder' => 'Pending order approvals: :count new orders',
+    'order_approval_reminder_greeting' => 'Hello :name,',
+    'order_approval_reminder_body' => 'The following orders are awaiting your approval.',
+    'order_approval_reminder_once' => 'You receive a daily summary only when there are pending approvals you have not been reminded about yet. Each order is included once per recipient.',
     'bill_payment_deadline' => 'Payment deadline',
     'bill_payment_deadline_from' => 'Payment deadline from',
     'bill_payment_deadline_until' => 'Payment deadline until',

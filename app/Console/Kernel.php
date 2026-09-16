@@ -17,6 +17,10 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('schedule-monitor:sync')->everyFifteenMinutes();
         $schedule->command('files:delete-old')->hourly();
+        $schedule->command('orders:send-approval-reminders')
+            ->dailyAt('08:00')
+            ->timezone(ApplicationTime::timezone())
+            ->withoutOverlapping();
         $schedule->command('bills:send-payment-reminders')
             ->dailyAt('08:00')
             ->timezone(ApplicationTime::timezone())

@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'order_approval_reminder' => 'Offene Genehmigungen: :count neue Bestellungen',
+    'order_approval_reminder_greeting' => 'Hallo :name,',
+    'order_approval_reminder_body' => 'Die folgenden Bestellungen warten auf deine Genehmigung.',
+    'order_approval_reminder_once' => 'Du erhältst nur dann eine tägliche Zusammenfassung, wenn noch nicht erinnerte Genehmigungen offen sind. Jede Bestellung wird pro Empfänger einmal aufgeführt.',
     'bill_payment_deadline' => 'Zahlungsfrist',
     'bill_payment_deadline_from' => 'Zahlungsfrist von',
     'bill_payment_deadline_until' => 'Zahlungsfrist bis',
