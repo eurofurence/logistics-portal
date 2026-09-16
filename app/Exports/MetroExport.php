@@ -104,10 +104,7 @@ class MetroExport implements FromCollection, ShouldAutoSize, WithDefaultStyles, 
         $this->orders = $final_records;
     }
 
-    /**
-     * @return \Illuminate\Support\Collection
-     */
-    public function collection()
+    public function collection(): \Illuminate\Support\Collection
     {
         return $this->orders;
     }
@@ -141,7 +138,7 @@ class MetroExport implements FromCollection, ShouldAutoSize, WithDefaultStyles, 
         return $this->headings;
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         return [
             1 => [
@@ -171,7 +168,7 @@ class MetroExport implements FromCollection, ShouldAutoSize, WithDefaultStyles, 
         ];
     }
 
-    public function defaultStyles(Style $defaultStyle)
+    public function defaultStyles(Style $defaultStyle): array
     {
         return [
             'font' => [

@@ -33,7 +33,7 @@
         "laravel/tinker": "^2.8",
         "league/flysystem-aws-s3-v3": "^3.29",
         "league/flysystem-sftp-v3": "^3.0",
-        "maatwebsite/excel": "^3.1",
+        "maatwebsite/excel": "^4.0",
         "martinpetricko/filament-sentry-feedback": "*",
         "mpdf/mpdf": "^8.2",
         "njxqlus/filament-lightbox": "^3.0",
@@ -121,11 +121,7 @@
         "block-insecure": false,
         "audit": {
             "ignore": [
-                "PKSA-gz3f-3cz3-3wsw",
-                "PKSA-x13r-n4wc-4gcr",
-                "PKSA-8cfg-tzhf-fr83",
-                "PKSA-hznc-gbby-6w16",
-                "PKSA-jtdk-dcr5-f11n"
+
             ]
         }
     },
@@ -137,6 +133,5 @@
             "type": "composer",
             "url": "https://packages.filamentphp.com/composer"
         }
-
-    ]
+        ]
 }

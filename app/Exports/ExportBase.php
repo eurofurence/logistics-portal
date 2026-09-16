@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Concerns\Export;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\WithDefaultStyles;
 use Maatwebsite\Excel\Concerns\WithEvents;
@@ -11,7 +12,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Style;
 
-class ExportBase implements WithDefaultStyles, WithEvents
+class ExportBase implements Export, WithDefaultStyles, WithEvents
 {
     use Exportable;
 
@@ -43,7 +44,7 @@ class ExportBase implements WithDefaultStyles, WithEvents
         }, $this->included_columns);
     }
 
-    public function defaultStyles(Style $defaultStyle)
+    public function defaultStyles(Style $defaultStyle): array
     {
         return [
             'font' => [
