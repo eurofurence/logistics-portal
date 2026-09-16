@@ -79,9 +79,13 @@ class UserForm
                         ->searchable()
                         ->nullable()
                         ->preload(true)
+                        ->disabled(true)
                         ->exists('departments', 'id')
                         ->options(Department::query()->pluck('name', 'id'))
-                        ->relationship(name: 'departments', titleAttribute: 'name'),
+                        ->relationship(name: 'departments', titleAttribute: 'name')
+                        ->afterStateHydrated(function (Select $component, ?array $state): void {
+                            $component->state(array_values(array_unique($state ?? [])));
+                        }),
                     Select::make('roles')
                         ->label(__('general.user_roles'))
                         ->multiple()
