@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\Users\Tables;
 
 use App\Models\User;
+use App\Services\ApplicationTime;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -43,17 +44,17 @@ class UsersTable
                 ->sortable()
                 ->label(__('general.email')),
             TextColumn::make('email_verified_at')
-                ->dateTime(timezone: 'Europe/Berlin')
+                ->dateTime(timezone: ApplicationTime::timezone())
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true)
                 ->label(__('general.email_verified_at')),
             TextColumn::make('created_at')
-                ->dateTime(timezone: 'Europe/Berlin')
+                ->dateTime(timezone: ApplicationTime::timezone())
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true)
                 ->label(__('general.created_at')),
             TextColumn::make('updated_at')
-                ->dateTime(timezone: 'Europe/Berlin')
+                ->dateTime(timezone: ApplicationTime::timezone())
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true)
                 ->label(__('general.updated_at')),

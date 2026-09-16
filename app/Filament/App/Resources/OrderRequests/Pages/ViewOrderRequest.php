@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\OrderRequests\Pages;
 
 use App\Filament\App\Resources\OrderRequests\OrderRequestResource;
 use App\Models\Order;
+use App\Services\ApplicationTime;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -101,7 +102,7 @@ class ViewOrderRequest extends ViewRecord
                         ->options(fn (Model $record) => Order::where('order_request_id', $record->id)
                             ->get()
                             ->mapWithKeys(fn ($order) => [
-                                $order->id => "{$order->name} (ID: {$order->id}, Erstellt: {$order->created_at?->format('d.m.Y')})",
+                                $order->id => "{$order->name} (ID: {$order->id}, Erstellt: ".ApplicationTime::local($order->created_at)?->format('d.m.Y').')',
                             ])
                             ->toArray()
                         )

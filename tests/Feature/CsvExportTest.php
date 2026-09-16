@@ -6,6 +6,7 @@ use App\Exports\MetroExport;
 use App\Exports\OrderStandardExport;
 use App\Models\Department;
 use App\Models\User;
+use App\Settings\GeneralSettings;
 use Illuminate\Database\Eloquent\Collection;
 use Maatwebsite\Excel\Excel as ExcelFormat;
 use Maatwebsite\Excel\Facades\Excel;
@@ -66,4 +67,20 @@ test('exports Metro headings with the same CSV encoding and delimiter', function
 
     expect($csv)->toStartWith("\xEF\xBB\xBF");
     expect(str_getcsv(substr(trim($csv), 3), ';', '"', ''))->toBe($source->headings());
+});
+
+test('exports timestamps in the selected timezone with their UTC offset', function () {
+    GeneralSettings::fake(['timezone' => 'America/New_York']);
+    $this->actingAs(User::factory()->create());
+    $department = Department::factory()->create(['name' => 'Logistics']);
+    $export = new OrderStandardExport([
+        'columns' => ['created_at', 'approved_at'],
+        'records' => collect([
+            ['id' => 1, 'name' => 'Box', 'department_id' => $department->id, 'created_at' => '2026-09-16 01:30:00', 'approved_at' => null],
+        ]),
+    ]);
+
+    $csv = Excel::raw(new CsvExport($export), ExcelFormat::CSV);
+
+    expect($csv)->toContain('"2026-09-15 21:30:00 -04:00";""');
 });

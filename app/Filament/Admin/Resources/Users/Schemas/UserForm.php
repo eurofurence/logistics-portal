@@ -65,12 +65,12 @@ class UserForm
                         ->label(__('general.separated_rights')),
                     Checkbox::make('separated_departments')
                         ->label(__('general.separated_departments')),
-                    TextInput::make('created_at')
+                    DateTimePicker::make('created_at')
                         ->label(__('general.created_at'))
-                        ->readOnly(),
-                    TextInput::make('updated_at')
+                        ->disabled(),
+                    DateTimePicker::make('updated_at')
                         ->label(__('general.updated_at'))
-                        ->readOnly(),
+                        ->disabled(),
                 ]),
                 Section::make([
                     Select::make('departments')

@@ -7,7 +7,7 @@ use App\Forms\Components\Timeline;
 use App\Models\Department;
 use App\Models\OrderEvent;
 use App\Models\User;
-use Carbon\Carbon;
+use App\Services\ApplicationTime;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
@@ -287,10 +287,10 @@ class BillForm
                     ->state(fn (Model $record) => $record->editedBy?->name),
                 TextEntry::make('created_at')
                     ->label(__('general.created_at'))
-                    ->state(fn (Model $record) => Carbon::parse($record->created_at)->timezone('Europe/Berlin')),
+                    ->state(fn (Model $record) => ApplicationTime::local($record->created_at)),
                 TextEntry::make('updated_at')
                     ->label(__('general.updated_at'))
-                    ->state(fn (Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
+                    ->state(fn (Model $record) => ApplicationTime::local($record->updated_at)),
             ])
             ->hiddenOn(CreateBill::class)
             ->label(__('general.timestamps_and_users'));

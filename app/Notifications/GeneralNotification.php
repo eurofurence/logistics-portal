@@ -2,7 +2,7 @@
 
 namespace App\Notifications;
 
-use Carbon\Carbon;
+use App\Services\ApplicationTime;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -46,7 +46,7 @@ class GeneralNotification extends Notification
      *                                      in the notification message. If no `details_link_title` is provided, the link button does not appear,
      * @param  int  $footer_year  The `footer_year` parameter in the constructor function is used to specify the year that will
      *                            be displayed in the footer of the notification. If a value is provided for `footer_year`, that value will be used;
-     *                            otherwise, the current year (obtained using `Carbon::now()->year`)
+     *                            otherwise, the current year in the configured application time zone
      * @param  string  $footer_name  The `footer_name` parameter in the constructor function is used to set the name that will
      *                               appear in the footer of the notification. If a value is provided for `footer_name`, it will be used as the name in
      *                               the footer. Otherwise, it will default to the value retrieved from the application configuration
@@ -67,7 +67,7 @@ class GeneralNotification extends Notification
                     'link_title' => $details_link_title,
                 ],
                 'footer' => [
-                    'year' => $footer_year ? $footer_year : Carbon::now()->year,
+                    'year' => $footer_year ? $footer_year : ApplicationTime::now()->year,
                     'name' => $footer_name ? $footer_name : config('app.name'),
                 ],
             ],

@@ -10,8 +10,7 @@ use App\Filament\App\Resources\OrderArticles\Schemas\OrderArticleForm;
 use App\Filament\App\Resources\OrderArticles\Schemas\OrderArticleInfolist;
 use App\Filament\App\Resources\OrderArticles\Tables\OrderArticlesTable;
 use App\Models\OrderArticle;
-use DateTime;
-use DateTimeZone;
+use App\Services\ApplicationTime;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -115,11 +114,7 @@ class OrderArticleResource extends Resource
         }
 
         if (! empty($record->deadline)) {
-            $deadline = new DateTime($record->deadline, new DateTimeZone('UTC'));
-
-            // Converting to the Berlin time zone
-            $deadline->setTimezone(new DateTimeZone('Europe/Berlin'));
-            $formattedDeadline = $deadline->format('Y-m-d H:i:s');
+            $formattedDeadline = ApplicationTime::local($record->deadline)->format('Y-m-d H:i:s');
 
             $output[] = __('general.order_deadline').': '.$formattedDeadline;
         }

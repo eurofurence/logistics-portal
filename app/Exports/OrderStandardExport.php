@@ -17,7 +17,7 @@ class OrderStandardExport extends ExportBase implements WithMultipleSheets
         $orders = $order_collection->map(function ($item) {
             $ordered = [];
             foreach ($this->included_columns as $column) {
-                $ordered[$column] = $item[$column] ?? null;
+                $ordered[$column] = $this->formatExportValue($column, $item[$column] ?? null);
             }
 
             return $ordered;

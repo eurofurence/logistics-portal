@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Services\ApplicationTime;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\Export;
 use Maatwebsite\Excel\Concerns\Exportable;
@@ -112,5 +113,18 @@ class ExportBase implements Export, WithDefaultStyles, WithEvents
         } else {
             return number_format($price, 2);
         }
+    }
+
+    protected function formatExportValue(string $column, mixed $value): mixed
+    {
+        if ($column === 'due_date') {
+            return ApplicationTime::local($value)?->toDateString();
+        }
+
+        if (in_array($column, ['created_at', 'updated_at', 'deleted_at', 'ordered_at', 'delivery_date', 'approved_at', 'buy_date', 'sorted_out'], true)) {
+            return ApplicationTime::local($value)?->format('Y-m-d H:i:s P');
+        }
+
+        return $value;
     }
 }

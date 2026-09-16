@@ -17,7 +17,7 @@ class InventoryItemsExport extends ExportBase implements WithMultipleSheets
         $items = $item_collection->map(function ($item) {
             $list = [];
             foreach ($this->included_columns as $column) {
-                $list[$column] = $item[$column] ?? null;
+                $list[$column] = $this->formatExportValue($column, $item[$column] ?? null);
             }
 
             return $list;

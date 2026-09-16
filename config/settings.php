@@ -1,5 +1,6 @@
 <?php
 
+use App\Settings\GeneralSettings;
 use App\Settings\LoginSettings;
 use App\Settings\ThemeSettings;
 use Spatie\LaravelData\Data;
@@ -16,6 +17,7 @@ return [
      * put them (manually) here.
      */
     'settings' => [
+        GeneralSettings::class,
         LoginSettings::class,
         ThemeSettings::class,
     ],

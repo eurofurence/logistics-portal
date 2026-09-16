@@ -4,6 +4,7 @@ namespace App\Filament\App\Resources\Storages\Tables;
 
 use App\Models\Department;
 use App\Models\Storage;
+use App\Services\ApplicationTime;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -103,20 +104,20 @@ class StoragesTable
                 ->schema([
                     DatePicker::make('created_from')
                         ->label(__('general.created_from'))
-                        ->placeholder(fn ($state): string => 'Dec 18, '.now()->subYear()->format('Y')),
+                        ->placeholder(fn ($state): string => 'Dec 18, '.ApplicationTime::now()->subYear()->format('Y')),
                     DatePicker::make('created_until')
                         ->label(__('general.created_until'))
-                        ->placeholder(fn ($state): string => now()->format('M d, Y')),
+                        ->placeholder(fn ($state): string => ApplicationTime::now()->format('M d, Y')),
                 ])
                 ->query(function (Builder $query, array $data): Builder {
                     return $query
                         ->when(
                             $data['created_from'] ?? null,
-                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            fn (Builder $query, $date): Builder => $query->where('created_at', '>=', ApplicationTime::startOfDayUtc($date)),
                         )
                         ->when(
                             $data['created_until'] ?? null,
-                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            fn (Builder $query, $date): Builder => $query->where('created_at', '<', ApplicationTime::startOfNextDayUtc($date)),
                         );
                 })
                 ->indicateUsing(function (array $data): array {

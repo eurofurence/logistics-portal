@@ -10,7 +10,7 @@
                                 {{ __($entry->title) }}
                             </h3>
                             <time class="text-xs">
-                                {{ $entry->created_at->format('d.m.Y H:i') }}
+                                {{ \App\Services\ApplicationTime::local($entry->created_at)?->format('d.m.Y H:i') }}
                             </time>
                         </div>
                         @if ($entry->description)

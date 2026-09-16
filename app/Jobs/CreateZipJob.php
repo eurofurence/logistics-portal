@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Bill;
 use App\Models\User;
 use App\Notifications\GeneralNotification;
+use App\Services\ApplicationTime;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
@@ -48,7 +49,7 @@ class CreateZipJob implements ShouldQueue
                 'media',
             ])
             ->get();
-        $zipName = 'bills_'.now()->format('Y-m-d_H-i-s').'_'.Str::random(8).'.zip';
+        $zipName = 'bills_'.ApplicationTime::now()->format('Y-m-d_H-i-s').'_'.Str::random(8).'.zip';
 
         // Use a dedicated path for public access via signed URL
         $storagePath = 'zips/'.$zipName;

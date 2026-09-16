@@ -9,6 +9,7 @@ use App\Models\InventorySubCategory;
 use App\Models\Item;
 use App\Models\ItemsOperationSite;
 use App\Models\Storage;
+use App\Services\ApplicationTime;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -147,7 +148,7 @@ class ItemsTable
             */
             TextColumn::make('created_at')
                 ->label(__('general.created_at'))
-                ->date()
+                ->date(timezone: fn (): string => ApplicationTime::timezone())
                 ->toggleable(true, true)
                 ->sortable(),
             TextColumn::make('manufacturer_barcode')
@@ -199,10 +200,10 @@ class ItemsTable
                 ->schema([
                     DatePicker::make('created_from')
                         ->label(__('general.created_from'))
-                        ->placeholder(fn ($state): string => 'Dec 18, '.now()->subYear()->format('Y')),
+                        ->placeholder(fn ($state): string => 'Dec 18, '.ApplicationTime::now()->subYear()->format('Y')),
                     DatePicker::make('created_until')
                         ->label(__('general.created_until'))
-                        ->placeholder(fn ($state): string => now()->format('M d, Y')),
+                        ->placeholder(fn ($state): string => ApplicationTime::now()->format('M d, Y')),
                     Toggle::make('invert')
                         ->label(__('general.invert')),
                 ])
@@ -218,17 +219,17 @@ class ItemsTable
                     return $query->where(function (Builder $query) use ($from, $until, $invert) {
                         if ($invert) {
                             if ($from) {
-                                $query->orWhereDate('created_at', '<', $from);
+                                $query->orWhere('created_at', '<', ApplicationTime::startOfDayUtc($from));
                             }
                             if ($until) {
-                                $query->orWhereDate('created_at', '>', $until);
+                                $query->orWhere('created_at', '>=', ApplicationTime::startOfNextDayUtc($until));
                             }
                         } else {
                             if ($from) {
-                                $query->whereDate('created_at', '>=', $from);
+                                $query->where('created_at', '>=', ApplicationTime::startOfDayUtc($from));
                             }
                             if ($until) {
-                                $query->whereDate('created_at', '<=', $until);
+                                $query->where('created_at', '<', ApplicationTime::startOfNextDayUtc($until));
                             }
                         }
                     });
@@ -249,10 +250,10 @@ class ItemsTable
                 ->form([
                     DatePicker::make('due_date_from')
                         ->label(__('general.due_date_from'))
-                        ->placeholder(fn ($state): string => 'Dec 18, '.now()->subYear()->format('Y')),
+                        ->placeholder(fn ($state): string => 'Dec 18, '.ApplicationTime::now()->subYear()->format('Y')),
                     DatePicker::make('due_date_until')
                         ->label(__('general.due_date_until'))
-                        ->placeholder(fn ($state): string => now()->format('M d, Y')),
+                        ->placeholder(fn ($state): string => ApplicationTime::now()->format('M d, Y')),
                     Toggle::make('invert')
                         ->label(__('general.invert')),
                 ])
@@ -268,17 +269,17 @@ class ItemsTable
                     return $query->where(function (Builder $query) use ($from, $until, $invert) {
                         if ($invert) {
                             if ($from) {
-                                $query->orWhereDate('due_date', '<', $from);
+                                $query->orWhere('due_date', '<', ApplicationTime::startOfDayUtc($from));
                             }
                             if ($until) {
-                                $query->orWhereDate('due_date', '>', $until);
+                                $query->orWhere('due_date', '>=', ApplicationTime::startOfNextDayUtc($until));
                             }
                         } else {
                             if ($from) {
-                                $query->whereDate('due_date', '>=', $from);
+                                $query->where('due_date', '>=', ApplicationTime::startOfDayUtc($from));
                             }
                             if ($until) {
-                                $query->whereDate('due_date', '<=', $until);
+                                $query->where('due_date', '<', ApplicationTime::startOfNextDayUtc($until));
                             }
                         }
                     });
@@ -723,7 +724,7 @@ class ItemsTable
                             return;
                         }
 
-                        $timestamp = Carbon::now('Europe/Berlin')->format('Y_m_d_H_i_s');
+                        $timestamp = Carbon::now(ApplicationTime::timezone())->format('Y_m_d_H_i_s');
                         $exportType = $data['export_type'] ?? 'standard';
                         $fileType = $data['file_type'] ?? 'xlsx';
 
@@ -809,7 +810,14 @@ class ItemsTable
                 ->collapsible(),
             Group::make('created_at')
                 ->label(__('general.created_at'))
-                ->date()
+                ->getKeyFromRecordUsing(fn (Model $record): ?string => ApplicationTime::local($record->created_at)?->toDateString())
+                ->getTitleFromRecordUsing(fn (Model $record): ?string => ApplicationTime::local($record->created_at)?->format('d.m.Y'))
+                ->scopeQueryByKeyUsing(fn (Builder $query, ?string $key): Builder => $key === null ? $query->whereNull('created_at') : $query
+                    ->where('created_at', '>=', ApplicationTime::startOfDayUtc($key))
+                    ->where('created_at', '<', ApplicationTime::startOfNextDayUtc($key)))
+                ->scopeQueryUsing(fn (Builder $query, Model $record): Builder => $record->created_at === null ? $query->whereNull('created_at') : $query
+                    ->where('created_at', '>=', ApplicationTime::startOfDayUtc(ApplicationTime::local($record->created_at)->toDateString()))
+                    ->where('created_at', '<', ApplicationTime::startOfNextDayUtc(ApplicationTime::local($record->created_at)->toDateString())))
                 ->collapsible(),
             Group::make('connected_operation_site.name')
                 ->label(__('general.operation_site'))

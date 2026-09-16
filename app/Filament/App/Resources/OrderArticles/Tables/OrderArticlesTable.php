@@ -7,6 +7,7 @@ use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
 use App\Jobs\SyncDataToOrderArticleJob;
 use App\Models\OrderArticle;
 use App\Models\OrderCategory;
+use App\Services\ApplicationTime;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
@@ -328,7 +329,7 @@ class OrderArticlesTable
                     ->schema([
                         DateTimePicker::make('deadline')
                             ->label(__('general.date_and_time'))
-                            ->timezone('Europe/Berlin')
+                            ->timezone(ApplicationTime::timezone())
                             ->seconds(false)
                             ->nullable(),
                     ])

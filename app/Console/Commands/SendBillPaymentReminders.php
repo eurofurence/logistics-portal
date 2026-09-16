@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Bill;
 use App\Models\User;
 use App\Notifications\GeneralNotification;
+use App\Services\ApplicationTime;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Console\Command;
@@ -34,7 +35,7 @@ class SendBillPaymentReminders extends Command
                 return self::SUCCESS;
             }
 
-            $today = now('Europe/Berlin')->startOfDay();
+            $today = now(ApplicationTime::timezone())->startOfDay();
 
             Bill::query()
                 ->with('connected_department')

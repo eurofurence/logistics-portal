@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources\OrderEvents\Schemas;
 
+use App\Services\ApplicationTime;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -23,8 +24,8 @@ class OrderEventForm
                         DateTimePicker::make('order_deadline')
                             ->label(__('general.order_deadline'))
                             ->nullable()
-                            ->timezone('Europe/Berlin')
-                            ->hint('Europe/Berlin')
+                            ->timezone(ApplicationTime::timezone())
+                            ->hint(ApplicationTime::timezone())
                             ->seconds(false),
                     ]),
                 Section::make(__('general.options'))
