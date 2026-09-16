@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Services\ApplicationTime;
+use App\Settings\GeneralSettings;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -68,7 +69,7 @@ class GeneralNotification extends Notification
                 ],
                 'footer' => [
                     'year' => $footer_year ? $footer_year : ApplicationTime::now()->year,
-                    'name' => $footer_name ? $footer_name : config('app.name'),
+                    'name' => $footer_name ? $footer_name : app(GeneralSettings::class)->displayName(),
                 ],
             ],
         ];
@@ -113,7 +114,7 @@ class GeneralNotification extends Notification
                 'embeds' => [
                     [
                         'title' => 'New Notification',
-                        'description' => 'You got a new Notification from: '.config('app.name'),
+                        'description' => 'You got a new Notification from: '.app(GeneralSettings::class)->displayName(),
                         'color' => 0x00FF00, // Green color
                         'fields' => [
                             [

@@ -1,6 +1,18 @@
 <?php
 
 return [
+    'site_name' => 'Seitenname',
+    'site_description' => 'Seitenbeschreibung',
+    'site_description_help' => 'Beschreibung für Suchmaschinen und Linkvorschauen.',
+    'seo' => 'Suchmaschinen und Linkvorschauen',
+    'seo_keywords' => 'SEO-Schlüsselwörter',
+    'seo_keywords_help' => 'Mehrere Schlüsselwörter durch Kommas trennen.',
+    'search_engine_indexing' => 'Suchmaschinen-Indexierung erlauben',
+    'search_engine_indexing_help' => 'Gilt nur für öffentliche Seiten. Der Adminbereich und Seiten für angemeldete Benutzer bleiben ausgeschlossen.',
+    'favicon' => 'Seitenicon (Favicon)',
+    'favicon_help' => 'PNG oder ICO, bis 1 MB. Entfernen stellt das Standardicon wieder her.',
+    'social_image' => 'Bild für Linkvorschauen',
+    'social_image_help' => 'PNG, JPEG oder WebP, bis 2 MB. Empfohlen: 1200 × 630 Pixel. Ohne eigenes Bild wird das Seitenlogo verwendet.',
     'general' => 'Allgemein',
     'timezone' => 'Zeitzone',
     'timezone_help' => 'Gilt für angezeigte Zeiten, Datumsfilter und tägliche Zeitpläne.',

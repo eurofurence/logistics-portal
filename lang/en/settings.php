@@ -1,6 +1,18 @@
 <?php
 
 return [
+    'site_name' => 'Site name',
+    'site_description' => 'Site description',
+    'site_description_help' => 'Description for search engines and link previews.',
+    'seo' => 'Search engines and link previews',
+    'seo_keywords' => 'SEO keywords',
+    'seo_keywords_help' => 'Separate multiple keywords with commas.',
+    'search_engine_indexing' => 'Allow search engine indexing',
+    'search_engine_indexing_help' => 'Applies only to public pages. The admin area and pages for signed-in users remain excluded.',
+    'favicon' => 'Site icon (favicon)',
+    'favicon_help' => 'PNG or ICO, up to 1 MB. Remove to restore the default icon.',
+    'social_image' => 'Link preview image',
+    'social_image_help' => 'PNG, JPEG or WebP, up to 2 MB. Recommended: 1200 × 630 pixels. Uses the site logo when no image is uploaded.',
     'general' => 'General',
     'timezone' => 'Time zone',
     'timezone_help' => 'Used for displayed times, date filters and daily schedules.',

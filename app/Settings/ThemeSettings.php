@@ -11,6 +11,20 @@ class ThemeSettings extends Settings
 
     public ?string $logo = null;
 
+    public ?string $favicon = null;
+
+    public ?string $social_image = null;
+
+    public function faviconUrl(): string
+    {
+        return $this->favicon ? Storage::disk('public')->url($this->favicon) : asset('favicon.ico');
+    }
+
+    public function socialImageUrl(): string
+    {
+        return $this->social_image ? Storage::disk('public')->url($this->social_image) : $this->logoUrl();
+    }
+
     public function logoUrl(): string
     {
         return $this->logo ? Storage::disk('public')->url($this->logo) : asset('images/logo-round-filled.png');

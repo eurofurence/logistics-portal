@@ -46,6 +46,7 @@ test('uploads a site logo and restores the default logo when removed', function 
         ->assertHasNoFormErrors();
 
     $settings = app(ThemeSettings::class)->refresh();
+    expect($settings->logo)->toStartWith('site_logo/');
     Storage::disk('public')->assertExists($settings->logo);
     expect(view('vendor.filament-panels.components.logo')->render())->toContain(Storage::disk('public')->url($settings->logo));
 
@@ -83,4 +84,82 @@ test('rejects non image logo uploads', function () {
         ->assertHasFormErrors(['logo']);
 
     expect(app(ThemeSettings::class)->refresh()->logo)->toBeNull();
+});
+
+test('saves site identity and seo settings and escapes public metadata', function () {
+    $user = User::factory()->create();
+    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $this->actingAs($user);
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+    Livewire::test(ManageGeneral::class)
+        ->fillForm([
+            'site_name' => 'Logistics & Events',
+            'site_description' => 'Events " worldwide <script>alert(1)</script>',
+            'seo_keywords' => 'logistics, events',
+            'search_engine_indexing' => true,
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $settings = app(GeneralSettings::class)->refresh();
+    expect($settings->displayName())->toBe('Logistics & Events')
+        ->and($settings->seo_keywords)->toBe('logistics, events')
+        ->and($settings->search_engine_indexing)->toBeTrue();
+    expect(view('components.site-meta')->render())->toContain('noindex, nofollow');
+
+    auth()->logout();
+    $this->get(Filament::getPanel('app')->getLoginUrl())
+        ->assertOk()
+        ->assertSee('Logistics &amp; Events', false)
+        ->assertSee('Events &quot; worldwide &lt;script&gt;alert(1)&lt;/script&gt;', false)
+        ->assertSee('content="index, follow"', false)
+        ->assertDontSee('<script>alert(1)</script>', false);
+});
+
+test('excludes the admin login from indexing when public indexing is enabled', function () {
+    GeneralSettings::fake(['search_engine_indexing' => true]);
+
+    $this->get(Filament::getPanel('admin')->getLoginUrl())
+        ->assertOk()
+        ->assertSee('content="noindex, nofollow"', false);
+});
+
+test('uploads site icons and preview images and restores their defaults', function () {
+    Storage::fake('public');
+    $user = User::factory()->create();
+    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $this->actingAs($user);
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+    Livewire::test(ManageTheme::class)
+        ->fillForm([
+            'favicon' => UploadedFile::fake()->image('icon.png'),
+            'social_image' => UploadedFile::fake()->image('preview.jpg', 1200, 630),
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $settings = app(ThemeSettings::class)->refresh();
+    expect($settings->favicon)->toStartWith('site_icon/')
+        ->and($settings->social_image)->toStartWith('site_social/')
+        ->and(Filament::getPanel('admin')->getFavicon())->toBe($settings->faviconUrl())
+        ->and(Filament::getPanel('app')->getFavicon())->toBe($settings->faviconUrl());
+    Storage::disk('public')->assertExists([$settings->favicon, $settings->social_image]);
+    expect(view('components.site-meta')->render())->toContain($settings->socialImageUrl());
+
+    Livewire::test(ManageTheme::class)
+        ->fillForm(['favicon' => null, 'social_image' => null])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $settings->refresh();
+    expect($settings->faviconUrl())->toBe(asset('favicon.ico'))
+        ->and($settings->socialImageUrl())->toBe($settings->logoUrl());
+});
+
+test('uses the configured application name when the site name is empty', function () {
+    GeneralSettings::fake(['site_name' => null]);
+
+    expect(app(GeneralSettings::class)->displayName())->toBe(config('app.name'));
 });
