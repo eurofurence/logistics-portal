@@ -17,7 +17,7 @@ class InventoryItemsExport extends ExportBase implements WithMultipleSheets
         $items = $item_collection->map(function ($item) {
             $list = [];
             foreach ($this->included_columns as $column) {
-                $list[$column] = $item[$column] ?? null;
+                $list[$column] = $this->formatExportValue($column, $item[$column] ?? null);
             }
 
             return $list;
@@ -35,7 +35,7 @@ class InventoryItemsExport extends ExportBase implements WithMultipleSheets
         });
 
         $final_records = [];
-        foreach ($items->groupBy('department_id') as $key => $value) {
+        foreach ($items->groupBy('department') as $key => $value) {
             $department_name = Department::where('id', $key)->first()->name ?? 'Unknown Department';
             $final_records[$key]['department_name'] = $department_name;
             $final_records[$key]['items'] = $value->map(function ($record) {
@@ -57,5 +57,4 @@ class InventoryItemsExport extends ExportBase implements WithMultipleSheets
 
         return $sheets;
     }
-
 }

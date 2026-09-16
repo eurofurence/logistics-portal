@@ -30,8 +30,8 @@ class TestModelsTable
             TextColumn::make('data5'),
             TextColumn::make('data6'),
             TextColumn::make('data7'),
-            TextColumn::make('created_at'),
-            TextColumn::make('updated_at'),
+            TextColumn::make('created_at')->dateTime(),
+            TextColumn::make('updated_at')->dateTime(),
         ];
     }
 

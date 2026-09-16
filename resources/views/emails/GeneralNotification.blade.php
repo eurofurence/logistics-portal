@@ -86,7 +86,7 @@
             <div class="o_col o_col-2" style="display: inline-block;vertical-align: top;width: 100%;max-width: 200px;">
               <div style="font-size: 24px; line-height: 24px; height: 24px;">&nbsp; </div>
               <div class="o_px-xs o_sans o_text o_left o_xs-center" style="font-family: Helvetica, Arial, sans-serif;margin-top: 0px;margin-bottom: 0px;font-size: 16px;line-height: 24px;text-align: left;padding-left: 8px;padding-right: 8px;">
-                <p style="margin-top: 0px;margin-bottom: 0px;"><a class="o_text-primary" href="{{ url('/') }}" style="text-decoration: none;outline: none;color: #126de5;"><img src="{{ url('/') }}/images/logo-round-filled.png" width="50" height="50" alt="logo" style="max-width: 136px;-ms-interpolation-mode: bicubic;vertical-align: middle;border: 0;line-height: 100%;height: auto;outline: none;text-decoration: none;"></a></p>
+                <p style="margin-top: 0px;margin-bottom: 0px;"><a class="o_text-primary" href="{{ url('/') }}" style="text-decoration: none;outline: none;color: {{ $emailColors['primary'] }};"><img src="{{ app(\App\Settings\ThemeSettings::class)->logoUrl() }}" width="50" height="50" alt="logo" style="max-width: 136px;-ms-interpolation-mode: bicubic;vertical-align: middle;border: 0;line-height: 100%;height: auto;outline: none;text-decoration: none;"></a></p>
               </div>
             </div>
             <!--[if mso]></td><td width="400" align="right" valign="top" style="padding:0px 8px;"><![endif]-->
@@ -113,13 +113,13 @@
     <table width="100%" cellspacing="0" cellpadding="0" border="0" role="presentation">
       <tbody>
         <tr>
-          <td class="o_bg-ultra_light o_px-md o_py-xl o_xs-py-md" align="center" style="background-color: #ebf5fa;padding-left: 24px;padding-right: 24px;padding-top: 64px;padding-bottom: 64px;">
+          <td class="o_bg-ultra_light o_px-md o_py-xl o_xs-py-md" align="center" style="background-color: {{ $emailColors['surface'] }};padding-left: 24px;padding-right: 24px;padding-top: 64px;padding-bottom: 64px;">
             <!--[if mso]><table width="584" cellspacing="0" cellpadding="0" border="0" role="presentation"><tbody><tr><td align="center"><![endif]-->
             <div class="o_col-6s o_sans o_text-md o_text-light o_center" style="font-family: Helvetica, Arial, sans-serif;margin-top: 0px;margin-bottom: 0px;font-size: 19px;line-height: 28px;max-width: 584px;color: #82899a;text-align: center;">
               <table class="o_center" cellspacing="0" cellpadding="0" border="0" role="presentation" style="text-align: center;margin-left: auto;margin-right: auto;">
                 <tbody>
                   <tr>
-                    <td class="o_sans o_text o_text-white o_bg-primary o_px o_py o_br-max" align="center" style="font-family: Helvetica, Arial, sans-serif;margin-top: 0px;margin-bottom: 0px;font-size: 16px;line-height: 24px;background-color: #045350;color: #ffffff;border-radius: 96px;padding-left: 16px;padding-right: 16px;padding-top: 16px;padding-bottom: 16px;">
+                    <td class="o_sans o_text o_text-white o_bg-primary o_px o_py o_br-max" align="center" style="font-family: Helvetica, Arial, sans-serif;margin-top: 0px;margin-bottom: 0px;font-size: 16px;line-height: 24px;background-color: {{ $emailColors['primary'] }};color: #ffffff;border-radius: 96px;padding-left: 16px;padding-right: 16px;padding-top: 16px;padding-bottom: 16px;">
                       <img src="{{ url('/') }}/images/icons/message-48-white.png" width="48" height="48" alt="" style="max-width: 48px;-ms-interpolation-mode: bicubic;vertical-align: middle;border: 0;line-height: 100%;height: auto;outline: none;text-decoration: none;">
                     </td>
                   </tr>
@@ -149,11 +149,11 @@
             <table class="o_block" width="100%" cellspacing="0" cellpadding="0" border="0" role="presentation" style="max-width: 632px;margin: 0 auto;">
                 <tbody>
                 <tr>
-                    <td class="o_re o_bg-primary o_px o_pb-md" align="center" style="font-size: 0;vertical-align: top;background-color: #045350;padding-left: 16px;padding-right: 16px;padding-bottom: 24px;">
+                    <td class="o_re o_bg-primary o_px o_pb-md" align="center" style="font-size: 0;vertical-align: top;background-color: {{ $emailColors['primary'] }};padding-left: 16px;padding-right: 16px;padding-bottom: 24px;">
                     <!--[if mso]><table cellspacing="0" cellpadding="0" border="0" role="presentation"><tbody><tr><td width="300" align="center" valign="top" style="padding: 0px 8px;"><![endif]-->
                     <div class="o_col o_col-3" style="display: inline-block;vertical-align: top;width: 100%;max-width: 300px;">
                         <div style="font-size: 24px; line-height: 24px; height: 24px;">&nbsp; </div>
-                        <div class="o_px-xs o_sans o_text o_text-white o_left o_xs-center" style="font-family: Helvetica, Arial, sans-serif;margin-top: 0px;margin-bottom: 0px;font-size: 16px;line-height: 24px;color: #ffffff;text-align: left;padding-left: 8px;padding-right: 8px;">
+                        <div class="o_px-xs o_sans o_text o_text-white o_left o_xs-center" style="font-family: Helvetica, Arial, sans-serif;margin-top: 0px;margin-bottom: 0px;font-size: 16px;line-height: 24px;color: {{ $emailColors['foreground'] }};text-align: left;padding-left: 8px;padding-right: 8px;">
                         <p class="o_mb-xxs" style="margin-top: 0px;margin-bottom: 4px;"><strong>@if(!empty($data['details']['title'])){{ $data['details']['title'] }}@endif</strong> <span class="o_text-xxs" style="font-size: 12px;line-height: 19px;">@if(!empty($data['details']['title_hint']) && !empty($data['details']['title']))({{ $data['details']['title_hint'] }})@endif</span></p>
                         @if (!empty($data['details']['message']))
                         <p class="o_text-xs" style="font-size: 14px;line-height: 21px;margin-top: 0px;margin-bottom: 0px;">{{ $data['details']['message'] }}</p>
@@ -169,7 +169,7 @@
                             <tbody>
                                 <tr>
                                 <td class="o_btn o_bg-white o_br o_heading o_text" align="center" style="font-family: Helvetica, Arial, sans-serif;font-weight: bold;margin-top: 0px;margin-bottom: 0px;font-size: 16px;line-height: 24px;mso-padding-alt: 12px 24px;background-color: #ffffff;border-radius: 4px;">
-                                    <a class="o_text-primary" href="{{ $data['details']['link'] }}" style="text-decoration: none;outline: none;color: #045350;display: block;padding: 12px 24px;mso-text-raise: 3px;">{{ $data['details']['link_title'] }}</a>
+                                    <a class="o_text-primary" href="{{ $data['details']['link'] }}" style="text-decoration: none;outline: none;color: {{ $emailColors['foreground'] === '#000000' ? '#242b3d' : $emailColors['primary'] }};display: block;padding: 12px 24px;mso-text-raise: 3px;">{{ $data['details']['link_title'] }}</a>
                                 </td>
                                 </tr>
                             </tbody>

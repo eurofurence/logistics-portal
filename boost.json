@@ -21,6 +21,9 @@
         "socialite-development",
         "tailwindcss-development",
         "inertia-vue-development",
-        "filament-security-audit"
+        "filament-development",
+        "filament-security-audit",
+        "planning-filament",
+        "reviewing-filament-plans"
     ]
 }

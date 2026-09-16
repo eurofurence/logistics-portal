@@ -449,6 +449,17 @@ class Order extends Model implements HasMedia
      */
     public function canBeApproved(): bool
     {
+        $user = Auth::user();
+
+        return $user !== null && $this->canBeApprovedBy($user);
+    }
+
+    public function canBeApprovedBy(User $user): bool
+    {
+        if ($this->event === null) {
+            return false;
+        }
+
         if ($this->status == 'awaiting_approval') {
             if (empty($this->deleted_at)) {
                 // Initialize the result to false
@@ -456,21 +467,21 @@ class Order extends Model implements HasMedia
 
                 // Check if the order can be approved based on its event status and status
                 $canApproveOrder = ! $this->event->locked &&
-                    $this->event->order_deadline > now() &&
+                    ($this->event->order_deadline === null || $this->event->order_deadline > now()) &&
                     $this->status == 'awaiting_approval';
 
                 // Check if the user has permission to always approve orders
-                $hasAlwaysApprovePermission = Auth::user()->checkPermissionTo('can-always-approve-orders');
+                $hasAlwaysApprovePermission = $user->checkPermissionTo('can-always-approve-orders');
 
                 // Set result to true if the order can be approved or the user has always approve permission
                 if ($canApproveOrder || $hasAlwaysApprovePermission) {
                     $result = true;
                 }
 
-                $hasRequiredPermission = Auth::user()->hasDepartmentRoleWithPermissionTo('can-approve-orders', $this->department_id);
+                $hasRequiredPermission = $user->hasDepartmentRoleWithPermissionTo('can-approve-orders', $this->department_id);
 
                 // Check if the user has permission to approve orders for other departments
-                $canApproveForOtherDepartments = Auth::user()->checkPermissionTo('can-approve-orders-for-other-departments');
+                $canApproveForOtherDepartments = $user->checkPermissionTo('can-approve-orders-for-other-departments');
 
                 // Return true if the user is in the department and has the role or can approve orders for other departments, and the result is true
                 return ($hasRequiredPermission || $canApproveForOtherDepartments) && $result;

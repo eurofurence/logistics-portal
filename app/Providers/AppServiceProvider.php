@@ -9,9 +9,14 @@ use App\Models\PersonalAccessToken;
 use App\Observers\BillObserver;
 use App\Observers\OrderObserver;
 use App\Providers\Socialite\SocialiteIdentityProvider;
+use App\Services\ApplicationTime;
 use App\Services\AsinDataService;
+use Filament\Forms\Components\Select;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentColor;
+use Filament\Support\Facades\FilamentTimezone;
+use Filament\Tables\Columns\SelectColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
@@ -49,6 +54,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        FilamentTimezone::set(fn (): string => ApplicationTime::timezone());
+
+        Select::configureUsing(fn (Select $select) => $select->searchable());
+        SelectFilter::configureUsing(fn (SelectFilter $filter) => $filter->searchable());
+        SelectColumn::configureUsing(fn (SelectColumn $column) => $column->searchableOptions());
+
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
@@ -79,7 +90,6 @@ class AppServiceProvider extends ServiceProvider
             RedisCheck::new(),
             HorizonCheck::new(),
             DatabaseSizeCheck::new()->failWhenSizeAboveGb(errorThresholdGb: 5.0),
-            PingCheck::new()->url('https://identity.eurofurence.org/')->name('Identity status'),
             CpuLoadCheck::new(),
             DatabaseConnectionCountCheck::new()
                 ->warnWhenMoreConnectionsThan(50)

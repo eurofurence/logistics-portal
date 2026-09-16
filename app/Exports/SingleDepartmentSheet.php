@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use Exception;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
@@ -45,7 +46,7 @@ class SingleDepartmentSheet implements FromCollection, ShouldAutoSize, WithColum
         $this->image_width = $image_width;
     }
 
-    public function collection()
+    public function collection(): Collection
     {
         return $this->orders;
     }
@@ -55,7 +56,7 @@ class SingleDepartmentSheet implements FromCollection, ShouldAutoSize, WithColum
         return $this->department_name;
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         $styles = [];
         $columns = [];
@@ -175,7 +176,7 @@ class SingleDepartmentSheet implements FromCollection, ShouldAutoSize, WithColum
         return 'A2';
     }
 
-    public function drawings()
+    public function drawings(): MemoryDrawing
     {
         $image = $this->data['image'] ?? null;
 

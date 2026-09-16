@@ -9,6 +9,7 @@ use App\Models\Department;
 use App\Models\OrderArticle;
 use App\Models\OrderEvent;
 use App\Models\OrderRequest;
+use App\Services\ApplicationTime;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -25,7 +26,6 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class OrderForm
@@ -344,8 +344,8 @@ class OrderForm
                                         DateTimePicker::make('delivery_date')
                                             ->label(__('general.delivery_date'))
                                             ->seconds(false)
-                                            ->timezone('Europe/Berlin')
-                                            ->hint('Europe/Berlin'),
+                                            ->timezone(ApplicationTime::timezone())
+                                            ->hint(ApplicationTime::timezone()),
                                         Textarea::make('delivery_destination')
                                             ->label(__('general.delivery_destination'))
                                             ->maxLength(10000)
@@ -355,9 +355,9 @@ class OrderForm
                                             ->maxLength(254),
                                         DateTimePicker::make('ordered_at')
                                             ->label(__('general.ordered_at'))
-                                            ->timezone('Europe/Berlin')
+                                            ->timezone(ApplicationTime::timezone())
                                             ->seconds(false)
-                                            ->hint('Europe/Berlin'),
+                                            ->hint(ApplicationTime::timezone()),
                                         Toggle::make('instant_delivery')
                                             ->label(__('general.instant_delivery'))
                                             ->default(false)
@@ -414,15 +414,15 @@ class OrderForm
                                             ->state(fn (Model $record) => $record->editedBy->name),
                                         TextEntry::make('created_at')
                                             ->label(__('general.created_at'))
-                                            ->state(fn (Model $record) => Carbon::parse($record->created_at)->timezone('Europe/Berlin')),
+                                            ->state(fn (Model $record) => ApplicationTime::local($record->created_at)),
                                         TextEntry::make('updated_at')
                                             ->label(__('general.updated_at'))
-                                            ->state(fn (Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
+                                            ->state(fn (Model $record) => ApplicationTime::local($record->updated_at)),
                                         TextEntry::make('approved_at')
                                             ->label(__('general.approved_at'))
                                             ->state(function (Model $record) {
                                                 if (! empty($record->approved_at)) {
-                                                    return Carbon::parse($record->approved_at)->timezone('Europe/Berlin');
+                                                    return ApplicationTime::local($record->approved_at);
                                                 }
 
                                                 return '---';

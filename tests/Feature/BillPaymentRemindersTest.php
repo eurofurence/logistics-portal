@@ -6,6 +6,8 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use App\Notifications\GeneralNotification;
+use App\Settings\GeneralSettings;
+use Carbon\CarbonImmutable;
 use Filament\Notifications\DatabaseNotification;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Event;
@@ -21,6 +23,20 @@ beforeEach(function () {
 
     Event::fake([BillCreated::class]);
     Notification::fake();
+});
+
+test('marks a deadline overdue after midnight in the configured timezone', function () {
+    GeneralSettings::fake(['timezone' => 'Asia/Tokyo']);
+    $this->travelTo(CarbonImmutable::parse('2026-09-05 23:30:00', 'UTC'));
+    $bill = Bill::factory()->create(['payment_deadline' => '2026-09-05']);
+
+    $this->artisan('bills:send-payment-reminders')->assertSuccessful();
+
+    Notification::assertSentTo($this->accountant, GeneralNotification::class, function (GeneralNotification $notification): bool {
+        return str_contains($notification->toArray($this->accountant)['data']['message'], 'expired');
+    });
+    expect($bill->fresh()->payment_overdue_reminder_sent_at)->not->toBeNull();
+    expect($bill->fresh()->payment_deadline->toDateString())->toBe('2026-09-05');
 });
 
 test('reminds every authorized accountant through the existing notification channels', function () {

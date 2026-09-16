@@ -92,3 +92,4 @@ if (config('app.identity_mode')) {
 Route::redirect('/app/artisan', '/app')->name('filament.app.pages.artisan');
 Route::redirect('/app/manage-login', '/app')->name('filament.app.pages.manage-login');
 Route::redirect('/app/manage-theme', '/app')->name('filament.app.pages.manage-theme');
+Route::redirect('/app/manage-general', '/app')->name('filament.app.pages.manage-general');

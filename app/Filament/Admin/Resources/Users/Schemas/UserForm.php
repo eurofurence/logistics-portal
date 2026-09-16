@@ -65,12 +65,12 @@ class UserForm
                         ->label(__('general.separated_rights')),
                     Checkbox::make('separated_departments')
                         ->label(__('general.separated_departments')),
-                    TextInput::make('created_at')
+                    DateTimePicker::make('created_at')
                         ->label(__('general.created_at'))
-                        ->readOnly(),
-                    TextInput::make('updated_at')
+                        ->disabled(),
+                    DateTimePicker::make('updated_at')
                         ->label(__('general.updated_at'))
-                        ->readOnly(),
+                        ->disabled(),
                 ]),
                 Section::make([
                     Select::make('departments')
@@ -79,9 +79,13 @@ class UserForm
                         ->searchable()
                         ->nullable()
                         ->preload(true)
+                        ->disabled(true)
                         ->exists('departments', 'id')
                         ->options(Department::query()->pluck('name', 'id'))
-                        ->relationship(name: 'departments', titleAttribute: 'name'),
+                        ->relationship(name: 'departments', titleAttribute: 'name')
+                        ->afterStateHydrated(function (Select $component, ?array $state): void {
+                            $component->state(array_values(array_unique($state ?? [])));
+                        }),
                     Select::make('roles')
                         ->label(__('general.user_roles'))
                         ->multiple()

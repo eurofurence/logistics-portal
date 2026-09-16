@@ -2,12 +2,14 @@
 
 namespace App\Filament\App\Resources\Orders\Tables;
 
+use App\Exports\CsvExport;
 use App\Exports\MetroExport;
 use App\Exports\OrderStandardExport;
 use App\Models\Department;
 use App\Models\Order;
 use App\Models\OrderEvent;
 use App\Models\User;
+use App\Services\ApplicationTime;
 use Exception;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -320,7 +322,7 @@ class OrdersTable
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label(__('general.order_date'))
-                    ->date()
+                    ->date(timezone: fn (): string => ApplicationTime::timezone())
                     ->toggleable()
                     ->sortable(),
             ])
@@ -331,10 +333,10 @@ class OrdersTable
                     ->schema([
                         DatePicker::make('created_from')
                             ->label(__('general.created_from'))
-                            ->placeholder(fn ($state): string => 'Dec 18, '.now()->subYear()->format('Y')),
+                            ->placeholder(fn ($state): string => 'Dec 18, '.ApplicationTime::now()->subYear()->format('Y')),
                         DatePicker::make('created_until')
                             ->label(__('general.created_until'))
-                            ->placeholder(fn ($state): string => now()->format('M d, Y')),
+                            ->placeholder(fn ($state): string => ApplicationTime::now()->format('M d, Y')),
                         Toggle::make('invert')
                             ->label(__('general.invert')),
                     ])
@@ -350,17 +352,17 @@ class OrdersTable
                         return $query->where(function (Builder $query) use ($from, $until, $invert) {
                             if ($invert) {
                                 if ($from) {
-                                    $query->orWhereDate('created_at', '<', $from);
+                                    $query->orWhere('created_at', '<', ApplicationTime::startOfDayUtc($from));
                                 }
                                 if ($until) {
-                                    $query->orWhereDate('created_at', '>', $until);
+                                    $query->orWhere('created_at', '>=', ApplicationTime::startOfNextDayUtc($until));
                                 }
                             } else {
                                 if ($from) {
-                                    $query->whereDate('created_at', '>=', $from);
+                                    $query->where('created_at', '>=', ApplicationTime::startOfDayUtc($from));
                                 }
                                 if ($until) {
-                                    $query->whereDate('created_at', '<=', $until);
+                                    $query->where('created_at', '<', ApplicationTime::startOfNextDayUtc($until));
                                 }
                             }
                         });
@@ -1000,10 +1002,12 @@ class OrdersTable
                                         ->options([
                                             'xlsx' => '.xlsx',
                                             'pdf' => '.pdf',
+                                            'csv' => '.csv',
                                         ])
                                         ->descriptions([
                                             'xlsx' => __('general.excel_table'),
                                             'pdf' => __('general.pdf_file'),
+                                            'csv' => __('general.csv_file'),
                                         ])
                                         ->required()
                                         ->label(''),
@@ -1015,7 +1019,7 @@ class OrdersTable
                         try {
                             $data['image'] = $data['image'] ?? null;
 
-                            if (! empty($data['image'])) {
+                            if (($data['file_type'] ?? 'xlsx') !== 'csv' && ! empty($data['image'])) {
                                 try {
                                     $data['image'] = Storage::disk('s3')->temporaryUrl($data['image'], now()->addMinutes(30));
                                 } catch (\Throwable $e) {
@@ -1034,7 +1038,7 @@ class OrdersTable
                                 return;
                             }
 
-                            $timestamp = Carbon::now('Europe/Berlin')->format('Y_m_d_H_i_s');
+                            $timestamp = Carbon::now(ApplicationTime::timezone())->format('Y_m_d_H_i_s');
                             $exportType = $data['export_type'] ?? 'standard';
                             $fileType = $data['file_type'] ?? 'xlsx';
 
@@ -1058,9 +1062,14 @@ class OrdersTable
                             $config = $exportConfig[$exportType];
                             $filename = "{$config['filename']} - {$timestamp}.{$fileType}";
                             $exportClass = $config['class'];
-                            $exportFormat = $fileType === 'pdf' ? \Maatwebsite\Excel\Excel::MPDF : \Maatwebsite\Excel\Excel::XLSX;
+                            $exportFormat = match ($fileType) {
+                                'pdf' => \Maatwebsite\Excel\Excel::MPDF,
+                                'csv' => \Maatwebsite\Excel\Excel::CSV,
+                                default => \Maatwebsite\Excel\Excel::XLSX,
+                            };
+                            $export = new $exportClass(...$config['params']);
 
-                            return Excel::download(new $exportClass(...$config['params']), $filename, $exportFormat);
+                            return Excel::download($fileType === 'csv' ? new CsvExport($export) : $export, $filename, $exportFormat);
                         } catch (Exception $e) {
                             Notification::make()
                                 ->body($e->getMessage().' - '.__('general.reload_required'))
@@ -1361,7 +1370,14 @@ class OrdersTable
                     ->collapsible(),
                 Group::make('created_at')
                     ->label(__('general.order_date'))
-                    ->date()
+                    ->getKeyFromRecordUsing(fn (Model $record): ?string => ApplicationTime::local($record->created_at)?->toDateString())
+                    ->getTitleFromRecordUsing(fn (Model $record): ?string => ApplicationTime::local($record->created_at)?->format('d.m.Y'))
+                    ->scopeQueryByKeyUsing(fn (Builder $query, ?string $key): Builder => $key === null ? $query->whereNull('created_at') : $query
+                        ->where('created_at', '>=', ApplicationTime::startOfDayUtc($key))
+                        ->where('created_at', '<', ApplicationTime::startOfNextDayUtc($key)))
+                    ->scopeQueryUsing(fn (Builder $query, Model $record): Builder => $record->created_at === null ? $query->whereNull('created_at') : $query
+                        ->where('created_at', '>=', ApplicationTime::startOfDayUtc(ApplicationTime::local($record->created_at)->toDateString()))
+                        ->where('created_at', '<', ApplicationTime::startOfNextDayUtc(ApplicationTime::local($record->created_at)->toDateString())))
                     ->collapsible(),
                 Group::make('status')
                     ->label(__('general.status'))

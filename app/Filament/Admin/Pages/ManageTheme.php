@@ -2,11 +2,19 @@
 
 namespace App\Filament\Admin\Pages;
 
+use App\Notifications\GeneralNotification;
 use App\Settings\ThemeSettings;
+use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\FileUpload;
+use Filament\Notifications\Notification as FilamentNotification;
 use Filament\Pages\SettingsPage;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Notification;
+use Throwable;
 
 class ManageTheme extends SettingsPage
 {
@@ -34,10 +42,85 @@ class ManageTheme extends SettingsPage
         return $schema
             ->components([
                 Section::make([
+                    FileUpload::make('logo')
+                        ->label(__('settings.logo'))
+                        ->helperText(__('settings.logo_help'))
+                        ->disk('public')
+                        ->directory('site_logo')
+                        ->visibility('public')
+                        ->image()
+                        ->imageEditor()
+                        ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
+                        ->maxSize(2048),
+                    FileUpload::make('favicon')
+                        ->label(__('settings.favicon'))
+                        ->helperText(__('settings.favicon_help'))
+                        ->disk('public')
+                        ->directory('site_icon')
+                        ->visibility('public')
+                        ->acceptedFileTypes(['image/png', 'image/x-icon', 'image/vnd.microsoft.icon'])
+                        ->maxSize(1024),
+                    FileUpload::make('social_image')
+                        ->label(__('settings.social_image'))
+                        ->helperText(__('settings.social_image_help'))
+                        ->disk('public')
+                        ->directory('site_social')
+                        ->visibility('public')
+                        ->image()
+                        ->imageEditor()
+                        ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
+                        ->maxSize(2048),
                     ColorPicker::make('primary_color')
                         ->rgb()
                         ->label(__('settings.primary_color')),
+                    Actions::make([
+                        Action::make('sendTestEmail')
+                            ->label(__('settings.send_test_email'))
+                            ->icon('heroicon-o-envelope')
+                            ->authorize(fn (): bool => static::canAccess())
+                            ->action(function (): void {
+                                $user = auth()->user();
+                                $notification = new GeneralNotification(
+                                    username: $user->name,
+                                    subject: __('settings.test_email_subject'),
+                                    titel: __('settings.test_email_subject'),
+                                    message: __('settings.test_email_message'),
+                                    details_title: __('settings.test_email_details'),
+                                    details_message: __('settings.test_email_details_message'),
+                                    details_link: static::getUrl(panel: 'admin'),
+                                    details_link_title: __('general.settings'),
+                                );
+
+                                try {
+                                    Notification::sendNow($user, $notification, ['mail']);
+                                } catch (Throwable $exception) {
+                                    report($exception);
+                                    FilamentNotification::make()
+                                        ->title(__('settings.test_email_failed'))
+                                        ->danger()
+                                        ->send();
+
+                                    return;
+                                }
+
+                                FilamentNotification::make()
+                                    ->title(__('settings.test_email_sent'))
+                                    ->body($user->routeNotificationForMail($notification))
+                                    ->success()
+                                    ->send();
+                            }),
+                    ])->belowContent(__('settings.test_email_help')),
                 ]),
             ]);
+    }
+
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->canAccessPanel(Filament::getPanel('admin')) ?? false;
+    }
+
+    public function canEdit(): bool
+    {
+        return static::canAccess();
     }
 }

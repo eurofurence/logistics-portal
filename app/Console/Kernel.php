@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Services\ApplicationTime;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Log;
@@ -16,9 +17,13 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('schedule-monitor:sync')->everyFifteenMinutes();
         $schedule->command('files:delete-old')->hourly();
+        $schedule->command('orders:send-approval-reminders')
+            ->dailyAt('08:00')
+            ->timezone(ApplicationTime::timezone())
+            ->withoutOverlapping();
         $schedule->command('bills:send-payment-reminders')
             ->dailyAt('08:00')
-            ->timezone('Europe/Berlin')
+            ->timezone(ApplicationTime::timezone())
             ->withoutOverlapping();
         $schedule->command('model:prune', ['--model' => MonitoredScheduledTaskLogItem::class])->daily();
 
@@ -37,6 +42,11 @@ class Kernel extends ConsoleKernel
         $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
+    }
+
+    protected function scheduleTimezone(): string
+    {
+        return ApplicationTime::timezone();
     }
 
     protected $commands = [

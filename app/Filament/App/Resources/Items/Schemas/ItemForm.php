@@ -9,11 +9,10 @@ use App\Filament\App\Resources\Items\Pages\CreateItem;
 use App\Models\BaseUnit;
 use App\Models\Department;
 use App\Models\InventorySubCategory;
-use App\Models\Item;
 use App\Models\ItemsOperationSite;
 use App\Models\Storage;
+use App\Services\ApplicationTime;
 use App\View\Components\BarcodeInput;
-use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\KeyValue;
@@ -214,8 +213,9 @@ class ItemForm
                                                 ->maxLength(250),
                                             DatePicker::make('due_date')
                                                 ->label(__('general.due_date'))
-                                                ->timezone('Europe/Berlin')
-                                                ->hint('Europe/Berlin'),
+                                                ->format('Y-m-d H:i:s')
+                                                ->timezone(ApplicationTime::timezone())
+                                                ->hint(ApplicationTime::timezone()),
                                             BarcodeInput::make('manufacturer_barcode')
                                                 ->title(__('general.manufacturer_barcode'))
                                                 ->label(__('general.manufacturer_barcode'))
@@ -237,8 +237,8 @@ class ItemForm
                                             DateTimePicker::make('buy_date')
                                                 ->label(__('general.buy_date'))
                                                 ->seconds(false)
-                                                ->timezone('Europe/Berlin')
-                                                ->hint('Europe/Berlin'),
+                                                ->timezone(ApplicationTime::timezone())
+                                                ->hint(ApplicationTime::timezone()),
                                             Textarea::make('owner')
                                                 ->label(__('general.owner'))
                                                 ->maxlength(10000)
@@ -395,10 +395,10 @@ class ItemForm
                                                     ->state(fn (Model $record) => $record->editedBy->name),
                                                 TextEntry::make('created_at')
                                                     ->label(__('general.created_at'))
-                                                    ->state(fn (Model $record) => Carbon::parse($record->created_at)->timezone('Europe/Berlin')),
+                                                    ->state(fn (Model $record) => ApplicationTime::local($record->created_at)),
                                                 TextEntry::make('updated_at')
                                                     ->label(__('general.updated_at'))
-                                                    ->state(fn (Model $record) => Carbon::parse($record->updated_at)->timezone('Europe/Berlin')),
+                                                    ->state(fn (Model $record) => ApplicationTime::local($record->updated_at)),
                                             ])
                                             ->hiddenOn(CreateItem::class),
                                     ]),

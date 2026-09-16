@@ -2,11 +2,12 @@
 
 namespace App\Filament\App\Resources\OrderRequests\Schemas;
 
+use App\Services\ApplicationTime;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Flex;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables\Grouping\Group;
 
 class OrderRequestInfolist
 {
@@ -16,7 +17,7 @@ class OrderRequestInfolist
             ->components([
                 Section::make(__('general.informations'))
                     ->schema([
-                        \Filament\Schemas\Components\Group::make([
+                        Group::make([
                             TextEntry::make('title')
                                 ->label(__('general.title')),
                         ]),
@@ -72,7 +73,7 @@ class OrderRequestInfolist
                 Section::make(__('general.other_infos'))
                     ->schema([
                         Flex::make([
-                            \Filament\Schemas\Components\Group::make([
+                            Group::make([
                                 TextEntry::make('addedBy.name')
                                     ->label(__('general.added_by'))
                                     ->suffix(function ($record): ?string {
@@ -91,15 +92,15 @@ class OrderRequestInfolist
                                 TextEntry::make('editedBy.name')
                                     ->label(__('general.edited_by')),
                             ]),
-                            \Filament\Schemas\Components\Group::make([
+                            Group::make([
                                 TextEntry::make('created_at')
                                     ->label(__('general.created_at'))
-                                    ->dateTime(timezone: 'Europe/Berlin'),
+                                    ->dateTime(timezone: ApplicationTime::timezone()),
                                 TextEntry::make('updated_at')
                                     ->label(__('general.updated_at'))
-                                    ->dateTime(timezone: 'Europe/Berlin'),
+                                    ->dateTime(timezone: ApplicationTime::timezone()),
                             ]),
-                            \Filament\Schemas\Components\Group::make([
+                            Group::make([
                                 TextEntry::make('department.name')
                                     ->label(__('general.department')),
                                 TextEntry::make('event.name')

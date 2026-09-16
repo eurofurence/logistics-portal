@@ -82,7 +82,6 @@ Injection / D. Query Scoping & Data Exposure / E. Dependencies). Inside a
 category, order by check ID then by location. Required shape:
 
 ```
-
 ### [F-01] Inline ToggleColumn on `is_admin` bypasses the update policy
 
 Check: A4

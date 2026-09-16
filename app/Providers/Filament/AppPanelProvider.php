@@ -8,6 +8,7 @@ use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Dashboard;
 use App\Http\Middleware\CheckWhitelist;
 use App\Http\Middleware\UserIsLocked;
+use App\Settings\GeneralSettings;
 use App\Settings\ThemeSettings;
 use CharrafiMed\GlobalSearchModal\GlobalSearchModalPlugin;
 use CraftForge\FilamentLanguageSwitcher\FilamentLanguageSwitcherPlugin;
@@ -18,7 +19,9 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -41,6 +44,9 @@ class AppPanelProvider extends PanelProvider
         return $panel
             ->id('app')
             ->path('app')
+            ->brandName(fn (): string => app(GeneralSettings::class)->displayName())
+            ->favicon(fn (): string => app(ThemeSettings::class)->faviconUrl())
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('components.site-meta'))
             ->colors(function (): array {
                 try {
                     $primaryColor = app(ThemeSettings::class)->primary_color;

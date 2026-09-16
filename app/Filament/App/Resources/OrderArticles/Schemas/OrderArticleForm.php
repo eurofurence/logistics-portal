@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\OrderArticles\Schemas;
 
 use App\Models\OrderCategory;
+use App\Services\ApplicationTime;
 use App\Services\AsinDataService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
@@ -299,7 +300,7 @@ class OrderArticleForm
                                     ->schema([
                                         DateTimePicker::make('deadline')
                                             ->label(__('general.date_and_time'))
-                                            ->timezone('Europe/Berlin')
+                                            ->timezone(ApplicationTime::timezone())
                                             ->seconds(false)
                                             ->nullable(),
                                     ])

@@ -59,19 +59,19 @@ class BillResource extends Resource
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
-            __('general.department') => $record->department->name,
-            __('general.order_event') => $record->event->name,
+            __('general.department') => $record->connected_department?->name ?? '—',
+            __('general.order_event') => $record->connected_event?->name ?? '—',
             __('general.value') => $record->value.' '.$record->currency,
             __('general.status') => strtoupper($record->status),
         ];
     }
 
-    protected function getTableQuery()
+    public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getTableQuery()
+        return parent::getGlobalSearchEloquentQuery()
             ->with([
-                'event',
-                'department',
+                'connected_event',
+                'connected_department',
             ]);
     }
 

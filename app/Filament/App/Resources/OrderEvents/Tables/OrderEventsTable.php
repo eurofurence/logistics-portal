@@ -3,7 +3,7 @@
 namespace App\Filament\App\Resources\OrderEvents\Tables;
 
 use App\Models\OrderEvent;
-use Carbon\Carbon;
+use App\Services\ApplicationTime;
 use Exception;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -53,7 +53,7 @@ class OrderEventsTable
                     }
 
                     try {
-                        return Carbon::parse($state)->setTimezone('Europe/Berlin')->format('d.m.Y H:i');
+                        return ApplicationTime::local($state)->format('d.m.Y H:i');
                     } catch (Exception $e) {
                         return __('general.not_set');
                     }

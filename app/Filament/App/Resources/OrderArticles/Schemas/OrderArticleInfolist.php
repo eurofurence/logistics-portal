@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\OrderArticles\Schemas;
 
 use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
+use App\Services\ApplicationTime;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Group;
@@ -143,10 +144,10 @@ class OrderArticleInfolist
                             Group::make([
                                 TextEntry::make('created_at')
                                     ->label(__('general.created_at'))
-                                    ->dateTime(timezone: 'Europe/Berlin'),
+                                    ->dateTime(timezone: ApplicationTime::timezone()),
                                 TextEntry::make('updated_at')
                                     ->label(__('general.updated_at'))
-                                    ->dateTime(timezone: 'Europe/Berlin'),
+                                    ->dateTime(timezone: ApplicationTime::timezone()),
                             ]),
                         ]),
                     ])

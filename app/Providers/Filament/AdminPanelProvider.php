@@ -8,6 +8,7 @@ use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
 use App\Http\Middleware\CheckWhitelist;
 use App\Http\Middleware\UserIsLocked;
+use App\Settings\GeneralSettings;
 use App\Settings\ThemeSettings;
 use Awcodes\Versions\VersionsPlugin;
 use CharrafiMed\GlobalSearchModal\GlobalSearchModalPlugin;
@@ -20,7 +21,9 @@ use Filament\Navigation\NavigationItem;
 use Filament\Pages\Dashboard as FilamentDashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
+use Illuminate\Contracts\View\View;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -41,7 +44,9 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->id('admin')
             ->path('admin')
-            ->favicon(asset('favicon.ico'))
+            ->brandName(fn (): string => app(GeneralSettings::class)->displayName())
+            ->favicon(fn (): string => app(ThemeSettings::class)->faviconUrl())
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('components.site-meta', ['allowIndexing' => false]))
             // ->viteTheme('resources/css/filament/admin/theme.css')
             ->colors(function (): array {
                 try {

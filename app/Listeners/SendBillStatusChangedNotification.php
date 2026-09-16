@@ -6,34 +6,40 @@ use App\Events\BillStatusChanged;
 use App\Notifications\GeneralNotification;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification as FilamentNotification;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Support\Facades\Notification;
 
-class SendBillStatusChangedNotification implements ShouldQueue
+class SendBillStatusChangedNotification implements ShouldQueueAfterCommit
 {
-    /**
-     * Create the event listener.
-     */
-    public function __construct()
-    {
-        //
-    }
-
     /**
      * Handle the event.
      */
     public function handle(BillStatusChanged $event): void
     {
-        $model_link = null;
-        $model_link = route('filament.app.resources.bills.view', $event->bill);
+        $modelLink = route('filament.app.resources.bills.view', $event->bill);
+        $statusChange = __('general.bill_status_transition', [
+            'from' => __('general.'.$event->previousStatus, [], 'en'),
+            'to' => __('general.'.$event->newStatus, [], 'en'),
+        ], 'en');
 
-        // Send email
-        Notification::send($event->bill->addedBy, new GeneralNotification($event->bill->addedBy->name, __('general.bill', [], 'en').' #'.$event->bill->id.' - '.$event->bill->title, __('general.status_has_changed', [], 'en'), __('general.status_has_changed_bill', [], 'en'), $event->bill->title, null, null, $model_link, __('general.show', [], 'en')));
+        Notification::send($event->bill->addedBy, new GeneralNotification(
+            username: $event->bill->addedBy->name,
+            subject: __('general.bill', [], 'en').' #'.$event->bill->id.' - '.$event->bill->title,
+            titel: __('general.status_has_changed', [], 'en'),
+            message: $statusChange,
+            details_title: $event->bill->title,
+            details_message: $event->hasComment ? __('general.bill_comment_login_notice', [], 'en') : null,
+            details_link: $modelLink,
+            details_link_title: __('general.show', [], 'en'),
+        ));
 
         // Send database notification
         FilamentNotification::make()
             ->title(__('general.bill'))
-            ->body(__('general.status_has_changed').': '.$event->bill->title)
+            ->body($event->bill->title.': '.__('general.bill_status_transition', [
+                'from' => __('general.'.$event->previousStatus),
+                'to' => __('general.'.$event->newStatus),
+            ]))
             ->icon('heroicon-o-chat-bubble-left-ellipsis')
             ->iconColor('info')
             ->actions([

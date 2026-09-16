@@ -7,6 +7,7 @@ use App\Models\Bill;
 use App\Models\Department;
 use App\Models\OrderEvent;
 use App\Models\User;
+use App\Services\ApplicationTime;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
@@ -70,6 +71,7 @@ class BillsTable
                 ->label(__('general.id')),
             TextColumn::make('title')
                 ->label(__('general.title'))
+                ->description(fn (Bill $record): ?string => filled($record->comment) ? __('general.comment') : null)
                 ->searchable()
                 ->sortable(),
             TextColumn::make('connected_department.name')
@@ -155,7 +157,7 @@ class BillsTable
             TextColumn::make('created_at')
                 ->label(__('general.created_at'))
                 ->sortable()
-                ->date()
+                ->date(timezone: fn (): string => ApplicationTime::timezone())
                 ->toggleable(),
         ];
     }
@@ -167,7 +169,7 @@ class BillsTable
                 ->label(__('general.bill_payment_overdue_filter'))
                 ->query(fn (Builder $query): Builder => $query
                     ->whereNotIn('status', ['done', 'rejected'])
-                    ->whereDate('payment_deadline', '<', now('Europe/Berlin')->toDateString())),
+                    ->whereDate('payment_deadline', '<', now(ApplicationTime::timezone())->toDateString())),
             TrashedFilter::make()
                 ->visible(fn (): bool => Gate::allows('restore', Bill::class) || Gate::allows('forceDelete', Bill::class) || Gate::allows('bulkForceDelete', Bill::class) || Gate::allows('bulkRestore', Bill::class)),
             Filter::make('payment_deadline')
@@ -205,20 +207,20 @@ class BillsTable
                 ->schema([
                     DatePicker::make('created_from')
                         ->label(__('general.created_from'))
-                        ->placeholder(fn ($state): string => 'Dec 18, '.now()->subYear()->format('Y')),
+                        ->placeholder(fn ($state): string => 'Dec 18, '.ApplicationTime::now()->subYear()->format('Y')),
                     DatePicker::make('created_until')
                         ->label(__('general.created_until'))
-                        ->placeholder(fn ($state): string => now()->format('M d, Y')),
+                        ->placeholder(fn ($state): string => ApplicationTime::now()->format('M d, Y')),
                 ])
                 ->query(function (Builder $query, array $data): Builder {
                     return $query
                         ->when(
                             $data['created_from'] ?? null,
-                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            fn (Builder $query, $date): Builder => $query->where('created_at', '>=', ApplicationTime::startOfDayUtc($date)),
                         )
                         ->when(
                             $data['created_until'] ?? null,
-                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            fn (Builder $query, $date): Builder => $query->where('created_at', '<', ApplicationTime::startOfNextDayUtc($date)),
                         );
                 })
                 ->indicateUsing(function (array $data): array {
@@ -274,7 +276,7 @@ class BillsTable
     {
         return $record->payment_deadline !== null
             && ! in_array($record->status, ['done', 'rejected'], true)
-            && $record->payment_deadline->toDateString() < now('Europe/Berlin')->toDateString();
+            && $record->payment_deadline->toDateString() < now(ApplicationTime::timezone())->toDateString();
     }
 
     public static function getRecordActions(): array
@@ -457,7 +459,7 @@ class BillsTable
                         return response()->streamDownload(function () use ($zipFile) {
                             readfile($zipFile);
                             unlink($zipFile);
-                        }, 'bills_'.now()->format('Y-m-d_H-i-s').'.zip');
+                        }, 'bills_'.ApplicationTime::now()->format('Y-m-d_H-i-s').'.zip');
                     })
                     ->visible(fn (): bool => Gate::allows('downloadZip', Bill::class))
                     ->deselectRecordsAfterCompletion(),
@@ -477,7 +479,14 @@ class BillsTable
                 ->collapsible(),
             Group::make('created_at')
                 ->label(__('general.date'))
-                ->date()
+                ->getKeyFromRecordUsing(fn (Model $record): ?string => ApplicationTime::local($record->created_at)?->toDateString())
+                ->getTitleFromRecordUsing(fn (Model $record): ?string => ApplicationTime::local($record->created_at)?->format('d.m.Y'))
+                ->scopeQueryByKeyUsing(fn (Builder $query, ?string $key): Builder => $key === null ? $query->whereNull('created_at') : $query
+                    ->where('created_at', '>=', ApplicationTime::startOfDayUtc($key))
+                    ->where('created_at', '<', ApplicationTime::startOfNextDayUtc($key)))
+                ->scopeQueryUsing(fn (Builder $query, Model $record): Builder => $record->created_at === null ? $query->whereNull('created_at') : $query
+                    ->where('created_at', '>=', ApplicationTime::startOfDayUtc(ApplicationTime::local($record->created_at)->toDateString()))
+                    ->where('created_at', '<', ApplicationTime::startOfNextDayUtc(ApplicationTime::local($record->created_at)->toDateString())))
                 ->collapsible(),
             Group::make('status')
                 ->label(__('general.status'))

@@ -144,10 +144,12 @@ class Bill extends Model implements HasMedia
                 if (! $user->can('can-change-bill-status')) {
                     abort(403);
                 }
+            }
+        });
 
-                if ($model->isDirty('status')) {
-                    BillStatusChanged::dispatch($model);
-                }
+        static::updated(function (Bill $model): void {
+            if ($model->wasChanged('status')) {
+                BillStatusChanged::dispatch($model);
             }
         });
     }

@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'bill_status_transition' => 'Der Status deiner Bill wurde von :from zu :to geändert.',
+    'bill_comment_login_notice' => 'Zu dieser Bill ist ein Kommentar vorhanden. Bitte melde dich an und beachte die Kommentare zu deiner Bill.',
+    'order_approval_reminder' => 'Offene Genehmigungen: :count neue Bestellungen',
+    'order_approval_reminder_greeting' => 'Hallo :name,',
+    'order_approval_reminder_body' => 'Die folgenden Bestellungen warten auf deine Genehmigung.',
+    'order_approval_reminder_once' => 'Du erhältst nur dann eine tägliche Zusammenfassung, wenn noch nicht erinnerte Genehmigungen offen sind. Jede Bestellung wird pro Empfänger einmal aufgeführt.',
     'bill_payment_deadline' => 'Zahlungsfrist',
     'bill_payment_deadline_from' => 'Zahlungsfrist von',
     'bill_payment_deadline_until' => 'Zahlungsfrist bis',
@@ -281,6 +287,7 @@ return [
     'metro_list_description' => 'Eine Bestellliste, auf der alle gleichen Artikel zu einer Position zusammengefasst sind (Bessere Übersicht). Die Artikel werden anhand ihrer URL gruppiert (z.B. Metro oder Frog Store).',
     'no_options_available' => 'Keine Optionen verfügbar',
     'pdf_file' => 'PDF-Datei',
+    'csv_file' => 'CSV-Datei',
     'reload_required' => 'Refresh erforderlich',
     'page' => 'Seite',
     'of' => 'von',

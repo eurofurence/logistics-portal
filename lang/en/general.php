@@ -1,6 +1,12 @@
 <?php
 
 return [
+    'bill_status_transition' => 'The status of your bill changed from :from to :to.',
+    'bill_comment_login_notice' => 'A comment is available for this bill. Please log in and review the comments on your bill.',
+    'order_approval_reminder' => 'Pending order approvals: :count new orders',
+    'order_approval_reminder_greeting' => 'Hello :name,',
+    'order_approval_reminder_body' => 'The following orders are awaiting your approval.',
+    'order_approval_reminder_once' => 'You receive a daily summary only when there are pending approvals you have not been reminded about yet. Each order is included once per recipient.',
     'bill_payment_deadline' => 'Payment deadline',
     'bill_payment_deadline_from' => 'Payment deadline from',
     'bill_payment_deadline_until' => 'Payment deadline until',
@@ -275,6 +281,7 @@ return [
     'metro_list_description' => 'An order list on which all the same items are grouped into one item (Better overview). The items are grouped by their URL (e.g. Metro or Frog Store).',
     'no_options_available' => 'No options available',
     'pdf_file' => 'PDF-File',
+    'csv_file' => 'CSV file',
     'reload_required' => 'Reload required',
     'page' => 'Page',
     'of' => 'of',

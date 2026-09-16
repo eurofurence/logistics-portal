@@ -7,6 +7,7 @@ namespace App\Filament\Imports;
 use App\Models\Department;
 use App\Models\Item;
 use App\Models\Storage;
+use App\Services\ApplicationTime;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
@@ -69,12 +70,18 @@ class ItemImporter extends Importer
             ImportColumn::make('due_date')
                 ->label(__('general.due_date'))
                 ->rules(['nullable', 'date'])
-                ->examples([now()->addYear()->format('Y-m-d'), '2025-12-31']),
+                ->fillRecordUsing(function (Item $record, ?string $state): void {
+                    $record->due_date = filled($state) ? ApplicationTime::toUtc($state)->toDateTimeString() : null;
+                })
+                ->examples([ApplicationTime::now()->addYear()->format('Y-m-d'), '2025-12-31']),
 
             ImportColumn::make('buy_date')
                 ->label(__('general.buy_date'))
                 ->rules(['nullable', 'date'])
-                ->examples([now()->format('Y-m-d'), '2024-01-01']),
+                ->fillRecordUsing(function (Item $record, ?string $state): void {
+                    $record->buy_date = filled($state) ? ApplicationTime::toUtc($state)->toDateTimeString() : null;
+                })
+                ->examples([ApplicationTime::now()->format('Y-m-d'), '2024-01-01']),
 
             ImportColumn::make('owner')
                 ->label(__('general.owner'))

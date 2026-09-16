@@ -6,6 +6,7 @@ use App\Models\Department;
 use App\Models\Order;
 use App\Models\OrderEvent;
 use App\Models\OrderRequest;
+use App\Services\ApplicationTime;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
@@ -122,10 +123,10 @@ class OrderRequestsTable
                 ->schema([
                     DatePicker::make('created_from')
                         ->label(__('general.created_from'))
-                        ->placeholder(fn ($state): string => 'Dec 18, '.now()->subYear()->format('Y')),
+                        ->placeholder(fn ($state): string => 'Dec 18, '.ApplicationTime::now()->subYear()->format('Y')),
                     DatePicker::make('created_until')
                         ->label(__('general.created_until'))
-                        ->placeholder(fn ($state): string => now()->format('M d, Y')),
+                        ->placeholder(fn ($state): string => ApplicationTime::now()->format('M d, Y')),
                     Toggle::make('invert')
                         ->label(__('general.invert')),
                 ])
@@ -141,17 +142,17 @@ class OrderRequestsTable
                     return $query->where(function (Builder $query) use ($from, $until, $invert) {
                         if ($invert) {
                             if ($from) {
-                                $query->orWhereDate('created_at', '<', $from);
+                                $query->orWhere('created_at', '<', ApplicationTime::startOfDayUtc($from));
                             }
                             if ($until) {
-                                $query->orWhereDate('created_at', '>', $until);
+                                $query->orWhere('created_at', '>=', ApplicationTime::startOfNextDayUtc($until));
                             }
                         } else {
                             if ($from) {
-                                $query->whereDate('created_at', '>=', $from);
+                                $query->where('created_at', '>=', ApplicationTime::startOfDayUtc($from));
                             }
                             if ($until) {
-                                $query->whereDate('created_at', '<=', $until);
+                                $query->where('created_at', '<', ApplicationTime::startOfNextDayUtc($until));
                             }
                         }
                     });
