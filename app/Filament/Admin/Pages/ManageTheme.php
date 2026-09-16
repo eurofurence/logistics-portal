@@ -2,13 +2,19 @@
 
 namespace App\Filament\Admin\Pages;
 
+use App\Notifications\GeneralNotification;
 use App\Settings\ThemeSettings;
+use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Notifications\Notification as FilamentNotification;
 use Filament\Pages\SettingsPage;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Notification;
+use Throwable;
 
 class ManageTheme extends SettingsPage
 {
@@ -67,6 +73,43 @@ class ManageTheme extends SettingsPage
                     ColorPicker::make('primary_color')
                         ->rgb()
                         ->label(__('settings.primary_color')),
+                    Actions::make([
+                        Action::make('sendTestEmail')
+                            ->label(__('settings.send_test_email'))
+                            ->icon('heroicon-o-envelope')
+                            ->authorize(fn (): bool => static::canAccess())
+                            ->action(function (): void {
+                                $user = auth()->user();
+                                $notification = new GeneralNotification(
+                                    username: $user->name,
+                                    subject: __('settings.test_email_subject'),
+                                    titel: __('settings.test_email_subject'),
+                                    message: __('settings.test_email_message'),
+                                    details_title: __('settings.test_email_details'),
+                                    details_message: __('settings.test_email_details_message'),
+                                    details_link: static::getUrl(panel: 'admin'),
+                                    details_link_title: __('general.settings'),
+                                );
+
+                                try {
+                                    Notification::sendNow($user, $notification, ['mail']);
+                                } catch (Throwable $exception) {
+                                    report($exception);
+                                    FilamentNotification::make()
+                                        ->title(__('settings.test_email_failed'))
+                                        ->danger()
+                                        ->send();
+
+                                    return;
+                                }
+
+                                FilamentNotification::make()
+                                    ->title(__('settings.test_email_sent'))
+                                    ->body($user->routeNotificationForMail($notification))
+                                    ->success()
+                                    ->send();
+                            }),
+                    ])->belowContent(__('settings.test_email_help')),
                 ]),
             ]);
     }

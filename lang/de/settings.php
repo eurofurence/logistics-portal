@@ -1,6 +1,14 @@
 <?php
 
 return [
+    'send_test_email' => 'Testmail an mich senden',
+    'test_email_help' => 'Speichere deine Änderungen zuerst. Die Testmail zeigt die gespeicherten Farben und das Logo. Sie wird an deine Benachrichtigungsadresse gesendet, falls hinterlegt, sonst an deine E-Mail-Adresse.',
+    'test_email_subject' => 'Testmail – E-Mail-Aussehen',
+    'test_email_message' => 'So sehen Benachrichtigungen mit den aktuell gespeicherten Einstellungen aus.',
+    'test_email_details' => 'Beispiel für den Detailbereich',
+    'test_email_details_message' => 'Hier kannst du die Primärfarbe, die Schriftfarbe und den Button prüfen.',
+    'test_email_sent' => 'Testmail versendet',
+    'test_email_failed' => 'Die Testmail konnte nicht versendet werden.',
     'site_name' => 'Seitenname',
     'site_description' => 'Seitenbeschreibung',
     'site_description_help' => 'Beschreibung für Suchmaschinen und Linkvorschauen.',

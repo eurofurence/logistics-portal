@@ -1,6 +1,14 @@
 <?php
 
 return [
+    'send_test_email' => 'Send me a test email',
+    'test_email_help' => 'Save your changes first. The test email shows the saved colors and logo. It is sent to your notification email address if set, otherwise to your email address.',
+    'test_email_subject' => 'Test email – Email appearance',
+    'test_email_message' => 'This is how notifications look with the currently saved settings.',
+    'test_email_details' => 'Example details section',
+    'test_email_details_message' => 'Check the primary color, text color and button here.',
+    'test_email_sent' => 'Test email sent',
+    'test_email_failed' => 'The test email could not be sent.',
     'site_name' => 'Site name',
     'site_description' => 'Site description',
     'site_description_help' => 'Description for search engines and link previews.',

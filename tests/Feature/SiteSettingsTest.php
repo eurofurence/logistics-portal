@@ -9,9 +9,11 @@ use App\Notifications\OrderApprovalReminder;
 use App\Settings\GeneralSettings;
 use App\Settings\LoginSettings;
 use App\Settings\ThemeSettings;
+use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
@@ -198,3 +200,40 @@ test('normalizes email colors and selects a readable foreground', function (stri
     'invalid rgb' => ['rgb(999, 0, 0)', '#01504b', '#ffffff'],
     'invalid css' => ['red; background-image: url(https://example.com)', '#01504b', '#ffffff'],
 ]);
+
+test('sends the theme test email only to the signed in administrator using saved settings', function () {
+    Notification::fake();
+    $user = User::factory()->create(['notification_email' => 'preview@example.com']);
+    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $this->actingAs($user);
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+    $settings = app(ThemeSettings::class);
+    $settings->primary_color = 'rgb(32, 64, 96)';
+    $settings->save();
+
+    Livewire::test(ManageTheme::class)
+        ->fillForm(['primary_color' => 'rgb(255, 255, 0)'])
+        ->callAction(TestAction::make('sendTestEmail')->schemaComponent())
+        ->assertNotified(__('settings.test_email_sent'));
+
+    Notification::assertSentTo($user, GeneralNotification::class, function (GeneralNotification $notification, array $channels) use ($user): bool {
+        expect((string) $notification->toMail($user)->render())->toContain('background-color: #204060;');
+        expect($user->routeNotificationForMail($notification))->toBe('preview@example.com');
+
+        return $channels === ['mail'];
+    });
+    Notification::assertCount(1);
+    expect(app(ThemeSettings::class)->refresh()->primary_color)->toBe('rgb(32, 64, 96)');
+});
+
+test('shows a failure notice when the test email cannot be sent', function () {
+    $user = User::factory()->create();
+    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $this->actingAs($user);
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+    Notification::shouldReceive('sendNow')->once()->andThrow(new RuntimeException('Mail unavailable'));
+
+    Livewire::test(ManageTheme::class)
+        ->callAction(TestAction::make('sendTestEmail')->schemaComponent())
+        ->assertNotified(__('settings.test_email_failed'));
+});
