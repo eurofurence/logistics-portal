@@ -84,7 +84,7 @@ return [
             'bucket' => env('HETZNER_S3_BUCKET'),
             'endpoint' => env('HETZNER_S3_ENDPOINT'),
             'use_path_style_endpoint' => true,
-            'throw' => false,
+            'throw' => true,
             'visibility' => 'private',
         ],
 
