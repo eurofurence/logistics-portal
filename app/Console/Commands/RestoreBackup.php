@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Filesystem\LocalFilesystemAdapter;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -38,7 +40,7 @@ class RestoreBackup extends Command
         }
 
         $sftpDisk = Storage::disk('sftp');
-        $localDisk = Storage::disk('local');
+        $temporaryDirectory = storage_path('framework/cache/backup-restore-temp');
 
         $files = collect($sftpDisk->files(config('app.name')));
 
@@ -55,22 +57,27 @@ class RestoreBackup extends Command
 
         $this->info("Latest backup: $latestFile\n");
 
-        $this->confirm('Do you want to restore this backup?');
+        if (! $this->confirm('Do you want to restore this backup?')) {
+            return Command::FAILURE;
+        }
 
-        $localDisk->deleteDirectory('/backup-restore-temp/');
+        File::deleteDirectory($temporaryDirectory);
+        File::ensureDirectoryExists($temporaryDirectory);
 
         $extension = pathinfo($latestFile, PATHINFO_EXTENSION);
 
         // Download the file from the SFTP server and save it locally
         $content = $sftpDisk->get($latestFile);
-        $localDisk->put('/backup-restore-temp/restore.'.$extension, $content);
+        File::put($temporaryDirectory.'/restore.'.$extension, $content);
 
         // Unzip the file
-        $archiveFullPath = storage_path('/app/backup-restore-temp/restore.'.$extension);
-        $extractTo = storage_path('/app/backup-restore-temp/extracted/');
+        $archiveFullPath = $temporaryDirectory.'/restore.'.$extension;
+        $extractTo = $temporaryDirectory.'/extracted/';
         $password = $this->argument('password');
 
-        $this->extractEncryptedArchive($archiveFullPath, $extractTo, $password);
+        if ($this->extractEncryptedArchive($archiveFullPath, $extractTo, $password) !== Command::SUCCESS) {
+            return Command::FAILURE;
+        }
 
         if ($onlyDownload) {
             return Command::SUCCESS;
@@ -79,7 +86,7 @@ class RestoreBackup extends Command
         // Restore the backup by uploading extracted files to S3
         $this->restoreBackupToS3($extractTo);
 
-        $localDisk->deleteDirectory('/backup-restore-temp/');
+        File::deleteDirectory($temporaryDirectory);
         $this->info('Temporary files were deleted');
         $this->info('Finished');
 
@@ -126,9 +133,25 @@ class RestoreBackup extends Command
         return Command::FAILURE;
     }
 
-    public function restoreBackupToS3($extractTo)
+    public function restoreBackupToS3($extractTo): void
     {
-        $s3Disk = Storage::disk('s3');
+        $s3Disk = Storage::disk();
+
+        if ($s3Disk instanceof LocalFilesystemAdapter) {
+            $diskRoot = realpath($s3Disk->path(''));
+            $sourcePath = realpath($extractTo);
+
+            if ($diskRoot === false || $sourcePath === false) {
+                throw new \RuntimeException('The backup source and destination must exist before restoring.');
+            }
+
+            $diskRoot = rtrim(str_replace('\\', '/', $diskRoot), '/').'/';
+            $sourcePath = rtrim(str_replace('\\', '/', $sourcePath), '/').'/';
+
+            if (str_starts_with($sourcePath, $diskRoot)) {
+                throw new \RuntimeException('The extracted backup must be outside the destination disk before restoring.');
+            }
+        }
 
         // Delete all files in the S3 bucket
         $this->info('Clearing the S3 bucket...');
@@ -145,7 +168,7 @@ class RestoreBackup extends Command
         $this->uploadFilesToS3($extractTo, '/', $s3Disk);
     }
 
-    public function uploadFilesToS3($sourcePath, $destinationPrefix, $s3Disk)
+    public function uploadFilesToS3($sourcePath, $destinationPrefix, $s3Disk): void
     {
         $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($sourcePath));
 

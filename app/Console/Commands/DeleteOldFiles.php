@@ -34,7 +34,7 @@ class DeleteOldFiles extends Command
 
     public function deleteOldExcelTemp()
     {
-        $disk = 's3';
+        $disk = config('filesystems.default');
         $directory = '/export/excel/tmp';
 
         $files = Storage::disk($disk)->files($directory);

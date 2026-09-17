@@ -357,7 +357,7 @@ return [
         | in conjunction with queued imports and exports.
         |
         */
-        'remote_disk' => 's3',
+        'remote_disk' => env('FILESYSTEM_DISK', 'local'),
         'remote_prefix' => '/exports/excel/tmp',
 
         /*

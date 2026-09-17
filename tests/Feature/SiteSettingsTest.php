@@ -39,7 +39,8 @@ test('allows administrators to save a timezone and rejects invalid identifiers',
 });
 
 test('uploads a site logo and restores the default logo when removed', function () {
-    Storage::fake('public');
+    config(['filesystems.default' => 'site-assets']);
+    Storage::fake('site-assets');
     $user = User::factory()->create();
     $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
     $this->actingAs($user);
@@ -52,8 +53,8 @@ test('uploads a site logo and restores the default logo when removed', function 
 
     $settings = app(ThemeSettings::class)->refresh();
     expect($settings->logo)->toStartWith('site_logo/');
-    Storage::disk('public')->assertExists($settings->logo);
-    expect(view('vendor.filament-panels.components.logo')->render())->toContain(Storage::disk('public')->url($settings->logo));
+    Storage::disk('site-assets')->assertExists($settings->logo);
+    expect(view('vendor.filament-panels.components.logo')->render())->toContain(Storage::disk('site-assets')->url($settings->logo));
 
     Livewire::test(ManageTheme::class)
         ->fillForm(['logo' => null])
@@ -77,7 +78,8 @@ test('requires authentication for settings pages', function (string $page) {
 })->with([[ManageGeneral::class], [ManageTheme::class]]);
 
 test('rejects non image logo uploads', function () {
-    Storage::fake('public');
+    config(['filesystems.default' => 'site-assets']);
+    Storage::fake('site-assets');
     $user = User::factory()->create();
     $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
     $this->actingAs($user);
@@ -131,7 +133,8 @@ test('excludes the admin login from indexing when public indexing is enabled', f
 });
 
 test('uploads site icons and preview images and restores their defaults', function () {
-    Storage::fake('public');
+    config(['filesystems.default' => 'site-assets']);
+    Storage::fake('site-assets');
     $user = User::factory()->create();
     $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
     $this->actingAs($user);
@@ -150,7 +153,7 @@ test('uploads site icons and preview images and restores their defaults', functi
         ->and($settings->social_image)->toStartWith('site_social/')
         ->and(Filament::getPanel('admin')->getFavicon())->toBe($settings->faviconUrl())
         ->and(Filament::getPanel('app')->getFavicon())->toBe($settings->faviconUrl());
-    Storage::disk('public')->assertExists([$settings->favicon, $settings->social_image]);
+    Storage::disk('site-assets')->assertExists([$settings->favicon, $settings->social_image]);
     expect(view('components.site-meta')->render())->toContain($settings->socialImageUrl());
 
     Livewire::test(ManageTheme::class)

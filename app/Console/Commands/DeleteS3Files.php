@@ -35,8 +35,8 @@ class DeleteS3Files extends Command
 
         // Loop through all files and delete them directly from S3
         foreach ($filesToDelete as $fileName) {
-            if (Storage::disk('s3')->exists($fileName)) {
-                Storage::disk('s3')->delete($fileName);
+            if (Storage::disk()->exists($fileName)) {
+                Storage::disk()->delete($fileName);
                 $this->info("Deleted: $fileName");
             } else {
                 $this->warn("File not found on S3: $fileName");

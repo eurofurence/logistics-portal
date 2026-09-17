@@ -42,7 +42,7 @@ class BackupWithS3 extends Command
             File::deleteDirectory(storage_path('app/backup-s3'));
 
             // 1. Download the files from S3
-            $s3Files = Storage::disk('s3')->allFiles(''); // Get all files including path
+            $s3Files = Storage::disk()->allFiles(''); // Get all files including path
             if (empty($s3Files)) {
                 $this->info('No files found on S3');
             } else {
@@ -50,7 +50,7 @@ class BackupWithS3 extends Command
                 File::ensureDirectoryExists($localBackupPath);
 
                 $this->withProgressBar($s3Files, function ($file) use ($localBackupPath) {
-                    $contents = Storage::disk('s3')->get($file);
+                    $contents = Storage::disk()->get($file);
 
                     // Retain the folder structure
                     $localFilePath = "{$localBackupPath}/{$file}";

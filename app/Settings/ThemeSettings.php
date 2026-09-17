@@ -51,17 +51,17 @@ class ThemeSettings extends Settings
 
     public function faviconUrl(): string
     {
-        return $this->favicon ? Storage::disk('public')->url($this->favicon) : asset('favicon.ico');
+        return $this->favicon ? Storage::disk()->url($this->favicon) : asset('favicon.ico');
     }
 
     public function socialImageUrl(): string
     {
-        return $this->social_image ? Storage::disk('public')->url($this->social_image) : $this->logoUrl();
+        return $this->social_image ? Storage::disk()->url($this->social_image) : $this->logoUrl();
     }
 
     public function logoUrl(): string
     {
-        return $this->logo ? Storage::disk('public')->url($this->logo) : asset('images/logo-round-filled.png');
+        return $this->logo ? Storage::disk()->url($this->logo) : asset('images/logo-round-filled.png');
     }
 
     public static function group(): string
