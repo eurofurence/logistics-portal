@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'default_locale' => 'Default language',
+    'default_locale_help' => 'Used until a personal language preference has been selected.',
     'send_test_email' => 'Send me a test email',
     'test_email_help' => 'Save your changes first. The test email shows the saved colors and logo. It is sent to your notification email address if set, otherwise to your email address.',
     'test_email_subject' => 'Test email – Email appearance',

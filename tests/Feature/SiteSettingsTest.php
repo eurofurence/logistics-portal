@@ -11,11 +11,76 @@ use App\Settings\LoginSettings;
 use App\Settings\ThemeSettings;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
+
+test('allows administrators to select an available default language', function (string $locale) {
+    $user = User::factory()->create();
+    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $this->actingAs($user);
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+    Livewire::test(ManageGeneral::class)
+        ->assertFormFieldExists('default_locale', fn (Select $field): bool => $field->getOptions() === ['en' => 'English', 'de' => 'Deutsch'])
+        ->fillForm(['default_locale' => $locale])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect(app(GeneralSettings::class)->refresh()->default_locale)->toBe($locale);
+})->with(['en', 'de']);
+
+test('rejects missing and unavailable default languages without changing the saved language', function (?string $locale, string $rule) {
+    $user = User::factory()->create();
+    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $this->actingAs($user);
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+    Livewire::test(ManageGeneral::class)
+        ->fillForm(['default_locale' => $locale])
+        ->call('save')
+        ->assertHasFormErrors(['default_locale' => $rule]);
+
+    expect(app(GeneralSettings::class)->refresh()->default_locale)->toBe('en');
+})->with([
+    'missing' => [null, 'required'],
+    'unavailable' => ['fr', 'in'],
+]);
+
+test('uses the current default language for visitors in both panels', function (string $panel) {
+    $settings = app(GeneralSettings::class);
+    $settings->default_locale = 'de';
+    $settings->save();
+
+    $this->get(Filament::getPanel($panel)->getLoginUrl())
+        ->assertSee('lang="de"', false);
+
+    $settings->default_locale = 'en';
+    $settings->save();
+
+    $this->get(Filament::getPanel($panel)->getLoginUrl())
+        ->assertSee('lang="en"', false);
+})->with(['admin', 'app']);
+
+test('keeps the personal session language ahead of the default language', function (string $panel) {
+    GeneralSettings::fake(['default_locale' => 'de']);
+
+    $this->withSession(['locale' => 'en'])
+        ->get(Filament::getPanel($panel)->getLoginUrl())
+        ->assertSee('lang="en"', false);
+})->with(['admin', 'app']);
+
+test('keeps the remembered cookie language ahead of the default language', function (string $panel) {
+    GeneralSettings::fake(['default_locale' => 'de']);
+
+    $this->withCookie('filament_language_switcher_locale', 'en')
+        ->get(Filament::getPanel($panel)->getLoginUrl())
+        ->assertSee('lang="en"', false)
+        ->assertSessionHas('locale', 'en');
+})->with(['admin', 'app']);
 
 test('allows administrators to save a timezone and rejects invalid identifiers', function () {
     $user = User::factory()->create();

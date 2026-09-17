@@ -8,6 +8,8 @@ class GeneralSettings extends Settings
 {
     public string $timezone = 'Europe/Berlin';
 
+    public string $default_locale = 'en';
+
     public ?string $site_name = null;
 
     public ?string $site_description = null;
