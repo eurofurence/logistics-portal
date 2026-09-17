@@ -14,7 +14,7 @@ class TestModelForm
         return $schema
             ->components([
                 FileUpload::make('data1')
-                    ->disk('s3')
+                    ->disk(fn (): string => config('filesystems.default'))
                     ->visibility('public'),
                 BarcodeInput::make('data2')
                     ->title('abc')

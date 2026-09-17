@@ -1021,7 +1021,7 @@ class OrdersTable
 
                             if (($data['file_type'] ?? 'xlsx') !== 'csv' && ! empty($data['image'])) {
                                 try {
-                                    $data['image'] = Storage::disk('s3')->temporaryUrl($data['image'], now()->addMinutes(30));
+                                    $data['image'] = Storage::disk()->temporaryUrl($data['image'], now()->addMinutes(30));
                                 } catch (\Throwable $e) {
                                     $data['image'] = Storage::disk(config('filesystems.default'))->path($data['image']);
                                 }
