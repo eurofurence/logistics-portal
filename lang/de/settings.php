@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'default_locale' => 'Standardsprache',
+    'default_locale_help' => 'Wird verwendet, solange keine persönliche Sprache ausgewählt wurde.',
     'send_test_email' => 'Testmail an mich senden',
     'test_email_help' => 'Speichere deine Änderungen zuerst. Die Testmail zeigt die gespeicherten Farben und das Logo. Sie wird an deine Benachrichtigungsadresse gesendet, falls hinterlegt, sonst an deine E-Mail-Adresse.',
     'test_email_subject' => 'Testmail – E-Mail-Aussehen',

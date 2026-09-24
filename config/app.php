@@ -97,6 +97,11 @@ return [
 
     'locale' => 'en',
 
+    'available_locales' => [
+        'en' => 'English',
+        'de' => 'Deutsch',
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Application Fallback Locale

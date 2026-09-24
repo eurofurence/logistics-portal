@@ -6,6 +6,8 @@ use App\Events\BillCreated;
 use App\Events\BillStatusChanged;
 use App\Listeners\SendBillCreatedNotification;
 use App\Listeners\SendBillStatusChangedNotification;
+use App\Listeners\UpdateLastLogin;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -19,6 +21,9 @@ class EventServiceProvider extends ServiceProvider
      * @var array<class-string, array<int, class-string>>
      */
     protected $listen = [
+        Login::class => [
+            UpdateLastLogin::class,
+        ],
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],

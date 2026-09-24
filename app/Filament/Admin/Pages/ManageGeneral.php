@@ -64,6 +64,11 @@ class ManageGeneral extends SettingsPage
                     ->searchable()
                     ->rules(['timezone'])
                     ->required(),
+                Select::make('default_locale')
+                    ->label(__('settings.default_locale'))
+                    ->helperText(__('settings.default_locale_help'))
+                    ->options(config('app.available_locales'))
+                    ->required(),
             ]),
             Section::make(__('settings.seo'))
                 ->schema([

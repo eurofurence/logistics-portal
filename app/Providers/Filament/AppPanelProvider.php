@@ -82,7 +82,7 @@ class AppPanelProvider extends PanelProvider
             ->plugins([
                 FilamentLanguageSwitcherPlugin::make()
                     ->rememberLocale(days: 30)
-                    ->locales(['en', 'de']),
+                    ->locales(array_keys(config('app.available_locales'))),
                 FilamentProgressbarPlugin::make()->color('#29b'),
                 FilamentSpatieLaravelHealthPlugin::make()
                     ->usingPage(HealthCheckResults::class),

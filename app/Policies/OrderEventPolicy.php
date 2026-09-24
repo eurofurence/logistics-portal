@@ -50,7 +50,7 @@ class OrderEventPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, OrderEvent $orderevent): bool
+    public function restore(User $user): bool
     {
         return $user->checkPermissionTo('restore-OrderEvent');
     }
@@ -58,7 +58,7 @@ class OrderEventPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, OrderEvent $orderevent): bool
+    public function forceDelete(User $user): bool
     {
         return $user->checkPermissionTo('force-delete-OrderEvent');
     }

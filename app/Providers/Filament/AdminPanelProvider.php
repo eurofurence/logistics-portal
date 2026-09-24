@@ -91,7 +91,7 @@ class AdminPanelProvider extends PanelProvider
                     ->widgetSort(1),
                 FilamentLanguageSwitcherPlugin::make()
                     ->rememberLocale(days: 30)
-                    ->locales(['en', 'de']),
+                    ->locales(array_keys(config('app.available_locales'))),
                 FilamentProgressbarPlugin::make()->color('#29b'),
                 SpatieTranslatablePlugin::make()
                     ->defaultLocales(['en', 'de']),
