@@ -27,6 +27,8 @@ return [
     'timezone' => 'Zeitzone',
     'timezone_help' => 'Gilt für angezeigte Zeiten, Datumsfilter und tägliche Zeitpläne.',
     'logo' => 'Seitenlogo',
+    'email_logo' => 'E-Mail-Logo',
+    'email_logo_help' => 'PNG oder JPEG, bis 2 MB. Ohne eigenes E-Mail-Logo wird das Seitenlogo verwendet.',
     'logo_help' => 'PNG, JPEG oder WebP, bis 2 MB. Bild entfernen, um das Standardlogo wiederherzustellen.',
     'activate_whitelist' => 'Whitelist aktivieren',
     'login' => 'Login',

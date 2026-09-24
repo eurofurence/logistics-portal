@@ -27,6 +27,8 @@ return [
     'timezone' => 'Time zone',
     'timezone_help' => 'Used for displayed times, date filters and daily schedules.',
     'logo' => 'Site logo',
+    'email_logo' => 'Email logo',
+    'email_logo_help' => 'PNG or JPEG, up to 2 MB. Uses the site logo when no email logo is uploaded.',
     'logo_help' => 'PNG, JPEG or WebP, up to 2 MB. Remove the image to restore the default logo.',
     'activate_whitelist' => 'Activate whitelist',
     'login' => 'Login',
