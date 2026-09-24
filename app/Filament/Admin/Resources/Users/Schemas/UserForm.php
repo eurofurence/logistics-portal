@@ -95,8 +95,8 @@ class UserForm
                         ->options(Role::query()->pluck('name', 'id'))
                         ->preload(true)
                         ->relationship(name: 'roles', titleAttribute: 'name')
-                        ->disabled(! Gate::check('update-Role'))
-                        ->visible(Gate::check('update-Role')),
+                        ->disabled(! Gate::check('set-global-Role'))
+                        ->visible(Gate::check('set-global-Role')),
                 ]),
             ]);
     }

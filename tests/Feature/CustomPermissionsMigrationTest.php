@@ -5,6 +5,29 @@ use App\Models\Role;
 use App\Models\User;
 use Spatie\Permission\PermissionRegistrar;
 
+test('creates the global role permission without granting it automatically', function () {
+    $user = User::factory()->create();
+
+    $this->assertDatabaseHas('permissions', ['name' => 'set-global-Role', 'guard_name' => 'web']);
+    expect($user->can('set-global-Role'))->toBeFalse();
+});
+
+test('preserves global role permission grants when rerun or rolled back', function () {
+    $permission = Permission::findByName('set-global-Role', 'web');
+    $role = Role::factory()->create();
+    $role->givePermissionTo($permission);
+    $user = User::factory()->create();
+    $user->assignRole($role);
+    $migration = require base_path('database/migrations/2026_09_24_120000_add_set_global_role_permission.php');
+
+    $migration->up();
+    $migration->up();
+    $migration->down();
+
+    expect(Permission::where('name', 'set-global-Role')->where('guard_name', 'web')->sole()->id)->toBe($permission->id);
+    expect($user->fresh()->can('set-global-Role'))->toBeTrue();
+});
+
 test('creates every legacy custom permission through migrations on a fresh database', function () {
     $expectedPermissions = [
         'access-adminpanel',
