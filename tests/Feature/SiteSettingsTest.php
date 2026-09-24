@@ -18,6 +18,38 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
+test('updates the dashboard navigation link from general settings', function () {
+    $user = User::factory()->create();
+    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $this->actingAs($user);
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+    $dashboard = collect(Filament::getPanel('app')->getNavigationItems())
+        ->first(fn ($item): bool => $item->getLabel() === __('general.dashboard'));
+    expect($dashboard->getUrl())->toBe('https://identity.eurofurence.org');
+
+    Livewire::test(ManageGeneral::class)
+        ->fillForm(['dashboard_url' => 'https://example.com/dashboard'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect(app(GeneralSettings::class)->refresh()->dashboard_url)->toBe('https://example.com/dashboard');
+    expect($dashboard->getUrl())->toBe('https://example.com/dashboard');
+});
+
+test('rejects invalid dashboard links without changing the saved destination', function (?string $url) {
+    $user = User::factory()->create();
+    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $this->actingAs($user);
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+    Livewire::test(ManageGeneral::class)
+        ->fillForm(['dashboard_url' => $url])
+        ->call('save')
+        ->assertHasFormErrors(['dashboard_url']);
+
+    expect(app(GeneralSettings::class)->refresh()->dashboard_url)->toBe('https://identity.eurofurence.org');
+})->with([null, 'not-a-url', 'javascript:alert(1)', 'ftp://example.com/dashboard']);
+
 test('allows administrators to select an available default language', function (string $locale) {
     $user = User::factory()->create();
     $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
@@ -128,6 +160,73 @@ test('uploads a site logo and restores the default logo when removed', function 
 
     expect(app(ThemeSettings::class)->refresh()->logoUrl())->toBe(asset('images/logo-round-filled.png'));
 });
+
+test('uploads a separate email logo and falls back to the site logo when removed', function () {
+    config(['filesystems.default' => 'site-assets']);
+    Storage::fake('site-assets');
+    $user = User::factory()->create();
+    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $this->actingAs($user);
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+    Livewire::test(ManageTheme::class)
+        ->fillForm([
+            'logo' => UploadedFile::fake()->image('site.png'),
+            'email_logo' => UploadedFile::fake()->image('email.png'),
+        ])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $settings = app(ThemeSettings::class)->refresh();
+    $siteLogo = $settings->logo;
+    $emailLogoUrl = Storage::disk('site-assets')->url($settings->email_logo);
+    expect($settings->email_logo)->toStartWith('email_logo/');
+    Storage::disk('site-assets')->assertExists($settings->email_logo);
+    expect(view('vendor.filament-panels.components.logo')->render())
+        ->toContain(Storage::disk('site-assets')->url($siteLogo))
+        ->not->toContain($emailLogoUrl);
+    $notification = new GeneralNotification(username: $user->name, details_title: 'Bill', details_link: 'https://example.com', details_link_title: 'Show');
+    expect((string) $notification->toMail($user)->render())->toContain($emailLogoUrl);
+
+    Livewire::test(ManageTheme::class)
+        ->fillForm(['email_logo' => null])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    $settings->refresh();
+    expect($settings->email_logo)->toBeNull();
+    expect($settings->logo)->toBe($siteLogo);
+    expect((string) $notification->toMail($user)->render())
+        ->toContain(Storage::disk('site-assets')->url($siteLogo))
+        ->not->toContain($emailLogoUrl);
+});
+
+test('uses the default logo in emails when neither logo is configured', function () {
+    ThemeSettings::fake(['logo' => null, 'email_logo' => null]);
+    $user = User::factory()->make();
+    $notification = new GeneralNotification(username: $user->name, details_title: 'Bill', details_link: 'https://example.com', details_link_title: 'Show');
+
+    expect((string) $notification->toMail($user)->render())->toContain(asset('images/logo-round-filled.png'));
+});
+
+test('rejects invalid email logo uploads', function (string $filename, int $size, string $mimeType) {
+    config(['filesystems.default' => 'site-assets']);
+    Storage::fake('site-assets');
+    $user = User::factory()->create();
+    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $this->actingAs($user);
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+    Livewire::test(ManageTheme::class)
+        ->fillForm(['email_logo' => UploadedFile::fake()->create($filename, $size, $mimeType)])
+        ->call('save')
+        ->assertHasFormErrors(['email_logo']);
+
+    expect(app(ThemeSettings::class)->refresh()->email_logo)->toBeNull();
+})->with([
+    'text file' => ['logo.txt', 1, 'text/plain'],
+    'oversized image' => ['logo.png', 2049, 'image/png'],
+]);
 
 test('denies settings access to users without admin panel permission', function (string $page) {
     $this->actingAs(User::factory()->create());

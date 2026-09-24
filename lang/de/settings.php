@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'dashboard_url' => 'Dashboard-Link',
+    'dashboard_url_help' => 'Zieladresse der Dashboard-Schaltfläche im App-Menü. Vollständige HTTP- oder HTTPS-Adresse eingeben.',
     'default_locale' => 'Standardsprache',
     'default_locale_help' => 'Wird verwendet, solange keine persönliche Sprache ausgewählt wurde.',
     'send_test_email' => 'Testmail an mich senden',
@@ -27,6 +29,8 @@ return [
     'timezone' => 'Zeitzone',
     'timezone_help' => 'Gilt für angezeigte Zeiten, Datumsfilter und tägliche Zeitpläne.',
     'logo' => 'Seitenlogo',
+    'email_logo' => 'E-Mail-Logo',
+    'email_logo_help' => 'PNG oder JPEG, bis 2 MB. Ohne eigenes E-Mail-Logo wird das Seitenlogo verwendet.',
     'logo_help' => 'PNG, JPEG oder WebP, bis 2 MB. Bild entfernen, um das Standardlogo wiederherzustellen.',
     'activate_whitelist' => 'Whitelist aktivieren',
     'login' => 'Login',

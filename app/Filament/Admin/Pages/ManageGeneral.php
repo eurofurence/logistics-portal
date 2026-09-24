@@ -57,6 +57,13 @@ class ManageGeneral extends SettingsPage
                     ->helperText(__('settings.site_description_help'))
                     ->rows(3)
                     ->maxLength(300),
+                TextInput::make('dashboard_url')
+                    ->label(__('settings.dashboard_url'))
+                    ->helperText(__('settings.dashboard_url_help'))
+                    ->url()
+                    ->rules(['url:http,https'])
+                    ->maxLength(2048)
+                    ->required(),
                 Select::make('timezone')
                     ->label(__('settings.timezone'))
                     ->helperText(__('settings.timezone_help'))

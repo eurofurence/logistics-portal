@@ -11,6 +11,8 @@ class ThemeSettings extends Settings
 
     public ?string $logo = null;
 
+    public ?string $email_logo = null;
+
     public ?string $favicon = null;
 
     public ?string $social_image = null;
@@ -62,6 +64,11 @@ class ThemeSettings extends Settings
     public function logoUrl(): string
     {
         return $this->logo ? Storage::disk()->url($this->logo) : asset('images/logo-round-filled.png');
+    }
+
+    public function emailLogoUrl(): string
+    {
+        return $this->email_logo ? Storage::disk()->url($this->email_logo) : $this->logoUrl();
     }
 
     public static function group(): string

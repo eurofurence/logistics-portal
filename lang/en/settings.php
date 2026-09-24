@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'dashboard_url' => 'Dashboard link',
+    'dashboard_url_help' => 'Destination of the Dashboard button in the app menu. Enter a complete HTTP or HTTPS URL.',
     'default_locale' => 'Default language',
     'default_locale_help' => 'Used until a personal language preference has been selected.',
     'send_test_email' => 'Send me a test email',
@@ -27,6 +29,8 @@ return [
     'timezone' => 'Time zone',
     'timezone_help' => 'Used for displayed times, date filters and daily schedules.',
     'logo' => 'Site logo',
+    'email_logo' => 'Email logo',
+    'email_logo_help' => 'PNG or JPEG, up to 2 MB. Uses the site logo when no email logo is uploaded.',
     'logo_help' => 'PNG, JPEG or WebP, up to 2 MB. Remove the image to restore the default logo.',
     'activate_whitelist' => 'Activate whitelist',
     'login' => 'Login',

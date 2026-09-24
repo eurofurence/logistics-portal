@@ -86,7 +86,7 @@
             <div class="o_col o_col-2" style="display: inline-block;vertical-align: top;width: 100%;max-width: 200px;">
               <div style="font-size: 24px; line-height: 24px; height: 24px;">&nbsp; </div>
               <div class="o_px-xs o_sans o_text o_left o_xs-center" style="font-family: Helvetica, Arial, sans-serif;margin-top: 0px;margin-bottom: 0px;font-size: 16px;line-height: 24px;text-align: left;padding-left: 8px;padding-right: 8px;">
-                <p style="margin-top: 0px;margin-bottom: 0px;"><a class="o_text-primary" href="{{ url('/') }}" style="text-decoration: none;outline: none;color: {{ $emailColors['primary'] }};"><img src="{{ app(\App\Settings\ThemeSettings::class)->logoUrl() }}" width="50" height="50" alt="logo" style="max-width: 136px;-ms-interpolation-mode: bicubic;vertical-align: middle;border: 0;line-height: 100%;height: auto;outline: none;text-decoration: none;"></a></p>
+                <p style="margin-top: 0px;margin-bottom: 0px;"><a class="o_text-primary" href="{{ url('/') }}" style="text-decoration: none;outline: none;color: {{ $emailColors['primary'] }};"><img src="{{ app(\App\Settings\ThemeSettings::class)->emailLogoUrl() }}" width="50" height="50" alt="logo" style="max-width: 136px;-ms-interpolation-mode: bicubic;vertical-align: middle;border: 0;line-height: 100%;height: auto;outline: none;text-decoration: none;"></a></p>
               </div>
             </div>
             <!--[if mso]></td><td width="400" align="right" valign="top" style="padding:0px 8px;"><![endif]-->

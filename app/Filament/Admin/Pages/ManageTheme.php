@@ -52,6 +52,16 @@ class ManageTheme extends SettingsPage
                         ->imageEditor()
                         ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
                         ->maxSize(2048),
+                    FileUpload::make('email_logo')
+                        ->label(__('settings.email_logo'))
+                        ->helperText(__('settings.email_logo_help'))
+                        ->disk(fn (): string => config('filesystems.default'))
+                        ->directory('email_logo')
+                        ->visibility('public')
+                        ->image()
+                        ->imageEditor()
+                        ->acceptedFileTypes(['image/png', 'image/jpeg'])
+                        ->maxSize(2048),
                     FileUpload::make('favicon')
                         ->label(__('settings.favicon'))
                         ->helperText(__('settings.favicon_help'))

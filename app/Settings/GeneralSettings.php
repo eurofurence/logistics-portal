@@ -10,6 +10,8 @@ class GeneralSettings extends Settings
 
     public string $default_locale = 'en';
 
+    public string $dashboard_url = 'https://identity.eurofurence.org';
+
     public ?string $site_name = null;
 
     public ?string $site_description = null;
