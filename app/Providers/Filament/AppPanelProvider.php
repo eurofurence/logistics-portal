@@ -112,7 +112,7 @@ class AppPanelProvider extends PanelProvider
             ->navigationItems([
                 NavigationItem::make('dashboard')
                     ->label(__('general.dashboard'))
-                    ->url('https://identity.eurofurence.org', shouldOpenInNewTab: false)
+                    ->url(fn (): string => app(GeneralSettings::class)->dashboard_url, shouldOpenInNewTab: false)
                     ->icon('heroicon-o-chevron-double-left')
                     ->sort(0),
                 NavigationItem::make('admin_panel')

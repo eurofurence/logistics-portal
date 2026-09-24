@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'dashboard_url' => 'Dashboard-Link',
+    'dashboard_url_help' => 'Zieladresse der Dashboard-Schaltfläche im App-Menü. Vollständige HTTP- oder HTTPS-Adresse eingeben.',
     'default_locale' => 'Standardsprache',
     'default_locale_help' => 'Wird verwendet, solange keine persönliche Sprache ausgewählt wurde.',
     'send_test_email' => 'Testmail an mich senden',

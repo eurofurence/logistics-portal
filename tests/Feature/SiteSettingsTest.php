@@ -18,6 +18,38 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
+test('updates the dashboard navigation link from general settings', function () {
+    $user = User::factory()->create();
+    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $this->actingAs($user);
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+    $dashboard = collect(Filament::getPanel('app')->getNavigationItems())
+        ->first(fn ($item): bool => $item->getLabel() === __('general.dashboard'));
+    expect($dashboard->getUrl())->toBe('https://identity.eurofurence.org');
+
+    Livewire::test(ManageGeneral::class)
+        ->fillForm(['dashboard_url' => 'https://example.com/dashboard'])
+        ->call('save')
+        ->assertHasNoFormErrors();
+
+    expect(app(GeneralSettings::class)->refresh()->dashboard_url)->toBe('https://example.com/dashboard');
+    expect($dashboard->getUrl())->toBe('https://example.com/dashboard');
+});
+
+test('rejects invalid dashboard links without changing the saved destination', function (?string $url) {
+    $user = User::factory()->create();
+    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $this->actingAs($user);
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+    Livewire::test(ManageGeneral::class)
+        ->fillForm(['dashboard_url' => $url])
+        ->call('save')
+        ->assertHasFormErrors(['dashboard_url']);
+
+    expect(app(GeneralSettings::class)->refresh()->dashboard_url)->toBe('https://identity.eurofurence.org');
+})->with([null, 'not-a-url', 'javascript:alert(1)', 'ftp://example.com/dashboard']);
+
 test('allows administrators to select an available default language', function (string $locale) {
     $user = User::factory()->create();
     $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));

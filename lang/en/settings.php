@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'dashboard_url' => 'Dashboard link',
+    'dashboard_url_help' => 'Destination of the Dashboard button in the app menu. Enter a complete HTTP or HTTPS URL.',
     'default_locale' => 'Default language',
     'default_locale_help' => 'Used until a personal language preference has been selected.',
     'send_test_email' => 'Send me a test email',
