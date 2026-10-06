@@ -5,8 +5,10 @@ namespace App\Providers\Filament;
 use App\Filament\Admin\Pages\HealthCheckResults;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
+use App\Filament\Pages\Auth\SettingsAppAuthentication;
 use App\Filament\Pages\Dashboard;
 use App\Http\Middleware\CheckWhitelist;
+use App\Http\Middleware\EnsureRequiredTwoFactorAuthentication;
 use App\Http\Middleware\UserIsLocked;
 use App\Settings\GeneralSettings;
 use App\Settings\ThemeSettings;
@@ -124,6 +126,9 @@ class AppPanelProvider extends PanelProvider
                     ->sort(100), // Ganz nach unten in der Liste
             ])
             ->login(Login::class)
+            ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn (): View => view('components.passkey-login'), scopes: Login::class)
+            ->multiFactorAuthentication([SettingsAppAuthentication::make()->recoverable()], isRequired: true)
+            ->multiFactorAuthenticationRequiredMiddlewareName(EnsureRequiredTwoFactorAuthentication::class)
             ->passwordReset()
             // ->emailVerification()
             // ->registration()

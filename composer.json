@@ -34,6 +34,7 @@
         "league/flysystem-aws-s3-v3": "^3.29",
         "league/flysystem-sftp-v3": "^3.0",
         "maatwebsite/excel": "^4.0",
+        "marcelweidum/filament-passkeys": "^2.0",
         "martinpetricko/filament-sentry-feedback": "*",
         "mpdf/mpdf": "^8.2",
         "njxqlus/filament-lightbox": "^3.0",

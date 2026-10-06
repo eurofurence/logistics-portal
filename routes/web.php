@@ -2,11 +2,18 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClubMemberFileController;
+use App\Http\Controllers\PasskeyLoginController;
+use App\Http\Controllers\PasskeyOptionsController;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+
+Route::prefix('passkeys')->middleware(['guest', 'throttle:10,1'])->group(function (): void {
+    Route::get('authentication-options', PasskeyOptionsController::class)->name('passkeys.authentication_options');
+    Route::post('authenticate', PasskeyLoginController::class)->name('passkeys.login');
+});
 
 /*
 |--------------------------------------------------------------------------

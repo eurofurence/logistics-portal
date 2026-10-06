@@ -1,6 +1,18 @@
 <?php
 
 return [
+    'passkey_placeholder' => 'For example: laptop or smartphone',
+    'add_passkey' => 'Add passkey',
+    'empty_passkeys' => 'No passkeys set up yet',
+    'empty_passkeys_description' => 'Add your first device to sign in conveniently without a password.',
+    'passkeys_enabled' => 'Enable passkey sign-in',
+    'passkeys_help' => 'Allows signing in using a registered device. Independent of two-factor authentication.',
+    'two_factor_title' => 'Two-factor authentication',
+    'two_factor_description' => 'Protect your password sign-in with an additional code from your authenticator app. Recovery codes help you sign in if you lose access to your device.',
+    'two_factor_required' => 'Require two-factor authentication',
+    'two_factor_required_help' => 'This user must set up an authenticator app and use it to sign in while two-factor authentication is globally enabled.',
+    'two_factor_enabled' => 'Enable two-factor authentication',
+    'two_factor_help' => 'Allows users to set up an authenticator app with recovery codes in their profile. Applies to the app and admin panel.',
     'dashboard_url' => 'Dashboard link',
     'dashboard_url_help' => 'Destination of the Dashboard button in the app menu. Enter a complete HTTP or HTTPS URL.',
     'default_locale' => 'Default language',

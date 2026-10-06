@@ -6,7 +6,9 @@ use Althinect\FilamentSpatieRolesPermissions\FilamentSpatieRolesPermissionsPlugi
 use App\Filament\Admin\Pages\HealthCheckResults;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
+use App\Filament\Pages\Auth\SettingsAppAuthentication;
 use App\Http\Middleware\CheckWhitelist;
+use App\Http\Middleware\EnsureRequiredTwoFactorAuthentication;
 use App\Http\Middleware\UserIsLocked;
 use App\Settings\GeneralSettings;
 use App\Settings\ThemeSettings;
@@ -68,6 +70,9 @@ class AdminPanelProvider extends PanelProvider
                 AccountWidget::class,
             ])
             ->login(Login::class)
+            ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn (): View => view('components.passkey-login'), scopes: Login::class)
+            ->multiFactorAuthentication([SettingsAppAuthentication::make()->recoverable()], isRequired: true)
+            ->multiFactorAuthenticationRequiredMiddlewareName(EnsureRequiredTwoFactorAuthentication::class)
             ->passwordReset()
             ->profile(EditProfile::class, false)
             // ->emailVerification()

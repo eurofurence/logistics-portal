@@ -53,6 +53,12 @@ class ManageLogin extends SettingsPage
                 Section::make([
                     Toggle::make('whitelist_active')
                         ->label(__('settings.activate_whitelist')),
+                    Toggle::make('two_factor_enabled')
+                        ->label(__('settings.two_factor_enabled'))
+                        ->helperText(__('settings.two_factor_help')),
+                    Toggle::make('passkeys_enabled')
+                        ->label(__('settings.passkeys_enabled'))
+                        ->helperText(__('settings.passkeys_help')),
                 ]),
             ]);
     }
