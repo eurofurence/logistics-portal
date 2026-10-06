@@ -61,7 +61,7 @@ test('creates members with optional fields empty and allows shared names and add
 
     Livewire::test(CreateClubMember::class)->fillForm(clubMemberFormData())->call('create')->assertHasNoFormErrors()->assertRedirect();
 
-    expect(ClubMember::where('email', 'ada@example.com')->count())->toBe(2);
+    expect(ClubMember::query()->searchPersonalData(['email'], 'ada@example.com')->count())->toBe(2);
 });
 
 test('validates required member fields', function (string $field) {
@@ -71,6 +71,30 @@ test('validates required member fields', function (string $field) {
 
     expect(ClubMember::count())->toBe(0);
 })->with(['sona_name', 'first_name', 'last_name', 'street_address', 'postal_code', 'city', 'country', 'email', 'birth_date', 'joined_at']);
+
+test('searches and sorts encrypted members and finds them in global search', function () {
+    $this->actingAs(clubMemberUser());
+    $first = ClubMember::factory()->create(['sona_name' => 'Silver Fox', 'last_name' => 'Alpha', 'birth_date' => '1990-01-01']);
+    $second = ClubMember::factory()->create(['sona_name' => 'Golden Wolf', 'last_name' => 'Zulu', 'birth_date' => '1980-01-01']);
+
+    Livewire::test(ListClubMembers::class)->searchTable('silver')->assertCanSeeTableRecords([$first])->assertCanNotSeeTableRecords([$second]);
+    $page = Livewire::test(ListClubMembers::class)->assertCanSeeTableRecords([$first, $second], inOrder: true);
+    $page->sortTable('last_name', 'desc');
+    expect($page->instance()->getTableRecords()->modelKeys())->toBe([$second->id, $first->id]);
+    $page->sortTable('birth_date', 'asc');
+    expect($page->instance()->getTableRecords()->modelKeys())->toBe([$second->id, $first->id]);
+    expect(ClubMemberResource::getGlobalSearchResults('Silver Fox')->pluck('title')->all())->toBe(['Silver Fox']);
+});
+
+test('searches encrypted members in the recycle bin and treats query syntax literally', function () {
+    $this->actingAs(clubMemberUser());
+    $deleted = ClubMember::factory()->create(['sona_name' => 'Deleted Fox', 'deleted_at' => now()]);
+    $active = ClubMember::factory()->create(['sona_name' => 'Active Fox']);
+
+    Livewire::test(ListClubMembers::class)->filterTable('trashed', false)->searchTable('Deleted Fox')
+        ->assertCanSeeTableRecords([$deleted])->assertCanNotSeeTableRecords([$active]);
+    Livewire::test(ListClubMembers::class)->searchTable("%' OR 1=1 --")->assertCanNotSeeTableRecords([$active]);
+});
 
 test('rejects invalid member values', function (array $data, string $field) {
     $this->actingAs(clubMemberUser());
@@ -459,7 +483,7 @@ test('allows PDF and Office document uploads', function (string $extension, stri
     $files = app(ClubMemberFiles::class)->prepareEmail($member, [UploadedFile::fake()->create('document.'.$extension, 10, $mime)], []);
 
     expect($files)->toHaveCount(1);
-    expect($files->first()->getCustomProperty('original_name'))->toBe('document.'.$extension);
+    expect(ClubMemberFiles::originalName($files->first()))->toBe('document.'.$extension);
 })->with([
     ['pdf', 'application/pdf'],
     ['docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],

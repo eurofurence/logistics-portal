@@ -59,7 +59,7 @@ class ClubMemberForm
                             }
 
                             return [
-                                'name' => $media->getCustomProperty('original_name', $media->file_name),
+                                'name' => ClubMemberFiles::originalName($media),
                                 'size' => $media->size, 'type' => $media->mime_type,
                                 'url' => route('club-members.files.download', ['member' => $record->id, 'media' => $media->id]),
                             ];

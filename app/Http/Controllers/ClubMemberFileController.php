@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ClubMember;
+use App\Services\ClubMemberFiles;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -17,7 +18,7 @@ class ClubMemberFileController extends Controller
         $disk = Storage::disk($file->disk);
         abort_unless($disk->exists($file->getPathRelativeToRoot()), 404);
 
-        return $disk->download($file->getPathRelativeToRoot(), $file->getCustomProperty('original_name', $file->file_name), [
+        return $disk->download($file->getPathRelativeToRoot(), ClubMemberFiles::originalName($file), [
             'X-Content-Type-Options' => 'nosniff',
             'Cache-Control' => 'private, no-store',
         ]);

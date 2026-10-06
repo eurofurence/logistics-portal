@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\ClubMembers\Schemas;
 
 use App\Models\ClubMember;
+use App\Services\ClubMemberFiles;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
@@ -28,7 +29,7 @@ class ClubMemberInfolist
                 Tab::make(__('members.details'))->icon('heroicon-o-identification')->columns(['default' => 1, 'md' => 2])->schema($entries),
                 Tab::make(__('members.files'))->icon('heroicon-o-paper-clip')->schema(fn (ClubMember $record): array => Gate::allows('view', $record)
                     ? $record->media()->where('collection_name', ClubMember::FILE_COLLECTION)->get()->map(fn ($media): TextEntry => TextEntry::make('file_'.$media->id)
-                        ->hiddenLabel()->state($media->getCustomProperty('original_name', $media->file_name))
+                        ->hiddenLabel()->state(ClubMemberFiles::originalName($media))
                         ->url(route('club-members.files.download', ['member' => $record->id, 'media' => $media->id])))->all()
                     : []),
             ]),

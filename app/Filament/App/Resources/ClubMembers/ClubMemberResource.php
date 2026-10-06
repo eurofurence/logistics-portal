@@ -47,6 +47,15 @@ class ClubMemberResource extends Resource
         return ['sona_name', 'first_name', 'last_name', 'email'];
     }
 
+    protected static function applyGlobalSearchAttributeConstraints(Builder $query, string $search): void
+    {
+        foreach (str_getcsv($search, separator: ' ', escape: '\\') as $word) {
+            if (filled($word)) {
+                $query->searchPersonalData(static::getGloballySearchableAttributes(), $word);
+            }
+        }
+    }
+
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();

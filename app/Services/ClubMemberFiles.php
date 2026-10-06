@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ClubMember;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -18,6 +19,11 @@ use Throwable;
 
 class ClubMemberFiles
 {
+    public static function originalName(Media $file): string
+    {
+        return Crypt::decryptString($file->getCustomProperty('encrypted_original_name'));
+    }
+
     public const MIME_TYPES = [
         'application/pdf', 'image/jpeg', 'image/png',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -118,9 +124,9 @@ class ClubMemberFiles
             foreach ($uploads as $upload) {
                 $originalName = basename($upload->getClientOriginalName());
                 $media = $member->addMediaFromString($upload instanceof TemporaryUploadedFile ? $upload->get() : $upload->getContent())
-                    ->usingName($originalName)
+                    ->usingName('Member attachment')
                     ->usingFileName(Str::uuid().'.'.strtolower($upload->getClientOriginalExtension()))
-                    ->withCustomProperties(['original_name' => $originalName])
+                    ->withCustomProperties(['encrypted_original_name' => Crypt::encryptString($originalName)])
                     ->toMediaCollection(ClubMember::FILE_COLLECTION, config('filesystems.default'));
                 $stored->push($media);
                 if (! Storage::disk($media->disk)->setVisibility($media->getPathRelativeToRoot(), 'private')) {

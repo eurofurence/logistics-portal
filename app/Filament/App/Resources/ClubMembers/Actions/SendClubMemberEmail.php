@@ -45,7 +45,8 @@ class SendClubMemberEmail
                 Textarea::make('body')->label(__('members.message'))->required()->maxLength(10000),
                 Select::make('attachments')->label(__('members.attachments'))->multiple()
                     ->helperText(__('members.email_attachment_hint'))
-                    ->options(fn (ClubMember $record): array => $record->media()->where('collection_name', ClubMember::FILE_COLLECTION)->pluck('name', 'id')->all()),
+                    ->options(fn (ClubMember $record): array => $record->media()->where('collection_name', ClubMember::FILE_COLLECTION)->get()
+                        ->mapWithKeys(fn ($file): array => [$file->id => ClubMemberFiles::originalName($file)])->all()),
                 FileUpload::make('uploads')->label(__('members.uploads'))->multiple()->storeFiles(false)
                     ->disk(fn (): string => config('filesystems.default'))->visibility('private')
                     ->acceptedFileTypes(ClubMemberFiles::MIME_TYPES)->maxFiles(5)->maxSize(10000)

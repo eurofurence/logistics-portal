@@ -437,6 +437,7 @@ return [
         'processing' => 'Die Bestellung befindet sich in aktiver Bearbeitung.',
         'open' => 'Die Bestellung ist noch unbearbeitet.',
         'ordered' => 'Die Bestellung wurde ausgelöst und befindet sich beim Lieferanten in der Ausführung.',
+        'partially_delivered' => 'Ein Teil der bestellten Menge wurde vom Lieferanten geliefert und ist im Lager oder bei einem Helfer angekommen. Die restliche Menge steht noch aus.',
         'delivered' => 'Die Bestellung wurde geliefert. Das bedeutet dass die Bestellung im Lager oder bei einem Helfer angekommen ist und dort weiter bearbeitet wird.',
         'partially_received' => 'Die Bestellung wurde teilweise an den Besteller oder dessen Abteilung ausgegeben.',
         'received' => 'Die Bestellung wurde an den Besteller oder dessen Abteilung ausgegeben.',

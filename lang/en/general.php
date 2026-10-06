@@ -433,6 +433,7 @@ return [
         'processing' => 'The order is being actively processed.',
         'open' => 'The order is still unprocessed.',
         'ordered' => 'The order has been placed and is being executed by the supplier.',
+        'partially_delivered' => 'Part of the ordered quantity has been delivered by the supplier and has arrived at the warehouse or with a helper. The remaining quantity is still outstanding.',
         'delivered' => 'The order has been delivered. This means that the order has arrived at the warehouse or with a helper and is being further processed there.',
         'partially_received' => 'The order has been partially issued to the purchaser or their department.',
         'received' => 'The order has been issued to the purchaser or their department.',

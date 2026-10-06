@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Services\ClubMemberFiles;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -31,7 +32,7 @@ class ClubMemberMessage extends Mailable
     public function attachments(): array
     {
         return $this->files->map(fn (Media $file): Attachment => Attachment::fromStorageDisk($file->disk, $file->getPathRelativeToRoot())
-            ->as($file->getCustomProperty('original_name', $file->file_name))
+            ->as(ClubMemberFiles::originalName($file))
             ->withMime($file->mime_type))->all();
     }
 }
