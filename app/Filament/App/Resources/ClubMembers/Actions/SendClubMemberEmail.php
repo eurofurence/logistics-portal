@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Throwable;
@@ -32,16 +31,11 @@ class SendClubMemberEmail
             ->modalSubmitAction(fn (Action $action): Action => $action->icon('heroicon-o-paper-airplane'))
             ->modalCancelAction(fn (Action $action): Action => $action->icon('heroicon-o-x-mark'))
             ->visible(fn (ClubMember $record): bool => ! $record->trashed())
-            ->fillForm(fn (ClubMember $record): array => ['recipient' => $record->email, 'reply_email' => Auth::user()->email, 'priority' => 3, 'attachments' => [], 'uploads' => []])
+            ->fillForm(fn (ClubMember $record): array => ['recipient' => $record->email, 'reply_email' => Auth::user()->email, 'attachments' => [], 'uploads' => []])
             ->schema([
                 TextInput::make('recipient')->label(__('members.recipient'))->email()->required()->maxLength(255),
                 TextInput::make('reply_email')->label(__('members.reply_email'))->email()->required()->maxLength(255)->prefixIcon('heroicon-o-arrow-uturn-left'),
                 TextInput::make('subject')->label(__('members.subject'))->required()->maxLength(255),
-                Select::make('priority')->label(__('members.priority'))->options([
-                    1 => __('members.priority_high'),
-                    3 => __('members.priority_normal'),
-                    5 => __('members.priority_low'),
-                ])->required()->rules(['integer', Rule::in([1, 3, 5])])->prefixIcon('heroicon-o-flag'),
                 Textarea::make('body')->label(__('members.message'))->required()->maxLength(10000),
                 Select::make('attachments')->label(__('members.attachments'))->multiple()
                     ->helperText(__('members.email_attachment_hint'))
@@ -82,7 +76,7 @@ class SendClubMemberEmail
                 $record->unsetRelation('media');
 
                 try {
-                    Mail::to($data['recipient'])->send(new ClubMemberMessage($data['subject'], $data['body'], $files, $data['reply_email'], (int) $data['priority']));
+                    Mail::to($data['recipient'])->send(new ClubMemberMessage($data['subject'], $data['body'], $files, $data['reply_email']));
                 } catch (Throwable $exception) {
                     report($exception);
                     Notification::make()->danger()->title(__('members.mail_failed'))->body(__('members.mail_failed_hint'))->send();

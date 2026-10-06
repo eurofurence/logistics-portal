@@ -498,7 +498,7 @@ test('defaults reply address to the logged in user and sends it as reply to', fu
 
     Livewire::test(ViewClubMember::class, ['record' => $member->id])
         ->mountAction('sendEmail')
-        ->assertSchemaStateSet(['reply_email' => $user->email, 'priority' => 3], 'mountedActionSchema0')
+        ->assertSchemaStateSet(['reply_email' => $user->email], 'mountedActionSchema0')
         ->fillForm(['subject' => 'Welcome', 'body' => 'Hello'], 'mountedActionSchema0')
         ->callMountedAction()->assertHasNoActionErrors();
 
@@ -518,7 +518,7 @@ test('uses the edited reply address instead of the logged in user email', functi
     Mail::assertSent(ClubMemberMessage::class, fn (ClubMemberMessage $mail): bool => $mail->hasReplyTo('office@example.com') && ! $mail->hasReplyTo($user->email));
 });
 
-test('sends the selected priority from the grouped table action', function (int $priority) {
+test('sends with normal priority regardless of submitted priority from the grouped table action', function (int $priority) {
     Mail::fake();
     $this->actingAs(clubMemberUser());
     $member = ClubMember::factory()->create();
@@ -527,7 +527,7 @@ test('sends the selected priority from the grouped table action', function (int 
         'subject' => 'Priority', 'body' => 'Message', 'priority' => $priority,
     ])->assertHasNoActionErrors();
 
-    Mail::assertSent(ClubMemberMessage::class, fn (ClubMemberMessage $mail): bool => $mail->messagePriority === $priority);
+    Mail::assertSent(ClubMemberMessage::class, fn (ClubMemberMessage $mail): bool => $mail->messagePriority === 3);
 })->with(['high' => 1, 'normal' => 3, 'low' => 5]);
 
 test('sets the selected priority on the outgoing email headers', function (int $priority) {
@@ -537,15 +537,16 @@ test('sets the selected priority on the outgoing email headers', function (int $
     expect($sent->getSymfonySentMessage()->getOriginalMessage()->getPriority())->toBe($priority);
 })->with(['high' => 1, 'normal' => 3, 'low' => 5]);
 
-test('rejects missing or unsupported mail priority', function (mixed $priority) {
+test('sends mail without requiring a valid priority', function (mixed $priority) {
     Mail::fake();
     $this->actingAs(clubMemberUser());
     $member = ClubMember::factory()->create();
 
     Livewire::test(ViewClubMember::class, ['record' => $member->id])->callAction('sendEmail', [
         'subject' => 'Priority', 'body' => 'Message', 'priority' => $priority,
-    ])->assertHasActionErrors(['priority']);
-    Mail::assertNothingSent();
+    ])->assertHasNoActionErrors();
+
+    Mail::assertSent(ClubMemberMessage::class, fn (ClubMemberMessage $mail): bool => $mail->hasTo($member->email) && $mail->messagePriority === 3);
 })->with(['missing' => null, 'unsupported' => 2, 'invalid' => 'urgent']);
 
 test('enforces ten megabytes for existing and new attachments combined', function (int $newFileKilobytes, bool $allowed) {
