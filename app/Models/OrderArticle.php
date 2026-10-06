@@ -132,7 +132,7 @@ class OrderArticle extends Model
         'auto_calculate' => 'bool',
     ];
 
-    protected static function boot()
+    protected static function boot(): void
     {
         parent::boot();
 
@@ -143,9 +143,13 @@ class OrderArticle extends Model
             $model->edited_by = $user->id;
         });
 
-        static::updating(function ($model) {
+        static::updating(function (OrderArticle $model): void {
             $user = static::getAuthUser();
             $model->edited_by = $user->id;
+
+            if ($model->auto_calculate && $model->isDirty(['price_net', 'tax_rate']) && ! $model->isDirty('price_gross')) {
+                $model->price_gross = round($model->price_net * (1 + $model->tax_rate / 100), 2);
+            }
 
             if ($model->isDirty(['price_net', 'price_gross', 'tax_rate', 'url', 'name', 'description', 'picture', 'edited_by', 'currency', 'article_number', 'returning_deposit'])) {
                 $updated_data = [
