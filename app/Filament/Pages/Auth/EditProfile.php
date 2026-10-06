@@ -13,15 +13,9 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Table;
 
-class EditProfile extends \Filament\Auth\Pages\EditProfile implements HasTable
+class EditProfile extends \Filament\Auth\Pages\EditProfile
 {
-    use InteractsWithTable;
-
     public ?string $newToken = null;
 
     public function getMultiFactorAuthenticationContentComponent(): ?Component
@@ -133,21 +127,5 @@ class EditProfile extends \Filament\Auth\Pages\EditProfile implements HasTable
             ->description(__('filament-passkeys::passkeys.description'))
             ->icon('heroicon-o-key')
             ->schema([Livewire::make(ManagePasskeys::class)->key('profile-passkeys')]);
-    }
-
-    public function table(Table $table): Table
-    {
-        return $table
-            ->query($this->getUser()->tokens()->getQuery())
-            ->columns([
-                TextColumn::make('name')
-                    ->label(__('general.token_name')),
-                TextColumn::make('created_at')
-                    ->label(__('general.created_at'))
-                    ->dateTime(),
-            ])
-            ->recordActions([
-
-            ]);
     }
 }

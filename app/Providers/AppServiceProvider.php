@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Filament\Pages\Auth\ManagePasskeys;
 use App\Http\Responses\LogoutResponse;
 use App\Models\Bill;
 use App\Models\Order;
@@ -25,6 +26,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\Sanctum;
 use Laravel\Socialite\Contracts\Factory;
+use Livewire\Livewire;
 use Spatie\CpuLoadHealthCheck\CpuLoadCheck;
 use Spatie\Health\Checks\Checks\CacheCheck;
 use Spatie\Health\Checks\Checks\DatabaseConnectionCountCheck;
@@ -55,6 +57,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Livewire::component('profile-passkeys', ManagePasskeys::class);
+
         Table::macro('recordActionContextMenu', function (): Table {
             return RecordActionContextMenu::apply($this);
         });
