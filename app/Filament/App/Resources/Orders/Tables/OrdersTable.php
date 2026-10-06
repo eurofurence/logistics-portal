@@ -171,6 +171,7 @@ class OrdersTable
                         'open' => 'success',
                         'ordered' => 'info',
                         'delivered' => 'delivered',
+                        'partially_delivered' => 'warning',
                         'partially_received' => 'info',
                         'received' => 'received',
                         'rejected' => 'danger',
@@ -186,6 +187,7 @@ class OrdersTable
                         'open' => 'heroicon-o-check-circle',
                         'ordered' => 'heroicon-o-shopping-cart',
                         'delivered' => 'heroicon-o-truck',
+                        'partially_delivered' => 'heroicon-o-truck',
                         'partially_received' => 'heroicon-o-squares-plus',
                         'received' => 'heroicon-o-check',
                         'rejected' => 'heroicon-o-x-circle',
@@ -196,8 +198,14 @@ class OrdersTable
                     })
                     ->extraAttributes(['class' => 'cursor-pointer'])
                     ->formatStateUsing(function ($state) {
+                        if ($state === 'partially_delivered') {
+                            return mb_strtoupper(__('general.partially_delivered'));
+                        }
+
                         return strtoupper(str_replace('_', ' ', $state));
                     }),
+                TextColumn::make('delivered_quantity')->label(__('general.delivered_quantity'))->toggleable()
+                    ->state(fn (Order $record): string => $record->supplierDeliveryProgress()),
                 TextInputColumn::make('amount')
                     ->label(__('general.quantity'))
                     ->toggleable()
@@ -479,6 +487,7 @@ class OrdersTable
                                 'open' => __('general.open'),
                                 'ordered' => __('general.ordered'),
                                 'delivered' => __('general.delivered'),
+                                'partially_delivered' => __('general.partially_delivered'),
                                 'partially_received' => __('general.partially_received'),
                                 'received' => __('general.received'),
                                 'rejected' => __('general.rejected'),
@@ -513,6 +522,7 @@ class OrdersTable
                             'open' => __('general.open'),
                             'ordered' => __('general.ordered'),
                             'delivered' => __('general.delivered'),
+                            'partially_delivered' => __('general.partially_delivered'),
                             'partially_received' => __('general.partially_received'),
                             'received' => __('general.received'),
                             'rejected' => __('general.rejected'),
@@ -804,9 +814,12 @@ class OrdersTable
                         Action::make('set_status')
                             ->label(__('general.set_status'))
                             ->action(function (Model $record, array $data): void {
-                                $record->update(['status' => $data['status']]);
+                                Gate::authorize('view', $record);
+                                abort_unless($record->canChangeSupplierDelivery(Auth::user()), 403);
+                                $record->update(array_intersect_key($data, array_flip(['status', 'delivered_quantity'])));
                             })
                             ->icon('heroicon-o-ellipsis-horizontal-circle')
+                            ->fillForm(fn (Order $record): array => ['status' => $record->status, 'delivered_quantity' => $record->delivered_quantity])
                             ->schema([
                                 Select::make('status')
                                     ->label(__('general.status'))
@@ -817,6 +830,7 @@ class OrdersTable
                                         'open' => __('general.open'),
                                         'ordered' => __('general.ordered'),
                                         'delivered' => __('general.delivered'),
+                                        'partially_delivered' => __('general.partially_delivered'),
                                         'partially_received' => __('general.partially_received'),
                                         'received' => __('general.received'),
                                         'rejected' => __('general.rejected'),
@@ -826,7 +840,12 @@ class OrdersTable
                                         'ready_for_pickup' => __('general.ready_for_pickup'),
                                     ])
                                     ->prefixIcon('heroicon-o-ellipsis-horizontal-circle')
-                                    ->required(),
+                                    ->required()->live(),
+                                TextInput::make('delivered_quantity')->label(__('general.delivered_quantity'))
+                                    ->numeric()->rules(['integer'])->minValue(1)
+                                    ->maxValue(fn (Order $record): int => $record->amount - 1)
+                                    ->visible(fn (Get $get): bool => $get('status') === 'partially_delivered')
+                                    ->required()->helperText(__('general.supplier_delivery_hint')),
                             ])
                             ->visible(function (Model $record): bool {
                                 return Auth::user()->can('can-change-order-status') || Auth::user()->hasDepartmentRoleWithPermissionTo('can-change-order-status', $record->department->id);

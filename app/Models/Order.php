@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
@@ -20,6 +22,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 /**
  * @property int $id
  * @property string $name
+ * @property int|null $delivered_quantity
  * @property string|null $description
  * @property string|null $delivery_provider
  * @property string|null $delivery_by
@@ -154,6 +157,7 @@ class Order extends Model implements HasMedia
         'added_by',
         'edited_by',
         'amount',
+        'delivered_quantity',
         'price_net',
         'price_gross',
         'tax_rate',
@@ -193,6 +197,7 @@ class Order extends Model implements HasMedia
      * @var array<string, string>
      */
     protected $casts = [
+        'delivered_quantity' => 'integer',
         'price_net' => 'real',
         'price_gross' => 'real',
         'tax_rate' => 'real',
@@ -234,6 +239,26 @@ class Order extends Model implements HasMedia
     {
         parent::boot();
 
+        static::saving(function (Order $order): void {
+            $amount = (int) ($order->amount ?? 1);
+            if ($order->isDirty('status') && $order->status === 'delivered') {
+                $order->delivered_quantity = $amount;
+            }
+            if ($order->isDirty('delivered_quantity') && ($order->exists || $order->delivered_quantity !== null)) {
+                abort_unless($order->canChangeSupplierDelivery(Auth::user()), 403);
+            }
+            $quantity = $order->getAttributes()['delivered_quantity'] ?? null;
+            $rules = $order->status === 'partially_delivered'
+                ? ['required', 'integer', 'min:1', 'max:'.($amount - 1)]
+                : ['nullable', 'integer', 'min:0', 'max:'.$amount];
+            Validator::make(['delivered_quantity' => $quantity], ['delivered_quantity' => $rules], [], [
+                'delivered_quantity' => __('general.delivered_quantity'),
+            ])->validate();
+            if ($order->status === 'delivered' && $quantity !== null && (int) $quantity !== $amount) {
+                throw ValidationException::withMessages(['delivered_quantity' => __('general.delivery_quantity_complete')]);
+            }
+        });
+
         static::creating(function ($model) {
             $model->added_by = Auth::user()->id;
             $model->edited_by = Auth::user()->id;
@@ -255,7 +280,7 @@ class Order extends Model implements HasMedia
             $model->edited_by = Auth::user()->id;
 
             if ($model->isDirty('status')) {
-                if (! Auth::user()->can('can-change-order-status')) {
+                if (! $model->canChangeSupplierDelivery(Auth::user())) {
                     if ($model->status != 'awaiting_approval') {
                         if ($model->status != 'open') {
                             throw new Exception(__('middleware.no_permission_order_status'));
@@ -298,6 +323,16 @@ class Order extends Model implements HasMedia
         static::deleted(function ($model) {
             // Cache::forget('orders');
         });
+    }
+
+    public function canChangeSupplierDelivery(User $user): bool
+    {
+        return $user->can('can-change-order-status') || $user->hasDepartmentRoleWithPermissionTo('can-change-order-status', $this->department_id);
+    }
+
+    public function supplierDeliveryProgress(): string
+    {
+        return ($this->delivered_quantity ?? '—').' / '.$this->amount;
     }
 
     /**

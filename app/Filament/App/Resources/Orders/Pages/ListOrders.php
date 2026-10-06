@@ -38,6 +38,10 @@ class ListOrders extends ListRecords
                 ->icon('heroicon-o-shopping-cart')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'ordered'))
                 ->label(__('general.ordered')),
+            'partially_delivered' => Tab::make()
+                ->icon('heroicon-o-truck')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'partially_delivered'))
+                ->label(__('general.partially_delivered')),
             'delivered' => Tab::make()
                 ->icon('heroicon-o-truck')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'delivered'))
