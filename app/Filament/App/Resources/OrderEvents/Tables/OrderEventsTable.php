@@ -5,6 +5,7 @@ namespace App\Filament\App\Resources\OrderEvents\Tables;
 use App\Models\OrderEvent;
 use App\Services\ApplicationTime;
 use Exception;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -25,6 +26,7 @@ class OrderEventsTable
         return $table
             ->columns(self::getColumns())
             ->filters(self::getFilters())
+            ->recordActionContextMenu()
             ->recordActions(self::getRecordActions())
             ->toolbarActions(self::getToolbarActions());
     }
@@ -79,12 +81,14 @@ class OrderEventsTable
     public static function getRecordActions(): array
     {
         return [
-            EditAction::make(),
-            DeleteAction::make()
-                ->modalHeading(function ($record): string {
-                    return __('general.delete').': '.$record->name;
-                }),
-            RestoreAction::make(),
+            ActionGroup::make([
+                EditAction::make(),
+                DeleteAction::make()
+                    ->modalHeading(function ($record): string {
+                        return __('general.delete').': '.$record->name;
+                    }),
+                RestoreAction::make(),
+            ]),
         ];
     }
 

@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources\Users\Tables;
 
 use App\Models\User;
 use App\Services\ApplicationTime;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -24,6 +25,7 @@ class UsersTable
         return $table
             ->columns(self::getColumns())
             ->filters(self::getFilters())
+            ->recordActionContextMenu()
             ->recordActions(self::getRecordActions())
             ->toolbarActions(self::getToolbarActions());
     }
@@ -71,14 +73,16 @@ class UsersTable
     public static function getRecordActions(): array
     {
         return [
-            EditAction::make(),
-            ViewAction::make(),
-            DeleteAction::make()
-                ->modalHeading(function ($record): string {
-                    return __('general.delete').': '.$record->name;
-                }),
-            ForceDeleteAction::make(),
-            RestoreAction::make(),
+            ActionGroup::make([
+                EditAction::make(),
+                ViewAction::make(),
+                DeleteAction::make()
+                    ->modalHeading(function ($record): string {
+                        return __('general.delete').': '.$record->name;
+                    }),
+                ForceDeleteAction::make(),
+                RestoreAction::make(),
+            ]),
         ];
     }
 

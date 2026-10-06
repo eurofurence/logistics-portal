@@ -120,6 +120,7 @@ class OrdersTable
         }
 
         return $table
+            ->recordActionContextMenu()
             ->columns([
                 TextColumn::make('id')
                     ->searchable(isIndividual: true)
@@ -331,7 +332,7 @@ class OrdersTable
                 TextColumn::make('created_at')
                     ->label(__('general.order_date'))
                     ->date(timezone: fn (): string => ApplicationTime::timezone())
-                    ->toggleable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
             ])
             ->filters([

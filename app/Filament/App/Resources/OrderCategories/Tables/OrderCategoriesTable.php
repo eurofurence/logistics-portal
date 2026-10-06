@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\OrderCategories\Tables;
 
 use App\Models\OrderCategory;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -25,6 +26,7 @@ class OrderCategoriesTable
         return $table
             ->columns(self::getColumns())
             ->filters(self::getFilters())
+            ->recordActionContextMenu()
             ->recordActions(self::getRecordActions())
             ->toolbarActions(self::getToolbarActions());
     }
@@ -60,14 +62,16 @@ class OrderCategoriesTable
     public static function getRecordActions(): array
     {
         return [
-            RestoreAction::make(),
-            ForceDeleteAction::make(),
-            EditAction::make(),
-            DeleteAction::make()
-                ->modalHeading(function ($record): string {
-                    return __('general.delete').': '.$record->name;
-                }),
-            ViewAction::make(),
+            ActionGroup::make([
+                RestoreAction::make(),
+                ForceDeleteAction::make(),
+                EditAction::make(),
+                DeleteAction::make()
+                    ->modalHeading(function ($record): string {
+                        return __('general.delete').': '.$record->name;
+                    }),
+                ViewAction::make(),
+            ]),
         ];
     }
 

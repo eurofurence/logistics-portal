@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources\Departments\RelationManagers;
 use App\Models\Department;
 use App\Models\Role;
 use App\Models\User;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -118,8 +119,11 @@ class DepartmentMembersRelationManager extends RelationManager
                     ->label(__('general.add_member'))
                     ->createAnother(false),
             ])
+            ->recordActionContextMenu()
             ->recordActions([
-                DeleteAction::make(),
+                ActionGroup::make([
+                    DeleteAction::make(),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

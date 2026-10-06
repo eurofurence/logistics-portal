@@ -7,6 +7,7 @@ use App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypes\Pages\EditConta
 use App\Filament\Clusters\TypesAndUnits\Resources\ContainerTypes\Pages\ListContainerTypes;
 use App\Filament\Clusters\TypesAndUnits\TypesAndUnitsCluster;
 use App\Models\ContainerType;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -94,9 +95,12 @@ class ContainerTypeResource extends Resource
                 TrashedFilter::make()
                     ->visible(fn (): bool => Gate::allows('restore', ContainerType::class) || Gate::allows('forceDelete', ContainerType::class) || Gate::allows('bulkForceDelete', ContainerType::class) || Gate::allows('bulkRestore', ContainerType::class)),
             ])
+            ->recordActionContextMenu()
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make(),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

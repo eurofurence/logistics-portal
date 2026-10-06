@@ -8,6 +8,7 @@ use App\Filament\Clusters\TypesAndUnits\Resources\BaseUnits\Pages\ListBaseUnits;
 use App\Filament\Clusters\TypesAndUnits\TypesAndUnitsCluster;
 use App\Models\BaseUnit;
 use App\Models\SubUnit;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -116,9 +117,12 @@ class BaseUnitResource extends Resource
                 TrashedFilter::make()
                     ->visible(fn (): bool => Gate::allows('restore', BaseUnit::class) || Gate::allows('forceDelete', BaseUnit::class) || Gate::allows('bulkForceDelete', BaseUnit::class) || Gate::allows('bulkRestore', BaseUnit::class)),
             ])
+            ->recordActionContextMenu()
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make(),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

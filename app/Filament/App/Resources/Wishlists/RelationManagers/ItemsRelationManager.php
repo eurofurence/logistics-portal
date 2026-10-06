@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources\Wishlists\RelationManagers;
 
+use Filament\Actions\ActionGroup;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -41,8 +42,11 @@ class ItemsRelationManager extends RelationManager
                 // CreateAction::make(), // Creating WishlistItem directly might not make sense without selecting an article
                 // AssociateAction::make(), // Might want to allow associating an existing article?
             ])
+            ->recordActionContextMenu()
             ->recordActions([
-                DeleteAction::make(),
+                ActionGroup::make([
+                    DeleteAction::make(),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

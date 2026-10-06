@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\IdpRankSyncs\Tables;
 
 use App\Models\IdpRankSync;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -20,6 +21,7 @@ class IdpRankSyncsTable
         return $table
             ->columns(self::getColumns())
             ->filters(self::getFilters())
+            ->recordActionContextMenu()
             ->recordActions(self::getRecordActions())
             ->toolbarActions(self::getToolbarActions());
     }
@@ -52,11 +54,13 @@ class IdpRankSyncsTable
     public static function getRecordActions(): array
     {
         return [
-            EditAction::make(),
-            DeleteAction::make()
-                ->modalHeading(function ($record): string {
-                    return __('general.delete').': '.$record->name;
-                }),
+            ActionGroup::make([
+                EditAction::make(),
+                DeleteAction::make()
+                    ->modalHeading(function ($record): string {
+                        return __('general.delete').': '.$record->name;
+                    }),
+            ]),
         ];
     }
 

@@ -64,6 +64,7 @@ class OrderArticlesTable
                 72,
                 'all',
             ])
+            ->recordActionContextMenu()
             ->recordActions(self::getRecordActions())
             ->toolbarActions(self::getToolbarActions());
     }

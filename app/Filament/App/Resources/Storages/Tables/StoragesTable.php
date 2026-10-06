@@ -32,6 +32,7 @@ class StoragesTable
             ->columns(self::getColumns())
             ->filters(self::getFilters(), layout: FiltersLayout::Modal)
             ->filtersFormColumns(2)
+            ->recordActionContextMenu()
             ->recordActions(self::getRecordActions())
             ->toolbarActions(self::getToolbarActions());
     }

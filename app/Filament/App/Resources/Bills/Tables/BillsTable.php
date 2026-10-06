@@ -49,6 +49,7 @@ class BillsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->recordActionContextMenu()
             ->columns(self::getColumns())
             ->filters(self::getFilters(), layout: FiltersLayout::Modal)
             ->filtersFormColumns(2)

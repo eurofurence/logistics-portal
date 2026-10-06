@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources\Wishlists\RelationManagers;
 
+use Filament\Actions\ActionGroup;
 use Filament\Actions\AttachAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -45,10 +46,13 @@ class SharedUsersRelationManager extends RelationManager
                 CreateAction::make(),
                 AttachAction::make(),
             ])
+            ->recordActionContextMenu()
             ->recordActions([
-                EditAction::make(),
-                DetachAction::make(),
-                DeleteAction::make(),
+                ActionGroup::make([
+                    EditAction::make(),
+                    DetachAction::make(),
+                    DeleteAction::make(),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

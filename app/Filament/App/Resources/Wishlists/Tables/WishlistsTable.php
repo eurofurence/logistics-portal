@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\Wishlists\Tables;
 
 use App\Models\Wishlist;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -29,9 +30,12 @@ class WishlistsTable
             ->filters([
                 //
             ])
+            ->recordActionContextMenu()
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make()->requiresConfirmation(),
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make()->requiresConfirmation(),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

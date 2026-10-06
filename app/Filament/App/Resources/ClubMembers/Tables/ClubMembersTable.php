@@ -61,6 +61,7 @@ class ClubMembersTable
         ];
 
         return $table->columns($columns)->filters($filters)->defaultSort(fn (Builder $query): Builder => $query->orderBy('last_name')->orderBy('first_name')->orderBy('id'))
+            ->recordActionContextMenu()
             ->recordActions([
                 ActionGroup::make([
                     ViewAction::make()->icon('heroicon-o-eye'),
