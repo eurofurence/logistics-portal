@@ -20,7 +20,12 @@ use Livewire\Livewire;
 
 test('updates the dashboard navigation link from general settings', function () {
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
     $dashboard = collect(Filament::getPanel('app')->getNavigationItems())
@@ -38,7 +43,12 @@ test('updates the dashboard navigation link from general settings', function () 
 
 test('rejects invalid dashboard links without changing the saved destination', function (?string $url) {
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -52,7 +62,12 @@ test('rejects invalid dashboard links without changing the saved destination', f
 
 test('allows administrators to select an available default language', function (string $locale) {
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -67,7 +82,12 @@ test('allows administrators to select an available default language', function (
 
 test('rejects missing and unavailable default languages without changing the saved language', function (?string $locale, string $rule) {
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -116,7 +136,12 @@ test('keeps the remembered cookie language ahead of the default language', funct
 
 test('allows administrators to save a timezone and rejects invalid identifiers', function () {
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -139,7 +164,12 @@ test('uploads a site logo and restores the default logo when removed', function 
     config(['filesystems.default' => 'site-assets']);
     Storage::fake('site-assets');
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -165,7 +195,12 @@ test('uploads a separate email logo and falls back to the site logo when removed
     config(['filesystems.default' => 'site-assets']);
     Storage::fake('site-assets');
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -213,7 +248,12 @@ test('rejects invalid email logo uploads', function (string $filename, int $size
     config(['filesystems.default' => 'site-assets']);
     Storage::fake('site-assets');
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -245,7 +285,12 @@ test('rejects non image logo uploads', function () {
     config(['filesystems.default' => 'site-assets']);
     Storage::fake('site-assets');
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -259,7 +304,12 @@ test('rejects non image logo uploads', function () {
 
 test('saves site identity and seo settings and escapes public metadata', function () {
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -300,7 +350,12 @@ test('uploads site icons and preview images and restores their defaults', functi
     config(['filesystems.default' => 'site-assets']);
     Storage::fake('site-assets');
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -371,7 +426,12 @@ test('normalizes email colors and selects a readable foreground', function (stri
 test('sends the theme test email only to the signed in administrator using saved settings', function () {
     Notification::fake();
     $user = User::factory()->create(['notification_email' => 'preview@example.com']);
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
     $settings = app(ThemeSettings::class);
@@ -395,7 +455,12 @@ test('sends the theme test email only to the signed in administrator using saved
 
 test('shows a failure notice when the test email cannot be sent', function () {
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
     Notification::shouldReceive('sendNow')->once()->andThrow(new RuntimeException('Mail unavailable'));

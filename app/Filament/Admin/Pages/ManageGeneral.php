@@ -36,7 +36,13 @@ class ManageGeneral extends SettingsPage
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->canAccessPanel(Filament::getPanel('admin')) ?? false;
+        $user = auth()->user();
+        $panel = Filament::getCurrentPanel();
+
+        return $user !== null
+            && $panel?->getId() === 'admin'
+            && $user->canAccessPanel($panel)
+            && $user->can('access-general-settings');
     }
 
     public function canEdit(): bool
