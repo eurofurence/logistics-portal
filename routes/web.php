@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClubMemberFileController;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -17,6 +18,9 @@ use Illuminate\Support\Facades\Storage;
 | contains the "web" middleware group. Now create something great!
 | For Login: /app/oauth/identity
 */
+
+Route::get('/club-members/{member}/files/{media}', ClubMemberFileController::class)
+    ->middleware('auth')->whereNumber('member')->whereNumber('media')->name('club-members.files.download');
 
 Route::get('/bills/download-zip/{path}', function (string $path) {
     Log::info('BILL_DOWNLOAD: Route hit', [
@@ -83,7 +87,7 @@ if (config('app.identity_mode')) {
     Route::redirect('/', '/app/login')->middleware('guest')->name('start');
 
     Route::fallback(function () {
-        Log::warning('BILL_DOWNLOAD: Fallback hit', ['url' => request()->fullUrl(), 'ip' => request()->ip()]);
+        // Log::warning('BILL_DOWNLOAD: Fallback hit', ['url' => request()->fullUrl(), 'ip' => request()->ip()]);
 
         return redirect('/app/login');
     });
