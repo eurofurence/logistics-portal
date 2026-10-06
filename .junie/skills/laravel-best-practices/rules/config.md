@@ -30,15 +30,15 @@ Incorrect:
 
 ```bash
 # A plaintext .env file committed to the repository
-STRIPE_SECRET=sk_live_abc123
-AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI
+STRIPE_SECRET=<your-stripe-secret>
+AWS_SECRET_ACCESS_KEY=<your-aws-secret>
 ```
 
 Encrypted environment file:
 
 ```bash
-php artisan env:encrypt --env=production --readable
-php artisan env:decrypt --env=production
+vendor/bin/sail artisan env:encrypt --env=production --readable
+vendor/bin/sail artisan env:decrypt --env=production
 ```
 
 For hosted deployments, consider the platform's native secret store, such as AWS Secrets Manager or Vault, and inject secrets at runtime.
