@@ -2,26 +2,18 @@
 
 namespace App\Filament\Admin\Resources\Departments\RelationManagers;
 
-use App\Models\Department;
-use App\Models\Role;
-use App\Models\User;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Forms\Components\Select;
+use App\Filament\DepartmentMembersTable;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Schema;
-use Filament\Tables\Columns\SelectColumn;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use Livewire\Attributes\Locked;
 
 class DepartmentMembersRelationManager extends RelationManager
 {
     protected static string $relationship = 'members';
+
+    #[Locked]
+    public ?int $memberActionDepartmentId = null;
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
@@ -38,97 +30,8 @@ class DepartmentMembersRelationManager extends RelationManager
         return __('general.members');
     }
 
-    public function form(Schema $schema): Schema
-    {
-        return $schema
-            ->components([
-                // Empty
-            ]);
-    }
-
     public function table(Table $table): Table
     {
-        $unfiltered_users = User::query()->pluck('name', 'id')->toArray(); // Beispiel-Array mit Benutzer-IDs
-        $users_to_remove = [0 => 'System'];
-
-        $filtered_users = array_diff($unfiltered_users, $users_to_remove);
-
-        return $table
-            ->recordTitleAttribute('user.name')
-            ->columns([
-                TextColumn::make('id')
-                    ->label(__('general.id'))
-                    ->sortable(),
-                TextColumn::make('user.name')
-                    ->searchable()
-                    ->sortable(),
-                SelectColumn::make('role_id')
-                    ->options(
-                        function () {
-                            return Role::where('name', '<>', 'Master')
-                                ->pluck('name', 'id')
-                                ->toArray();
-                        }
-                    )
-                    ->selectablePlaceholder(true),
-            ])
-            ->filters([
-                SelectFilter::make('role_id')
-                    ->options(
-                        function () {
-                            return Role::where('name', '<>', 'Master')
-                                ->pluck('name', 'id')
-                                ->toArray();
-                        }
-                    )
-                    ->selectablePlaceholder(false)
-                    ->multiple()
-                    ->label(__('general.role')),
-            ])
-            ->headerActions([
-                CreateAction::make()
-                    ->schema(fn (): array => [
-                        Select::make('department_id')
-                            ->options(Department::where('id', $this->getOwnerRecord()->getAttribute('id'))->pluck('name', 'id')->toArray())
-                            ->default($this->getOwnerRecord()->getAttribute('id'))
-                            ->disabled(true)
-                            ->required(true)
-                            ->label(__('general.department')),
-                        Select::make('user_id')
-                            ->options($filtered_users)
-                            ->searchable()
-                            ->label(__('general.user'))
-                            ->required(),
-                        Select::make('role_id')
-                            ->options(
-                                function () {
-                                    return Role::where('name', '<>', 'Master')
-                                        ->pluck('name', 'id')
-                                        ->toArray();
-                                }
-                            )
-                            ->label(__('general.role'))
-                            ->default('0')
-                            ->required()
-                            ->selectablePlaceholder(true),
-                    ])
-                    ->modalSubmitActionLabel(__('general.add'))
-                    ->modalHeading(__('general.add_member'))
-                    ->modalIcon('heroicon-o-user')
-                    ->modelLabel(__('general.member'))
-                    ->label(__('general.add_member'))
-                    ->createAnother(false),
-            ])
-            ->recordActionContextMenu()
-            ->recordActions([
-                ActionGroup::make([
-                    DeleteAction::make(),
-                ]),
-            ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
-            ]);
+        return DepartmentMembersTable::configure($table, fn (): int => $this->getOwnerRecord()->id, true);
     }
 }

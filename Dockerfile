@@ -55,10 +55,11 @@ RUN COMPOSER_ALLOW_SUPERUSER=1 | rm composer.lock composer.json && composer requ
 ######################################################
 FROM node:24-trixie AS vite
 WORKDIR /app
-COPY package.json package-lock.json vite.config.js ./
+COPY package.json package-lock.json vite.config.js postcss.config.js ./
 RUN npm install
 COPY --from=base /app/vendor /app/vendor
 COPY ./resources /app/resources
+COPY ./app/Filament /app/app/Filament
 COPY --from=vite-vendor-build /app/vendor/tightenco/ziggy /app/vendor/tightenco/ziggy
 RUN npm run build
 ######################################################
