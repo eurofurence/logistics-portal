@@ -93,6 +93,21 @@ class ManageGeneral extends SettingsPage
                         ->label(__('settings.search_engine_indexing'))
                         ->helperText(__('settings.search_engine_indexing_help')),
                 ]),
+            Section::make(__('homepage.settings_title'))
+                ->description(__('homepage.settings_help'))
+                ->schema([
+                    TextInput::make('homepage_title')->label(__('homepage.title_label'))->maxLength(120),
+                    Textarea::make('homepage_intro')->label(__('homepage.intro_label'))->rows(3)->maxLength(600),
+                    ...collect(['overview', 'guide'])->map(fn (string $tab): Section => Section::make(__('homepage.'.$tab))
+                        ->schema([
+                            Toggle::make('homepage_'.$tab.'_enabled')->label(__('homepage.tab_enabled'))->rules(['boolean']),
+                            ...collect(['orders', 'bills', 'wishlists', 'inventory'])->map(fn (string $area): Toggle => Toggle::make('homepage_'.$tab.'_'.$area)
+                                ->label(__('homepage.'.$area))->rules(['boolean']))->all(),
+                        ])->columns(2))->all(),
+                    ...collect(['orders', 'bills', 'wishlists', 'inventory'])->map(fn (string $area): Textarea => Textarea::make('homepage_'.$area.'_description')
+                        ->label(__('homepage.description_label', ['area' => __('homepage.'.$area)]))
+                        ->placeholder(__('homepage.'.$area.'_description'))->rows(3)->maxLength(400))->all(),
+                ])->columnSpanFull(),
         ]);
     }
 }

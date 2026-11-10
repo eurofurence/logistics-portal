@@ -8,6 +8,7 @@ use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
@@ -17,6 +18,10 @@ use Livewire\Attributes\Locked;
 class ManageDepartmentMembers extends Page implements HasTable
 {
     use InteractsWithTable;
+
+    protected static string|\BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
+
+    protected static ?int $navigationSort = -1;
 
     public ?int $departmentId = null;
 
