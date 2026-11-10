@@ -1,7 +1,7 @@
 <?php
 
 use Althinect\FilamentSpatieRolesPermissions\Resources\PermissionResource;
-use Althinect\FilamentSpatieRolesPermissions\Resources\RoleResource;
+use App\Filament\Admin\Resources\Roles\RoleResource;
 use App\Models\Team;
 use App\Models\User;
 

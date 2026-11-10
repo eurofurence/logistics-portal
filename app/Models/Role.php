@@ -11,11 +11,14 @@ use Illuminate\Support\Carbon;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role as ModelsRole;
 use Spatie\Permission\PermissionRegistrar;
+use Spatie\Translatable\HasTranslations;
 
 /**
  * @property int $id
  * @property string $name
  * @property string $guard_name
+ * @property string|null $description
+ * @property bool $assignable_in_app
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read Collection<int, Permission> $permissions
@@ -40,10 +43,41 @@ use Spatie\Permission\PermissionRegistrar;
 class Role extends ModelsRole
 {
     use HasFactory;
+    use HasTranslations;
+
+    public array $translatable = ['description'];
+
+    protected function casts(): array
+    {
+        return ['assignable_in_app' => 'boolean'];
+    }
+
+    public function isMaster(): bool
+    {
+        return $this->id === 1 || $this->name === 'Master';
+    }
+
+    public function canBeAssignedInApp(): bool
+    {
+        return ! $this->isMaster() && $this->guard_name === 'web' && $this->assignable_in_app;
+    }
+
+    public function localizedDescription(): string
+    {
+        $translations = array_filter($this->getTranslations('description'), fn (?string $value): bool => filled($value));
+
+        return $translations[app()->getLocale()] ?? $translations[config('app.fallback_locale')] ?? '';
+    }
 
     protected static function boot()
     {
         parent::boot();
+
+        static::creating(function (Role $role): void {
+            if ($role->isMaster()) {
+                $role->assignable_in_app = false;
+            }
+        });
 
         static::updating(function ($model) {
             if ($model->id == 1 || $model->name == 'Master') {
@@ -63,6 +97,9 @@ class Role extends ModelsRole
         });
 
         static::created(function ($role) {
+            if ($role->isMaster() && $role->assignable_in_app) {
+                $role->updateQuietly(['assignable_in_app' => false]);
+            }
             app()->make(PermissionRegistrar::class)->forgetCachedPermissions();
             User::invalidateDepartmentPermissionsForRole($role);
         });
