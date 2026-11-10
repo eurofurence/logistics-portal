@@ -3,11 +3,14 @@
 namespace App\Filament\App\Resources\OrderArticles\Tables;
 
 use App\Actions\TableOrderAction;
+use App\Actions\WishlistArticleAction;
 use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
 use App\Jobs\SyncDataToOrderArticleJob;
 use App\Models\OrderArticle;
 use App\Models\OrderCategory;
+use App\Models\Wishlist;
 use App\Services\ApplicationTime;
+use App\Services\WishlistManager;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
@@ -51,6 +54,11 @@ class OrderArticlesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query): Builder {
+                $target = Gate::allows('viewAny', Wishlist::class) ? app(WishlistManager::class)->target(Auth::user()) : null;
+
+                return $query->withExists(['wishlistItems as is_wishlisted' => fn (Builder $query): Builder => $query->where('wishlist_id', $target?->id ?? 0)]);
+            })
             ->recordTitleAttribute('name')
             ->columns(self::getColumns())
             ->filters(self::getFilters(), layout: FiltersLayout::AboveContent)
@@ -175,6 +183,7 @@ class OrderArticlesTable
     public static function getRecordActions(): array
     {
         return [
+            WishlistArticleAction::make(),
             TableOrderAction::make()
                 ->button()
                 ->size(Size::ExtraSmall),

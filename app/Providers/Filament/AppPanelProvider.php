@@ -65,7 +65,7 @@ class AppPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
-            // ->viteTheme('resources/css/filament/app/theme.css')
+            ->viteTheme('resources/css/filament/app/theme.css')
             ->widgets([
                 AccountWidget::class,
                 // JokesWidget::make(),

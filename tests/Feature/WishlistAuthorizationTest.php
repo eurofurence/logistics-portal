@@ -77,6 +77,7 @@ test('forbids opening the wishlist overview without permissions', function () {
 test('hides the add to wishlist action without wishlist permissions', function () {
     $user = wishlistUser([]);
     $user->givePermissionTo(Permission::findOrCreate('view-OrderArticle', 'web'));
+    $user->givePermissionTo(Permission::findOrCreate('view-any-OrderArticle', 'web'));
     $this->actingAs($user);
     $article = OrderArticle::factory()->create();
 

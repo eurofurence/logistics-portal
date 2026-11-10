@@ -46,13 +46,13 @@ class ItemsRelationManager extends RelationManager
             ->recordActions([
                 ActionGroup::make([
                     DeleteAction::make()
-                        ->authorize(fn (): bool => auth()->user()->can('update', $this->getOwnerRecord())),
+                        ->authorize(fn (): bool => auth()->user()->can('manageItems', $this->getOwnerRecord())),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
-                        ->authorize(fn (): bool => auth()->user()->can('update', $this->getOwnerRecord())),
+                        ->authorize(fn (): bool => auth()->user()->can('manageItems', $this->getOwnerRecord())),
                 ]),
             ]);
     }

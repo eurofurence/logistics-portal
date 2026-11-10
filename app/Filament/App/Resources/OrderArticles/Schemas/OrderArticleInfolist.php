@@ -4,13 +4,15 @@ namespace App\Filament\App\Resources\OrderArticles\Schemas;
 
 use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
 use App\Services\ApplicationTime;
+use Filament\Actions\Action;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Flex;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
-use Njxqlus\Filament\Components\Infolists\LightboxImageEntry;
 
 class OrderArticleInfolist
 {
@@ -43,12 +45,11 @@ class OrderArticleInfolist
                         'xl' => 3,
                     ])
                     ->schema([
-                        LightboxImageEntry::make('picture')
-                            ->href(
-                                function (Model $record): string {
-                                    return $record->picture;
-                                }
-                            )
+                        ImageEntry::make('picture')
+                            ->action(Action::make('previewArticleImage')
+                                ->modalHeading(__('general.picture'))
+                                ->modalSubmitAction(false)
+                                ->modalContent(fn (Model $record): View => view('filament.app.articles.image-preview', ['picture' => $record->picture])))
                             ->extraImgAttributes([
                                 'style' => 'object-fit: contain',
                             ], true)
@@ -56,9 +57,7 @@ class OrderArticleInfolist
                             ->visible(function (Model $record) {
                                 return $record->picture;
                             })
-                            ->imageSize(255)
-                            ->slideHeight('100%')
-                            ->slideWidth('100%'),
+                            ->imageSize(255),
                         Group::make([
                             TextEntry::make('name')
                                 ->label(__('general.name')),

@@ -151,6 +151,7 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
         'separated_rights' => 'bool',
         'separated_departments' => 'bool',
         'two_factor_required' => 'bool',
+        'last_wishlist_id' => 'integer',
     ];
 
     public function isSuperAdmin(): bool

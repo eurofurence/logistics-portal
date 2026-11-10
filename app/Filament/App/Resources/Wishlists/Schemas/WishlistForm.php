@@ -5,7 +5,6 @@ namespace App\Filament\App\Resources\Wishlists\Schemas;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,12 +15,12 @@ class WishlistForm
         return $schema
             ->components([
                 TextInput::make('name')
+                    ->maxLength(255)
                     ->required()
                     ->label(__('general.name')),
                 Textarea::make('description')
+                    ->maxLength(10000)
                     ->label(__('general.description')),
-                Toggle::make('is_public')
-                    ->label(__('general.is_public')),
                 Hidden::make('user_id')
                     ->dehydrated(false)
                     ->default(fn () => Auth::id()),

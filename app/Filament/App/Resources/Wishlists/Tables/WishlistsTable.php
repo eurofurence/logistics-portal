@@ -18,8 +18,7 @@ class WishlistsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->query(Wishlist::query()->where('user_id', Auth::id())
-                ->orWhereHas('sharedUsers', fn ($q) => $q->where('user_id', Auth::id())))
+            ->query(Wishlist::query()->accessibleTo(Auth::user()))
             ->columns([
                 TextColumn::make('name')
                     ->label(__('general.name')),
