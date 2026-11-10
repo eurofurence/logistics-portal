@@ -7,6 +7,7 @@ use App\Filament\Admin\Pages\HealthCheckResults;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\SettingsAppAuthentication;
+use App\Filament\PanelSpotlightPlugin;
 use App\Http\Middleware\CheckWhitelist;
 use App\Http\Middleware\EnsureRequiredTwoFactorAuthentication;
 use App\Http\Middleware\UserIsLocked;
@@ -35,7 +36,6 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use LaraZeus\SpatieTranslatable\SpatieTranslatablePlugin;
 use Njxqlus\FilamentProgressbar\FilamentProgressbarPlugin;
-use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
 use TomatoPHP\FilamentDeveloperGate\FilamentDeveloperGatePlugin;
 
@@ -103,7 +103,7 @@ class AdminPanelProvider extends PanelProvider
                 FilamentSpatieLaravelHealthPlugin::make()
                     ->usingPage(HealthCheckResults::class),
                 // FilamentUserActivityPlugin::make(),
-                SpotlightPlugin::make(),
+                PanelSpotlightPlugin::make(),
                 GlobalSearchModalPlugin::make(),
                 FilamentDeveloperGatePlugin::make(),
             ])

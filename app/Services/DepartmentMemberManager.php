@@ -29,6 +29,9 @@ class DepartmentMemberManager
 
             return Gate::forUser($actor)->allows('access-adminpanel') && Gate::forUser($actor)->allows($ability);
         }
+        if (Gate::forUser($actor)->allows('manage-all-department-members')) {
+            return true;
+        }
         $permissions = ['view-department-members'];
         if ($operation !== 'view') {
             $permissions[] = match ($operation) {
@@ -49,6 +52,10 @@ class DepartmentMemberManager
 
     public function departments(User $actor): Builder
     {
+        if (Gate::forUser($actor)->allows('manage-all-department-members')) {
+            return Department::query();
+        }
+
         return Department::query()->whereHas('members', fn (Builder $query) => $query->where('user_id', $actor->id)
             ->whereHas('role.permissions', fn (Builder $permissions) => $permissions
                 ->where('name', 'view-department-members')->where('guard_name', 'web')));

@@ -5,6 +5,57 @@ const ASSET_CACHE = `${CACHE_PREFIX}assets-${VERSION}`;
 const OFFLINE_URL = '/offline.html';
 const MAX_ASSETS = 100;
 
+function notificationUrl(value) {
+    try {
+        const url = new URL(value || '/app', self.location.origin);
+        if (url.origin === self.location.origin && /^\/(app|admin)(\/|$)/.test(url.pathname)) {
+            return url.href;
+        }
+    } catch (error) {
+        // Fall back to the portal when a notification contains an invalid URL.
+    }
+    return new URL('/app', self.location.origin).href;
+}
+
+self.addEventListener('push', (event) => {
+    if (!event.data) {
+        return;
+    }
+    event.waitUntil((async () => {
+        let payload;
+        try {
+            payload = event.data.json();
+        } catch (error) {
+            return;
+        }
+        if (!payload || typeof payload.title !== 'string') {
+            return;
+        }
+        await self.registration.showNotification(payload.title, {
+            body: typeof payload.body === 'string' ? payload.body : '',
+            icon: '/images/pwa-192.png',
+            tag: payload.tag,
+            data: { url: notificationUrl(payload.data?.url) },
+        });
+    })());
+});
+
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    event.waitUntil((async () => {
+        const url = notificationUrl(event.notification.data?.url);
+        const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+        const existing = windows.find((client) => new URL(client.url).origin === self.location.origin
+            && /^\/(app|admin)(\/|$)/.test(new URL(client.url).pathname));
+        if (existing) {
+            await existing.navigate(url);
+            await existing.focus();
+            return;
+        }
+        await self.clients.openWindow(url);
+    })());
+});
+
 self.addEventListener('install', (event) => {
     event.waitUntil(caches.open(OFFLINE_CACHE).then(async (cache) => {
         await cache.add(new Request(OFFLINE_URL, { cache: 'reload' }));

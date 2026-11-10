@@ -6,7 +6,10 @@ use App\Http\Controllers\ClubMemberFileController;
 use App\Http\Controllers\OrderArticleImageController;
 use App\Http\Controllers\PasskeyLoginController;
 use App\Http\Controllers\PasskeyOptionsController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\PwaManifestController;
+use App\Http\Middleware\CheckWhitelist;
+use App\Http\Middleware\UserIsLocked;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
@@ -15,6 +18,12 @@ use Illuminate\Support\Facades\Storage;
 
 Route::get('/pwa/manifest.json', PwaManifestController::class)->name('pwa.manifest');
 Route::get('/branding/logo', BrandLogoController::class)->name('branding.logo');
+
+Route::middleware(['auth', UserIsLocked::class, CheckWhitelist::class, 'throttle:30,1'])
+    ->prefix('push-subscriptions')->name('push-subscriptions.')->group(function (): void {
+        Route::post('/', [PushSubscriptionController::class, 'store'])->name('store');
+        Route::delete('/', [PushSubscriptionController::class, 'destroy'])->name('destroy');
+    });
 
 Route::prefix('passkeys')->middleware(['guest', 'throttle:10,1'])->group(function (): void {
     Route::get('authentication-options', PasskeyOptionsController::class)->name('passkeys.authentication_options');

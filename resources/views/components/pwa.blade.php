@@ -9,6 +9,9 @@
     <link rel="manifest" href="{{ route('pwa.manifest', ['lang' => app()->getLocale()], false) }}">
     <meta name="theme-color" content="#007bff">
     <link rel="apple-touch-icon" href="/images/pwa-192.png">
+    @if (auth()->check() && filled(config('webpush.vapid.public_key')) && filled(config('webpush.vapid.private_key')))
+        <script src="/push-notifications.js?v={{ hash_file('sha256', public_path('push-notifications.js')) }}" data-navigate-once></script>
+    @endif
     <script
         src="/register-service-worker.js?v={{ hash_file('sha256', public_path('register-service-worker.js')) }}"
         data-worker-url="/sw.js?v={{ $workerVersion }}"

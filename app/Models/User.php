@@ -29,6 +29,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\PersonalAccessToken;
+use NotificationChannels\WebPush\HasPushSubscriptions;
 use Spatie\LaravelPasskeys\Models\Concerns\HasPasskeys;
 use Spatie\LaravelPasskeys\Models\Concerns\InteractsWithPasskeys;
 use Spatie\Permission\Models\Permission;
@@ -101,6 +102,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasAvatar, HasPasskeys
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasPushSubscriptions;
     use HasRoles;
     use InteractsWithAppAuthentication, InteractsWithAppAuthenticationRecovery;
     use InteractsWithPasskeys;

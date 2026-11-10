@@ -13,6 +13,9 @@ function worker() {
     const listeners = new Map();
     const stores = new Map();
     const network = [];
+    const notifications = [];
+    const windows = [];
+    const opened = [];
     let fetchResponse = async () => ({ ok: true, redirected: false, type: 'basic', clone() { return this; } });
     const keyOf = (request) => typeof request === 'string' ? request : request.url;
     const caches = {
@@ -40,12 +43,22 @@ function worker() {
             location: { href: `${origin}/sw.js?v=release-2`, origin },
             addEventListener: (name, callback) => listeners.set(name, callback),
             skipWaiting: async () => {},
-            clients: { claim: async () => {} },
+            registration: { showNotification: async (title, options) => notifications.push({ title, options }) },
+            clients: {
+                claim: async () => {},
+                matchAll: async () => windows,
+                openWindow: async (url) => opened.push(url),
+            },
         },
     });
 
     return {
-        stores, caches, network,
+        stores, caches, network, notifications, windows, opened,
+        async dispatch(name, properties) {
+            let work;
+            listeners.get(name)({ ...properties, waitUntil(promise) { work = promise; } });
+            await work;
+        },
         failNetwork() { fetchResponse = async () => { throw new TypeError('Offline'); }; },
         setResponse(response) { fetchResponse = async () => response; },
         async lifecycle(name) {
@@ -216,4 +229,52 @@ test('does not attempt registration on insecure or unsupported browsers', () => 
             window: { isSecureContext, addEventListener() { assert.fail('Unexpected registration'); } },
         });
     }
+});
+
+test('displays push messages with a stable tag and a portal destination', async () => {
+    const app = worker();
+    await app.dispatch('push', { data: { json: () => ({
+        title: 'Order updated', body: 'Ready for collection', tag: 'database-123',
+        data: { url: '/app/orders/123' },
+    }) } });
+
+    assert.equal(app.notifications.length, 1);
+    assert.equal(app.notifications[0].title, 'Order updated');
+    assert.equal(app.notifications[0].options.body, 'Ready for collection');
+    assert.equal(app.notifications[0].options.tag, 'database-123');
+    assert.equal(app.notifications[0].options.data.url, `${origin}/app/orders/123`);
+});
+
+test('ignores malformed push payloads and restricts click destinations to panel pages', async () => {
+    const app = worker();
+    await app.dispatch('push', { data: { json() { throw new Error('Invalid JSON'); } } });
+    await app.dispatch('push', { data: { json: () => null } });
+    assert.equal(app.notifications.length, 0);
+
+    for (const url of ['https://untrusted.example/app', '/logout', 'javascript:alert(1)']) {
+        let closed = false;
+        await app.dispatch('notificationclick', { notification: {
+            data: { url }, close() { closed = true; },
+        } });
+        assert.equal(closed, true);
+        assert.equal(app.opened.at(-1), `${origin}/app`);
+    }
+});
+
+test('focuses and navigates an existing portal window after a push click', async () => {
+    const app = worker();
+    let destination;
+    let focused = false;
+    app.windows.push({
+        url: `${origin}/app`,
+        async navigate(url) { destination = url; },
+        async focus() { focused = true; },
+    });
+    await app.dispatch('notificationclick', { notification: {
+        data: { url: '/app/orders/123' }, close() {},
+    } });
+
+    assert.equal(destination, `${origin}/app/orders/123`);
+    assert.equal(focused, true);
+    assert.equal(app.opened.length, 0);
 });

@@ -63,6 +63,19 @@ class EditProfile extends \Filament\Auth\Pages\EditProfile
     {
         return $schema
             ->components([
+                Section::make(__('pwa.push_title'))
+                    ->description(__('pwa.push_manage_description'))
+                    ->schema([
+                        Action::make('pushSettings')
+                            ->label(__('pwa.push_manage'))
+                            ->icon('heroicon-o-bell-alert')
+                            ->alpineClickHandler("\$dispatch('open-push-settings')")
+                            ->extraAttributes([
+                                'x-bind:disabled' => "!window.isSecureContext || !('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)",
+                            ]),
+                    ])
+                    ->visible(fn (): bool => filament()->getId() === 'app'
+                        && filled(config('webpush.vapid.public_key')) && filled(config('webpush.vapid.private_key'))),
                 Section::make(__('general.notification_email'))
                     ->schema([
                         TextInput::make('notification_email')

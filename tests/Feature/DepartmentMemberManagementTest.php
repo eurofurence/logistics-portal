@@ -78,6 +78,83 @@ test('global permissions alone do not open the app management page', function ()
     expect(app(DepartmentMemberManager::class)->can($actor, $department->id, 'view'))->toBeFalse();
 });
 
+test('global department managers can manage all departments without department membership', function (bool $master) {
+    ['actor' => $actor, 'department' => $department, 'member' => $member, 'rank' => $rank] = departmentManagementScenario();
+    $actor->departmentMemberships()->delete();
+    $globalRole = $master ? Role::findByName('Master', 'web') : Role::factory()->create();
+    if (! $master) {
+        $globalRole->givePermissionTo(Permission::findOrCreate('manage-all-department-members', 'web'));
+    }
+    $actor->assignRole($globalRole);
+    $other = Department::factory()->create();
+    $newMember = User::factory()->create();
+    $manager = app(DepartmentMemberManager::class);
+
+    expect(ManageDepartmentMembers::canAccess())->toBeTrue();
+    expect($manager->departments($actor)->pluck('id')->all())->toEqualCanonicalizing([$department->id, $other->id]);
+    Livewire::test(ManageDepartmentMembers::class)->set('departmentId', $department->id)
+        ->assertCanSeeTableRecords([$member]);
+    foreach (['view', 'add', 'update', 'remove'] as $operation) {
+        expect($manager->can($actor, $other->id, $operation))->toBeTrue();
+        expect($manager->can($actor, 0, $operation))->toBeFalse();
+    }
+
+    $manager->save($actor, $other->id, $newMember->id, [], true);
+    $this->assertDatabaseHas('department_user', ['department_id' => $other->id, 'user_id' => $newMember->id, 'role_id' => null]);
+    $manager->save($actor, $other->id, $newMember->id, [$rank->id]);
+    $this->assertDatabaseHas('department_user', ['department_id' => $other->id, 'user_id' => $newMember->id, 'role_id' => $rank->id]);
+    $manager->remove($actor, $other->id, $newMember->id);
+    $this->assertDatabaseMissing('department_user', ['department_id' => $other->id, 'user_id' => $newMember->id]);
+})->with(['master' => true, 'global rank' => false]);
+
+test('a department rank with the global management permission does not grant global access', function () {
+    ['actor' => $actor, 'department' => $department, 'lead' => $lead] = departmentManagementScenario();
+    $lead->givePermissionTo(Permission::findOrCreate('manage-all-department-members', 'web'));
+    $other = Department::factory()->create();
+    $manager = app(DepartmentMemberManager::class);
+
+    expect($manager->departments($actor)->pluck('id')->all())->toBe([$department->id]);
+    foreach (['view', 'add', 'update', 'remove'] as $operation) {
+        expect($manager->can($actor, $other->id, $operation))->toBeFalse();
+    }
+});
+
+test('revoking global management removes access to departments outside existing department rights', function () {
+    ['actor' => $actor, 'department' => $department] = departmentManagementScenario();
+    $globalRole = Role::factory()->create();
+    $globalRole->givePermissionTo(Permission::findOrCreate('manage-all-department-members', 'web'));
+    $actor->assignRole($globalRole);
+    $other = Department::factory()->create();
+    $manager = app(DepartmentMemberManager::class);
+    expect($manager->can($actor, $other->id, 'update'))->toBeTrue();
+
+    $globalRole->revokePermissionTo('manage-all-department-members');
+
+    expect($manager->can($actor, $other->id, 'update'))->toBeFalse();
+    expect($manager->departments($actor)->pluck('id')->all())->toBe([$department->id]);
+    expect($manager->can($actor, $department->id, 'update'))->toBeTrue();
+});
+
+test('global management preserves protected ranks and does not grant admin access', function () {
+    ['actor' => $actor, 'department' => $department, 'member' => $member] = departmentManagementScenario();
+    $globalRole = Role::factory()->create();
+    $globalRole->givePermissionTo(Permission::findOrCreate('manage-all-department-members', 'web'));
+    $actor->assignRole($globalRole);
+    $protected = Role::factory()->create(['assignable_in_app' => false]);
+    $manager = app(DepartmentMemberManager::class);
+    $protectedMembership = $member->departmentMemberships()->create(['department_id' => $department->id, 'role_id' => $protected->id]);
+
+    expect($actor->canAccessPanel(Filament::getPanel('admin')))->toBeFalse();
+    expect($manager->can($actor, $department->id, 'update', true))->toBeFalse();
+    $manager->save($actor, $department->id, $member->id, []);
+    $this->assertModelExists($protectedMembership);
+    expect(fn () => $manager->save($actor, $department->id, $member->id, [$protected->id]))->toThrow(ValidationException::class);
+    expect(fn () => $manager->save($actor, $department->id, $member->id, [1]))->toThrow(ValidationException::class);
+    $member->departmentMemberships()->create(['department_id' => $department->id, 'role_id' => 1]);
+    expect(fn () => $manager->remove($actor, $department->id, $member->id))->toThrow(ValidationException::class);
+    $this->assertDatabaseHas('department_user', ['department_id' => $department->id, 'user_id' => $member->id, 'role_id' => 1]);
+});
+
 test('department permissions do not authorize actions in another department', function () {
     ['actor' => $actor, 'member' => $member] = departmentManagementScenario();
     $other = Department::factory()->create();
@@ -327,7 +404,7 @@ test('rank descriptions enforce their length limit', function () {
 
 test('permission migrations create management permissions without automatic grants', function () {
     $actor = User::factory()->create();
-    foreach (['view-department-members', 'add-department-members', 'update-department-member-roles', 'remove-department-members', 'update-role-description', 'update-role-app-assignability'] as $permission) {
+    foreach (['view-department-members', 'add-department-members', 'update-department-member-roles', 'remove-department-members', 'update-role-description', 'update-role-app-assignability', 'manage-all-department-members'] as $permission) {
         $this->assertDatabaseHas('permissions', ['name' => $permission, 'guard_name' => 'web']);
         expect($actor->can($permission))->toBeFalse();
     }

@@ -7,6 +7,7 @@ use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\SettingsAppAuthentication;
 use App\Filament\Pages\Dashboard;
+use App\Filament\PanelSpotlightPlugin;
 use App\Http\Middleware\CheckWhitelist;
 use App\Http\Middleware\EnsureRequiredTwoFactorAuthentication;
 use App\Http\Middleware\UserIsLocked;
@@ -34,7 +35,6 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use MartinPetricko\FilamentSentryFeedback\Entities\SentryUser;
 use MartinPetricko\FilamentSentryFeedback\FilamentSentryFeedbackPlugin;
 use Njxqlus\FilamentProgressbar\FilamentProgressbarPlugin;
-use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 use SalmanAlmajali\JokesWidget\JokesWidget;
 use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
 use TomatoPHP\FilamentDeveloperGate\FilamentDeveloperGatePlugin;
@@ -50,6 +50,7 @@ class AppPanelProvider extends PanelProvider
             ->favicon(fn (): string => app(ThemeSettings::class)->faviconUrl())
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('components.site-meta'))
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('components.pwa'))
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('components.push-notifications'))
             ->colors(function (): array {
                 try {
                     $primaryColor = app(ThemeSettings::class)->primary_color;
@@ -89,7 +90,7 @@ class AppPanelProvider extends PanelProvider
                 FilamentProgressbarPlugin::make()->color('#29b'),
                 FilamentSpatieLaravelHealthPlugin::make()
                     ->usingPage(HealthCheckResults::class),
-                SpotlightPlugin::make(),
+                PanelSpotlightPlugin::make(),
                 GlobalSearchModalPlugin::make(),
                 FilamentDeveloperGatePlugin::make(),
                 FilamentSentryFeedbackPlugin::make()
