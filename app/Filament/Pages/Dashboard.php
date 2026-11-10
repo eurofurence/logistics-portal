@@ -10,6 +10,7 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 
 class Dashboard extends \Filament\Pages\Dashboard
@@ -40,7 +41,10 @@ class Dashboard extends \Filament\Pages\Dashboard
             if ($tab === 'guide') {
                 $components[] = View::make('filament.app.homepage.workflow')->viewData(['sections' => $sections]);
             }
-            $tabs[] = Tab::make(__('homepage.'.$tab))->id($tab)->schema($components);
+            $tabs[] = Tab::make(__('homepage.'.$tab))
+                ->icon($tab === 'overview' ? Heroicon::OutlinedSquares2x2 : Heroicon::OutlinedBookOpen)
+                ->id($tab)
+                ->schema($components);
             $tabContents[] = $components;
         }
 
