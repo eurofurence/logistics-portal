@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources\OrderArticles\Tables;
 
+use App\Actions\RefreshOrderArticleImageAction;
 use App\Actions\TableOrderAction;
 use App\Actions\WishlistArticleAction;
 use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
@@ -57,7 +58,7 @@ class OrderArticlesTable
             ->modifyQueryUsing(function (Builder $query): Builder {
                 $target = Gate::allows('viewAny', Wishlist::class) ? app(WishlistManager::class)->target(Auth::user()) : null;
 
-                return $query->withExists(['wishlistItems as is_wishlisted' => fn (Builder $query): Builder => $query->where('wishlist_id', $target?->id ?? 0)]);
+                return $query->with('media')->withExists(['wishlistItems as is_wishlisted' => fn (Builder $query): Builder => $query->where('wishlist_id', $target?->id ?? 0)]);
             })
             ->recordTitleAttribute('name')
             ->columns(self::getColumns())
@@ -81,7 +82,8 @@ class OrderArticlesTable
     {
         return [
             Split::make([
-                ImageColumn::make('picture')
+                ImageColumn::make('picture_thumbnail_url')
+                    ->label(__('general.picture'))
                     ->imageSize(100)
                     ->grow(false),
                 Stack::make([
@@ -188,6 +190,7 @@ class OrderArticlesTable
                 ->button()
                 ->size(Size::ExtraSmall),
             ActionGroup::make([
+                RefreshOrderArticleImageAction::make(),
                 EditAction::make(),
                 DeleteAction::make()
                     ->modalHeading(function ($record): string {

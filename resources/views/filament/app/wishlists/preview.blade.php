@@ -18,7 +18,7 @@
             <x-filament::badge color="gray">{{ $wishlist->items()->count() }} {{ __('wishlists.items') }}</x-filament::badge>
         </div>
         <div class="space-y-3">
-            @forelse ($wishlist->items()->with('article')->latest('id')->limit(6)->get() as $item)
+            @forelse ($wishlist->items()->with('article.media')->latest('id')->limit(6)->get() as $item)
                 @include('filament.app.wishlists.card', ['selectable' => false])
             @empty
                 <p class="rounded-xl bg-gray-50 p-6 text-sm text-gray-500 dark:bg-white/5">{{ __('wishlists.empty_items') }}</p>

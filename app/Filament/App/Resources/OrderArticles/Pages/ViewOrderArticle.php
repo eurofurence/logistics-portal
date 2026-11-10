@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\OrderArticles\Pages;
 
 use App\Actions\HeaderOrderAction;
+use App\Actions\RefreshOrderArticleImageAction;
 use App\Actions\WishlistArticleAction;
 use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
 use App\Filament\App\Resources\Wishlists\Concerns\InteractsWithWishlists;
@@ -20,6 +21,7 @@ class ViewOrderArticle extends ViewRecord
     {
         return [
             WishlistArticleAction::make(),
+            RefreshOrderArticleImageAction::make(),
             $this->wishlistTargetAction(),
             $this->wishlistsAction(),
             $this->newWishlistAction(),

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Jobs\CacheOrderArticleImage;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +11,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Image\Enums\Fit;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * @property int $id
@@ -82,14 +87,48 @@ use Illuminate\Support\Facades\Auth;
  *
  * @mixin \Eloquent
  */
-class OrderArticle extends Model
+class OrderArticle extends Model implements HasMedia
 {
+    public const IMAGE_COLLECTION = 'article-images';
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection(self::IMAGE_COLLECTION)
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumbnail')->fit(Fit::Contain, 480, 480)
+            ->format('webp')->nonQueued()->nonOptimized()->performOnCollections(self::IMAGE_COLLECTION);
+    }
+
+    public function getPictureUrlAttribute(): ?string
+    {
+        return $this->cachedPictureUrl('original');
+    }
+
+    public function getPictureThumbnailUrlAttribute(): ?string
+    {
+        return $this->cachedPictureUrl('thumbnail');
+    }
+
+    private function cachedPictureUrl(string $conversion): ?string
+    {
+        if (blank($this->picture)) {
+            return null;
+        }
+        $media = $this->getFirstMedia(self::IMAGE_COLLECTION);
+
+        return $media ? route('order-articles.images', ['article' => $this->id, 'media' => $media->id, 'conversion' => $conversion]) : $this->picture;
+    }
+
     public function wishlistItems(): HasMany
     {
         return $this->hasMany(WishlistItem::class);
     }
 
-    use HasFactory, SoftDeletes;
+    use HasFactory, InteractsWithMedia, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -141,6 +180,12 @@ class OrderArticle extends Model
     protected static function boot(): void
     {
         parent::boot();
+
+        static::saved(function (OrderArticle $article): void {
+            if (filled($article->picture) && ($article->wasRecentlyCreated || $article->wasChanged('picture'))) {
+                CacheOrderArticleImage::dispatch($article->id, $article->picture)->afterCommit();
+            }
+        });
 
         static::creating(function ($model) {
             $user = static::getAuthUser();

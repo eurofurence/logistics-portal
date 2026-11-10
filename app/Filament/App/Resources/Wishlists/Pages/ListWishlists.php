@@ -200,7 +200,7 @@ class ListWishlists extends Page
         $user = auth()->user();
         $lists = $this->visibleLists();
         $wishlist = $this->selectedWishlist();
-        $itemsQuery = $wishlist?->items()->with('article')
+        $itemsQuery = $wishlist?->items()->with('article.media')
             ->when($this->search !== '', fn (Builder $query): Builder => $query->whereHas('article', function (Builder $query): void {
                 $query->where(function (Builder $query): void {
                     $query->where('name', 'like', '%'.$this->search.'%')->orWhere('article_number', 'like', '%'.$this->search.'%');

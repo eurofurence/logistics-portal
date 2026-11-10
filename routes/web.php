@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClubMemberFileController;
+use App\Http\Controllers\OrderArticleImageController;
 use App\Http\Controllers\PasskeyLoginController;
 use App\Http\Controllers\PasskeyOptionsController;
 use Filament\Facades\Filament;
@@ -28,6 +29,10 @@ Route::prefix('passkeys')->middleware(['guest', 'throttle:10,1'])->group(functio
 
 Route::get('/club-members/{member}/files/{media}', ClubMemberFileController::class)
     ->middleware('auth')->whereNumber('member')->whereNumber('media')->name('club-members.files.download');
+
+Route::get('/order-articles/{article}/images/{media}/{conversion?}', OrderArticleImageController::class)
+    ->middleware('auth')->whereNumber('article')->whereNumber('media')
+    ->where('conversion', 'original|thumbnail')->name('order-articles.images');
 
 Route::get('/bills/download-zip/{path}', function (string $path) {
     Log::info('BILL_DOWNLOAD: Route hit', [

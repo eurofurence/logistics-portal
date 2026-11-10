@@ -45,11 +45,11 @@ class OrderArticleInfolist
                         'xl' => 3,
                     ])
                     ->schema([
-                        ImageEntry::make('picture')
+                        ImageEntry::make('picture_thumbnail_url')
                             ->action(Action::make('previewArticleImage')
                                 ->modalHeading(__('general.picture'))
                                 ->modalSubmitAction(false)
-                                ->modalContent(fn (Model $record): View => view('filament.app.articles.image-preview', ['picture' => $record->picture])))
+                                ->modalContent(fn (Model $record): View => view('filament.app.articles.image-preview', ['picture' => $record->picture_url])))
                             ->extraImgAttributes([
                                 'style' => 'object-fit: contain',
                             ], true)

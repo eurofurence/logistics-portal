@@ -8,6 +8,13 @@ use App\Models\User;
 
 class OrderArticlePolicy
 {
+    public function refreshImage(User $user, OrderArticle $orderarticle): bool
+    {
+        return ! $orderarticle->trashed() && filled($orderarticle->picture)
+            && $this->view($user, $orderarticle)
+            && $user->checkPermissionTo('refresh-image-OrderArticle');
+    }
+
     /**
      * Determine whether the user can view any models.
      */

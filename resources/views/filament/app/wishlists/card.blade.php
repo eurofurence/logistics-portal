@@ -9,7 +9,7 @@
         <input type="checkbox" wire:model.live="selectedArticles" value="{{ $item->order_article_id }}" aria-label="{{ __('wishlists.select_article') }}" class="mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500 dark:bg-gray-800" />
     @endif
     @if ($visibleArticle && $article->picture)
-        <img src="{{ $article->picture }}" alt="" loading="lazy" class="size-20 shrink-0 rounded-xl bg-gray-50 object-contain dark:bg-gray-800" />
+        <img src="{{ $article->picture_thumbnail_url }}" alt="" loading="lazy" class="size-20 shrink-0 rounded-xl bg-gray-50 object-contain dark:bg-gray-800" />
     @else
         <div class="flex size-20 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-400 dark:bg-gray-800" aria-label="{{ __('wishlists.no_image') }}">
             <x-filament::icon icon="heroicon-o-cube" class="size-8" />
