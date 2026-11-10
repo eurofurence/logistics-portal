@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'no_longer_available' => 'Nicht mehr verfügbar',
     'transfer_ownership' => 'Eigentum übertragen',
     'new_owner' => 'Neuer Eigentümer',
     'transfer_description' => 'Die Liste erhält einen neuen Eigentümer. Du behältst nur Zugriff über bestehende Freigaben. Artikel und andere Freigaben bleiben erhalten.',
@@ -16,7 +17,7 @@ return [
     'undo_expired' => 'Die Zeit zum Wiederherstellen ist abgelaufen.', 'share' => 'Freigeben', 'users' => 'Benutzer',
     'user' => 'Benutzer', 'department' => 'Abteilung', 'access' => 'Zugriff', 'read' => 'Lesen', 'edit' => 'Artikel bearbeiten',
     'sharing_saved' => 'Freigaben gespeichert', 'target_saved' => 'Schnellziel gespeichert', 'details' => 'Details ändern',
-    'delete_list' => 'Liste löschen', 'delete_confirmation' => 'Die Liste und ihre Zuordnungen werden gelöscht. Die Artikel im Verzeichnis bleiben erhalten.',
+    'delete_list' => 'Liste löschen', 'delete_confirmation' => 'Die Liste und ihre Artikel werden gelöscht.',
     'mine' => 'Meine Listen', 'shared' => 'Mit mir geteilt', 'all' => 'Alle Listen', 'items' => 'Artikel',
     'intro' => 'Sammeln. Wiederfinden. Gemeinsam planen.', 'intro_help' => 'Deine Artikel an einem Ort – für dich und dein Team.',
     'empty_lists' => 'Hier ist Platz für deine nächste Idee.', 'empty_lists_help' => 'Erstelle eine Merkliste oder wechsle zu den geteilten Listen.',

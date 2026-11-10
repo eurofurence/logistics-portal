@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources\Wishlists\RelationManagers;
 
+use App\Models\WishlistItem;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
@@ -31,7 +32,8 @@ class ItemsRelationManager extends RelationManager
             ->recordTitleAttribute('article.name')
             ->columns([
                 TextColumn::make('article.name')
-                    ->label(__('general.name')),
+                    ->label(__('general.name'))
+                    ->description(fn (WishlistItem $record): ?string => ! $record->article || $record->article->trashed() ? __('wishlists.no_longer_available') : null),
                 TextColumn::make('article.article_number')
                     ->label(__('general.article_number')),
             ])

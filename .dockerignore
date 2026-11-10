@@ -1,6 +1,16 @@
 .git
+.env
+.env.*
+!.env.example
 node_modules
 vendor
 .github/workflows
 bootstrap/cache/*
 public/build
+public/storage
+storage/app/*
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+!storage/**/.gitignore

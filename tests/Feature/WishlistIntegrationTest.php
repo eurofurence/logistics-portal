@@ -1,10 +1,13 @@
 <?php
 
+use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
 use App\Filament\App\Resources\OrderArticles\Pages\ListOrderArticles;
 use App\Filament\App\Resources\Wishlists\Pages\ListWishlists;
 use App\Models\Department;
 use App\Models\OrderArticle;
+use App\Models\OrderEvent;
 use App\Models\Permission;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\Wishlist;
 use App\Services\WishlistManager;
@@ -12,7 +15,9 @@ use App\Settings\LoginSettings;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\ViewErrorBag;
 use Illuminate\Validation\ValidationException;
 use Livewire\Livewire;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -311,13 +316,121 @@ test('allows removal of unavailable articles from the overview', function () {
     $this->actingAs($user);
     $manager = app(WishlistManager::class);
     $wishlist = $manager->create($user, ['name' => 'My list']);
-    $article = OrderArticle::factory()->create();
+    $article = OrderArticle::factory()->create(['name' => 'Discontinued lantern', 'article_number' => 'OLD-42']);
     $manager->add($user, $wishlist, $article->id);
     $article->delete();
 
     Livewire::test(ListWishlists::class, ['selectedWishlistId' => $wishlist->id])
-        ->assertSee(__('wishlists.unavailable'))
+        ->assertSee('Discontinued lantern')->assertSee('OLD-42')
+        ->assertSee(__('wishlists.no_longer_available'))
+        ->assertDontSeeHtml('href="'.OrderArticleResource::getUrl('view', ['record' => $article]).'"')
+        ->set('search', 'OLD-42')->assertSee('Discontinued lantern')
         ->call('removeWishlistArticle', $wishlist->id, $article->id)->assertHasNoErrors();
 
     expect($wishlist->items()->count())->toBe(0);
+});
+
+test('marks deleted articles in quick access without exposing their detail link', function () {
+    $user = wishlistIntegrationUser();
+    $this->actingAs($user);
+    $manager = app(WishlistManager::class);
+    $wishlist = $manager->create($user, ['name' => 'Quick list']);
+    $article = OrderArticle::factory()->create(['name' => 'Retired quick access article']);
+    $manager->add($user, $wishlist, $article->id);
+    $article->delete();
+
+    $component = Livewire::test(ListOrderArticles::class)->mountAction('wishlists')->assertActionMounted('wishlists');
+    $preview = $component->instance()->getMountedAction()->getModalContent()
+        ->with('errors', new ViewErrorBag)->render();
+
+    expect($preview)->toContain('Retired quick access article', e(__('wishlists.no_longer_available')))
+        ->not->toContain('href="'.OrderArticleResource::getUrl('view', ['record' => $article]).'"');
+
+    $this->assertDatabaseHas('wishlist_items', ['wishlist_id' => $wishlist->id, 'order_article_id' => $article->id]);
+});
+
+test('does not readd or restore a deleted article when undoing its removal', function () {
+    $user = wishlistIntegrationUser();
+    $this->actingAs($user);
+    $manager = app(WishlistManager::class);
+    $wishlist = $manager->create($user, ['name' => 'My list']);
+    $article = OrderArticle::factory()->create();
+    $manager->add($user, $wishlist, $article->id);
+    $article->delete();
+
+    $token = $manager->remove($user, $wishlist, [$article->id]);
+    $manager->undo($user, $token);
+
+    $this->assertDatabaseMissing('wishlist_items', ['wishlist_id' => $wishlist->id, 'order_article_id' => $article->id]);
+    $this->assertSoftDeleted($article);
+    expect(fn () => $manager->add($user, $wishlist, $article->id))->toThrow(ModelNotFoundException::class);
+});
+
+test('orders an article from a read only shared wishlist without removing it', function () {
+    $user = wishlistIntegrationUser();
+    $owner = wishlistIntegrationUser();
+    $this->actingAs($user);
+    $department = Department::factory()->create();
+    $role = Role::factory()->create();
+    $role->givePermissionTo(Permission::findOrCreate('can-place-order', 'web'));
+    $user->departmentMemberships()->create(['department_id' => $department->id, 'role_id' => $role->id]);
+    $event = OrderEvent::factory()->create();
+    $article = OrderArticle::factory()->create(['locked' => false, 'deadline' => null]);
+    $wishlist = app(WishlistManager::class)->create($owner, ['name' => 'Shared order list']);
+    $wishlist->sharedUsers()->attach($user, ['access' => 'read']);
+    $wishlist->items()->create(['order_article_id' => $article->id]);
+
+    Livewire::test(ListWishlists::class, ['selectedWishlistId' => $wishlist->id])
+        ->assertActionVisible(TestAction::make('orderWishlistArticle')->arguments(['article_id' => $article->id]))
+        ->callAction(TestAction::make('orderWishlistArticle')->arguments(['article_id' => $article->id]), data: [
+            'quantity' => 3, 'department' => $department->id, 'order_event' => $event->id, 'comment' => 'For the team',
+        ])->assertHasNoActionErrors();
+
+    $this->assertDatabaseHas('orders', ['order_article_id' => $article->id, 'amount' => 3, 'department_id' => $department->id, 'order_event_id' => $event->id, 'comment' => 'For the team']);
+    $this->assertDatabaseHas('wishlist_items', ['wishlist_id' => $wishlist->id, 'order_article_id' => $article->id]);
+});
+
+test('hides and rejects ordering unavailable or unauthorized wishlist articles', function (string $restriction) {
+    $user = wishlistIntegrationUser();
+    $this->actingAs($user);
+    $department = Department::factory()->create();
+    $role = Role::factory()->create();
+    if ($restriction !== 'permission') {
+        $role->givePermissionTo(Permission::findOrCreate('can-place-order', 'web'));
+    }
+    $user->departmentMemberships()->create(['department_id' => $department->id, 'role_id' => $role->id]);
+    $event = OrderEvent::factory()->create();
+    $article = OrderArticle::factory()->create(['locked' => $restriction === 'locked', 'deadline' => null]);
+    $wishlist = app(WishlistManager::class)->create($user, ['name' => 'Order list']);
+    if ($restriction !== 'outside-list') {
+        $wishlist->items()->create(['order_article_id' => $article->id]);
+    }
+    if ($restriction === 'deleted') {
+        $article->delete();
+    }
+    if ($restriction === 'invisible') {
+        $user->revokePermissionTo('view-OrderArticle');
+    }
+
+    Livewire::test(ListWishlists::class, ['selectedWishlistId' => $wishlist->id])
+        ->assertActionHidden(TestAction::make('orderWishlistArticle')->arguments(['article_id' => $article->id]))
+        ->call('mountAction', 'orderWishlistArticle', ['article_id' => $article->id])
+        ->assertActionNotMounted();
+
+    $this->assertDatabaseCount('orders', 0);
+})->with(['permission', 'locked', 'deleted', 'invisible', 'outside-list']);
+
+test('paginates wishlist articles and resets the page when searching', function () {
+    $user = wishlistIntegrationUser();
+    $this->actingAs($user);
+    $wishlist = app(WishlistManager::class)->create($user, ['name' => 'Large list']);
+    $articles = OrderArticle::factory()->count(19)->sequence(fn ($sequence): array => ['name' => 'Paged article '.$sequence->index])->create();
+    foreach ($articles as $article) {
+        $wishlist->items()->create(['order_article_id' => $article->id]);
+    }
+
+    Livewire::test(ListWishlists::class, ['selectedWishlistId' => $wishlist->id])
+        ->assertSee('Paged article 18')->assertDontSee('Paged article 0')
+        ->call('setPage', 2)->assertSee('Paged article 0')->assertDontSee('Paged article 18')
+        ->set('search', 'Paged article 18')->assertSee('Paged article 18');
 });

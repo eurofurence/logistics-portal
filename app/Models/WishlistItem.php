@@ -21,6 +21,6 @@ class WishlistItem extends Model
 
     public function article(): BelongsTo
     {
-        return $this->belongsTo(OrderArticle::class, 'order_article_id');
+        return $this->belongsTo(OrderArticle::class, 'order_article_id')->withTrashed();
     }
 }

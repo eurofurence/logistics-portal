@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'no_longer_available' => 'No longer available',
     'transfer_ownership' => 'Transfer ownership',
     'new_owner' => 'New owner',
     'transfer_description' => 'This list will have a new owner. You will only retain access through existing shares. Articles and other shares are kept.',
@@ -16,7 +17,7 @@ return [
     'undo_expired' => 'The time to undo this removal has expired.', 'share' => 'Share', 'users' => 'Users',
     'user' => 'User', 'department' => 'Department', 'access' => 'Access', 'read' => 'Read', 'edit' => 'Manage articles',
     'sharing_saved' => 'Sharing updated', 'target_saved' => 'Quick target updated', 'details' => 'Edit details',
-    'delete_list' => 'Delete list', 'delete_confirmation' => 'This deletes the list and its entries. Articles in the directory are kept.',
+    'delete_list' => 'Delete list', 'delete_confirmation' => 'This deletes the list and its entries.',
     'mine' => 'My lists', 'shared' => 'Shared with me', 'all' => 'All lists', 'items' => 'Articles',
     'intro' => 'Collect. Rediscover. Plan together.', 'intro_help' => 'Your articles in one place – for you and your team.',
     'empty_lists' => 'Room for your next idea.', 'empty_lists_help' => 'Create a wishlist or switch to shared lists.',

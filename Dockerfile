@@ -1,4 +1,4 @@
-FROM php:8.4-bookworm AS base
+FROM php:8.5-cli-trixie AS base
 WORKDIR /app
 
 ENV COMPOSER_MEMORY_LIMIT=-1
@@ -35,10 +35,10 @@ FROM base AS local
 RUN addgroup -gid 1024 app \
   && adduser -uid 1024 --disabled-password --ingroup app app \
   && adduser www-data app \
-  && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+  && curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
   && apt-get update \
   && apt-get install -y nodejs \
-  && apt-get install -y mysql-client \
+  && apt-get install -y default-mysql-client \
   && apt-get clean -y \
   && install-php-extensions xdebug
 USER app
@@ -53,7 +53,7 @@ RUN COMPOSER_ALLOW_SUPERUSER=1 | rm composer.lock composer.json && composer requ
 ######################################################
 # NodeJS Stage
 ######################################################
-FROM node:20-buster AS vite
+FROM node:24-trixie AS vite
 WORKDIR /app
 COPY package.json package-lock.json vite.config.js ./
 RUN npm install

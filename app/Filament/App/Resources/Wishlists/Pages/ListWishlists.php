@@ -2,8 +2,10 @@
 
 namespace App\Filament\App\Resources\Wishlists\Pages;
 
+use App\Actions\TableOrderAction;
 use App\Filament\App\Resources\Wishlists\Concerns\InteractsWithWishlists;
 use App\Filament\App\Resources\Wishlists\WishlistResource;
+use App\Models\OrderArticle;
 use App\Models\User;
 use App\Models\Wishlist;
 use App\Services\WishlistManager;
@@ -132,6 +134,23 @@ class ListWishlists extends Page
     public function shareWishlistAction(): Action
     {
         return $this->wishlistSharingAction();
+    }
+
+    public function orderWishlistArticleAction(): Action
+    {
+        $canOrder = fn (?OrderArticle $record): bool => $record && ! $record->trashed()
+            && Gate::allows('view', $record) && Gate::allows('order', $record);
+
+        return TableOrderAction::make()->name('orderWishlistArticle')->button()->size('sm')
+            ->modalHeading(fn (?OrderArticle $record): string => __('general.make_order').': '.($record?->name ?? ''))
+            ->record(function (array $arguments): ?OrderArticle {
+                if (! isset($arguments['article_id'])) {
+                    return null;
+                }
+
+                return $this->selectedWishlist()?->items()->where('order_article_id', $arguments['article_id'])->first()?->article;
+            })
+            ->visible($canOrder)->authorize($canOrder);
     }
 
     public function transferOwnershipAction(): Action
