@@ -5,12 +5,8 @@ namespace App\Filament\App\Resources\Wishlists\RelationManagers;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\AttachAction;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\DetachAction;
 use Filament\Actions\DetachBulkAction;
-use Filament\Actions\EditAction;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
@@ -43,21 +39,20 @@ class SharedUsersRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                CreateAction::make(),
-                AttachAction::make(),
+                AttachAction::make()
+                    ->authorize(fn (): bool => auth()->user()->can('update', $this->getOwnerRecord())),
             ])
             ->recordActionContextMenu()
             ->recordActions([
                 ActionGroup::make([
-                    EditAction::make(),
-                    DetachAction::make(),
-                    DeleteAction::make(),
+                    DetachAction::make()
+                        ->authorize(fn (): bool => auth()->user()->can('update', $this->getOwnerRecord())),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DetachBulkAction::make(),
-                    DeleteBulkAction::make(),
+                    DetachBulkAction::make()
+                        ->authorize(fn (): bool => auth()->user()->can('update', $this->getOwnerRecord())),
                 ]),
             ]);
     }

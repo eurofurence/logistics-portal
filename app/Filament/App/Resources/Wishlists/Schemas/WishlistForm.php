@@ -23,6 +23,7 @@ class WishlistForm
                 Toggle::make('is_public')
                     ->label(__('general.is_public')),
                 Hidden::make('user_id')
+                    ->dehydrated(false)
                     ->default(fn () => Auth::id()),
             ]);
     }

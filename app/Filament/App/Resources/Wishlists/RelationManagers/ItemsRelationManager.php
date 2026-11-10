@@ -45,12 +45,14 @@ class ItemsRelationManager extends RelationManager
             ->recordActionContextMenu()
             ->recordActions([
                 ActionGroup::make([
-                    DeleteAction::make(),
+                    DeleteAction::make()
+                        ->authorize(fn (): bool => auth()->user()->can('update', $this->getOwnerRecord())),
                 ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->authorize(fn (): bool => auth()->user()->can('update', $this->getOwnerRecord())),
                 ]),
             ]);
     }

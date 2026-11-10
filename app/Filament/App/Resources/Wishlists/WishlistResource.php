@@ -24,11 +24,6 @@ class WishlistResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    public static function canViewAny(): bool
-    {
-        return false;
-    }
-
     public static function getNavigationGroup(): string
     {
         static::$navigationGroup = __('general.orders');
