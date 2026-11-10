@@ -181,7 +181,7 @@ test('uploads a site logo and restores the default logo when removed', function 
     $settings = app(ThemeSettings::class)->refresh();
     expect($settings->logo)->toStartWith('site_logo/');
     Storage::disk('site-assets')->assertExists($settings->logo);
-    expect(view('vendor.filament-panels.components.logo')->render())->toContain(Storage::disk('site-assets')->url($settings->logo));
+    expect(view('vendor.filament-panels.components.logo')->render())->toContain(route('branding.logo', ['v' => hash('sha256', $settings->logo)], false));
 
     Livewire::test(ManageTheme::class)
         ->fillForm(['logo' => null])
@@ -218,7 +218,7 @@ test('uploads a separate email logo and falls back to the site logo when removed
     expect($settings->email_logo)->toStartWith('email_logo/');
     Storage::disk('site-assets')->assertExists($settings->email_logo);
     expect(view('vendor.filament-panels.components.logo')->render())
-        ->toContain(Storage::disk('site-assets')->url($siteLogo))
+        ->toContain(route('branding.logo', ['v' => hash('sha256', $siteLogo)], false))
         ->not->toContain($emailLogoUrl);
     $notification = new GeneralNotification(username: $user->name, details_title: 'Bill', details_link: 'https://example.com', details_link_title: 'Show');
     expect((string) $notification->toMail($user)->render())->toContain($emailLogoUrl);

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#007bff">
+    <title>Offline · Portal</title>
+    <style>
+        :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+        body { margin: 0; min-height: 100dvh; display: grid; place-items: center; background: light-dark(#f9fafb, #111827); color: light-dark(#111827, #f9fafb); }
+        main { max-width: 32rem; padding: 2rem; text-align: center; }
+        h1 { font-size: 2rem; margin-bottom: 1.5rem; }
+        p { line-height: 1.6; }
+        a { display: inline-block; margin-top: 1rem; padding: .8rem 1.2rem; border-radius: .6rem; background: #0065d1; color: white; text-decoration: none; font-weight: 600; }
+        a:focus-visible { outline: 3px solid currentColor; outline-offset: 4px; }
+        .brand { font-weight: 600; opacity: .7; }
+    </style>
+</head>
+<body>
+    <main>
+        <p class="brand" id="portal-name">Portal</p>
+        <h1 id="offline-title">You are offline</h1>
+        <p id="offline-message">Please check your internet connection and try again. An internet connection is required to use the portal.</p>
+        <a href="/app/start" id="offline-retry">Try again</a>
+    </main>
+    <script>
+        (() => {
+            let configuration = {};
+            try {
+                configuration = JSON.parse(localStorage.getItem('portal-pwa') || '{}') || {};
+            } catch (_) {
+                // The generic page remains usable when browser storage is unavailable.
+            }
+
+            const translations = {
+                en: {
+                    title: 'You are offline',
+                    message: 'Please check your internet connection and try again. An internet connection is required to use the portal.',
+                    retry: 'Try again',
+                },
+                de: {
+                    title: 'Du bist gerade offline',
+                    message: 'Bitte prüfe deine Internetverbindung und versuche es erneut. Für die Nutzung des Portals ist eine Internetverbindung erforderlich.',
+                    retry: 'Erneut versuchen',
+                },
+                ...configuration.translations,
+            };
+            const preferredLocales = [configuration.locale, ...(navigator.languages || [navigator.language]), 'en'];
+            const locale = preferredLocales.filter((value) => typeof value === 'string')
+                .map((value) => value.toLowerCase().split('-')[0])
+                .find((value) => translations[value]);
+            const texts = translations[locale];
+            const name = typeof configuration.name === 'string' && configuration.name.trim() ? configuration.name : 'Portal';
+
+            document.getElementById('portal-name').textContent = name;
+            document.title = `Offline · ${name}`;
+            if (texts) {
+                document.documentElement.lang = locale;
+                document.getElementById('offline-title').textContent = texts.title;
+                document.getElementById('offline-message').textContent = texts.message;
+                document.getElementById('offline-retry').textContent = texts.retry;
+                document.title = `${texts.title} · ${name}`;
+            }
+        })();
+    </script>
+</body>
+</html>

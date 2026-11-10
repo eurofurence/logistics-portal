@@ -49,6 +49,7 @@ class AppPanelProvider extends PanelProvider
             ->brandName(fn (): string => app(GeneralSettings::class)->displayName())
             ->favicon(fn (): string => app(ThemeSettings::class)->faviconUrl())
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('components.site-meta'))
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('components.pwa'))
             ->colors(function (): array {
                 try {
                     $primaryColor = app(ThemeSettings::class)->primary_color;

@@ -1,15 +1,20 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BrandLogoController;
 use App\Http\Controllers\ClubMemberFileController;
 use App\Http\Controllers\OrderArticleImageController;
 use App\Http\Controllers\PasskeyLoginController;
 use App\Http\Controllers\PasskeyOptionsController;
+use App\Http\Controllers\PwaManifestController;
 use Filament\Facades\Filament;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+
+Route::get('/pwa/manifest.json', PwaManifestController::class)->name('pwa.manifest');
+Route::get('/branding/logo', BrandLogoController::class)->name('branding.logo');
 
 Route::prefix('passkeys')->middleware(['guest', 'throttle:10,1'])->group(function (): void {
     Route::get('authentication-options', PasskeyOptionsController::class)->name('passkeys.authentication_options');
