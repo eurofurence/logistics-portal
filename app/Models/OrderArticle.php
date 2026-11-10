@@ -120,7 +120,7 @@ class OrderArticle extends Model implements HasMedia
         }
         $media = $this->getFirstMedia(self::IMAGE_COLLECTION);
 
-        return $media ? route('order-articles.images', ['article' => $this->id, 'media' => $media->id, 'conversion' => $conversion]) : $this->picture;
+        return $media ? route('order-articles.current-image', ['article' => $this->id, 'conversion' => $conversion]) : $this->picture;
     }
 
     public function wishlistItems(): HasMany

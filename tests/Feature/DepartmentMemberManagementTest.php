@@ -53,6 +53,15 @@ test('shows one row per member with all department ranks and locked badge', func
         ->filterTable('locked', '0')->assertCanNotSeeTableRecords([$member]);
 });
 
+test('department management links still target app when generated in the admin panel', function () {
+    departmentManagementScenario();
+    Filament::setCurrentPanel(Filament::getPanel('admin'));
+
+    expect(ManageDepartmentMembers::getUrl())->toBe(route('filament.app.pages.manage-department-members'));
+    expect(ManageDepartmentMembers::canAccess())->toBeFalse();
+    Livewire::test(ManageDepartmentMembers::class)->assertForbidden();
+});
+
 test('guests are redirected to the app panel login', function () {
     Filament::setCurrentPanel(Filament::getPanel('app'));
 

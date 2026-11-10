@@ -4,12 +4,14 @@ namespace App\Filament\App\Pages;
 
 use App\Filament\DepartmentMembersTable;
 use App\Services\DepartmentMemberManager;
+use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Livewire\Attributes\Locked;
 
 class ManageDepartmentMembers extends Page implements HasTable
@@ -35,7 +37,14 @@ class ManageDepartmentMembers extends Page implements HasTable
 
     public static function canAccess(): bool
     {
-        return auth()->check() && app(DepartmentMemberManager::class)->departments(auth()->user())->exists();
+        return Filament::getCurrentPanel()?->getId() === 'app'
+            && auth()->check()
+            && app(DepartmentMemberManager::class)->departments(auth()->user())->exists();
+    }
+
+    public static function getUrl(array $parameters = [], bool $isAbsolute = true, ?string $panel = null, ?Model $tenant = null, bool $shouldGuessMissingParameters = false, ?string $configuration = null): string
+    {
+        return parent::getUrl($parameters, $isAbsolute, $panel ?? 'app', $tenant, $shouldGuessMissingParameters, $configuration);
     }
 
     public function mount(): void

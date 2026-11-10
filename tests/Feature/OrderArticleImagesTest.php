@@ -63,8 +63,10 @@ test('stores the original and a smaller thumbnail and serves both with authoriza
     expect(Storage::disk('local')->getVisibility($media->getPathRelativeToRoot()))->toBe('private');
     $this->get($article->picture_url)->assertSuccessful()->assertHeader('Content-Type', 'image/png')->assertStreamedContent($contents);
     $this->get($article->picture_thumbnail_url)->assertSuccessful()->assertHeader('Content-Type', 'image/webp');
+    $previousThumbnailUrl = $article->picture_thumbnail_url;
     (new CacheOrderArticleImage($article->id, $url))->handle(app(ArticleImageDownloader::class));
     $article->refresh();
+    $this->get($previousThumbnailUrl)->assertSuccessful()->assertHeader('Content-Type', 'image/webp');
     expect($article->media()->count())->toBe(1)
         ->and($article->getFirstMedia(OrderArticle::IMAGE_COLLECTION)->id)->not->toBe($media->id);
     Storage::disk('local')->assertMissing($media->getPathRelativeToRoot());
@@ -77,6 +79,27 @@ test('stores the original and a smaller thumbnail and serves both with authoriza
     auth()->logout();
     $this->getJson($article->picture_url)->assertUnauthorized();
     Http::assertSentCount(2);
+    Queue::assertPushed(CacheOrderArticleImage::class);
+});
+
+test('serves the original from the media disk when a generated thumbnail is missing', function () {
+    app(LoginSettings::class)->whitelist_active = false;
+    Queue::fake([CacheOrderArticleImage::class]);
+    Storage::fake('s3');
+    Storage::fake('local');
+    config(['media-library.disk_name' => 's3']);
+    $this->actingAs(articleImageUser());
+    $article = OrderArticle::factory()->create(['picture' => 'https://example.com/image.png']);
+    $contents = articleImageContents();
+    $media = $article->addMediaFromString($contents)->usingFileName('article.png')
+        ->storingConversionsOnDisk('local')->toMediaCollection(OrderArticle::IMAGE_COLLECTION);
+    Storage::disk('local')->delete($media->getPathRelativeToRoot('thumbnail'));
+
+    $this->get($article->picture_thumbnail_url)->assertSuccessful()
+        ->assertHeader('Content-Type', 'image/png')->assertStreamedContent($contents);
+
+    Storage::disk('s3')->assertExists($media->getPathRelativeToRoot());
+    Storage::disk('local')->assertMissing($media->getPathRelativeToRoot('thumbnail'));
     Queue::assertPushed(CacheOrderArticleImage::class);
 });
 

@@ -30,6 +30,10 @@ Route::prefix('passkeys')->middleware(['guest', 'throttle:10,1'])->group(functio
 Route::get('/club-members/{member}/files/{media}', ClubMemberFileController::class)
     ->middleware('auth')->whereNumber('member')->whereNumber('media')->name('club-members.files.download');
 
+Route::get('/order-articles/{article}/image/{conversion?}', [OrderArticleImageController::class, 'current'])
+    ->middleware('auth')->whereNumber('article')
+    ->where('conversion', 'original|thumbnail')->name('order-articles.current-image');
+
 Route::get('/order-articles/{article}/images/{media}/{conversion?}', OrderArticleImageController::class)
     ->middleware('auth')->whereNumber('article')->whereNumber('media')
     ->where('conversion', 'original|thumbnail')->name('order-articles.images');
