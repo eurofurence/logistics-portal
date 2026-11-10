@@ -12,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Gate;
 use Parfaitementweb\FilamentCountryField\Forms\Components\Country;
@@ -22,15 +23,17 @@ class ClubMemberForm
     {
         $fields = [];
         foreach (['sona_name', 'first_name', 'last_name', 'street_address', 'postal_code', 'city'] as $field) {
-            $fields[] = TextInput::make($field)->label(__('members.'.$field))->required()->maxLength(255);
+            $fields[] = TextInput::make($field)->label(__('members.'.$field))->required($field === 'sona_name')->maxLength(255);
         }
         $fields = [...$fields,
-            Country::make('country')->label(__('members.country'))->required()->searchable(),
+            Country::make('country')->label(__('members.country'))->nullable()->searchable(),
             TextInput::make('email')->label(__('members.email'))->email()->required()->maxLength(255),
             TextInput::make('phone')->label(__('members.phone'))->tel()->maxLength(50),
-            DatePicker::make('birth_date')->label(__('members.birth_date'))->required()->maxDate(fn (): string => ApplicationTime::now()->toDateString()),
-            DatePicker::make('joined_at')->label(__('members.joined_at'))->required()->afterOrEqual('birth_date'),
-            DatePicker::make('left_at')->label(__('members.left_at'))->nullable()->afterOrEqual('joined_at'),
+            DatePicker::make('birth_date')->label(__('members.birth_date'))->nullable()->maxDate(fn (): string => ApplicationTime::now()->toDateString()),
+            DatePicker::make('joined_at')->label(__('members.joined_at'))->nullable()
+                ->rules(fn (Get $get): array => filled($get('birth_date')) ? ['after_or_equal:birth_date'] : []),
+            DatePicker::make('left_at')->label(__('members.left_at'))->nullable()
+                ->rules(fn (Get $get): array => filled($get('joined_at')) ? ['after_or_equal:joined_at'] : []),
             Textarea::make('comment')->label(__('members.comment'))->maxLength(10000)->columnSpanFull(),
         ];
 

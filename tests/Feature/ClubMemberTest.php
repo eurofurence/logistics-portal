@@ -70,7 +70,24 @@ test('validates required member fields', function (string $field) {
     Livewire::test(CreateClubMember::class)->fillForm(clubMemberFormData([$field => null]))->call('create')->assertHasFormErrors([$field => 'required']);
 
     expect(ClubMember::count())->toBe(0);
-})->with(['sona_name', 'first_name', 'last_name', 'street_address', 'postal_code', 'city', 'country', 'email', 'birth_date', 'joined_at']);
+})->with(['sona_name', 'email']);
+
+test('creates a member with only sona name and email', function () {
+    $this->actingAs(clubMemberUser());
+
+    Livewire::test(CreateClubMember::class)
+        ->fillForm(['sona_name' => 'Silver Fox', 'email' => 'ada@example.com'])
+        ->call('create')
+        ->assertHasNoFormErrors()
+        ->assertRedirect();
+
+    $member = ClubMember::sole();
+    expect($member->sona_name)->toBe('Silver Fox');
+    expect($member->email)->toBe('ada@example.com');
+    expect($member->first_name)->toBeNull();
+    expect($member->birth_date)->toBeNull();
+    expect($member->joined_at)->toBeNull();
+});
 
 test('searches and sorts encrypted members and finds them in global search', function () {
     $this->actingAs(clubMemberUser());
