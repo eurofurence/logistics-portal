@@ -6,6 +6,7 @@ use App\Actions\RefreshOrderArticleImageAction;
 use App\Actions\TableOrderAction;
 use App\Actions\WishlistArticleAction;
 use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
+use App\Jobs\CacheOrderArticleImage;
 use App\Jobs\SyncDataToOrderArticleJob;
 use App\Models\OrderArticle;
 use App\Models\OrderCategory;
@@ -231,6 +232,32 @@ class OrderArticlesTable
     {
         return [
             BulkActionGroup::make([
+                BulkAction::make('refreshArticleImages')
+                    ->label(__('article_images.refresh_bulk'))
+                    ->icon('heroicon-o-arrow-path')
+                    ->authorize(fn (): bool => auth()->user()->checkPermissionTo('refresh-image-OrderArticle') || auth()->user()->isSuperAdmin())
+                    ->authorizeIndividualRecords('refreshImage')
+                    ->requiresConfirmation()
+                    ->deselectRecordsAfterCompletion()
+                    ->action(function (Collection $records): void {
+                        $queuedCount = 0;
+
+                        foreach ($records as $record) {
+                            $article = OrderArticle::find($record->id);
+
+                            if (! $article || Gate::denies('refreshImage', $article)) {
+                                continue;
+                            }
+
+                            CacheOrderArticleImage::dispatch($article->id, $article->picture)->afterCommit();
+                            $queuedCount++;
+                        }
+
+                        Notification::make()
+                            ->title(__('article_images.queued_bulk', ['count' => $queuedCount]))
+                            ->success()
+                            ->send();
+                    }),
                 DeleteBulkAction::make()
                     ->visible(Gate::check('bulkDelete', OrderArticle::class)),
                 RestoreBulkAction::make()

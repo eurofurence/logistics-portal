@@ -34,6 +34,66 @@ function articleImageContents(): string
     return UploadedFile::fake()->image('article.png', 800, 600)->get();
 }
 
+test('bulk image refresh queues selected articles with pictures only', function () {
+    Filament::setCurrentPanel(Filament::getPanel('app'));
+    $user = articleImageUser();
+    $user->givePermissionTo(Permission::findOrCreate('refresh-image-OrderArticle', 'web'));
+    $this->actingAs($user);
+    $articles = OrderArticle::factory()->count(2)->create();
+    foreach ($articles as $article) {
+        $article->updateQuietly(['picture' => 'https://example.com/article-'.$article->id.'.png']);
+    }
+    $withoutPicture = OrderArticle::factory()->create(['picture' => null]);
+    $unselected = OrderArticle::factory()->create();
+    $unselected->updateQuietly(['picture' => 'https://example.com/unselected.png']);
+    Queue::fake([CacheOrderArticleImage::class]);
+
+    Livewire::test(ListOrderArticles::class)
+        ->callTableBulkAction('refreshArticleImages', $articles->push($withoutPicture))
+        ->assertNotified();
+
+    Queue::assertPushed(CacheOrderArticleImage::class, 2);
+    foreach ($articles->except($withoutPicture->id) as $article) {
+        Queue::assertPushed(CacheOrderArticleImage::class, fn (CacheOrderArticleImage $job): bool => $job->articleId === $article->id && $job->sourceUrl === $article->picture);
+    }
+});
+
+test('bulk image refresh is hidden without its dedicated permission', function () {
+    Filament::setCurrentPanel(Filament::getPanel('app'));
+    $this->actingAs(articleImageUser());
+
+    Livewire::test(ListOrderArticles::class)->assertTableBulkActionHidden('refreshArticleImages');
+});
+
+test('shows an important article note without a lock or deadline', function () {
+    Filament::setCurrentPanel(Filament::getPanel('app'));
+    $this->actingAs(articleImageUser());
+    $article = OrderArticle::factory()->create([
+        'locked' => false,
+        'deadline' => null,
+        'important_note' => 'Keep refrigerated after delivery',
+    ]);
+
+    Livewire::test(ViewOrderArticle::class, ['record' => $article->id])
+        ->assertSuccessful()
+        ->assertSee('Keep refrigerated after delivery');
+});
+
+test('shows the deposit in the article currency', function () {
+    Filament::setCurrentPanel(Filament::getPanel('app'));
+    $this->actingAs(articleImageUser());
+    app()->setLocale('en');
+    $article = OrderArticle::factory()->create([
+        'currency' => 'USD',
+        'returning_deposit' => 2.50,
+    ]);
+
+    Livewire::test(ViewOrderArticle::class, ['record' => $article->id])
+        ->assertSuccessful()
+        ->assertSee('$2.50')
+        ->assertDontSee('€2.50');
+});
+
 test('stores the original and a smaller thumbnail and serves both with authorization', function () {
     app(LoginSettings::class)->whitelist_active = false;
     Queue::fake([CacheOrderArticleImage::class]);
