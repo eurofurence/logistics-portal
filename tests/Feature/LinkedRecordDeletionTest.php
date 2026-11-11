@@ -71,7 +71,7 @@ test('department assignments prevent deleting the department', function (Closure
         return StorageDepartmentAccess::create(['department' => $department->id, 'storage' => $storage->id]);
     }],
     'wishlist sharing' => [function (Department $department): Model {
-        $wishlist = Wishlist::factory()->create();
+        $wishlist = Wishlist::factory()->create(['user_id' => auth()->id(), 'name' => 'Linked wishlist']);
         $wishlist->sharedDepartments()->attach($department, ['access' => 'read']);
 
         return $wishlist;

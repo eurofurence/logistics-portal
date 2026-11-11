@@ -27,6 +27,8 @@ class LinkedRecordDeletionGuard
                 ['storage_department', 'department'],
                 ['wishlist_department', 'department_id'],
             ];
+        } else {
+            $references[] = ['order_event_notification_deliveries', 'order_event_id'];
         }
 
         foreach ($references as [$table, $foreignKey]) {

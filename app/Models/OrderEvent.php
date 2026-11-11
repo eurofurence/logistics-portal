@@ -63,6 +63,9 @@ class OrderEvent extends Model
         'added_by',
         'edited_by',
         'is_active',
+        'deadline_reminder_enabled', 'deadline_reminder_mode', 'deadline_reminder_days',
+        'deadline_reminder_at', 'deadline_reminder_channels', 'opening_notification_enabled',
+        'opening_notification_mode', 'opening_notification_at', 'opening_notification_channels',
     ];
 
     /**
@@ -72,6 +75,23 @@ class OrderEvent extends Model
      */
     protected $casts = [
         'order_deadline' => 'datetime',
+        'deadline_reminder_enabled' => 'boolean',
+        'deadline_reminder_days' => 'integer',
+        'opening_notification_enabled' => 'boolean',
+        'deadline_reminder_at' => 'datetime',
+        'opening_notification_at' => 'datetime',
+        'deadline_reminder_channels' => 'array',
+        'opening_notification_channels' => 'array',
+    ];
+
+    protected $attributes = [
+        'deadline_reminder_enabled' => true,
+        'deadline_reminder_mode' => 'relative',
+        'deadline_reminder_days' => 7,
+        'deadline_reminder_channels' => '["mail","database"]',
+        'opening_notification_enabled' => false,
+        'opening_notification_mode' => 'manual',
+        'opening_notification_channels' => '["mail","database"]',
     ];
 
     protected static function boot()

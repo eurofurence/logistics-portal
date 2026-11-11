@@ -7,6 +7,11 @@ use App\Models\User;
 
 class OrderEventPolicy
 {
+    public function sendTestEmail(User $user, OrderEvent $orderevent): bool
+    {
+        return $this->update($user, $orderevent) && $user->checkPermissionTo('send-test-email-OrderEvent');
+    }
+
     /**
      * Determine whether the user can view any models.
      */
