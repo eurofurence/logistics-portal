@@ -185,7 +185,6 @@ class OrderArticlesTable
     public static function getRecordActions(): array
     {
         return [
-            WishlistArticleAction::make(),
             TableOrderAction::make()
                 ->button()
                 ->size(Size::ExtraSmall),
@@ -224,6 +223,7 @@ class OrderArticlesTable
                 ->modalWidth(Width::ExtraLarge)
                 ->modalSubmitAction(false)
                 ->modalCancelAction(false),
+            WishlistArticleAction::make(),
         ];
     }
 

@@ -7,6 +7,7 @@ use App\Actions\RefreshOrderArticleImageAction;
 use App\Actions\WishlistArticleAction;
 use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
 use App\Filament\App\Resources\Wishlists\Concerns\InteractsWithWishlists;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Support\Colors\Color;
@@ -20,15 +21,27 @@ class ViewOrderArticle extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            WishlistArticleAction::make(),
-            RefreshOrderArticleImageAction::make(),
-            $this->wishlistTargetAction(),
-            $this->wishlistsAction(),
-            $this->newWishlistAction(),
-            EditAction::make()
-                ->color(Color::Amber)
-                ->icon('heroicon-o-pencil'),
+            ActionGroup::make([
+                RefreshOrderArticleImageAction::make(),
+                EditAction::make()
+                    ->color(Color::Amber)
+                    ->icon('heroicon-o-pencil'),
+            ])
+                ->label(__('general.options'))
+                ->icon('heroicon-o-ellipsis-vertical')
+                ->color('gray')
+                ->button(),
+            ActionGroup::make([
+                $this->wishlistTargetAction(),
+                $this->wishlistsAction(),
+                $this->newWishlistAction(),
+            ])
+                ->label(__('wishlists.title'))
+                ->icon('heroicon-o-bookmark-square')
+                ->color('gray')
+                ->button(),
             HeaderOrderAction::make(),
+            WishlistArticleAction::make(),
         ];
     }
 }

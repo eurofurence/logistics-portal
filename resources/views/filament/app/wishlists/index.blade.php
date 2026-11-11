@@ -77,15 +77,29 @@
                             {{ $canEdit ? __('wishlists.editable') : __('wishlists.read_only') }}
                         </x-filament::badge>
                     </div>
-                    <div class="flex flex-wrap gap-2">
+                    <div class="flex flex-wrap items-center gap-2">
                         @if ($canEdit)
-                            <x-filament::button color="gray" size="sm" icon="heroicon-o-bookmark" wire:click="setQuickTarget">
+                            <x-filament::button color="gray" size="md" icon="heroicon-o-bookmark" wire:click="setQuickTarget">
                                 {{ __('wishlists.use_target') }}
                             </x-filament::button>
                         @endif
-                        {{ $this->renameWishlistAction }}
-                        {{ $this->shareWishlistAction }}
-                        {{ $this->transferOwnershipAction }}
+                        @if ($this->shareWishlistAction->isVisible() || $this->transferOwnershipAction->isVisible() || $this->renameWishlistAction->isVisible())
+                            <x-filament-actions::group
+                                :actions="[
+                                    $this->shareWishlistAction,
+                                    $this->transferOwnershipAction,
+                                    $this->renameWishlistAction,
+                                ]"
+                                button
+                                icon="heroicon-o-chevron-down"
+                                icon-position="after"
+                                :label="__('general.more')"
+                                :tooltip="__('general.more')"
+                                color="gray"
+                                size="md"
+                                dropdown-placement="bottom-end"
+                            />
+                        @endif
                         {{ $this->deleteWishlistAction }}
                     </div>
                     <div class="flex flex-wrap items-center gap-3">

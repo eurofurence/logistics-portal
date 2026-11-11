@@ -30,6 +30,11 @@ class ManageDepartmentMembers extends Page implements HasTable
 
     protected string $view = 'filament.app.pages.manage-department-members';
 
+    public static function getNavigationGroup(): string
+    {
+        return __('department_members.title');
+    }
+
     public static function getNavigationLabel(): string
     {
         return __('department_members.title');

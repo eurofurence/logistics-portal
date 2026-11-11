@@ -13,7 +13,10 @@ use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Notifications\Channels\MailChannel;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -221,7 +224,7 @@ test('uploads a separate email logo and falls back to the site logo when removed
         ->toContain(route('branding.logo', ['v' => hash('sha256', $siteLogo)], false))
         ->not->toContain($emailLogoUrl);
     $notification = new GeneralNotification(username: $user->name, details_title: 'Bill', details_link: 'https://example.com', details_link_title: 'Show');
-    expect((string) $notification->toMail($user)->render())->toContain($emailLogoUrl);
+    expect(str_replace(["\r", "\n"], '', (string) $notification->toMail($user)->render()))->toContain('data:image/png;base64,'.base64_encode(Storage::disk('site-assets')->get($settings->email_logo)));
 
     Livewire::test(ManageTheme::class)
         ->fillForm(['email_logo' => null])
@@ -231,8 +234,8 @@ test('uploads a separate email logo and falls back to the site logo when removed
     $settings->refresh();
     expect($settings->email_logo)->toBeNull();
     expect($settings->logo)->toBe($siteLogo);
-    expect((string) $notification->toMail($user)->render())
-        ->toContain(Storage::disk('site-assets')->url($siteLogo))
+    expect(str_replace(["\r", "\n"], '', (string) $notification->toMail($user)->render()))
+        ->toContain('data:image/png;base64,'.base64_encode(Storage::disk('site-assets')->get($siteLogo)))
         ->not->toContain($emailLogoUrl);
 });
 
@@ -241,8 +244,69 @@ test('uses the default logo in emails when neither logo is configured', function
     $user = User::factory()->make();
     $notification = new GeneralNotification(username: $user->name, details_title: 'Bill', details_link: 'https://example.com', details_link_title: 'Show');
 
-    expect((string) $notification->toMail($user)->render())->toContain(asset('images/logo-round-filled.png'));
+    expect(str_replace(["\r", "\n"], '', (string) $notification->toMail($user)->render()))->toContain('data:image/png;base64,'.base64_encode(file_get_contents(public_path('images/logo-round-filled.png'))));
 });
+
+test('embeds the selected email logo in the outgoing MIME message', function () {
+    config(['filesystems.default' => 'site-assets', 'mail.default' => 'array']);
+    Storage::fake('site-assets');
+    $image = file_get_contents(public_path('images/logo-round.png'));
+    Storage::disk('site-assets')->put('email_logo/mail.png', $image);
+    ThemeSettings::fake(['email_logo' => 'email_logo/mail.png', 'logo' => null]);
+    $user = User::factory()->make();
+    $notification = new GeneralNotification(username: $user->name);
+
+    $sent = app(MailChannel::class)->send($user, $notification);
+    $email = $sent->getSymfonySentMessage()->getOriginalMessage();
+    $attachments = $email->getAttachments();
+
+    expect($attachments)->toHaveCount(1);
+    expect($attachments[0]->getDisposition())->toBe('inline');
+    expect($attachments[0]->getContentType())->toBe('image/png');
+    expect($attachments[0]->getBody())->toBe($image);
+    expect($email->getHtmlBody())->toContain('cid:'.$attachments[0]->getContentId());
+});
+
+test('falls back from unavailable email logos', function (string $failure, bool $hasSiteLogo) {
+    config(['filesystems.default' => 'site-assets']);
+    Storage::fake('site-assets');
+    $siteImage = file_get_contents(public_path('images/logo-round.png'));
+    Storage::disk('site-assets')->put('site_logo/site.png', $siteImage);
+    ThemeSettings::fake([
+        'email_logo' => 'email_logo/mail.png',
+        'logo' => $hasSiteLogo ? 'site_logo/site.png' : 'site_logo/missing.png',
+    ]);
+
+    if ($failure === 'invalid') {
+        Storage::disk('site-assets')->put('email_logo/mail.png', 'invalid image');
+    }
+
+    if (in_array($failure, ['unreadable', 'exception'], true)) {
+        $disk = Storage::disk('site-assets');
+        $unreadableDisk = Mockery::mock(FilesystemAdapter::class);
+        $unreadableDisk->shouldReceive('exists')->with('email_logo/mail.png')->once()->andReturnTrue();
+
+        if ($failure === 'exception') {
+            Exceptions::fake();
+            $unreadableDisk->shouldReceive('get')->with('email_logo/mail.png')->once()->andThrow(new RuntimeException('Storage unavailable'));
+        } else {
+            $unreadableDisk->shouldReceive('get')->with('email_logo/mail.png')->once()->andReturnNull();
+        }
+
+        Storage::shouldReceive('disk')->andReturn($unreadableDisk, $disk);
+    }
+
+    $user = User::factory()->make();
+    $notification = new GeneralNotification(username: $user->name);
+    $expectedImage = $hasSiteLogo ? $siteImage : file_get_contents(public_path('images/logo-round-filled.png'));
+
+    expect(str_replace(["\r", "\n"], '', (string) $notification->toMail($user)->render()))
+        ->toContain('data:image/png;base64,'.base64_encode($expectedImage));
+
+    if ($failure === 'exception') {
+        Exceptions::assertReported(RuntimeException::class);
+    }
+})->with(['missing', 'invalid', 'unreadable', 'exception'])->with([true, false]);
 
 test('rejects invalid email logo uploads', function (string $filename, int $size, string $mimeType) {
     config(['filesystems.default' => 'site-assets']);

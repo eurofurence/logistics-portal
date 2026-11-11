@@ -4,6 +4,7 @@ namespace App\Settings;
 
 use Illuminate\Support\Facades\Storage;
 use Spatie\LaravelSettings\Settings;
+use Throwable;
 
 class ThemeSettings extends Settings
 {
@@ -69,6 +70,41 @@ class ThemeSettings extends Settings
     public function emailLogoUrl(): string
     {
         return $this->email_logo ? Storage::disk()->url($this->email_logo) : $this->logoUrl();
+    }
+
+    /**
+     * @return array{data: string, mime: string}|null
+     */
+    public function emailLogoData(): ?array
+    {
+        foreach (array_unique(array_filter([$this->email_logo, $this->logo])) as $path) {
+            try {
+                $disk = Storage::disk();
+
+                if (! $disk->exists($path)) {
+                    continue;
+                }
+
+                $data = $disk->get($path);
+                $image = is_string($data) ? @getimagesizefromstring($data) : false;
+
+                if ($image !== false) {
+                    return ['data' => $data, 'mime' => $image['mime']];
+                }
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        }
+
+        $path = public_path('images/logo-round-filled.png');
+
+        if (! is_readable($path)) {
+            return null;
+        }
+
+        $data = file_get_contents($path);
+
+        return $data === false ? null : ['data' => $data, 'mime' => 'image/png'];
     }
 
     public static function group(): string
