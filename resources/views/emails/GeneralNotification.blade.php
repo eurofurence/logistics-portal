@@ -87,7 +87,7 @@
               <div style="font-size: 24px; line-height: 24px; height: 24px;">&nbsp; </div>
               <div class="o_px-xs o_sans o_text o_left o_xs-center" style="font-family: Helvetica, Arial, sans-serif;margin-top: 0px;margin-bottom: 0px;font-size: 16px;line-height: 24px;text-align: left;padding-left: 8px;padding-right: 8px;">
                 @if($emailLogo !== null)
-                <p style="margin-top: 0px;margin-bottom: 0px;"><a class="o_text-primary" href="{{ url('/') }}" style="text-decoration: none;outline: none;color: {{ $emailColors['primary'] }};"><img src="{{ $message->embedData($emailLogo['data'], 'email-logo', $emailLogo['mime']) }}" width="180" alt="logo" style="width: 180px;max-width: 100%;-ms-interpolation-mode: bicubic;vertical-align: middle;border: 0;line-height: 100%;height: auto;outline: none;text-decoration: none;"></a></p>
+                <p style="margin-top: 0px;margin-bottom: 0px;"><a class="o_text-primary" href="{{ url('/') }}" style="text-decoration: none;outline: none;color: {{ $emailColors['primary'] }};"><img src="{{ $message->embedData($emailLogo['data'], 'email-logo', $emailLogo['mime']) }}" width="{{ $emailLogo['width'] }}" height="{{ $emailLogo['height'] }}" alt="logo" style="width: {{ $emailLogo['width'] }}px;height: {{ $emailLogo['height'] }}px;max-width: 180px;max-height: 64px;-ms-interpolation-mode: bicubic;vertical-align: middle;border: 0;line-height: 100%;outline: none;text-decoration: none;"></a></p>
                 @endif
               </div>
             </div>

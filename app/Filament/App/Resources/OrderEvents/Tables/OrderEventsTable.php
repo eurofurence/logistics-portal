@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources\OrderEvents\Tables;
 
+use App\Actions\LinkedRecordDeleteActions;
 use App\Models\OrderEvent;
 use App\Services\ApplicationTime;
 use Exception;
@@ -83,7 +84,7 @@ class OrderEventsTable
         return [
             ActionGroup::make([
                 EditAction::make(),
-                DeleteAction::make()
+                LinkedRecordDeleteActions::single(DeleteAction::make())
                     ->modalHeading(function ($record): string {
                         return __('general.delete').': '.$record->name;
                     }),
@@ -96,7 +97,7 @@ class OrderEventsTable
     {
         return [
             BulkActionGroup::make([
-                DeleteBulkAction::make()
+                LinkedRecordDeleteActions::bulk(DeleteBulkAction::make())
                     ->visible(Gate::check('bulkDelete', OrderEvent::class)),
                 RestoreBulkAction::make()
                     ->visible(Gate::check('bulkRestore', OrderEvent::class)),

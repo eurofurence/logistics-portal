@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Departments\Tables;
 
+use App\Actions\LinkedRecordDeleteActions;
 use App\Models\Department;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
@@ -59,11 +60,11 @@ class DepartmentsTable
         return [
             ActionGroup::make([
                 EditAction::make(),
-                DeleteAction::make()
+                LinkedRecordDeleteActions::single(DeleteAction::make())
                     ->modalHeading(function ($record): string {
                         return __('general.delete').': '.$record->name;
                     }),
-                ForceDeleteAction::make(),
+                LinkedRecordDeleteActions::single(ForceDeleteAction::make()),
                 RestoreAction::make(),
             ]),
         ];
@@ -73,7 +74,7 @@ class DepartmentsTable
     {
         return [
             BulkActionGroup::make([
-                DeleteBulkAction::make()
+                LinkedRecordDeleteActions::bulk(DeleteBulkAction::make())
                     ->visible(Gate::check('bulkDelete', Department::class)),
                 RestoreBulkAction::make()
                     ->visible(Gate::check('bulkRestore', Department::class)),

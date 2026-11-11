@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Departments\Pages;
 
+use App\Actions\LinkedRecordDeleteActions;
 use App\Filament\Admin\Resources\Departments\DepartmentResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
@@ -15,11 +16,11 @@ class EditDepartment extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make()
+            LinkedRecordDeleteActions::single(DeleteAction::make())
                 ->modalHeading(function ($record): string {
                     return __('general.delete').': '.$record->name;
                 }),
-            ForceDeleteAction::make(),
+            LinkedRecordDeleteActions::single(ForceDeleteAction::make()),
             RestoreAction::make(),
         ];
     }

@@ -73,7 +73,7 @@ class ThemeSettings extends Settings
     }
 
     /**
-     * @return array{data: string, mime: string}|null
+     * @return array{data: string, mime: string, width: int, height: int}|null
      */
     public function emailLogoData(): ?array
     {
@@ -86,10 +86,10 @@ class ThemeSettings extends Settings
                 }
 
                 $data = $disk->get($path);
-                $image = is_string($data) ? @getimagesizefromstring($data) : false;
+                $logo = is_string($data) ? $this->formatEmailLogo($data) : null;
 
-                if ($image !== false) {
-                    return ['data' => $data, 'mime' => $image['mime']];
+                if ($logo !== null) {
+                    return $logo;
                 }
             } catch (Throwable $exception) {
                 report($exception);
@@ -104,7 +104,28 @@ class ThemeSettings extends Settings
 
         $data = file_get_contents($path);
 
-        return $data === false ? null : ['data' => $data, 'mime' => 'image/png'];
+        return $data === false ? null : $this->formatEmailLogo($data);
+    }
+
+    /**
+     * @return array{data: string, mime: string, width: int, height: int}|null
+     */
+    private function formatEmailLogo(string $data): ?array
+    {
+        $image = @getimagesizefromstring($data);
+
+        if ($image === false || $image[0] < 1 || $image[1] < 1) {
+            return null;
+        }
+
+        $scale = min(1, 180 / $image[0], 64 / $image[1]);
+
+        return [
+            'data' => $data,
+            'mime' => $image['mime'],
+            'width' => max(1, (int) floor($image[0] * $scale)),
+            'height' => max(1, (int) floor($image[1] * $scale)),
+        ];
     }
 
     public static function group(): string

@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'linked_record_delete_blocked' => 'Cannot delete: Linked records still exist, including records in the trash.',
+    'linked_records_skipped' => ':count records were not deleted because linked records still exist.',
     'bill_status_transition' => 'The status of your bill changed from :from to :to.',
     'bill_comment_login_notice' => 'A comment is available for this bill. Please log in and review the comments on your bill.',
     'order_approval_reminder' => 'Pending order approvals: :count new orders',

@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'linked_record_delete_blocked' => 'Löschen nicht möglich: Es bestehen noch Verknüpfungen, auch zu Einträgen im Papierkorb.',
+    'linked_records_skipped' => ':count Einträge wurden wegen bestehender Verknüpfungen nicht gelöscht.',
     'bill_status_transition' => 'Der Status deiner Bill wurde von :from zu :to geändert.',
     'bill_comment_login_notice' => 'Zu dieser Bill ist ein Kommentar vorhanden. Bitte melde dich an und beachte die Kommentare zu deiner Bill.',
     'order_approval_reminder' => 'Offene Genehmigungen: :count neue Bestellungen',

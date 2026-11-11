@@ -15,7 +15,7 @@
 
 <span
     {{ $attributes->class(['fi-logo']) }}
-    style="display: inline-flex; align-items: center; justify-content: center; height: 3rem; min-width: 3rem"
+    style="display: flex; align-items: center; justify-content: center; height: 3rem; min-width: 3rem"
     role="img"
     aria-label="{{ $brandName }}"
     x-data="{ logoAvailable: false }"

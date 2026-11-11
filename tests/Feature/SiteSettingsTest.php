@@ -247,6 +247,25 @@ test('uses the default logo in emails when neither logo is configured', function
     expect(str_replace(["\r", "\n"], '', (string) $notification->toMail($user)->render()))->toContain('data:image/png;base64,'.base64_encode(file_get_contents(public_path('images/logo-round-filled.png'))));
 });
 
+test('bounds email logos proportionally without enlarging small images', function (int $width, int $height, int $expectedWidth, int $expectedHeight) {
+    config(['filesystems.default' => 'site-assets']);
+    Storage::fake('site-assets');
+    Storage::disk('site-assets')->put('email_logo/sized.png', UploadedFile::fake()->image('logo.png', $width, $height)->get());
+    ThemeSettings::fake(['email_logo' => 'email_logo/sized.png']);
+    $user = User::factory()->make();
+
+    $html = (string) (new GeneralNotification(username: $user->name))->toMail($user)->render();
+
+    expect($html)
+        ->toContain('width="'.$expectedWidth.'" height="'.$expectedHeight.'" alt="logo"')
+        ->toContain('width: '.$expectedWidth.'px;height: '.$expectedHeight.'px;max-width: 180px;max-height: 64px;');
+})->with([
+    'square' => [500, 500, 64, 64],
+    'wide' => [900, 200, 180, 40],
+    'tall' => [200, 800, 16, 64],
+    'small' => [32, 24, 32, 24],
+]);
+
 test('embeds the selected email logo in the outgoing MIME message', function () {
     config(['filesystems.default' => 'site-assets', 'mail.default' => 'array']);
     Storage::fake('site-assets');
