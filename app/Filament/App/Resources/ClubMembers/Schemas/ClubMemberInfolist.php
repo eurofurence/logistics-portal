@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources\ClubMembers\Schemas;
 
+use App\Filament\App\Resources\ClubMembers\RelationManagers\ChangesRelationManager;
 use App\Models\ClubMember;
 use App\Services\ClubMemberFiles;
 use Filament\Infolists\Components\TextEntry;
@@ -32,6 +33,7 @@ class ClubMemberInfolist
                         ->hiddenLabel()->state(ClubMemberFiles::originalName($media))
                         ->url(route('club-members.files.download', ['member' => $record->id, 'media' => $media->id])))->all()
                     : []),
+                ChangesRelationManager::makeTab(),
             ]),
         ]);
     }

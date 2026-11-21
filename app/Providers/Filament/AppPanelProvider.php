@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Admin\Pages\HealthCheckResults;
+use App\Filament\App\Resources\ClubMembers\RelationManagers\ChangesRelationManager;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Pages\Auth\SettingsAppAuthentication;
@@ -61,6 +62,7 @@ class AppPanelProvider extends PanelProvider
                 return ['primary' => $primaryColor];
             })
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')
+            ->livewireComponents([ChangesRelationManager::class])
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
             ->pages([
                 Dashboard::class,

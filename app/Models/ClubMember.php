@@ -9,6 +9,8 @@ use Database\Factories\ClubMemberFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use Spatie\MediaLibrary\HasMedia;
@@ -24,6 +26,8 @@ class ClubMember extends Model implements HasMedia
     public const TEXT_FIELDS = ['sona_name', 'first_name', 'last_name', 'street_address', 'postal_code', 'city', 'country', 'email', 'phone', 'comment'];
 
     public const DATE_FIELDS = ['birth_date', 'joined_at', 'left_at'];
+
+    public const PROFILE_FIELDS = ['sona_name', 'first_name', 'last_name', 'street_address', 'postal_code', 'city', 'country', 'phone', 'birth_date'];
 
     protected $fillable = [...self::TEXT_FIELDS, ...self::DATE_FIELDS];
 
@@ -101,11 +105,30 @@ class ClubMember extends Model implements HasMedia
     {
         $today = ApplicationTime::now()->toDateString();
 
+        if ($this->joined_at === null) {
+            return 'missing_joined_at';
+        }
+
         if ($this->joined_at->toDateString() > $today) {
             return 'planned';
         }
 
         return $this->left_at && $this->left_at->toDateString() <= $today ? 'departed' : 'active';
+    }
+
+    public function canUsePortal(): bool
+    {
+        return ! $this->trashed() && $this->membershipStatus() === 'active';
+    }
+
+    public function portalAccount(): HasOne
+    {
+        return $this->hasOne(ClubMemberAccount::class);
+    }
+
+    public function changes(): HasMany
+    {
+        return $this->hasMany(ClubMemberChange::class);
     }
 
     public function scopeMembershipStatus(Builder $query, string $status): Builder

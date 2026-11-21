@@ -14,6 +14,8 @@ class ThemeSettings extends Settings
 
     public ?string $email_logo = null;
 
+    public ?string $member_login_logo = null;
+
     public ?string $favicon = null;
 
     public ?string $social_image = null;

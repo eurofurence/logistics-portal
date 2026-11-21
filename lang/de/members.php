@@ -21,6 +21,7 @@ return [
     'comment' => 'Kommentar',
     'status' => 'Status',
     'planned' => 'Geplant',
+    'missing_joined_at' => 'Eintrittsdatum fehlt',
     'active' => 'Aktiv',
     'departed' => 'Ausgetreten',
     'from' => 'Von',

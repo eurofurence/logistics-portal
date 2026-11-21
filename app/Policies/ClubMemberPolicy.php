@@ -47,6 +47,17 @@ class ClubMemberPolicy
         return ! $member->trashed() && $this->view($user, $member) && $user->checkPermissionTo('manage-files-ClubMember');
     }
 
+    public function sendPortalInvitation(User $user, ClubMember $member): bool
+    {
+        return $member->canUsePortal() && $this->view($user, $member) && $this->viewAny($user)
+            && $user->checkPermissionTo('send-portal-invitation-ClubMember');
+    }
+
+    public function viewHistory(User $user, ClubMember $member): bool
+    {
+        return $this->view($user, $member) && $this->viewAny($user) && $user->checkPermissionTo('view-history-ClubMember');
+    }
+
     public function forceDelete(User $user, ClubMember $member): bool
     {
         return false;

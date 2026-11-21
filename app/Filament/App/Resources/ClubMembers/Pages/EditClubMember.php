@@ -3,12 +3,15 @@
 namespace App\Filament\App\Resources\ClubMembers\Pages;
 
 use App\Filament\App\Resources\ClubMembers\Actions\SendClubMemberEmail;
+use App\Filament\App\Resources\ClubMembers\Actions\SendClubMemberInvitation;
 use App\Filament\App\Resources\ClubMembers\ClubMemberResource;
+use App\Services\UpdateClubMember;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Model;
 
 class EditClubMember extends EditRecord
 {
@@ -20,8 +23,15 @@ class EditClubMember extends EditRecord
             ViewAction::make()->icon('heroicon-o-eye'),
             DeleteAction::make()->icon('heroicon-o-trash'),
             SendClubMemberEmail::make(),
+            SendClubMemberInvitation::make(),
+            SendClubMemberInvitation::makeReset(),
             RestoreAction::make()->icon('heroicon-o-arrow-uturn-left'),
         ];
+    }
+
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        return app(UpdateClubMember::class)->fromStaff($record, $data, auth()->user());
     }
 
     protected function getSaveFormAction(): Action

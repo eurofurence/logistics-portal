@@ -6,7 +6,9 @@ return new class extends SettingsMigration
 {
     public function up(): void
     {
-        $this->migrator->add('theme.email_logo', null);
+        if (! $this->migrator->exists('theme.email_logo')) {
+            $this->migrator->add('theme.email_logo', null);
+        }
     }
 
     public function down(): void

@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\ClubMembers\Tables;
 
 use App\Filament\App\Resources\ClubMembers\Actions\SendClubMemberEmail;
+use App\Filament\App\Resources\ClubMembers\Actions\SendClubMemberInvitation;
 use App\Models\ClubMember;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\DeleteAction;
@@ -75,6 +76,8 @@ class ClubMembersTable
                     ViewAction::make()->icon('heroicon-o-eye'),
                     EditAction::make()->icon('heroicon-o-pencil-square'),
                     SendClubMemberEmail::make(),
+                    SendClubMemberInvitation::make(),
+                    SendClubMemberInvitation::makeReset(),
                     DeleteAction::make()->icon('heroicon-o-trash'),
                     RestoreAction::make()->icon('heroicon-o-arrow-uturn-left'),
                 ])->label(__('members.actions'))->tooltip(__('members.actions'))->icon('heroicon-o-ellipsis-vertical'),

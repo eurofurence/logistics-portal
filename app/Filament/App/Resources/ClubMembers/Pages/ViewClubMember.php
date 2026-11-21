@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\ClubMembers\Pages;
 
 use App\Filament\App\Resources\ClubMembers\Actions\SendClubMemberEmail;
+use App\Filament\App\Resources\ClubMembers\Actions\SendClubMemberInvitation;
 use App\Filament\App\Resources\ClubMembers\ClubMemberResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -18,6 +19,8 @@ class ViewClubMember extends ViewRecord
         return [
             EditAction::make()->icon('heroicon-o-pencil-square'),
             SendClubMemberEmail::make(),
+            SendClubMemberInvitation::make(),
+            SendClubMemberInvitation::makeReset(),
             DeleteAction::make()->icon('heroicon-o-trash'),
             RestoreAction::make()->icon('heroicon-o-arrow-uturn-left'),
         ];

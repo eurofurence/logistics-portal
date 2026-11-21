@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources\ClubMembers\Schemas;
 
+use App\Filament\App\Resources\ClubMembers\RelationManagers\ChangesRelationManager;
 use App\Models\ClubMember;
 use App\Services\ApplicationTime;
 use App\Services\ClubMemberFiles;
@@ -71,6 +72,7 @@ class ClubMemberForm
                             app(ClubMemberFiles::class)->sync($record, array_values($component->getRawState() ?? []));
                         }),
                 ]),
+                ChangesRelationManager::makeTab(),
             ]),
         ]);
     }

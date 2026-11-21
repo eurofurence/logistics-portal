@@ -194,6 +194,17 @@ test('uploads a site logo and restores the default logo when removed', function 
     expect(app(ThemeSettings::class)->refresh()->logoUrl())->toBe(asset('images/logo-round-filled.png'));
 });
 
+test('preserves the configured email logo when its migration runs again', function () {
+    $settings = app(ThemeSettings::class);
+    $settings->email_logo = 'email_logo/existing.png';
+    $settings->save();
+
+    $migration = require database_path('settings/2026_09_24_130000_add_email_logo_setting.php');
+    $migration->up();
+
+    expect($settings->refresh()->email_logo)->toBe('email_logo/existing.png');
+});
+
 test('uploads a separate email logo and falls back to the site logo when removed', function () {
     config(['filesystems.default' => 'site-assets']);
     Storage::fake('site-assets');

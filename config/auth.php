@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ClubMemberAccount;
 use App\Models\User;
 
 return [
@@ -42,6 +43,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'club_member' => [
+            'driver' => 'session',
+            'provider' => 'club_members',
+        ],
     ],
 
     /*
@@ -65,6 +70,10 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => User::class,
+        ],
+        'club_members' => [
+            'driver' => 'eloquent',
+            'model' => ClubMemberAccount::class,
         ],
 
         // 'users' => [
