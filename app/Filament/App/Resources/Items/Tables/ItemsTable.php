@@ -62,6 +62,7 @@ class ItemsTable
             ->columns(self::getColumns())
             ->filters(self::getFilters())
             ->filtersFormColumns(3)
+            ->recordActionContextMenu()
             ->recordActions(self::getRecordActions())
             ->toolbarActions(self::getToolbarActions())
             ->groups(self::getGroups());

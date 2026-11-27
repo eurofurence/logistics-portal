@@ -5,7 +5,12 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Permission as AppPermission;
 use App\Models\Role as AppRole;
+use App\Settings\LoginSettings;
 use Database\Factories\UserFactory;
+use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthentication;
+use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthenticationRecovery;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasAvatar;
 use Filament\Panel;
@@ -24,6 +29,9 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\PersonalAccessToken;
+use NotificationChannels\WebPush\HasPushSubscriptions;
+use Spatie\LaravelPasskeys\Models\Concerns\HasPasskeys;
+use Spatie\LaravelPasskeys\Models\Concerns\InteractsWithPasskeys;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -91,10 +99,13 @@ use Spatie\Permission\Traits\HasRoles;
  *
  * @mixin \Eloquent
  */
-class User extends Authenticatable implements FilamentUser, HasAvatar
+class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, HasAvatar, HasPasskeys
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasPushSubscriptions;
     use HasRoles;
+    use InteractsWithAppAuthentication, InteractsWithAppAuthenticationRecovery;
+    use InteractsWithPasskeys;
 
     /**
      * The attributes that are mass assignable.
@@ -116,6 +127,7 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         'separated_departments',
         'notification_email',
         'discord_webhook',
+        'two_factor_required',
     ];
 
     /**
@@ -140,11 +152,18 @@ class User extends Authenticatable implements FilamentUser, HasAvatar
         'ex_groups' => 'array',
         'separated_rights' => 'bool',
         'separated_departments' => 'bool',
+        'two_factor_required' => 'bool',
+        'last_wishlist_id' => 'integer',
     ];
 
     public function isSuperAdmin(): bool
     {
         return $this->hasRole('Master');
+    }
+
+    public function requiresTwoFactorAuthentication(): bool
+    {
+        return app(LoginSettings::class)->two_factor_enabled && $this->two_factor_required;
     }
 
     public function canAccessPanel(Panel $panel): bool

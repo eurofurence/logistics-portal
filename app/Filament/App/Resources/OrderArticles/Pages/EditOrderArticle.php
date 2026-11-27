@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources\OrderArticles\Pages;
 
+use App\Actions\RefreshOrderArticleImageAction;
 use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
@@ -20,6 +21,7 @@ class EditOrderArticle extends EditRecord
                     return __('general.delete').': '.$record->name;
                 }),
             ViewAction::make(),
+            RefreshOrderArticleImageAction::make(),
         ];
     }
 }

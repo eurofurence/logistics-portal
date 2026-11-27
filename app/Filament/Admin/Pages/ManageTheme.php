@@ -62,6 +62,17 @@ class ManageTheme extends SettingsPage
                         ->imageEditor()
                         ->acceptedFileTypes(['image/png', 'image/jpeg'])
                         ->maxSize(2048),
+                    FileUpload::make('member_login_logo')
+                        ->label(__('member-portal.settings_logo'))
+                        ->helperText(__('member-portal.settings_logo_help'))
+                        ->disk(fn (): string => config('filesystems.default'))
+                        ->directory('member_login_logo')
+                        ->visibility('public')
+                        ->image()
+                        ->imageEditor()
+                        ->acceptedFileTypes(['image/png', 'image/jpeg', 'image/webp'])
+                        ->maxSize(2048)
+                        ->preventFilePathTampering(allowFilePathUsing: fn (string $file): bool => $file === app(ThemeSettings::class)->member_login_logo),
                     FileUpload::make('favicon')
                         ->label(__('settings.favicon'))
                         ->helperText(__('settings.favicon_help'))
@@ -126,7 +137,13 @@ class ManageTheme extends SettingsPage
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->canAccessPanel(Filament::getPanel('admin')) ?? false;
+        $user = auth()->user();
+        $panel = Filament::getCurrentPanel();
+
+        return $user !== null
+            && $panel?->getId() === 'admin'
+            && $user->canAccessPanel($panel)
+            && $user->can('access-theme-settings');
     }
 
     public function canEdit(): bool

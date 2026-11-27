@@ -2,12 +2,17 @@
 
 namespace App\Filament\App\Resources\OrderArticles\Tables;
 
+use App\Actions\RefreshOrderArticleImageAction;
 use App\Actions\TableOrderAction;
+use App\Actions\WishlistArticleAction;
 use App\Filament\App\Resources\OrderArticles\OrderArticleResource;
+use App\Jobs\CacheOrderArticleImage;
 use App\Jobs\SyncDataToOrderArticleJob;
 use App\Models\OrderArticle;
 use App\Models\OrderCategory;
+use App\Models\Wishlist;
 use App\Services\ApplicationTime;
+use App\Services\WishlistManager;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
@@ -29,9 +34,9 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Support\Colors\Color;
 use Filament\Support\Enums\FontWeight;
 use Filament\Support\Enums\Size;
+use Filament\Support\Enums\TextSize;
 use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Enums\FiltersLayout;
@@ -51,7 +56,16 @@ class OrderArticlesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(function (Builder $query): Builder {
+                $target = Gate::allows('viewAny', Wishlist::class) ? app(WishlistManager::class)->target(Auth::user()) : null;
+
+                return $query->with(['media', 'categorie'])->withExists(['wishlistItems as is_wishlisted' => fn (Builder $query): Builder => $query->where('wishlist_id', $target?->id ?? 0)]);
+            })
+            ->extraAttributes(['class' => 'article-catalog'])
             ->recordTitleAttribute('name')
+            ->recordUrl(fn (OrderArticle $record): ?string => Gate::allows('view', $record)
+                ? OrderArticleResource::getUrl('view', ['record' => $record])
+                : null)
             ->columns(self::getColumns())
             ->filters(self::getFilters(), layout: FiltersLayout::AboveContent)
             ->contentGrid([
@@ -64,6 +78,7 @@ class OrderArticlesTable
                 72,
                 'all',
             ])
+            ->recordActionContextMenu()
             ->recordActions(self::getRecordActions())
             ->toolbarActions(self::getToolbarActions());
     }
@@ -71,45 +86,52 @@ class OrderArticlesTable
     public static function getColumns(): array
     {
         return [
-            Split::make([
-                ImageColumn::make('picture')
-                    ->imageSize(100)
-                    ->grow(false),
-                Stack::make([
-                    TextColumn::make('name')
-                        ->weight(FontWeight::Bold)
-                        ->searchable()
-                        ->sortable(),
-                    TextColumn::make('description')
-                        ->color('gray')
-                        ->limit(100),
-                    TextColumn::make('price_net')
-                        ->label(__('general.price_net'))
-                        ->sortable()
-                        ->formatStateUsing(function (Model $record) {
-                            $priceNet = number_format($record->price_net, 2);
-                            $returningDeposit = number_format($record->returning_deposit, 2);
-                            $currencySymbol = match ($record->currency) {
-                                'EUR' => '€',
-                                'USD' => '$',
-                                default => '€',
-                            };
-
-                            if ($record->returning_deposit > 0) {
-                                return "{$priceNet}{$currencySymbol} <span style='color: gray; font-size: 0.9em;'> + (".__('general.returning_deposit').": {$returningDeposit}{$currencySymbol})</span>";
-                            }
-
-                            return "{$priceNet}{$currencySymbol}";
-                        })
-                        ->html(),
-                    TextColumn::make('article_number')
-                        ->searchable()
-                        ->html()
-                        ->formatStateUsing(function () {
-                            return '';
-                        }),
-                ]),
-            ]),
+            Stack::make([
+                ImageColumn::make('picture_thumbnail_url')
+                    ->label(__('general.picture'))
+                    ->alt(fn (OrderArticle $record): string => $record->name)
+                    ->imageWidth('100%')
+                    ->imageHeight('220px')
+                    ->defaultImageUrl('data:image/svg+xml,'.rawurlencode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180"><rect width="240" height="180" fill="#f3f4f6"/><path d="M80 115l28-30 20 20 15-15 25 25H80z" fill="#9ca3af"/><circle cx="145" cy="65" r="10" fill="#9ca3af"/></svg>'))
+                    ->extraImgAttributes(['class' => 'article-catalog-image'])
+                    ->extraAttributes(['class' => 'article-catalog-image-container']),
+                TextColumn::make('categorie.name')
+                    ->label(__('general.category'))
+                    ->placeholder(__('general.not_set'))
+                    ->badge()
+                    ->color('gray'),
+                TextColumn::make('name')
+                    ->label(__('general.name'))
+                    ->weight(FontWeight::SemiBold)
+                    ->searchable()
+                    ->sortable()
+                    ->wrap()
+                    ->lineClamp(2)
+                    ->extraAttributes(['class' => 'article-catalog-name']),
+                TextColumn::make('description')
+                    ->color('gray')
+                    ->wrap()
+                    ->lineClamp(2)
+                    ->extraAttributes(['class' => 'article-catalog-description']),
+                TextColumn::make('price_net')
+                    ->label(__('general.price_net'))
+                    ->sortable()
+                    ->money(fn (OrderArticle $record): string => $record->currency ?: 'EUR')
+                    ->description(__('general.net'))
+                    ->size(TextSize::Large)
+                    ->weight(FontWeight::Bold)
+                    ->color('primary'),
+                TextColumn::make('returning_deposit')
+                    ->state(fn (OrderArticle $record): ?float => $record->returning_deposit > 0 ? (float) $record->returning_deposit : null)
+                    ->money(fn (OrderArticle $record): string => $record->currency ?: 'EUR')
+                    ->prefix(__('general.additional').' '.__('general.returning_deposit').': ')
+                    ->suffix(' ('.__('general.gross').')')
+                    ->color('gray')
+                    ->extraAttributes(['class' => 'article-catalog-deposit']),
+                TextColumn::make('article_number')
+                    ->searchable()
+                    ->formatStateUsing(fn (): string => ''),
+            ])->space(3),
         ];
     }
 
@@ -175,9 +197,11 @@ class OrderArticlesTable
     {
         return [
             TableOrderAction::make()
+                ->outlined(false)
                 ->button()
                 ->size(Size::ExtraSmall),
             ActionGroup::make([
+                RefreshOrderArticleImageAction::make(),
                 EditAction::make(),
                 DeleteAction::make()
                     ->modalHeading(function ($record): string {
@@ -211,6 +235,7 @@ class OrderArticlesTable
                 ->modalWidth(Width::ExtraLarge)
                 ->modalSubmitAction(false)
                 ->modalCancelAction(false),
+            WishlistArticleAction::make(),
         ];
     }
 
@@ -218,6 +243,32 @@ class OrderArticlesTable
     {
         return [
             BulkActionGroup::make([
+                BulkAction::make('refreshArticleImages')
+                    ->label(__('article_images.refresh_bulk'))
+                    ->icon('heroicon-o-arrow-path')
+                    ->authorize(fn (): bool => auth()->user()->checkPermissionTo('refresh-image-OrderArticle') || auth()->user()->isSuperAdmin())
+                    ->authorizeIndividualRecords('refreshImage')
+                    ->requiresConfirmation()
+                    ->deselectRecordsAfterCompletion()
+                    ->action(function (Collection $records): void {
+                        $queuedCount = 0;
+
+                        foreach ($records as $record) {
+                            $article = OrderArticle::find($record->id);
+
+                            if (! $article || Gate::denies('refreshImage', $article)) {
+                                continue;
+                            }
+
+                            CacheOrderArticleImage::dispatch($article->id, $article->picture)->afterCommit();
+                            $queuedCount++;
+                        }
+
+                        Notification::make()
+                            ->title(__('article_images.queued_bulk', ['count' => $queuedCount]))
+                            ->success()
+                            ->send();
+                    }),
                 DeleteBulkAction::make()
                     ->visible(Gate::check('bulkDelete', OrderArticle::class)),
                 RestoreBulkAction::make()

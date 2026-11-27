@@ -3,10 +3,14 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Admin\Pages\HealthCheckResults;
+use App\Filament\App\Resources\ClubMembers\RelationManagers\ChangesRelationManager;
 use App\Filament\Pages\Auth\EditProfile;
 use App\Filament\Pages\Auth\Login;
+use App\Filament\Pages\Auth\SettingsAppAuthentication;
 use App\Filament\Pages\Dashboard;
+use App\Filament\PanelSpotlightPlugin;
 use App\Http\Middleware\CheckWhitelist;
+use App\Http\Middleware\EnsureRequiredTwoFactorAuthentication;
 use App\Http\Middleware\UserIsLocked;
 use App\Settings\GeneralSettings;
 use App\Settings\ThemeSettings;
@@ -32,7 +36,6 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 use MartinPetricko\FilamentSentryFeedback\Entities\SentryUser;
 use MartinPetricko\FilamentSentryFeedback\FilamentSentryFeedbackPlugin;
 use Njxqlus\FilamentProgressbar\FilamentProgressbarPlugin;
-use pxlrbt\FilamentSpotlight\SpotlightPlugin;
 use SalmanAlmajali\JokesWidget\JokesWidget;
 use ShuvroRoy\FilamentSpatieLaravelHealth\FilamentSpatieLaravelHealthPlugin;
 use TomatoPHP\FilamentDeveloperGate\FilamentDeveloperGatePlugin;
@@ -47,6 +50,8 @@ class AppPanelProvider extends PanelProvider
             ->brandName(fn (): string => app(GeneralSettings::class)->displayName())
             ->favicon(fn (): string => app(ThemeSettings::class)->faviconUrl())
             ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('components.site-meta'))
+            ->renderHook(PanelsRenderHook::HEAD_END, fn (): View => view('components.pwa'))
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): View => view('components.push-notifications'))
             ->colors(function (): array {
                 try {
                     $primaryColor = app(ThemeSettings::class)->primary_color;
@@ -57,13 +62,14 @@ class AppPanelProvider extends PanelProvider
                 return ['primary' => $primaryColor];
             })
             ->discoverResources(in: app_path('Filament/App/Resources'), for: 'App\\Filament\\App\\Resources')
+            ->livewireComponents([ChangesRelationManager::class])
             ->discoverPages(in: app_path('Filament/App/Pages'), for: 'App\\Filament\\App\\Pages')
             ->pages([
                 Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/App/Widgets'), for: 'App\\Filament\\App\\Widgets')
             ->discoverClusters(in: app_path('Filament/Clusters'), for: 'App\\Filament\\Clusters')
-            // ->viteTheme('resources/css/filament/app/theme.css')
+            ->viteTheme('resources/css/filament/app/theme.css')
             ->widgets([
                 AccountWidget::class,
                 // JokesWidget::make(),
@@ -86,7 +92,7 @@ class AppPanelProvider extends PanelProvider
                 FilamentProgressbarPlugin::make()->color('#29b'),
                 FilamentSpatieLaravelHealthPlugin::make()
                     ->usingPage(HealthCheckResults::class),
-                SpotlightPlugin::make(),
+                PanelSpotlightPlugin::make(),
                 GlobalSearchModalPlugin::make(),
                 FilamentDeveloperGatePlugin::make(),
                 FilamentSentryFeedbackPlugin::make()
@@ -124,6 +130,9 @@ class AppPanelProvider extends PanelProvider
                     ->sort(100), // Ganz nach unten in der Liste
             ])
             ->login(Login::class)
+            ->renderHook(PanelsRenderHook::AUTH_LOGIN_FORM_AFTER, fn (): View => view('components.passkey-login'), scopes: Login::class)
+            ->multiFactorAuthentication([SettingsAppAuthentication::make()->recoverable()], isRequired: true)
+            ->multiFactorAuthenticationRequiredMiddlewareName(EnsureRequiredTwoFactorAuthentication::class)
             ->passwordReset()
             // ->emailVerification()
             // ->registration()

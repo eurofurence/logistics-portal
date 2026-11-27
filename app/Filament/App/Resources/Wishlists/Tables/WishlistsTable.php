@@ -3,6 +3,7 @@
 namespace App\Filament\App\Resources\Wishlists\Tables;
 
 use App\Models\Wishlist;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -17,8 +18,7 @@ class WishlistsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->query(Wishlist::query()->where('user_id', Auth::id())
-                ->orWhereHas('sharedUsers', fn ($q) => $q->where('user_id', Auth::id())))
+            ->query(Wishlist::query()->accessibleTo(Auth::user()))
             ->columns([
                 TextColumn::make('name')
                     ->label(__('general.name')),
@@ -29,13 +29,16 @@ class WishlistsTable
             ->filters([
                 //
             ])
+            ->recordActionContextMenu()
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make()->requiresConfirmation(),
+                ActionGroup::make([
+                    EditAction::make(),
+                    DeleteAction::make()->requiresConfirmation(),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()->authorizeIndividualRecords('delete'),
                 ]),
             ]);
     }

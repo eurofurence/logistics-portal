@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\Whitelists\Tables;
 
 use App\Models\Whitelist;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -19,6 +20,7 @@ class WhitelistsTable
         return $table
             ->columns(self::getColumns())
             ->filters(self::getFilters())
+            ->recordActionContextMenu()
             ->recordActions(self::getRecordActions())
             ->toolbarActions(self::getToolbarActions());
     }
@@ -42,11 +44,13 @@ class WhitelistsTable
     public static function getRecordActions(): array
     {
         return [
-            EditAction::make(),
-            DeleteAction::make()
-                ->modalHeading(function ($record): string {
-                    return __('general.delete').': '.$record->email;
-                }),
+            ActionGroup::make([
+                EditAction::make(),
+                DeleteAction::make()
+                    ->modalHeading(function ($record): string {
+                        return __('general.delete').': '.$record->email;
+                    }),
+            ]),
         ];
     }
 

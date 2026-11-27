@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Filament\Pages\Auth\ManagePasskeys;
 use App\Http\Responses\LogoutResponse;
+use App\Listeners\RegisterPanelSpotlight;
 use App\Models\Bill;
 use App\Models\Order;
 use App\Models\PersonalAccessToken;
@@ -11,18 +13,24 @@ use App\Observers\OrderObserver;
 use App\Providers\Socialite\SocialiteIdentityProvider;
 use App\Services\ApplicationTime;
 use App\Services\AsinDataService;
+use App\Services\RecordActionContextMenu;
+use Filament\Events\ServingFilament;
 use Filament\Forms\Components\Select;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentColor;
 use Filament\Support\Facades\FilamentTimezone;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Octane\Events\RequestTerminated;
 use Laravel\Sanctum\Sanctum;
 use Laravel\Socialite\Contracts\Factory;
+use Livewire\Livewire;
 use Spatie\CpuLoadHealthCheck\CpuLoadCheck;
 use Spatie\Health\Checks\Checks\CacheCheck;
 use Spatie\Health\Checks\Checks\DatabaseConnectionCountCheck;
@@ -30,7 +38,6 @@ use Spatie\Health\Checks\Checks\DatabaseSizeCheck;
 use Spatie\Health\Checks\Checks\DebugModeCheck;
 use Spatie\Health\Checks\Checks\EnvironmentCheck;
 use Spatie\Health\Checks\Checks\HorizonCheck;
-use Spatie\Health\Checks\Checks\PingCheck;
 use Spatie\Health\Checks\Checks\QueueCheck;
 use Spatie\Health\Checks\Checks\RedisCheck;
 // use Spatie\SecurityAdvisoriesHealthCheck\SecurityAdvisoriesCheck;
@@ -54,6 +61,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Event::listen(ServingFilament::class, [RegisterPanelSpotlight::class, 'handle']);
+        Event::listen(RequestTerminated::class, [RegisterPanelSpotlight::class, 'clear']);
+
+        Livewire::component('profile-passkeys', ManagePasskeys::class);
+
+        Table::macro('recordActionContextMenu', function (): Table {
+            return RecordActionContextMenu::apply($this);
+        });
+
         FilamentTimezone::set(fn (): string => ApplicationTime::timezone());
 
         Select::configureUsing(fn (Select $select) => $select->searchable());

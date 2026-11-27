@@ -97,6 +97,7 @@ class GeneralNotification extends Notification
             ->subject($this->data['data']['subject'])
             ->view('emails.GeneralNotification', array_merge($this->data, [
                 'emailColors' => app(ThemeSettings::class)->emailColors(),
+                'emailLogo' => app(ThemeSettings::class)->emailLogoData(),
             ]));
     }
 

@@ -4,6 +4,7 @@ namespace App\Settings;
 
 use Illuminate\Support\Facades\Storage;
 use Spatie\LaravelSettings\Settings;
+use Throwable;
 
 class ThemeSettings extends Settings
 {
@@ -12,6 +13,8 @@ class ThemeSettings extends Settings
     public ?string $logo = null;
 
     public ?string $email_logo = null;
+
+    public ?string $member_login_logo = null;
 
     public ?string $favicon = null;
 
@@ -69,6 +72,62 @@ class ThemeSettings extends Settings
     public function emailLogoUrl(): string
     {
         return $this->email_logo ? Storage::disk()->url($this->email_logo) : $this->logoUrl();
+    }
+
+    /**
+     * @return array{data: string, mime: string, width: int, height: int}|null
+     */
+    public function emailLogoData(): ?array
+    {
+        foreach (array_unique(array_filter([$this->email_logo, $this->logo])) as $path) {
+            try {
+                $disk = Storage::disk();
+
+                if (! $disk->exists($path)) {
+                    continue;
+                }
+
+                $data = $disk->get($path);
+                $logo = is_string($data) ? $this->formatEmailLogo($data) : null;
+
+                if ($logo !== null) {
+                    return $logo;
+                }
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        }
+
+        $path = public_path('images/logo-round-filled.png');
+
+        if (! is_readable($path)) {
+            return null;
+        }
+
+        $data = file_get_contents($path);
+
+        return $data === false ? null : $this->formatEmailLogo($data);
+    }
+
+    /**
+     * @return array{data: string, mime: string, width: int, height: int}|null
+     */
+    private function formatEmailLogo(string $data): ?array
+    {
+        $image = @getimagesizefromstring($data);
+
+        if ($image === false || $image[0] < 1 || $image[1] < 1) {
+            return null;
+        }
+
+        $scale = min(1, 180 / $image[0], 64 / $image[1]);
+
+        return [
+            'data' => $data,
+            'mime' => $image['mime'],
+            'width' => max(1, (int) floor($image[0] * $scale)),
+            'height' => max(1, (int) floor($image[1] * $scale)),
+        ];
     }
 
     public static function group(): string

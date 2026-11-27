@@ -61,6 +61,10 @@ class UserForm
                         ->label(__('general.comment')),
                     Checkbox::make('locked')
                         ->label(__('general.locked')),
+                    Checkbox::make('two_factor_required')
+                        ->label(__('settings.two_factor_required'))
+                        ->helperText(__('settings.two_factor_required_help'))
+                        ->default(false),
                     Checkbox::make('separated_rights')
                         ->label(__('general.separated_rights')),
                     Checkbox::make('separated_departments')

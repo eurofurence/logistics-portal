@@ -2,6 +2,8 @@
 
 namespace App\Filament\App\Resources\Wishlists\RelationManagers;
 
+use App\Models\WishlistItem;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\AssociateAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
@@ -30,7 +32,8 @@ class ItemsRelationManager extends RelationManager
             ->recordTitleAttribute('article.name')
             ->columns([
                 TextColumn::make('article.name')
-                    ->label(__('general.name')),
+                    ->label(__('general.name'))
+                    ->description(fn (WishlistItem $record): ?string => ! $record->article || $record->article->trashed() ? __('wishlists.no_longer_available') : null),
                 TextColumn::make('article.article_number')
                     ->label(__('general.article_number')),
             ])
@@ -41,12 +44,17 @@ class ItemsRelationManager extends RelationManager
                 // CreateAction::make(), // Creating WishlistItem directly might not make sense without selecting an article
                 // AssociateAction::make(), // Might want to allow associating an existing article?
             ])
+            ->recordActionContextMenu()
             ->recordActions([
-                DeleteAction::make(),
+                ActionGroup::make([
+                    DeleteAction::make()
+                        ->authorize(fn (): bool => auth()->user()->can('manageItems', $this->getOwnerRecord())),
+                ]),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->authorize(fn (): bool => auth()->user()->can('manageItems', $this->getOwnerRecord())),
                 ]),
             ]);
     }

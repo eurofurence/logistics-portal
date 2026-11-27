@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'linked_record_delete_blocked' => 'Löschen nicht möglich: Es bestehen noch Verknüpfungen, auch zu Einträgen im Papierkorb.',
+    'linked_records_skipped' => ':count Einträge wurden wegen bestehender Verknüpfungen nicht gelöscht.',
     'bill_status_transition' => 'Der Status deiner Bill wurde von :from zu :to geändert.',
     'bill_comment_login_notice' => 'Zu dieser Bill ist ein Kommentar vorhanden. Bitte melde dich an und beachte die Kommentare zu deiner Bill.',
     'order_approval_reminder' => 'Offene Genehmigungen: :count neue Bestellungen',
@@ -143,6 +145,10 @@ return [
     'open' => 'Offen',
     'processing' => 'In Bearbeitung',
     'ordered' => 'Bestellt',
+    'partially_delivered' => 'Teilweise geliefert',
+    'delivered_quantity' => 'Bereits ins Lager geliefert',
+    'supplier_delivery_hint' => 'Bisher gelieferte Gesamtmenge angeben, nicht nur die Menge dieser Teillieferung.',
+    'delivery_quantity_complete' => 'Bei vollständiger Lieferung muss die gelieferte Menge der bestellten Menge entsprechen.',
     'delivered' => 'Geliefert',
     'received' => 'Erhalten',
     'ready_for_pickup' => 'Abholbereit',
@@ -433,6 +439,7 @@ return [
         'processing' => 'Die Bestellung befindet sich in aktiver Bearbeitung.',
         'open' => 'Die Bestellung ist noch unbearbeitet.',
         'ordered' => 'Die Bestellung wurde ausgelöst und befindet sich beim Lieferanten in der Ausführung.',
+        'partially_delivered' => 'Ein Teil der bestellten Menge wurde vom Lieferanten geliefert und ist im Lager oder bei einem Helfer angekommen. Die restliche Menge steht noch aus.',
         'delivered' => 'Die Bestellung wurde geliefert. Das bedeutet dass die Bestellung im Lager oder bei einem Helfer angekommen ist und dort weiter bearbeitet wird.',
         'partially_received' => 'Die Bestellung wurde teilweise an den Besteller oder dessen Abteilung ausgegeben.',
         'received' => 'Die Bestellung wurde an den Besteller oder dessen Abteilung ausgegeben.',

@@ -6,6 +6,7 @@ use App\Filament\App\Resources\Orders\OrderResource;
 use App\Filament\App\Resources\Orders\Pages\CreateOrder;
 use App\Forms\Components\Timeline;
 use App\Models\Department;
+use App\Models\Order;
 use App\Models\OrderArticle;
 use App\Models\OrderEvent;
 use App\Models\OrderRequest;
@@ -83,6 +84,8 @@ class OrderForm
                                             ->columnSpanFull(),
                                         Fieldset::make('price_and_amount')
                                             ->schema([
+                                                TextEntry::make('supplier_delivery_progress')->label(__('general.delivered_quantity'))
+                                                    ->state(fn (?Order $record): string => $record?->supplierDeliveryProgress() ?? '—'),
                                                 TextInput::make('amount')
                                                     ->label(__('general.quantity'))
                                                     ->numeric()
@@ -256,6 +259,7 @@ class OrderForm
                                         'open' => __('general.open'),
                                         'ordered' => __('general.ordered'),
                                         'delivered' => __('general.delivered'),
+                                        'partially_delivered' => __('general.partially_delivered'),
                                         'partially_received' => __('general.partially_received'),
                                         'received' => __('general.received'),
                                         'rejected' => __('general.rejected'),
@@ -264,7 +268,12 @@ class OrderForm
                                         'awaiting_approval' => __('general.awaiting_approval'),
                                         'ready_for_pickup' => __('general.ready_for_pickup'),
                                     ])
-                                    ->default('open'),
+                                    ->default('open')->live(),
+                                TextInput::make('delivered_quantity')->label(__('general.delivered_quantity'))
+                                    ->numeric()->rules(['integer'])->minValue(1)
+                                    ->maxValue(fn (Get $get): int => (int) $get('amount') - 1)
+                                    ->visible(fn (Get $get): bool => $get('status') === 'partially_delivered')
+                                    ->required()->helperText(__('general.supplier_delivery_hint')),
                                 Section::make(__('timeline.status_history'))
                                     ->schema([
                                         Timeline::make('status_timeline'),

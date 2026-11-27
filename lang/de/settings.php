@@ -1,6 +1,18 @@
 <?php
 
 return [
+    'passkey_placeholder' => 'Zum Beispiel: Laptop oder Smartphone',
+    'add_passkey' => 'Passkey hinzufügen',
+    'empty_passkeys' => 'Noch keine Passkeys eingerichtet',
+    'empty_passkeys_description' => 'Füge dein erstes Gerät hinzu, um dich bequem ohne Passwort anzumelden.',
+    'passkeys_enabled' => 'Passkey-Anmeldung aktivieren',
+    'passkeys_help' => 'Erlaubt die Anmeldung mit einem registrierten Gerät. Unabhängig von der Zwei-Faktor-Authentifizierung.',
+    'two_factor_title' => 'Zwei-Faktor-Authentifizierung',
+    'two_factor_description' => 'Schütze deine Passwort-Anmeldung mit einem zusätzlichen Code aus deiner Authenticator-App. Wiederherstellungscodes helfen dir, wenn du den Zugriff auf dein Gerät verlierst.',
+    'two_factor_required' => 'Zwei-Faktor-Authentifizierung verpflichtend',
+    'two_factor_required_help' => 'Dieser Benutzer muss eine Authenticator-App einrichten und beim Login verwenden, solange 2FA global aktiviert ist.',
+    'two_factor_enabled' => 'Zwei-Faktor-Authentifizierung aktivieren',
+    'two_factor_help' => 'Erlaubt die Einrichtung einer Authenticator-App mit Wiederherstellungscodes im Benutzerprofil. Gilt für App und Adminbereich.',
     'dashboard_url' => 'Dashboard-Link',
     'dashboard_url_help' => 'Zieladresse der Dashboard-Schaltfläche im App-Menü. Vollständige HTTP- oder HTTPS-Adresse eingeben.',
     'default_locale' => 'Standardsprache',

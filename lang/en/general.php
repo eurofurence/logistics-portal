@@ -1,6 +1,8 @@
 <?php
 
 return [
+    'linked_record_delete_blocked' => 'Cannot delete: Linked records still exist, including records in the trash.',
+    'linked_records_skipped' => ':count records were not deleted because linked records still exist.',
     'bill_status_transition' => 'The status of your bill changed from :from to :to.',
     'bill_comment_login_notice' => 'A comment is available for this bill. Please log in and review the comments on your bill.',
     'order_approval_reminder' => 'Pending order approvals: :count new orders',
@@ -137,6 +139,10 @@ return [
     'open' => 'Open',
     'processing' => 'Processing',
     'ordered' => 'Ordered',
+    'partially_delivered' => 'Partially delivered',
+    'delivered_quantity' => 'Already delivered to warehouse',
+    'supplier_delivery_hint' => 'Enter the cumulative delivered quantity, not just this partial delivery.',
+    'delivery_quantity_complete' => 'For a complete delivery, the delivered quantity must equal the ordered quantity.',
     'delivered' => 'Delivered',
     'received' => 'Received',
     'ready_for_pickup' => 'Ready for pickup',
@@ -429,6 +435,7 @@ return [
         'processing' => 'The order is being actively processed.',
         'open' => 'The order is still unprocessed.',
         'ordered' => 'The order has been placed and is being executed by the supplier.',
+        'partially_delivered' => 'Part of the ordered quantity has been delivered by the supplier and has arrived at the warehouse or with a helper. The remaining quantity is still outstanding.',
         'delivered' => 'The order has been delivered. This means that the order has arrived at the warehouse or with a helper and is being further processed there.',
         'partially_received' => 'The order has been partially issued to the purchaser or their department.',
         'received' => 'The order has been issued to the purchaser or their department.',

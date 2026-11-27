@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\TestModels\Tables;
 
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -15,6 +16,7 @@ class TestModelsTable
         return $table
             ->columns(self::getColumns())
             ->filters(self::getFilters())
+            ->recordActionContextMenu()
             ->recordActions(self::getRecordActions())
             ->toolbarActions(self::getToolbarActions());
     }
@@ -45,7 +47,9 @@ class TestModelsTable
     public static function getRecordActions(): array
     {
         return [
-            EditAction::make(),
+            ActionGroup::make([
+                EditAction::make(),
+            ]),
         ];
     }
 

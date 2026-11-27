@@ -7,6 +7,7 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -28,6 +29,17 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        RateLimiter::for('member-portal-login', fn (Request $request): array => [
+            Limit::perMinute(30)->by($request->ip()),
+            Limit::perMinute(5)->by($this->loginRateLimitKey($request).'|'.$request->ip()),
+        ]);
+        RateLimiter::for('member-portal-reset', fn (Request $request): array => [
+            Limit::perHour(20)->by($request->ip()),
+            Limit::perHour(5)->by($this->loginRateLimitKey($request)),
+        ]);
+        RateLimiter::for('member-portal-token', fn (Request $request): Limit => Limit::perMinute(10)->by($request->ip()));
+        RateLimiter::for('member-portal-security', fn (Request $request): Limit => Limit::perMinute(5)->by($request->ip()));
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')
@@ -36,5 +48,12 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
         });
+    }
+
+    private function loginRateLimitKey(Request $request): string
+    {
+        $loginId = $request->input('login_id');
+
+        return is_string($loginId) ? hash('sha256', Str::lower(trim($loginId))) : 'invalid-login-id';
     }
 }

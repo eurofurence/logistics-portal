@@ -6,3 +6,39 @@
 @source '../../../../vendor/bezhansalleh/filament-panel-switch/resources/views/**/*.blade.php';
 @source '../../../../vendor/awcodes/filament-versions/resources/**/*.blade.php';
 
+.article-catalog {
+    & .fi-ta-content-grid .fi-ta-record {
+        @apply rounded-2xl transition-shadow hover:shadow-md focus-within:ring-2 focus-within:ring-primary-500;
+    }
+
+    & .article-catalog-image-container {
+        @apply w-full;
+    }
+
+    & .article-catalog-image {
+        @apply w-full rounded-xl bg-gray-50 p-4 object-contain dark:bg-gray-900;
+    }
+
+    & .article-catalog-name {
+        min-height: 3rem;
+        overflow-wrap: anywhere;
+    }
+
+    & .article-catalog-description {
+        min-height: 2.5rem;
+        overflow-wrap: anywhere;
+    }
+
+    & .article-catalog-deposit {
+        min-height: 1.25rem;
+    }
+
+    & .fi-ta-content-grid .fi-ta-actions {
+        @apply justify-start gap-2 border-t border-gray-100 dark:border-white/10;
+
+        & > :last-child {
+            margin-inline-start: auto;
+        }
+    }
+}
+

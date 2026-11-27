@@ -6,7 +6,6 @@ use App\Filament\App\Resources\Wishlists\Pages\CreateWishlist;
 use App\Filament\App\Resources\Wishlists\Pages\EditWishlist;
 use App\Filament\App\Resources\Wishlists\Pages\ListWishlists;
 use App\Filament\App\Resources\Wishlists\RelationManagers\ItemsRelationManager;
-use App\Filament\App\Resources\Wishlists\RelationManagers\SharedUsersRelationManager;
 use App\Filament\App\Resources\Wishlists\Schemas\WishlistForm;
 use App\Filament\App\Resources\Wishlists\Tables\WishlistsTable;
 use App\Models\Wishlist;
@@ -15,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class WishlistResource extends Resource
 {
@@ -24,9 +24,19 @@ class WishlistResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    public static function canViewAny(): bool
+    public static function getModelLabel(): string
     {
-        return false;
+        return __('wishlists.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('wishlists.title');
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->accessibleTo(auth()->user());
     }
 
     public static function getNavigationGroup(): string
@@ -49,7 +59,6 @@ class WishlistResource extends Resource
     public static function getRelations(): array
     {
         return [
-            SharedUsersRelationManager::class,
             ItemsRelationManager::class,
         ];
     }

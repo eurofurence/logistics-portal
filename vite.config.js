@@ -7,6 +7,7 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/js/app.js',
+                'resources/js/member-portal.js',
                 'resources/js/components/barcode-scanner.js',
                 'resources/css/filament/admin/theme.css',
                 'resources/css/filament/app/theme.css',

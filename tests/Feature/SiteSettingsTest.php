@@ -13,14 +13,22 @@ use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Notifications\Channels\MailChannel;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 test('updates the dashboard navigation link from general settings', function () {
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
     $dashboard = collect(Filament::getPanel('app')->getNavigationItems())
@@ -38,7 +46,12 @@ test('updates the dashboard navigation link from general settings', function () 
 
 test('rejects invalid dashboard links without changing the saved destination', function (?string $url) {
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -52,7 +65,12 @@ test('rejects invalid dashboard links without changing the saved destination', f
 
 test('allows administrators to select an available default language', function (string $locale) {
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -67,7 +85,12 @@ test('allows administrators to select an available default language', function (
 
 test('rejects missing and unavailable default languages without changing the saved language', function (?string $locale, string $rule) {
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -116,7 +139,12 @@ test('keeps the remembered cookie language ahead of the default language', funct
 
 test('allows administrators to save a timezone and rejects invalid identifiers', function () {
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -139,7 +167,12 @@ test('uploads a site logo and restores the default logo when removed', function 
     config(['filesystems.default' => 'site-assets']);
     Storage::fake('site-assets');
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -151,7 +184,7 @@ test('uploads a site logo and restores the default logo when removed', function 
     $settings = app(ThemeSettings::class)->refresh();
     expect($settings->logo)->toStartWith('site_logo/');
     Storage::disk('site-assets')->assertExists($settings->logo);
-    expect(view('vendor.filament-panels.components.logo')->render())->toContain(Storage::disk('site-assets')->url($settings->logo));
+    expect(view('vendor.filament-panels.components.logo')->render())->toContain(route('branding.logo', ['v' => hash('sha256', $settings->logo)], false));
 
     Livewire::test(ManageTheme::class)
         ->fillForm(['logo' => null])
@@ -161,11 +194,27 @@ test('uploads a site logo and restores the default logo when removed', function 
     expect(app(ThemeSettings::class)->refresh()->logoUrl())->toBe(asset('images/logo-round-filled.png'));
 });
 
+test('preserves the configured email logo when its migration runs again', function () {
+    $settings = app(ThemeSettings::class);
+    $settings->email_logo = 'email_logo/existing.png';
+    $settings->save();
+
+    $migration = require database_path('settings/2026_09_24_130000_add_email_logo_setting.php');
+    $migration->up();
+
+    expect($settings->refresh()->email_logo)->toBe('email_logo/existing.png');
+});
+
 test('uploads a separate email logo and falls back to the site logo when removed', function () {
     config(['filesystems.default' => 'site-assets']);
     Storage::fake('site-assets');
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -183,10 +232,10 @@ test('uploads a separate email logo and falls back to the site logo when removed
     expect($settings->email_logo)->toStartWith('email_logo/');
     Storage::disk('site-assets')->assertExists($settings->email_logo);
     expect(view('vendor.filament-panels.components.logo')->render())
-        ->toContain(Storage::disk('site-assets')->url($siteLogo))
+        ->toContain(route('branding.logo', ['v' => hash('sha256', $siteLogo)], false))
         ->not->toContain($emailLogoUrl);
     $notification = new GeneralNotification(username: $user->name, details_title: 'Bill', details_link: 'https://example.com', details_link_title: 'Show');
-    expect((string) $notification->toMail($user)->render())->toContain($emailLogoUrl);
+    expect(str_replace(["\r", "\n"], '', (string) $notification->toMail($user)->render()))->toContain('data:image/png;base64,'.base64_encode(Storage::disk('site-assets')->get($settings->email_logo)));
 
     Livewire::test(ManageTheme::class)
         ->fillForm(['email_logo' => null])
@@ -196,8 +245,8 @@ test('uploads a separate email logo and falls back to the site logo when removed
     $settings->refresh();
     expect($settings->email_logo)->toBeNull();
     expect($settings->logo)->toBe($siteLogo);
-    expect((string) $notification->toMail($user)->render())
-        ->toContain(Storage::disk('site-assets')->url($siteLogo))
+    expect(str_replace(["\r", "\n"], '', (string) $notification->toMail($user)->render()))
+        ->toContain('data:image/png;base64,'.base64_encode(Storage::disk('site-assets')->get($siteLogo)))
         ->not->toContain($emailLogoUrl);
 });
 
@@ -206,14 +255,99 @@ test('uses the default logo in emails when neither logo is configured', function
     $user = User::factory()->make();
     $notification = new GeneralNotification(username: $user->name, details_title: 'Bill', details_link: 'https://example.com', details_link_title: 'Show');
 
-    expect((string) $notification->toMail($user)->render())->toContain(asset('images/logo-round-filled.png'));
+    expect(str_replace(["\r", "\n"], '', (string) $notification->toMail($user)->render()))->toContain('data:image/png;base64,'.base64_encode(file_get_contents(public_path('images/logo-round-filled.png'))));
 });
+
+test('bounds email logos proportionally without enlarging small images', function (int $width, int $height, int $expectedWidth, int $expectedHeight) {
+    config(['filesystems.default' => 'site-assets']);
+    Storage::fake('site-assets');
+    Storage::disk('site-assets')->put('email_logo/sized.png', UploadedFile::fake()->image('logo.png', $width, $height)->get());
+    ThemeSettings::fake(['email_logo' => 'email_logo/sized.png']);
+    $user = User::factory()->make();
+
+    $html = (string) (new GeneralNotification(username: $user->name))->toMail($user)->render();
+
+    expect($html)
+        ->toContain('width="'.$expectedWidth.'" height="'.$expectedHeight.'" alt="logo"')
+        ->toContain('width: '.$expectedWidth.'px;height: '.$expectedHeight.'px;max-width: 180px;max-height: 64px;');
+})->with([
+    'square' => [500, 500, 64, 64],
+    'wide' => [900, 200, 180, 40],
+    'tall' => [200, 800, 16, 64],
+    'small' => [32, 24, 32, 24],
+]);
+
+test('embeds the selected email logo in the outgoing MIME message', function () {
+    config(['filesystems.default' => 'site-assets', 'mail.default' => 'array']);
+    Storage::fake('site-assets');
+    $image = file_get_contents(public_path('images/logo-round.png'));
+    Storage::disk('site-assets')->put('email_logo/mail.png', $image);
+    ThemeSettings::fake(['email_logo' => 'email_logo/mail.png', 'logo' => null]);
+    $user = User::factory()->make();
+    $notification = new GeneralNotification(username: $user->name);
+
+    $sent = app(MailChannel::class)->send($user, $notification);
+    $email = $sent->getSymfonySentMessage()->getOriginalMessage();
+    $attachments = $email->getAttachments();
+
+    expect($attachments)->toHaveCount(1);
+    expect($attachments[0]->getDisposition())->toBe('inline');
+    expect($attachments[0]->getContentType())->toBe('image/png');
+    expect($attachments[0]->getBody())->toBe($image);
+    expect($email->getHtmlBody())->toContain('cid:'.$attachments[0]->getContentId());
+});
+
+test('falls back from unavailable email logos', function (string $failure, bool $hasSiteLogo) {
+    config(['filesystems.default' => 'site-assets']);
+    Storage::fake('site-assets');
+    $siteImage = file_get_contents(public_path('images/logo-round.png'));
+    Storage::disk('site-assets')->put('site_logo/site.png', $siteImage);
+    ThemeSettings::fake([
+        'email_logo' => 'email_logo/mail.png',
+        'logo' => $hasSiteLogo ? 'site_logo/site.png' : 'site_logo/missing.png',
+    ]);
+
+    if ($failure === 'invalid') {
+        Storage::disk('site-assets')->put('email_logo/mail.png', 'invalid image');
+    }
+
+    if (in_array($failure, ['unreadable', 'exception'], true)) {
+        $disk = Storage::disk('site-assets');
+        $unreadableDisk = Mockery::mock(FilesystemAdapter::class);
+        $unreadableDisk->shouldReceive('exists')->with('email_logo/mail.png')->once()->andReturnTrue();
+
+        if ($failure === 'exception') {
+            Exceptions::fake();
+            $unreadableDisk->shouldReceive('get')->with('email_logo/mail.png')->once()->andThrow(new RuntimeException('Storage unavailable'));
+        } else {
+            $unreadableDisk->shouldReceive('get')->with('email_logo/mail.png')->once()->andReturnNull();
+        }
+
+        Storage::shouldReceive('disk')->andReturn($unreadableDisk, $disk);
+    }
+
+    $user = User::factory()->make();
+    $notification = new GeneralNotification(username: $user->name);
+    $expectedImage = $hasSiteLogo ? $siteImage : file_get_contents(public_path('images/logo-round-filled.png'));
+
+    expect(str_replace(["\r", "\n"], '', (string) $notification->toMail($user)->render()))
+        ->toContain('data:image/png;base64,'.base64_encode($expectedImage));
+
+    if ($failure === 'exception') {
+        Exceptions::assertReported(RuntimeException::class);
+    }
+})->with(['missing', 'invalid', 'unreadable', 'exception'])->with([true, false]);
 
 test('rejects invalid email logo uploads', function (string $filename, int $size, string $mimeType) {
     config(['filesystems.default' => 'site-assets']);
     Storage::fake('site-assets');
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -245,7 +379,12 @@ test('rejects non image logo uploads', function () {
     config(['filesystems.default' => 'site-assets']);
     Storage::fake('site-assets');
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -259,7 +398,12 @@ test('rejects non image logo uploads', function () {
 
 test('saves site identity and seo settings and escapes public metadata', function () {
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -300,7 +444,12 @@ test('uploads site icons and preview images and restores their defaults', functi
     config(['filesystems.default' => 'site-assets']);
     Storage::fake('site-assets');
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
@@ -371,7 +520,12 @@ test('normalizes email colors and selects a readable foreground', function (stri
 test('sends the theme test email only to the signed in administrator using saved settings', function () {
     Notification::fake();
     $user = User::factory()->create(['notification_email' => 'preview@example.com']);
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
     $settings = app(ThemeSettings::class);
@@ -395,7 +549,12 @@ test('sends the theme test email only to the signed in administrator using saved
 
 test('shows a failure notice when the test email cannot be sent', function () {
     $user = User::factory()->create();
-    $user->givePermissionTo(Permission::findOrCreate('access-adminpanel', 'web'));
+    $user->givePermissionTo(
+        Permission::findOrCreate('access-adminpanel', 'web'),
+        Permission::findOrCreate('access-general-settings', 'web'),
+        Permission::findOrCreate('access-theme-settings', 'web'),
+        Permission::findOrCreate('access-login-settings', 'web'),
+    );
     $this->actingAs($user);
     Filament::setCurrentPanel(Filament::getPanel('admin'));
     Notification::shouldReceive('sendNow')->once()->andThrow(new RuntimeException('Mail unavailable'));

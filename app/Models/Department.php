@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\LinkedRecordDeletionGuard;
 use Database\Factories\DepartmentFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -80,6 +81,8 @@ class Department extends Model
     protected static function boot()
     {
         parent::boot();
+
+        static::deleting(fn (Department $department): bool => ! app(LinkedRecordDeletionGuard::class)->hasLinks($department));
 
         static::creating(function ($model) {
             $model->added_by = Auth::user()->id;

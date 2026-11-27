@@ -1,0 +1,96 @@
+name: Build and Upload Release to Docker Hub
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    if: endsWith(github.event.release.tag_name, '-dev') || endsWith(github.event.release.tag_name, '-live')
+    concurrency:
+      group: docker-release-${{ endsWith(github.event.release.tag_name, '-dev') && 'dev' || 'live' }}
+      cancel-in-progress: false
+    steps:
+      - name: Validate release and prepare image
+        id: prep
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          DOCKERHUB_PREFIX: ${{ secrets.DOCKERHUB_PREFIX }}
+        run: |
+          set -euo pipefail
+
+          if [[ ! "$RELEASE_TAG" =~ ^v?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)-(dev|live)$ ]]; then
+            echo "::error::Release tag must match vMAJOR.MINOR.PATCH-dev or vMAJOR.MINOR.PATCH-live without leading zeros."
+            exit 1
+          fi
+
+          major="${BASH_REMATCH[1]}"
+          version="${major}.${BASH_REMATCH[2]}.${BASH_REMATCH[3]}"
+          channel="${BASH_REMATCH[4]}"
+          : "${DOCKERHUB_PREFIX:?DOCKERHUB_PREFIX must be configured}"
+          image="${DOCKERHUB_PREFIX}/${GITHUB_REPOSITORY##*/}"
+          publish_minor=false
+          publish_major=false
+
+          if [[ "$channel" == "dev" ]]; then
+            image="${image}-dev"
+          else
+            publish_minor=true
+            if [[ "$major" != "0" ]]; then
+              publish_major=true
+            fi
+          fi
+
+          {
+            echo "image=${image,,}"
+            echo "version=$version"
+            echo "channel=$channel"
+            echo "publish_minor=$publish_minor"
+            echo "publish_major=$publish_major"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Checkout release
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          persist-credentials: false
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        with:
+          images: ${{ steps.prep.outputs.image }}
+          flavor: latest=false
+          tags: |
+            type=raw,value=${{ github.event.release.tag_name }}
+            type=raw,value=${{ steps.prep.outputs.version }},priority=1000
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.prep.outputs.version }},enable=${{ steps.prep.outputs.publish_minor }}
+            type=semver,pattern={{major}},value=${{ steps.prep.outputs.version }},enable=${{ steps.prep.outputs.publish_major }}
+            type=raw,value=latest
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+
+      - name: Docker Hub login
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push production image
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          file: ./Dockerfile
+          target: production
+          push: true
+          cache-from: type=gha,scope=production-${{ steps.prep.outputs.channel }}
+          cache-to: type=gha,mode=max,scope=production-${{ steps.prep.outputs.channel }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
